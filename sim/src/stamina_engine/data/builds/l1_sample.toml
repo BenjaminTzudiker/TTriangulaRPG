@@ -1,0 +1,5 @@
+# Packet: Sample Character. make_fighter(1, 'sample') in the review's simulator.
+level = 1
+attributes = { STR = 2, AGI = 1, FIN = 1 }
+cores = ["fighter"]
+loadouts.main = { weapon = "longsword", grip = "one", off_hand = "shield", armor = "medium" }

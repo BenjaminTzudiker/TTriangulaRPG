@@ -1,0 +1,6 @@
+# Review: make_fighter(1, 'heavy'). STR 2 is 1 below heavy armor's requirement, so derive()
+# lowers AGI and FIN to 0 (the old simulator applied this by hand).
+level = 1
+attributes = { STR = 2, AGI = 1, FIN = 1 }
+cores = ["fighter"]
+loadouts.main = { weapon = "longsword", grip = "one", off_hand = "shield", armor = "heavy" }

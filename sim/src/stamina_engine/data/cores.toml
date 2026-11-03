@@ -1,0 +1,14 @@
+# Packet: Core Abilities. Proficiency lists are TODO in the packet. Per the Assumptions
+# register (engine convention), the library's Fighter core grants every v0.9 table weapon.
+
+[cores.fighter]
+proficiencies = ["dagger", "shortsword", "longsword", "spear", "greatsword", "greataxe", "shortbow", "longbow"]
+
+[cores.rogue]
+proficiencies = []
+
+[cores.barbarian]
+proficiencies = []
+
+[cores.monk]
+proficiencies = []

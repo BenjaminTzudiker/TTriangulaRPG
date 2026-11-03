@@ -1,0 +1,27 @@
+# Packet: Armor and Shields.
+# agility_step: Agility's Melee and Dodge bonus comes at every Nth point.
+# strength_requirement: -1 AGI and -1 FIN per point of Strength below it.
+
+[armor.none]
+value = 0
+agility_step = 2
+strength_requirement = 0
+
+[armor.light]
+value = 1
+agility_step = 2
+strength_requirement = 0
+
+[armor.medium]
+value = 2
+agility_step = 3
+strength_requirement = 1
+
+[armor.heavy]
+value = 3
+agility_step = 4
+strength_requirement = 3
+
+[shields.shield]
+melee = 2
+ranged = 2

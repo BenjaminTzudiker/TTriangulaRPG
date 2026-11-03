@@ -81,6 +81,7 @@ stamina_engine/
   rules/
     ruleset.py      RuleSet, presets (v0_9, review_candidate, review_sim), with_(), hash, TOML I/O
     registry.py     component registry: (kind, name) -> class
+    plugins.py      load extra variants from a file outside the package (design-chat experiments)
     components/     crit  surcharge  blocks  defenses  resources  wounds  movement
                     off_turn  opportunity  ranged  turn_order  dying  information  grid
     pricing.py      every stamina quote, used by agents and engine alike
@@ -115,7 +116,8 @@ stamina_engine/
   abilities/    framework, class cores, candidate abilities
   analysis/     exact distributions, exchange tables, r-band checker
   experiments/  scenarios, runner, sweeps, metrics, reports, phase suite
-  cli.py        se table | se run | se sweep | se suite | se play | se replay
+  provenance.py the stamp on every result: RuleSet digest, source hash, git, plugins
+  cli.py        se table | se run | se sweep | se suite | se compare | se play | se replay
 tests/          golden/  parity/  oracle/  properties/  geometry/
 ```
 
@@ -193,6 +195,25 @@ Weapon, armor and shield tables are data files, not components, so F8 alternativ
 **Presets:** `v0.9` (as written, plus the review's assumptions for silent rules), `review-candidate` (+2 surcharge, v0.9 crits), and one preset per phase as decisions lock (`phase1`, `phase2`…), so later phases build on what earlier ones settled.
 
 A further `review-sim` preset reproduces the old simulator's quirks for parity runs only: initiative ties go to the first-listed combatant, duels carry no off-turn costs, static tables round the mean roll half to even, and the per-die crit bonus is available for the review's linear-crit runs (see Verification).
+
+### Experiments from design chats
+
+Design chats try rule ideas themselves, so the engine keeps one baseline and makes every other idea cheap to add beside it, never in place of it. `sim/docs/USAGE_FOR_CHATS.md` is the chat-facing version of this.
+
+| Change | How it's tried | What lands in the repo |
+|---|---|---|
+| Numbers, or an existing variant | A RuleSet TOML override (`--ruleset idea.toml`) | Nothing, or the TOML beside a report |
+| A new mechanism that fits a component | A plugin: a file outside the package that registers a variant named `exp_...` (`--plugin idea.py`); taking an existing name is refused | The plugin and TOML beside a report |
+| A procedure or timing change | Engine code on an `exp/<topic>` branch, compared against the commit it started from | A branch or patch; if kept, a PR that adds a component for it |
+
+Variants move from experiment, to candidate (on `main`, in a phase preset), to ruled. Only the designer moves them. A ruled variant becomes the baseline, and the rejected ones are deleted, or kept for parity only if a published result depends on them. Keeping only live candidates on `main` keeps the test matrix and the register small.
+
+**Provenance.** The RuleSet digest identifies the rule configuration, not the code. Every result is therefore also stamped with:
+- a hash of the package's source and data files (`source`), which identifies the implementation even outside git;
+- the git commit and whether the engine's files have uncommitted changes;
+- each plugin file's hash.
+
+`se` prints the stamp after every result, `provenance.collect()` returns it, and the experiment runner (M1) writes it on every result row.
 
 ## Battlefield: grid, reach, sight and pathing
 
@@ -360,7 +381,7 @@ spawn = "1"
 profile = "disciplined_2step"   # one entry per attacker; spawns 1-3
 ```
 
-**Sweeps** take the product of RuleSet overrides, scenarios and agent pairings. Each trial's seed derives from the master seed and the cell, so any single fight can be re-run alone. Trials run across processes; results land in Parquet as three tables (one row per fight, per attack, per decision) with the RuleSet digest and assumption values on every row. Reports print 95% Wilson intervals and reproduce the review's table layouts so old and new numbers sit side by side.
+**Sweeps** take the product of RuleSet overrides, scenarios and agent pairings. Each trial's seed derives from the master seed and the cell, so any single fight can be re-run alone. Trials run across processes; results land in Parquet as three tables (one row per fight, per attack, per decision) with the RuleSet digest, assumption values and provenance stamp on every row. Reports print 95% Wilson intervals and reproduce the review's table layouts so old and new numbers sit side by side.
 
 **Metrics.**
 

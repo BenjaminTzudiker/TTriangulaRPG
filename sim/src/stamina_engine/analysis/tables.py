@@ -134,13 +134,13 @@ def _num(x: Fraction) -> str:
     return str(x.numerator) if x.denominator == 1 else str(float(x))
 
 
-def render_table1(t: Table1, rules: RuleSet, rounding: Rounding) -> str:
+def render_table1(t: Table1, rounding: Rounding) -> str:
     ks = max(len(r.costs) for r in t.rows)
     head = [f"k={k} (att {c})" for k, c in enumerate(t.attack_costs, 1)]
     head += [f"k={k}" for k in range(len(t.attack_costs) + 1, ks + 1)]
     lines = [
         "Table 1: stamina to fully block a longsword attack at its mean roll (no crit)",
-        f"RuleSet {rules.name} {rules.short_digest()}, mean rounding {rounding.value}",
+        f"Mean roll rounded {rounding.value}",
         "",
         "| Defender | " + " | ".join(head) + " |",
         "|---" * (ks + 1) + "|",
@@ -152,10 +152,10 @@ def render_table1(t: Table1, rules: RuleSet, rounding: Rounding) -> str:
     return "\n".join(lines)
 
 
-def render_table8(rows: tuple[Table8Row, ...], rules: RuleSet, rounding: Rounding) -> str:
+def render_table8(rows: tuple[Table8Row, ...], rounding: Rounding) -> str:
     lines = [
         "Table 8: damage per stamina by commitment (STR 2, FIN 1, AGI 1)",
-        f"RuleSet {rules.name} {rules.short_digest()}, display rounding {rounding.value}",
+        f"Figures rounded {rounding.value}",
         "",
         "| Weapon | k=1 | k=2 | k=3 | k=4 | k=5 |",
         "|---|---|---|---|---|---|",

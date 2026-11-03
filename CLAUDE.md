@@ -13,6 +13,7 @@ A tactical fantasy TTRPG built on a regenerating stamina system, plus a Python r
 - `sim/docs/USAGE_FOR_CHATS.md` tells design chats how to install and run the engine.
 - `sim/tests/oracle/` holds the simulator from the original review. Never edit it. It is the parity oracle.
 - `sim/reports/` is where experiment write-ups for the designer go.
+- `sim/examples/` holds the worked plugin example design chats copy when they try a new mechanism (see `USAGE_FOR_CHATS.md`).
 
 `rules/`, `design/` and `sim/` sync into the claude.ai project "Tactical fantasy TTRPG", so design chats see what is pushed here.
 
@@ -49,6 +50,7 @@ uv run ruff check src tests
 - Start every session with `git pull`. Design chats in the claude.ai project may push to this repo too.
 - Commit in small steps and push when tests pass, so chats always see current code.
 - Small, safe changes (scenarios, maps, builds, reports, bug fixes that keep tests green) can go straight to `main`. Changes to engine procedures or rule components go on a branch with a pull request.
+- Experiments from design chats live on `exp/<topic>` branches or as plugin files beside a report, never in the baseline. Promote one to a real component (with tests and citations) only when the designer asks; delete rejected variants unless a published result needs them for parity.
 - Rules or design doc changes come from the designer. Update `rules/` in the same commit as the engine changes that implement a rules change.
 - Keep `sim/docs/USAGE_FOR_CHATS.md` current whenever commands or install steps change.
 - Tag each finished milestone (`m0`, `m1`…) so results can name the code that produced them.

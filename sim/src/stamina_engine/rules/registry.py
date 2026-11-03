@@ -75,6 +75,11 @@ def registered() -> dict[tuple[str, str], type[Component]]:
     return dict(_REGISTRY)
 
 
+def forget(kind: str, variant: str) -> None:
+    """Remove a registration. Only for rolling back a plugin that failed to load."""
+    _REGISTRY.pop((kind, variant), None)
+
+
 def lookup(kind: str, variant: str) -> type[Component]:
     try:
         return _REGISTRY[(kind, variant)]

@@ -10,6 +10,7 @@ import json
 import tomllib
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
+from pathlib import Path
 
 from stamina_engine.core.errors import ConfigError
 from stamina_engine.rules import components as _components  # noqa: F401  (registers variants)
@@ -55,12 +56,15 @@ class RuleSet:
                 raise ConfigError(f"RuleSet.{kind} must be a {kind} component")
 
     def with_(self, name: str | None = None, **changes: Component) -> "RuleSet":
-        """A copy with whole components replaced."""
+        """A copy with whole components replaced. Without a name, a changed copy is named
+        "<base>+modified" so it can't pass for its base preset."""
         unknown = set(changes) - set(KINDS)
         if unknown:
             raise ConfigError(f"unknown component kinds {sorted(unknown)}")
+        if name is None:
+            name = f"{self.name}+modified" if changes else self.name
         # __post_init__ checks each component is of its slot's kind.
-        return dataclasses.replace(self, name=name or self.name, **changes)  # type: ignore[arg-type]
+        return dataclasses.replace(self, name=name, **changes)  # type: ignore[arg-type]
 
     def override(self, overrides: Mapping[str, object], name: str | None = None) -> "RuleSet":
         """Apply TOML-style overrides: {kind: {"kind": variant?, param: value...}}."""
@@ -115,7 +119,7 @@ def from_toml(text: str) -> RuleSet:
         if not isinstance(base_name, str):
             raise ConfigError("base must be a preset name")
         base = preset(base_name)
-        return base.override(overrides, name=name if isinstance(name, str) else base.name)
+        return base.override(overrides, name=name if isinstance(name, str) else None)
     missing = [k for k in KINDS if k not in overrides]
     if missing:
         raise ConfigError(f"no base preset and no tables for {missing}")
@@ -174,6 +178,17 @@ PRESETS: dict[str, Callable[[], RuleSet]] = {
     "review-candidate": review_candidate,
     "review-sim": review_sim,
 }
+
+
+def load_ruleset(spec: str) -> RuleSet:
+    """A preset name, or a path to a RuleSet TOML file."""
+    if spec.endswith(".toml"):
+        try:
+            text = Path(spec).read_text()
+        except OSError as exc:
+            raise ConfigError(f"can't read RuleSet file {spec}: {exc}") from exc
+        return from_toml(text)
+    return preset(spec)
 
 
 def preset(name: str) -> RuleSet:

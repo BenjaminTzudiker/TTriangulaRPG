@@ -416,13 +416,13 @@ When a pending row is ruled, or a ruled row changes, the same commit updates the
 | Spear hands | One-handed, so a shield is allowed | weapon table | pending designer |
 | Where a Rogue's moved turn sits next round | Keeps the new slot | Rogue core parameter | pending designer |
 | Recovery while incapacitated | None | `resources.recovery` | pending designer |
-| Mean roll in the static tables (Table 1, `variants.py`, `grid.py`) | Round half up; `review-sim` rounds half to even, as Python's `round()` did, which changes three Table 1 cells and the L30/L99 rows (L99 k7: 80.5 → 80) | `analysis.mean_rounding` | engine convention |
+| Mean roll in the static tables (Table 1, `variants.py`, `grid.py`) | Round half up; `review-sim` rounds half to even, as Python's `round()` did, which changes three Table 1 cells and the L30/L99 rows (L99 k7: 80.5 → 80); printed figures likewise (Table 8's 2.125 prints as 2.12) | `se table --rounding` | engine convention |
 | Expertise and AP budgets above level 1 | EP = 4 + levels 1..L ending in 1/4/6/9; AP = levels 0..L ending in 0/2/7 (L1/L30/L99: 5/16/44 EP, 1/10/30 AP). The base of 4, and reading level 0's point as the starting AP, need the designer | `resources.budget` | pending designer |
 | Proficiency list | Builds list proficiencies explicitly; the library's Fighter core grants every v0.9 table weapon | build data | engine convention |
 | "(STR or AGI)", "(AGI or FIN)" damage terms | Always the higher value; the chosen attribute is recorded, not just the value | weapon data | pending designer |
 | Draft weapons with no base cost | Left out until costed | weapon table | pending designer |
 | Armor's Strength penalties "lower the attributes themselves" | Penalized AGI and FIN apply everywhere: defenses, initiative, movement, crit range, OA cap, damage terms | — | pending designer |
-| Negative flat damage (penalized AGI or FIN) | Each step's roll floors at 0 | `defenses.step_floor` | pending designer |
+| Negative flat damage (penalized AGI or FIN) | Each step's roll floors at 0 | weapon table `step_floor` | pending designer |
 | A graze that stops less than its share | Still leaks 1 | — | pending designer |
 | What armor soaks | Residual and leaks together, as one amount; the crit effect then applies to what remains | — | pending designer |
 | Second melee weapon for +1 MD | A proficient one-handed melee weapon in the off hand, with no shield; a two-handed grip doesn't count | `defenses` | pending designer |

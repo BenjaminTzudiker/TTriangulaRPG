@@ -1,0 +1,2 @@
+# TTriangulaRPG
+Tactical fantasy TTRPG

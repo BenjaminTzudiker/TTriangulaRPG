@@ -102,9 +102,7 @@ def _check_types(cls: type[Component], values: Mapping[str, object]) -> None:
         expected = hints[name]
         ok = isinstance(value, expected) and (expected is bool or not isinstance(value, bool))
         if not ok:
-            raise ConfigError(
-                f"{cls.kind}.{name} must be {expected.__name__}, got {value!r}"
-            )
+            raise ConfigError(f"{cls.kind}.{name} must be {expected.__name__}, got {value!r}")
 
 
 def from_dict(kind: str, data: Mapping[str, object], base: Component | None = None) -> Component:

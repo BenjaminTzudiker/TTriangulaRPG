@@ -51,3 +51,22 @@ def test_no_branching_on_ruleset_name() -> None:
         if pattern.search(line) and "rules" in line.lower()
     ]
     assert not offenders, offenders
+
+
+def test_procedure_modules_cite_real_sections() -> None:
+    """Modules that implement rules (Pricing, derive, exchange...) declare module-level cites."""
+    import importlib
+    import pkgutil
+
+    import stamina_engine
+
+    problems: list[str] = []
+    cited = 0
+    for info in pkgutil.walk_packages(stamina_engine.__path__, "stamina_engine."):
+        module = importlib.import_module(info.name)
+        cites = getattr(module, "cites", None)
+        if isinstance(cites, tuple):
+            cited += 1
+            problems += check_cites(info.name, cites)
+    assert cited >= 3
+    assert not problems, problems

@@ -42,9 +42,7 @@ def oracle() -> Iterator[Any]:
 
 
 @pytest.fixture
-def scripted_randint(
-    oracle: Any, monkeypatch: pytest.MonkeyPatch
-) -> Callable[[list[int]], None]:
+def scripted_randint(oracle: Any, monkeypatch: pytest.MonkeyPatch) -> Callable[[list[int]], None]:
     """Make the oracle roll the given faces, in order, instead of using the global random."""
 
     def script(faces: list[int]) -> None:

@@ -13,14 +13,25 @@ For claude.ai chats in the "Tactical fantasy TTRPG" project. Claude Code keeps t
 ```bash
 git clone --depth 1 https://github.com/BenjaminTzudiker/TTriangulaRPG.git
 cd TTriangulaRPG/sim
-pip install -e . --break-system-packages
+pip install -e . --break-system-packages   # add [parquet], as in '.[parquet]', for --out
 ```
+
+**No PyPI? Install nothing.** The engine and its CLI use only the standard library (Python 3.12 or newer), so a chat that can't reach PyPI runs them straight from the checkout:
+
+```bash
+cd TTriangulaRPG/sim
+export PYTHONPATH=src
+python3 -m stamina_engine table 1   # every se command works this way
+python3 -m pytest                   # needs pytest; the property tests skip without hypothesis
+```
+
+Only `--out` (Parquet tables) needs a package, pyarrow; without it, `--out` says so and everything else runs. From Python, `invoke(["table", "1"]).output` (from `stamina_engine.cli`) runs any command and returns its output.
 
 In a claude.ai chat, attach the repo first if the clone is refused. To reproduce a quoted result, check out the tag or commit its stamp names (`git fetch --depth 1 origin tag m1 && git checkout m1`).
 
 ## Commands
 
-Run from `sim/`. With uv (`uv sync` once, then prefix commands with `uv run`), or after `pip install -e .`:
+Run from `sim/`. With uv (`uv sync` once, then prefix commands with `uv run`), after `pip install -e .`, or with nothing installed as `python3 -m stamina_engine` in place of `se` (with `PYTHONPATH=src`):
 
 ```bash
 se table 1                                             # review Table 1, exact, packet rounding (half up)
@@ -192,7 +203,7 @@ Code git m0 (f57367eb5d62, clean); source ee6c5479eb85; stamina-engine 0.0.1
 Plugin exp_quadratic_surcharge.py 9460148edc70: surcharge/exp_quadratic
 ```
 
-- **RuleSet** is the rules configuration: which variants, which parameters.
+- **RuleSet** is the rules configuration: which variants, which parameters. Parameters left at their default don't enter the digest, so a digest stays the same as the engine gains new switches. Digests stamped at tags `m0`–`m5` hashed every parameter and differ from today's for the same rules: v0.9 was `89e49ba8c42d` at `m5` and is `3bf6fc070dbf` now.
 - **source** hashes the engine's code and data tables. It identifies the implementation even outside git, in an unpacked copy or with uncommitted edits. "uncommitted changes" means that copy's code differs from the commit shown.
 - **Plugin** lines hash each plugin file.
 
@@ -209,5 +220,3 @@ A chat can push only if the Claude GitHub App has access to this repo.
 - Read `CLAUDE.md` at the repo root before changing anything. Its ground rules apply to chats too.
 - Never change what a rule means. Experiments are new named variants, never edits to the baseline. If the packet is unclear, flag it and add it to the Assumptions register in `sim/docs/ENGINE_PLAN.md`.
 - Quote every number with its full provenance stamp.
-
-Grid commands (maps, movement, opportunity attacks) arrive with M2.

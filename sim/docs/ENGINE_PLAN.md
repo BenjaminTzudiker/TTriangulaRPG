@@ -45,7 +45,7 @@ The review's simulator got the exchange math right but could not see space, so e
 5. **The engine never decides for a creature.** Every choice is a typed decision request answered by that creature's controller, human or AI.
 6. **Deterministic.** Seeded random streams per battle; the same seed and config produce the same event log, byte for byte. Dice can be scripted for tests.
 7. **Exact where possible, sampled where necessary.** Single-exchange questions (block costs, full-strike lethality, r) are computed from exact distributions; only whole fights use Monte Carlo.
-8. **Plain, typed Python.** Python 3.12, frozen dataclasses, `mypy --strict`, `ruff`, `pytest` with `hypothesis`; NumPy for geometry, Polars plus Parquet for results. No game framework.
+8. **Plain, typed Python.** Python 3.12, frozen dataclasses, `mypy --strict`, `ruff`, `pytest` with `hypothesis`. The engine and its CLI use only the standard library, so a checkout runs with nothing installed (a chat may not reach PyPI); pyarrow, optional, writes Parquet results, and the property tests skip without `hypothesis`. No game framework.
 
 ## Architecture overview
 
@@ -149,7 +149,7 @@ class RuleSet:
     grid: GridRule
 
     def with_(self, **changes) -> "RuleSet": ...
-    def digest(self) -> str: ...   # stable hash for provenance
+    def digest(self) -> str: ...   # hash of variants and non-default parameters
 
 
 class CritRule(Protocol):
@@ -209,6 +209,8 @@ Design chats try rule ideas themselves, so the engine keeps one baseline and mak
 | A procedure or timing change | Engine code on an `exp/<topic>` branch, compared against the commit it started from | A branch or patch; if kept, a PR that adds a component for it |
 
 Variants move from experiment, to candidate (on `main`, in a phase preset), to ruled. Only the designer moves them. A ruled variant becomes the baseline, and the rejected ones are deleted, or kept for parity only if a published result depends on them. Keeping only live candidates on `main` keeps the test matrix and the register small.
+
+**The digest.** It hashes each component's variant and the parameters not at their default; the name is left out. A new switch whose default keeps the current rule therefore changes no digest, the baseline's included. In exchange, a released default never changes (`tests/golden/component_defaults.json` pins them, and the presets' digests are pinned too): a ruling that changes a rule sets the new value where it applies, in a preset for the baseline, and the digest changes with it. `to_toml()` still writes every parameter. Digests stamped before this convention (tags `m0`–`m5`) hashed every parameter, so they differ from today's for the same rules; recompute one at the commit its stamp names.
 
 **Provenance.** The RuleSet digest identifies the rule configuration, not the code. Every result is therefore also stamped with:
 - a hash of the package's source and data files (`source`), which identifies the implementation even outside git;

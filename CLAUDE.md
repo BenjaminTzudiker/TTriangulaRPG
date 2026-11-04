@@ -32,13 +32,15 @@ A tactical fantasy TTRPG built on a regenerating stamina system, plus a Python r
 - Python 3.12, `src/` layout under `sim/`, frozen dataclasses for rules and profiles.
 - `mypy --strict` clean, `ruff` clean, `pytest` green before any milestone is called done.
 - Integer arithmetic for all game math. The packet's "round" means round half up.
+- Engine code imports only the standard library (pyarrow only inside `--out`), so chats that can't reach PyPI run it with `PYTHONPATH=src python3 -m stamina_engine`. Tests that need an optional package skip without it.
+- A released component default never changes: the RuleSet digest leaves defaults out, so changing one would change rules under an unchanged digest. Set a new value in the preset instead; `tests/golden/component_defaults.json` pins them.
 
 ## Commands
 
 Run from `sim/`:
 
 ```bash
-uv sync                       # install
+uv sync                       # install (or nothing: PYTHONPATH=src python3 -m stamina_engine ...)
 uv run pytest                 # fast tests (under a minute)
 uv run pytest -m slow         # full-count oracle parity and long differentials
 uv run pytest tests/golden    # packet worked examples only

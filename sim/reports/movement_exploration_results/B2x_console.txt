@@ -1,0 +1,38 @@
+RuleSet v0.9 3bf6fc070dbf
+Code git 7bd1bb8 (7bd1bb89cab5, uncommitted changes); source 4a3e9bc3225f; stamina-engine unknown
+
+## B2x-a. The on-turn movement dial: archer vs fighter, open ground, both tactical
+  agi, flat (v0.9): 12 sq = 3            [3bf6fc070dbf] archer 25.2% fighter 74.8%         | first_mover: 75.5% | rounds: 1 | winner_untouched: 75.5% | off_turn_squares: 0.070
+  agi, escalating slope 1: 12 sq = 6     [d0c88274bd59] archer 24.5% fighter 75.5%         | first_mover: 74.8% | rounds: 1 | winner_untouched: 76.8% | off_turn_squares: 0.175
+  agi, escalating slope 2: 12 sq = 9     [e6660303a0f6] archer 25.5% fighter 74.5%         | first_mover: 73.8% | rounds: 1 | winner_untouched: 73.2% | off_turn_squares: 0.175
+  free 5, agi escalating slope 1: 12 sq = 10 [1df4d5386358] archer 21.8% fighter 78.2%         | first_mover: 72.0% | rounds: 1 | winner_untouched: 72.8% | off_turn_squares: 0.000
+  free 4, agi escalating slope 1: 12 sq = 15 [886390cdf05d] archer 43.0% fighter 57.0%         | first_mover: 50.2% | rounds: 2 | winner_untouched: 40.5% | off_turn_squares: 0.010
+  one sq, escalating slope 1: 12 sq = 21 [db6edbbd9a74] archer 53.2% fighter 46.8%         | first_mover: 46.0% | rounds: 3 | winner_untouched: 56.8% | off_turn_squares: 0.220
+  none                                   [8da823bc5604] archer 52.8% fighter 47.2%         | first_mover: 45.5% | rounds: 3 | winner_untouched: 56.8% | off_turn_squares: 0.220
+
+## B2x-b. Duel 8 apart, both tactical
+  agi, flat (v0.9): 12 sq = 3            [3bf6fc070dbf] A 50.5% B 48.2%                    | first_mover: 58.7% | draws: 1.2% | rounds: 6 | winner_untouched: 80.5% | off_turn_squares: 0.000
+  agi, escalating slope 1: 12 sq = 6     [d0c88274bd59] A 50.5% B 48.2%                    | first_mover: 58.7% | draws: 1.2% | rounds: 6 | winner_untouched: 80.5% | off_turn_squares: 0.000
+  agi, escalating slope 2: 12 sq = 9     [e6660303a0f6] A 50.5% B 48.2%                    | first_mover: 58.7% | draws: 1.2% | rounds: 6 | winner_untouched: 80.5% | off_turn_squares: 0.000
+  free 5, agi escalating slope 1: 12 sq = 10 [1df4d5386358] A 50.5% B 48.2%                    | first_mover: 58.7% | draws: 1.2% | rounds: 6 | winner_untouched: 80.5% | off_turn_squares: 0.000
+  free 4, agi escalating slope 1: 12 sq = 15 [886390cdf05d] A 52.0% B 44.5%                    | first_mover: 49.0% | draws: 3.5% | rounds: 7 | winner_untouched: 81.9% | off_turn_squares: 0.000
+  one sq, escalating slope 1: 12 sq = 21 [db6edbbd9a74] A 50.5% B 48.2%                    | first_mover: 58.7% | draws: 1.2% | rounds: 6 | winner_untouched: 80.5% | off_turn_squares: 0.000
+  none                                   [8da823bc5604] A 52.0% B 46.8%                    | first_mover: 28.9% | draws: 1.2% | rounds: 4 | winner_untouched: 64.1% | off_turn_squares: 0.000
+
+## B2x-c. Retreat line 2v2, tactical fleer vs tactical chasers
+  agi, flat (v0.9): 12 sq = 3            [3bf6fc070dbf] chasers 68.0% line 30.8%           | first_mover: 63.0% | rounds: 5 | off_turn_squares: 2.255 | oas: 0.035
+  agi, escalating slope 1: 12 sq = 6     [d0c88274bd59] chasers 68.0% line 30.8%           | first_mover: 63.0% | rounds: 5 | off_turn_squares: 2.255 | oas: 0.035
+  agi, escalating slope 2: 12 sq = 9     [e6660303a0f6] chasers 67.2% line 31.5%           | first_mover: 62.3% | rounds: 5 | off_turn_squares: 2.255 | oas: 0.035
+  free 5, agi escalating slope 1: 12 sq = 10 [1df4d5386358] chasers 79.2% line 20.0%           | first_mover: 57.9% | rounds: 4 | off_turn_squares: 2.928 | oas: 0.085
+  free 4, agi escalating slope 1: 12 sq = 15 [886390cdf05d] chasers 76.8% line 22.2%           | first_mover: 53.0% | rounds: 4 | off_turn_squares: 3.715 | oas: 0.107
+  one sq, escalating slope 1: 12 sq = 21 [db6edbbd9a74] chasers 68.0% line 30.8%           | first_mover: 63.0% | rounds: 5 | off_turn_squares: 2.255 | oas: 0.035
+  none                                   [8da823bc5604] chasers 42.8% line 56.8%           | first_mover: 88.4% | rounds: 4 | off_turn_squares: 6.742 | oas: 0.090
+
+## B2x-d. 2v2 open, tactical chipkill
+  agi, flat (v0.9): 12 sq = 3            [3bf6fc070dbf] A 51.0% B 48.2%                    | first_mover: 64.5% | rounds: 4 | deaths: 0.980 | off_turn_squares: 2.780 | decisions_per_round: 18.96
+  agi, escalating slope 1: 12 sq = 6     [d0c88274bd59] A 50.7% B 48.5%                    | first_mover: 64.2% | rounds: 4 | deaths: 0.988 | off_turn_squares: 2.780 | decisions_per_round: 18.99
+  agi, escalating slope 2: 12 sq = 9     [e6660303a0f6] A 50.7% B 48.5%                    | first_mover: 64.2% | rounds: 4 | deaths: 0.975 | off_turn_squares: 2.780 | decisions_per_round: 19.02
+  free 5, agi escalating slope 1: 12 sq = 10 [1df4d5386358] A 49.2% B 49.5%                    | first_mover: 57.5% | rounds: 4 | deaths: 0.998 | off_turn_squares: 2.228 | decisions_per_round: 18.12
+  free 4, agi escalating slope 1: 12 sq = 15 [886390cdf05d] A 47.2% B 52.0%                    | first_mover: 50.4% | rounds: 4 | deaths: 1.115 | off_turn_squares: 2.442 | decisions_per_round: 17.93
+  one sq, escalating slope 1: 12 sq = 21 [db6edbbd9a74] A 51.2% B 48.2%                    | first_mover: 65.8% | rounds: 4 | deaths: 0.958 | off_turn_squares: 2.785 | decisions_per_round: 19.24
+  none                                   [8da823bc5604] A 44.0% B 53.5%                    | first_mover: 57.7% | rounds: 7 | deaths: 0.875 | off_turn_squares: 56.015 | decisions_per_round: 25.22

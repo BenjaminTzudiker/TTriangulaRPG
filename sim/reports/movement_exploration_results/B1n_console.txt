@@ -1,0 +1,26 @@
+RuleSet v0.9 3bf6fc070dbf
+Code git 7bd1bb8 (7bd1bb89cab5, uncommitted changes); source 262c361abfc1; stamina-engine unknown
+
+## B1n-a. Archer (tactical) vs fighter that pins off-turn, open ground, NO on-turn extra movement
+  asc (v0.9) | no on-turn extra          [8da823bc5604] archer 68.8% fighter 31.2%         | first_mover: 36.5% | rounds: 2 | off_turn_squares: 3.175 | oas: 0.000 | rounds_to_contact: 1.000
+  desc | no on-turn extra                [7d260cfef6e4] archer 69.0% fighter 31.0%         | first_mover: 36.2% | rounds: 2 | off_turn_squares: 3.143 | oas: 0.000 | rounds_to_contact: 1.000
+  desc+restart (declare/tiebreak) | no on-turn extra [a82dca4761e0] archer 69.0% fighter 31.0%         | first_mover: 36.2% | rounds: 2 | off_turn_squares: 3.143 | oas: 0.000 | rounds_to_contact: 1.000
+  desc+restart, 1 purchase per move | no on-turn extra [2e3f6e1ecc09] archer 57.5% fighter 42.5%         | first_mover: 47.8% | rounds: 3 | off_turn_squares: 0.710 | oas: 0.000 | rounds_to_contact: 1.000
+
+## B1n-b. Archer vs plain tactical fighter (no pin), NO on-turn extra movement
+  asc (v0.9) | no on-turn extra          [8da823bc5604] archer 52.8% fighter 47.2%         | first_mover: 45.5% | rounds: 3 | off_turn_squares: 0.220 | oas: 0.000 | rounds_to_contact: 1.000
+  desc | no on-turn extra                [7d260cfef6e4] archer 52.8% fighter 47.2%         | first_mover: 45.5% | rounds: 3 | off_turn_squares: 0.220 | oas: 0.000 | rounds_to_contact: 1.000
+  desc+restart (declare/tiebreak) | no on-turn extra [a82dca4761e0] archer 52.8% fighter 47.2%         | first_mover: 45.5% | rounds: 3 | off_turn_squares: 0.220 | oas: 0.000 | rounds_to_contact: 1.000
+  desc+restart, 1 purchase per move | no on-turn extra [2e3f6e1ecc09] archer 52.8% fighter 47.2%         | first_mover: 45.5% | rounds: 3 | off_turn_squares: 0.220 | oas: 0.000 | rounds_to_contact: 1.000
+
+## B1n-c. Retreat line 2v2, fleer vs pinning chasers, NO on-turn extra movement
+  asc (v0.9) | no on-turn extra          [8da823bc5604] chasers 37.2% line 62.0%           | first_mover: 75.6% | rounds: 5 | off_turn_squares: 4.275 | oas: 0.000
+  desc | no on-turn extra                [7d260cfef6e4] chasers 40.8% line 58.2%           | first_mover: 73.0% | rounds: 4 | off_turn_squares: 4.103 | oas: 0.015
+  desc+restart (declare/tiebreak) | no on-turn extra [a82dca4761e0] chasers 40.8% line 58.2%           | first_mover: 73.0% | rounds: 4 | off_turn_squares: 4.103 | oas: 0.015
+  desc+restart, 1 purchase per move | no on-turn extra [2e3f6e1ecc09] chasers 32.8% line 65.5%           | first_mover: 76.6% | rounds: 4 | off_turn_squares: 2.897 | oas: 0.020
+
+## B1n-d. Duel 8 apart, both retreat+pin, NO on-turn extra movement
+  asc (v0.9) | no on-turn extra          [8da823bc5604] A 51.2% B 45.2%                    | first_mover: 55.7% | draws: 3.5% | rounds: 10 | off_turn_squares: 18.000 | oas: 0.000
+  desc | no on-turn extra                [7d260cfef6e4] A 46.8% B 47.2%                    | first_mover: 55.9% | draws: 6.0% | rounds: 12 | off_turn_squares: 24.000 | oas: 0.000
+  desc+restart (declare/tiebreak) | no on-turn extra [a82dca4761e0] A 46.8% B 47.2%                    | first_mover: 55.9% | draws: 6.0% | rounds: 12 | off_turn_squares: 24.000 | oas: 0.000
+  desc+restart, 1 purchase per move | no on-turn extra [2e3f6e1ecc09] A 52.0% B 46.8%                    | first_mover: 28.9% | draws: 1.2% | rounds: 4 | off_turn_squares: 0.000 | oas: 0.000

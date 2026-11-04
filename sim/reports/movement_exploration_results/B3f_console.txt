@@ -1,0 +1,5 @@
+## B3f. The door under the corner rule: no_squeeze (engine default) vs no_cut (no diagonal past a wall corner); holding defender behind the gap, then tactical defender; 300 trials
+  holder, corners no_squeeze (default)   [3bf6fc070dbf] attackers 100.0% defender 0.0%     | draws: 0.0% | rounds: 2 | deaths: 0.457 | winner_untouched: 91.7% | off_turn_squares: 0.000
+  holder, corners no_cut                 [33ed3f912b30] attackers 64.7% defender 0.0%      | draws: 35.3% | rounds: 9 | deaths: 0.190 | winner_untouched: 95.4% | off_turn_squares: 0.000
+  tactical D, corners no_squeeze (default) [3bf6fc070dbf] attackers 100.0% defender 0.0%     | draws: 0.0% | rounds: 2 | deaths: 0.393 | winner_untouched: 70.0% | off_turn_squares: 0.480
+  tactical D, corners no_cut             [33ed3f912b30] attackers 93.0% defender 0.0%      | draws: 7.0% | rounds: 5 | deaths: 0.277 | winner_untouched: 50.2% | off_turn_squares: 0.053

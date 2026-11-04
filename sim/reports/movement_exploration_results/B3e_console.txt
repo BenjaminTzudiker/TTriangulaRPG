@@ -1,0 +1,22 @@
+RuleSet v0.9 3bf6fc070dbf
+Code git 7bd1bb8 (7bd1bb89cab5, uncommitted changes); source 4a3e9bc3225f; stamina-engine unknown
+
+## B3e. 1v3 with a defender that HOLDS its square (attacks whoever is in reach), vs three 2-step attackers
+  open: v0.9                             [3bf6fc070dbf] attackers 100.0% defender 0.0%     | rounds: 2 | deaths: 0.467 | off_turn_squares: 0.127 | oas: 0.000 | winner_untouched: 98.3%
+  open: windows OFF                      [f2fe5e878f6f] attackers 100.0% defender 0.0%     | rounds: 2 | deaths: 0.447 | off_turn_squares: 0.000 | oas: 0.000 | winner_untouched: 98.3%
+  corner: v0.9                           [3bf6fc070dbf] attackers 100.0% defender 0.0%     | rounds: 2 | deaths: 0.403 | off_turn_squares: 0.000 | oas: 0.000 | winner_untouched: 96.7%
+  corner: windows OFF                    [f2fe5e878f6f] attackers 100.0% defender 0.0%     | rounds: 2 | deaths: 0.403 | off_turn_squares: 0.000 | oas: 0.000 | winner_untouched: 96.7%
+  door (behind the gap): v0.9            [3bf6fc070dbf] attackers 100.0% defender 0.0%     | rounds: 2 | deaths: 0.457 | off_turn_squares: 0.000 | oas: 0.000 | winner_untouched: 91.7%
+  door (behind the gap): windows OFF     [f2fe5e878f6f] attackers 100.0% defender 0.0%     | rounds: 2 | deaths: 0.457 | off_turn_squares: 0.000 | oas: 0.000 | winner_untouched: 91.7%
+  corridor mouth (8,4): v0.9             [3bf6fc070dbf] attackers 100.0% defender 0.0%     | rounds: 2 | deaths: 0.447 | off_turn_squares: 0.063 | oas: 0.000 | winner_untouched: 99.0%
+  corridor mouth (8,4): windows OFF      [f2fe5e878f6f] attackers 100.0% defender 0.0%     | rounds: 1 | deaths: 0.437 | off_turn_squares: 0.000 | oas: 0.000 | winner_untouched: 99.0%
+  corridor one square in (9,4): v0.9     [3bf6fc070dbf] attackers 63.7% defender 0.0%      | rounds: 8 | deaths: 0.180 | off_turn_squares: 0.000 | oas: 0.000 | winner_untouched: 94.2%
+  corridor one square in (9,4): windows OFF [f2fe5e878f6f] attackers 63.7% defender 0.0%      | rounds: 8 | deaths: 0.180 | off_turn_squares: 0.000 | oas: 0.000 | winner_untouched: 94.2%
+
+## B3e2. Same, attackers tactical (chipkill, fewest-engagers squares)
+  door (behind the gap): v0.9            [3bf6fc070dbf] attackers 100.0% defender 0.0%     | rounds: 1 | deaths: 0.460 | off_turn_squares: 0.000 | oas: 0.000
+  corridor one square in (9,4): v0.9     [3bf6fc070dbf] attackers 72.3% defender 0.0%      | rounds: 5.5 | deaths: 0.123 | off_turn_squares: 0.000 | oas: 0.000
+
+## B3e3. 2v3: two holders side by side in the open vs three 2-step attackers; and 2v3 all tactical
+  2v3 holders: v0.9                      [3bf6fc070dbf] A 0.0% B 100.0%                    | rounds: 4 | deaths: 0.883 | first_mover: 64.0% | off_turn_squares: 0.000
+  2v3 tactical: v0.9                     [3bf6fc070dbf] A 0.0% B 100.0%                    | rounds: 2 | deaths: 1.300 | first_mover: 64.0% | off_turn_squares: 3.960

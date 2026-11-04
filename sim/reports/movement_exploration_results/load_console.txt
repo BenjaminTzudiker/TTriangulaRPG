@@ -1,0 +1,31 @@
+Off-turn window load, 150 fights per row
+## duel 8 apart (tactical)
+  v0.9                                             windows/round  1.8 | asked/round   3.6 | moved  0.0% of asks | windows with any move  0.0% | all requests/round  11.5
+  scope: not after allies                          windows/round  1.8 | asked/round   3.6 | moved  0.0% of asks | windows with any move  0.0% | all requests/round  11.5
+  no on-turn extra                                 windows/round  1.8 | asked/round   3.6 | moved  0.0% of asks | windows with any move  0.0% | all requests/round  11.4
+  desc + restart                                   windows/round  1.8 | asked/round   3.6 | moved  0.0% of asks | windows with any move  0.0% | all requests/round  11.5
+## 1v3 open (tactical D, fixed:2)
+  v0.9                                             windows/round  2.6 | asked/round  13.2 | moved  5.1% of asks | windows with any move 25.6% | all requests/round  27.6
+  scope: not after allies                          windows/round  2.6 | asked/round   8.6 | moved  7.9% of asks | windows with any move 25.6% | all requests/round  22.9
+  no on-turn extra                                 windows/round  2.6 | asked/round  13.2 | moved  5.1% of asks | windows with any move 25.6% | all requests/round  27.6
+  desc + restart                                   windows/round  2.6 | asked/round  12.3 | moved  5.5% of asks | windows with any move 25.6% | all requests/round  26.7
+## 1v3 corridor (tactical D, fixed:2)
+  v0.9                                             windows/round  3.3 | asked/round  14.1 | moved  1.8% of asks | windows with any move  7.7% | all requests/round  25.0
+  scope: not after allies                          windows/round  3.3 | asked/round   8.9 | moved  2.9% of asks | windows with any move  7.7% | all requests/round  19.9
+  no on-turn extra                                 windows/round  3.3 | asked/round  14.1 | moved  1.8% of asks | windows with any move  7.7% | all requests/round  25.0
+  desc + restart                                   windows/round  3.3 | asked/round  13.8 | moved  1.8% of asks | windows with any move  7.7% | all requests/round  24.7
+## archer open (tactical both)
+  v0.9                                             windows/round  1.2 | asked/round   3.2 | moved 11.0% of asks | windows with any move 26.7% | all requests/round  10.2
+  scope: not after allies                          windows/round  1.2 | asked/round   3.2 | moved 11.0% of asks | windows with any move 26.7% | all requests/round  10.2
+  no on-turn extra                                 windows/round  1.6 | asked/round   4.2 | moved 13.0% of asks | windows with any move 33.2% | all requests/round  11.9
+  desc + restart                                   windows/round  1.2 | asked/round   2.9 | moved 12.3% of asks | windows with any move 26.7% | all requests/round   9.8
+## retreat line 2v2
+  v0.9                                             windows/round  3.0 | asked/round   8.8 | moved  2.7% of asks | windows with any move  6.4% | all requests/round  19.6
+  scope: not after allies                          windows/round  2.9 | asked/round   6.5 | moved  3.0% of asks | windows with any move  6.0% | all requests/round  17.0
+  no on-turn extra                                 windows/round  3.0 | asked/round  10.8 | moved  4.3% of asks | windows with any move 13.3% | all requests/round  22.3
+  desc + restart                                   windows/round  3.0 | asked/round   8.6 | moved  2.8% of asks | windows with any move  6.5% | all requests/round  19.4
+## 3v3 open (tactical chipkill)
+  v0.9                                             windows/round  3.8 | asked/round  15.2 | moved  3.5% of asks | windows with any move 12.0% | all requests/round  29.6
+  scope: not after allies                          windows/round  3.9 | asked/round  10.7 | moved  4.9% of asks | windows with any move 12.0% | all requests/round  25.2
+  no on-turn extra                                 windows/round  4.9 | asked/round  34.7 | moved  6.1% of asks | windows with any move 39.8% | all requests/round  49.0
+  desc + restart                                   windows/round  3.8 | asked/round  14.5 | moved  3.6% of asks | windows with any move 10.8% | all requests/round  29.4

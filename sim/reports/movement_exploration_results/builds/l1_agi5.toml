@@ -1,0 +1,7 @@
+# Movement experiments: the sample fighter's gear with Agility 5 (free movement 8, 4 squares per
+# purchase, Melee Defense 5 in medium armor). Over the level-1 budget on purpose.
+level = 1
+attributes = { STR = 2, AGI = 5, FIN = 1 }
+cores = ["fighter"]
+budget = "ignore"
+loadouts.main = { weapon = "longsword", grip = "one", off_hand = "shield", armor = "medium" }

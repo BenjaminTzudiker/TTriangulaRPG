@@ -1,0 +1,61 @@
+RuleSet v0.9 3bf6fc070dbf
+Code git 7bd1bb8 (7bd1bb89cab5, uncommitted changes); source ca09d562aaf5; stamina-engine unknown
+
+## B3a. 1v3 by terrain, tactical defender (fixed:2) vs three 2-step attackers; windows on / off; no on-turn extra
+  open: v0.9                             [3bf6fc070dbf] attackers 100.0% defender 0.0%     | rounds: 2 | deaths: 0.443 | off_turn_squares: 2.300 | oas: 0.000 | rounds_to_contact: 1.000
+  open: off-turn windows OFF             [f2fe5e878f6f] attackers 100.0% defender 0.0%     | rounds: 1 | deaths: 0.453 | off_turn_squares: 0.000 | oas: 0.000 | rounds_to_contact: 1.000
+  open: no on-turn extra                 [8da823bc5604] attackers 100.0% defender 0.0%     | rounds: 2 | deaths: 0.443 | off_turn_squares: 2.300 | oas: 0.000 | rounds_to_contact: 1.000
+  corner: v0.9                           [3bf6fc070dbf] attackers 100.0% defender 0.0%     | rounds: 2 | deaths: 0.390 | off_turn_squares: 0.000 | oas: 0.000 | rounds_to_contact: 1.000
+  corner: off-turn windows OFF           [f2fe5e878f6f] attackers 100.0% defender 0.0%     | rounds: 2 | deaths: 0.390 | off_turn_squares: 0.000 | oas: 0.000 | rounds_to_contact: 1.000
+  corner: no on-turn extra               [8da823bc5604] attackers 100.0% defender 0.0%     | rounds: 2 | deaths: 0.390 | off_turn_squares: 0.000 | oas: 0.000 | rounds_to_contact: 1.000
+  pillars: v0.9                          [3bf6fc070dbf] attackers 100.0% defender 0.0%     | rounds: 2 | deaths: 0.463 | off_turn_squares: 1.797 | oas: 0.007 | rounds_to_contact: 1.000
+  pillars: off-turn windows OFF          [f2fe5e878f6f] attackers 100.0% defender 0.0%     | rounds: 1 | deaths: 0.453 | off_turn_squares: 0.000 | oas: 0.000 | rounds_to_contact: 1.000
+  pillars: no on-turn extra              [8da823bc5604] attackers 100.0% defender 0.0%     | rounds: 2 | deaths: 0.463 | off_turn_squares: 1.797 | oas: 0.007 | rounds_to_contact: 1.000
+  door: v0.9                             [3bf6fc070dbf] attackers 100.0% defender 0.0%     | rounds: 2 | deaths: 0.393 | off_turn_squares: 0.480 | oas: 0.000 | rounds_to_contact: 1.000
+  door: off-turn windows OFF             [f2fe5e878f6f] attackers 100.0% defender 0.0%     | rounds: 2 | deaths: 0.423 | off_turn_squares: 0.000 | oas: 0.000 | rounds_to_contact: 1.000
+  door: no on-turn extra                 [8da823bc5604] attackers 100.0% defender 0.0%     | rounds: 2 | deaths: 0.393 | off_turn_squares: 0.480 | oas: 0.000 | rounds_to_contact: 1.000
+  corridor: v0.9                         [3bf6fc070dbf] attackers 97.0% defender 0.0%      | rounds: 2 | deaths: 0.243 | off_turn_squares: 0.797 | oas: 0.000 | rounds_to_contact: 1.000
+  corridor: off-turn windows OFF         [f2fe5e878f6f] attackers 100.0% defender 0.0%     | rounds: 1 | deaths: 0.417 | off_turn_squares: 0.000 | oas: 0.000 | rounds_to_contact: 1.000
+  corridor: no on-turn extra             [8da823bc5604] attackers 97.0% defender 0.0%      | rounds: 2 | deaths: 0.243 | off_turn_squares: 0.797 | oas: 0.000 | rounds_to_contact: 1.000
+
+## B3b. Same, attackers tactical with pin (focus fire, close off-turn)
+  open: v0.9                             [3bf6fc070dbf] attackers 100.0% defender 0.0%     | rounds: 1 | deaths: 0.420 | off_turn_squares: 5.737 | oas: 0.000
+  open: off-turn windows OFF             [f2fe5e878f6f] attackers 100.0% defender 0.0%     | rounds: 1 | deaths: 0.570 | off_turn_squares: 0.000 | oas: 0.000
+  corner: v0.9                           [3bf6fc070dbf] attackers 100.0% defender 0.0%     | rounds: 1 | deaths: 0.530 | off_turn_squares: 4.927 | oas: 0.000
+  corner: off-turn windows OFF           [f2fe5e878f6f] attackers 100.0% defender 0.0%     | rounds: 1 | deaths: 0.620 | off_turn_squares: 0.000 | oas: 0.000
+  pillars: v0.9                          [3bf6fc070dbf] attackers 100.0% defender 0.0%     | rounds: 1 | deaths: 0.490 | off_turn_squares: 4.910 | oas: 0.000
+  pillars: off-turn windows OFF          [f2fe5e878f6f] attackers 100.0% defender 0.0%     | rounds: 1 | deaths: 0.597 | off_turn_squares: 0.000 | oas: 0.000
+  door: v0.9                             [3bf6fc070dbf] attackers 100.0% defender 0.0%     | rounds: 1 | deaths: 0.520 | off_turn_squares: 0.850 | oas: 0.000
+  door: off-turn windows OFF             [f2fe5e878f6f] attackers 100.0% defender 0.0%     | rounds: 1 | deaths: 0.503 | off_turn_squares: 0.000 | oas: 0.000
+  corridor: v0.9                         [3bf6fc070dbf] attackers 99.7% defender 0.0%      | rounds: 1 | deaths: 0.437 | off_turn_squares: 5.377 | oas: 0.000
+  corridor: off-turn windows OFF         [f2fe5e878f6f] attackers 100.0% defender 0.0%     | rounds: 1 | deaths: 0.587 | off_turn_squares: 0.000 | oas: 0.000
+
+## B3c. Numbers: N v M equal sample fighters on open ground, tactical chipkill both sides
+  1v1: v0.9                              [3bf6fc070dbf] A 53.3% B 46.0%                    | rounds: 5 | deaths: 0.130 | first_mover: 56.4% | off_turn_squares: 0.000
+  1v1: no on-turn extra                  [8da823bc5604] A 49.7% B 48.7%                    | rounds: 5 | deaths: 0.087 | first_mover: 30.8% | off_turn_squares: 0.000
+  1v2: v0.9                              [3bf6fc070dbf] A 0.0% B 100.0%                    | rounds: 2 | deaths: 0.450 | first_mover: 61.7% | off_turn_squares: 0.000
+  1v2: no on-turn extra                  [8da823bc5604] A 0.3% B 99.7%                     | rounds: 2 | deaths: 0.593 | first_mover: 61.3% | off_turn_squares: 5.733
+  2v2: v0.9                              [3bf6fc070dbf] A 50.7% B 48.3%                    | rounds: 4 | deaths: 0.960 | first_mover: 66.7% | off_turn_squares: 2.823
+  2v2: no on-turn extra                  [8da823bc5604] A 45.0% B 52.7%                    | rounds: 7 | deaths: 0.873 | first_mover: 57.7% | off_turn_squares: 55.907
+  2v3: v0.9                              [3bf6fc070dbf] A 0.0% B 100.0%                    | rounds: 2 | deaths: 1.300 | first_mover: 64.0% | off_turn_squares: 3.960
+  2v3: no on-turn extra                  [8da823bc5604] A 7.3% B 92.0%                     | rounds: 5 | deaths: 1.203 | first_mover: 59.1% | off_turn_squares: 76.573
+  3v3: v0.9                              [3bf6fc070dbf] A 51.0% B 48.0%                    | rounds: 4 | deaths: 2.103 | first_mover: 59.9% | off_turn_squares: 6.043
+  3v3: no on-turn extra                  [8da823bc5604] A 48.0% B 51.0%                    | rounds: 7.5 | deaths: 1.690 | first_mover: 36.0% | off_turn_squares: 94.817
+  2v4: v0.9                              [3bf6fc070dbf] A 0.0% B 100.0%                    | rounds: 1 | deaths: 1.323 | first_mover: 67.3% | off_turn_squares: 4.563
+  2v4: no on-turn extra                  [8da823bc5604] A 0.3% B 99.7%                     | rounds: 5 | deaths: 1.227 | first_mover: 67.0% | off_turn_squares: 90.303
+  3v4: v0.9                              [3bf6fc070dbf] A 2.7% B 97.3%                     | rounds: 2 | deaths: 2.267 | first_mover: 59.3% | off_turn_squares: 7.453
+  3v4: no on-turn extra                  [8da823bc5604] A 10.3% B 89.3%                    | rounds: 7 | deaths: 1.910 | first_mover: 51.8% | off_turn_squares: 115.223
+
+## B3d. Agility 5 defender (free 8, 4 sq/purchase, MD 5) vs AGI 1, 1v3 corridor and door, by movement rule
+  corridor AGI 1: v0.9                   [3bf6fc070dbf] attackers 97.0% defender 0.0%      | rounds: 2 | deaths: 0.243 | off_turn_squares: 0.797 | oas: 0.000
+  corridor AGI 1: no on-turn extra       [8da823bc5604] attackers 97.0% defender 0.0%      | rounds: 2 | deaths: 0.243 | off_turn_squares: 0.797 | oas: 0.000
+  corridor AGI 1: one sq flat            [ef5c0f656642] attackers 97.0% defender 0.0%      | rounds: 2 | deaths: 0.243 | off_turn_squares: 0.797 | oas: 0.000
+  corridor AGI 5: v0.9                   [3bf6fc070dbf] attackers 86.7% defender 0.0%      | rounds: 2.5 | deaths: 0.340 | off_turn_squares: 0.813 | oas: 0.000
+  corridor AGI 5: no on-turn extra       [8da823bc5604] attackers 86.7% defender 0.0%      | rounds: 2.5 | deaths: 0.340 | off_turn_squares: 0.813 | oas: 0.000
+  corridor AGI 5: one sq flat            [ef5c0f656642] attackers 86.7% defender 0.0%      | rounds: 2.5 | deaths: 0.340 | off_turn_squares: 0.813 | oas: 0.000
+  door AGI 1: v0.9                       [3bf6fc070dbf] attackers 100.0% defender 0.0%     | rounds: 2 | deaths: 0.393 | off_turn_squares: 0.480 | oas: 0.000
+  door AGI 1: no on-turn extra           [8da823bc5604] attackers 100.0% defender 0.0%     | rounds: 2 | deaths: 0.393 | off_turn_squares: 0.480 | oas: 0.000
+  door AGI 1: one sq flat                [ef5c0f656642] attackers 100.0% defender 0.0%     | rounds: 2 | deaths: 0.393 | off_turn_squares: 0.480 | oas: 0.000
+  door AGI 5: v0.9                       [3bf6fc070dbf] attackers 100.0% defender 0.0%     | rounds: 2 | deaths: 0.493 | off_turn_squares: 1.120 | oas: 0.000
+  door AGI 5: no on-turn extra           [8da823bc5604] attackers 100.0% defender 0.0%     | rounds: 2 | deaths: 0.493 | off_turn_squares: 1.120 | oas: 0.000
+  door AGI 5: one sq flat                [ef5c0f656642] attackers 100.0% defender 0.0%     | rounds: 2 | deaths: 0.493 | off_turn_squares: 1.120 | oas: 0.000

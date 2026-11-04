@@ -1,0 +1,34 @@
+RuleSet v0.9 3bf6fc070dbf
+Code git 7bd1bb8 (7bd1bb89cab5, uncommitted changes); source 262c361abfc1; stamina-engine unknown
+
+## B2d. Duel 10 apart, both tactical
+  agi, flat (v0.9)                       [3bf6fc070dbf] A 48.2% B 48.8%                    | first_mover: 56.7% | draws: 3.0% | rounds: 5 | winner_untouched: 84.8%
+  one square, flat                       [ef5c0f656642] A 49.0% B 48.5%                    | first_mover: 55.1% | draws: 2.5% | rounds: 6 | winner_untouched: 82.3%
+  agi, escalating                        [d0c88274bd59] A 49.0% B 48.5%                    | first_mover: 55.1% | draws: 2.5% | rounds: 6 | winner_untouched: 82.3%
+  one square, escalating                 [db6edbbd9a74] A 47.5% B 50.0%                    | first_mover: 38.2% | draws: 2.5% | rounds: 6 | winner_untouched: 79.0%
+  agi, capped at Movement                [f7fd70927981] A 48.2% B 48.8%                    | first_mover: 56.7% | draws: 3.0% | rounds: 5 | winner_untouched: 84.8%
+  none                                   [8da823bc5604] A 48.5% B 50.0%                    | first_mover: 32.5% | draws: 1.5% | rounds: 4 | winner_untouched: 62.2%
+
+## B2e. Retreat line 2v2: tactical fleer vs tactical chasers
+  agi, flat (v0.9)                       [3bf6fc070dbf] chasers 68.0% line 30.8%           | first_mover: 63.0% | rounds: 5 | off_turn_squares: 2.255 | oas: 0.035
+  one square, flat                       [ef5c0f656642] chasers 67.8% line 31.0%           | first_mover: 62.8% | rounds: 5 | off_turn_squares: 2.255 | oas: 0.035
+  agi, escalating                        [d0c88274bd59] chasers 68.0% line 30.8%           | first_mover: 63.0% | rounds: 5 | off_turn_squares: 2.255 | oas: 0.035
+  one square, escalating                 [db6edbbd9a74] chasers 68.0% line 30.8%           | first_mover: 63.0% | rounds: 5 | off_turn_squares: 2.255 | oas: 0.035
+  agi, capped at Movement                [f7fd70927981] chasers 68.0% line 30.8%           | first_mover: 63.0% | rounds: 5 | off_turn_squares: 2.255 | oas: 0.035
+  none                                   [8da823bc5604] chasers 42.8% line 56.8%           | first_mover: 88.4% | rounds: 4 | off_turn_squares: 6.742 | oas: 0.090
+
+## B2f. 1v3 open, tactical defender vs 2-step attackers
+  agi, flat (v0.9)                       [3bf6fc070dbf] attackers 100.0% defender 0.0%     | rounds: 2 | deaths: 0.438 | off_turn_squares: 2.285 | rounds_to_contact: 1.000
+  one square, flat                       [ef5c0f656642] attackers 100.0% defender 0.0%     | rounds: 2 | deaths: 0.438 | off_turn_squares: 2.285 | rounds_to_contact: 1.000
+  agi, escalating                        [d0c88274bd59] attackers 100.0% defender 0.0%     | rounds: 2 | deaths: 0.438 | off_turn_squares: 2.285 | rounds_to_contact: 1.000
+  one square, escalating                 [db6edbbd9a74] attackers 100.0% defender 0.0%     | rounds: 2 | deaths: 0.438 | off_turn_squares: 2.285 | rounds_to_contact: 1.000
+  agi, capped at Movement                [f7fd70927981] attackers 100.0% defender 0.0%     | rounds: 2 | deaths: 0.438 | off_turn_squares: 2.285 | rounds_to_contact: 1.000
+  none                                   [8da823bc5604] attackers 100.0% defender 0.0%     | rounds: 2 | deaths: 0.438 | off_turn_squares: 2.285 | rounds_to_contact: 1.000
+
+## B2g. 1v3 corridor, tactical defender vs 2-step attackers
+  agi, flat (v0.9)                       [3bf6fc070dbf] attackers 97.0% defender 0.0%      | rounds: 2 | deaths: 0.247 | off_turn_squares: 0.787 | rounds_to_contact: 1.000
+  one square, flat                       [ef5c0f656642] attackers 97.0% defender 0.0%      | rounds: 2 | deaths: 0.247 | off_turn_squares: 0.787 | rounds_to_contact: 1.000
+  agi, escalating                        [d0c88274bd59] attackers 97.0% defender 0.0%      | rounds: 2 | deaths: 0.247 | off_turn_squares: 0.787 | rounds_to_contact: 1.000
+  one square, escalating                 [db6edbbd9a74] attackers 97.0% defender 0.0%      | rounds: 2 | deaths: 0.247 | off_turn_squares: 0.787 | rounds_to_contact: 1.000
+  agi, capped at Movement                [f7fd70927981] attackers 97.0% defender 0.0%      | rounds: 2 | deaths: 0.247 | off_turn_squares: 0.787 | rounds_to_contact: 1.000
+  none                                   [8da823bc5604] attackers 97.0% defender 0.0%      | rounds: 2 | deaths: 0.247 | off_turn_squares: 0.787 | rounds_to_contact: 1.000

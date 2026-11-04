@@ -1,0 +1,66 @@
+Window race: fleer F (wants gap > 1) vs pinner P (wants adjacency), start gap 2, one round, F's and P's empty turns each followed by a window. Budgets are off-turn stamina each will spend.
+cells: final gap | F paid {move, avoid} | P paid {move, OA} | asks
+
+### equal AGI 1, equal budgets 6 (three purchases each)
+  asc           F higher init : gap 3            | F move  6 avoid  3 | P move  6 OA  0 | asks 12
+  asc           P higher init : gap 3            | F move  6 avoid  2 | P move  6 OA  0 | asks 12
+  desc          F higher init : gap 3            | F move  6 avoid  2 | P move  6 OA  0 | asks 12
+  desc          P higher init : gap 3            | F move  6 avoid  3 | P move  6 OA  0 | asks 12
+  desc+restart  F higher init : gap 3            | F move  6 avoid  2 | P move  6 OA  0 | asks 15
+  desc+restart  P higher init : gap 3            | F move  6 avoid  3 | P move  6 OA  0 | asks 18
+
+### equal AGI 1, pinner richer (10 vs 6)
+  asc           F higher init : gap 1 (adjacent) | F move  6 avoid  3 | P move 10 OA  0 | asks 15
+  asc           P higher init : gap 1 (adjacent) | F move  6 avoid  2 | P move 10 OA  0 | asks 12
+  desc          F higher init : gap 1 (adjacent) | F move  6 avoid  2 | P move 10 OA  0 | asks 12
+  desc          P higher init : gap 1 (adjacent) | F move  6 avoid  3 | P move 10 OA  0 | asks 15
+  desc+restart  F higher init : gap 1 (adjacent) | F move  6 avoid  2 | P move 10 OA  0 | asks 18
+  desc+restart  P higher init : gap 1 (adjacent) | F move  6 avoid  3 | P move 10 OA  0 | asks 20
+
+### equal AGI 1, fleer richer (10 vs 6)
+  asc           F higher init : gap 3            | F move  6 avoid  3 | P move  6 OA  0 | asks 12
+  asc           P higher init : gap 3            | F move  6 avoid  2 | P move  6 OA  0 | asks 12
+  desc          F higher init : gap 3            | F move  6 avoid  2 | P move  6 OA  0 | asks 12
+  desc          P higher init : gap 3            | F move  6 avoid  3 | P move  6 OA  0 | asks 12
+  desc+restart  F higher init : gap 3            | F move  6 avoid  2 | P move  6 OA  0 | asks 15
+  desc+restart  P higher init : gap 3            | F move  6 avoid  3 | P move  6 OA  0 | asks 18
+
+### fleer AGI 3 (3 sq/purchase) vs pinner AGI 1 (2), equal budgets
+  asc           F higher init : gap 4            | F move  3 avoid  2 | P move  6 OA  0 | asks 9
+  asc           P higher init : gap 4            | F move  3 avoid  1 | P move  3 OA  0 | asks 9
+  desc          F higher init : gap 4            | F move  3 avoid  1 | P move  3 OA  0 | asks 9
+  desc          P higher init : gap 4            | F move  3 avoid  2 | P move  6 OA  0 | asks 9
+  desc+restart  F higher init : gap 4            | F move  3 avoid  1 | P move  3 OA  0 | asks 10
+  desc+restart  P higher init : gap 4            | F move  3 avoid  2 | P move  6 OA  0 | asks 13
+
+### fleer AGI 1 vs pinner AGI 3, equal budgets
+  asc           F higher init : gap 3            | F move  6 avoid  3 | P move  6 OA  0 | asks 12
+  asc           P higher init : gap 1 (adjacent) | F move  6 avoid  2 | P move  6 OA  0 | asks 12
+  desc          F higher init : gap 1 (adjacent) | F move  6 avoid  2 | P move  6 OA  0 | asks 12
+  desc          P higher init : gap 3            | F move  6 avoid  3 | P move  6 OA  0 | asks 12
+  desc+restart  F higher init : gap 1 (adjacent) | F move  6 avoid  2 | P move  6 OA  0 | asks 18
+  desc+restart  P higher init : gap 3            | F move  6 avoid  3 | P move  6 OA  0 | asks 18
+
+### fleer AGI 3 vs pinner AGI 1, one purchase per move (segment reactions)
+  asc           F higher init : gap 3            | F move  3 avoid  1 | P move  6 OA  0 | asks 12
+  asc           P higher init : gap 5            | F move  6 avoid  1 | P move  6 OA  0 | asks 15
+  desc          F higher init : gap 5            | F move  6 avoid  1 | P move  6 OA  0 | asks 15
+  desc          P higher init : gap 3            | F move  3 avoid  1 | P move  6 OA  0 | asks 12
+  desc+restart  F higher init : gap 5            | F move  6 avoid  1 | P move  6 OA  0 | asks 18
+  desc+restart  P higher init : gap 4            | F move  3 avoid  2 | P move  6 OA  0 | asks 15
+
+### fleer AGI 1 vs pinner AGI 3, one purchase per move
+  asc           F higher init : gap 3            | F move  6 avoid  3 | P move  6 OA  0 | asks 12
+  asc           P higher init : gap 1 (adjacent) | F move  6 avoid  2 | P move  6 OA  0 | asks 12
+  desc          F higher init : gap 1 (adjacent) | F move  6 avoid  2 | P move  6 OA  0 | asks 12
+  desc          P higher init : gap 3            | F move  6 avoid  3 | P move  6 OA  0 | asks 12
+  desc+restart  F higher init : gap 1 (adjacent) | F move  6 avoid  2 | P move  6 OA  0 | asks 18
+  desc+restart  P higher init : gap 3            | F move  6 avoid  3 | P move  6 OA  0 | asks 18
+
+### equal AGI 1, one purchase per move
+  asc           F higher init : gap 3            | F move  6 avoid  3 | P move  6 OA  0 | asks 12
+  asc           P higher init : gap 2            | F move  6 avoid  0 | P move  6 OA  0 | asks 12
+  desc          F higher init : gap 2            | F move  6 avoid  0 | P move  6 OA  0 | asks 12
+  desc          P higher init : gap 3            | F move  6 avoid  3 | P move  6 OA  0 | asks 12
+  desc+restart  F higher init : gap 2            | F move  6 avoid  0 | P move  6 OA  0 | asks 18
+  desc+restart  P higher init : gap 3            | F move  6 avoid  3 | P move  6 OA  0 | asks 18

@@ -1,0 +1,44 @@
+RuleSet v0.9 3bf6fc070dbf
+Code git 7bd1bb8 (7bd1bb89cab5, uncommitted changes); source 262c361abfc1; stamina-engine unknown
+
+## B2a. Archer vs fighter, open ground, both tactical
+  agi, flat (v0.9)                       [3bf6fc070dbf] archer 25.2% fighter 74.8%         | first_mover: 75.5% | rounds: 1 | rounds_to_contact: 1.000 | off_turn_squares: 0.070
+  one square, flat                       [ef5c0f656642] archer 24.5% fighter 75.5%         | first_mover: 74.8% | rounds: 1 | rounds_to_contact: 1.000 | off_turn_squares: 0.175
+  agi, escalating                        [d0c88274bd59] archer 24.5% fighter 75.5%         | first_mover: 74.8% | rounds: 1 | rounds_to_contact: 1.000 | off_turn_squares: 0.175
+  one square, escalating                 [db6edbbd9a74] archer 53.2% fighter 46.8%         | first_mover: 46.0% | rounds: 3 | rounds_to_contact: 1.000 | off_turn_squares: 0.220
+  agi, capped at Movement                [f7fd70927981] archer 25.2% fighter 74.8%         | first_mover: 75.5% | rounds: 1 | rounds_to_contact: 1.000 | off_turn_squares: 0.070
+  none                                   [8da823bc5604] archer 52.8% fighter 47.2%         | first_mover: 45.5% | rounds: 3 | rounds_to_contact: 1.000 | off_turn_squares: 0.220
+
+## B2b. Archer vs fighter, scattered cover, both tactical
+  agi, flat (v0.9)                       [3bf6fc070dbf] archer 0.2% fighter 99.8%          | first_mover: 50.2% | rounds: 1 | rounds_to_contact: 1.000 | off_turn_squares: 0.970
+  one square, flat                       [ef5c0f656642] archer 1.2% fighter 98.8%          | first_mover: 51.2% | rounds: 1 | rounds_to_contact: 1.000 | off_turn_squares: 0.970
+  agi, escalating                        [d0c88274bd59] archer 2.5% fighter 97.5%          | first_mover: 52.5% | rounds: 1 | rounds_to_contact: 1.000 | off_turn_squares: 1.067
+  one square, escalating                 [db6edbbd9a74] archer 0.5% fighter 99.5%          | first_mover: 49.5% | rounds: 2 | rounds_to_contact: 1.000 | off_turn_squares: 1.688
+  agi, capped at Movement                [f7fd70927981] archer 0.2% fighter 99.8%          | first_mover: 50.2% | rounds: 1 | rounds_to_contact: 1.000 | off_turn_squares: 0.970
+  none                                   [8da823bc5604] archer 0.2% fighter 99.8%          | first_mover: 49.8% | rounds: 2.5 | rounds_to_contact: 1.000 | off_turn_squares: 1.645
+
+## B2c. Duel 8 apart, both tactical (first mover must buy 1 square to strike first)
+  agi, flat (v0.9)                       [3bf6fc070dbf] A 50.5% B 48.2%                    | first_mover: 58.7% | draws: 1.2% | rounds: 6 | winner_untouched: 80.5%
+  one square, flat                       [ef5c0f656642] A 50.5% B 48.2%                    | first_mover: 58.7% | draws: 1.2% | rounds: 6 | winner_untouched: 80.5%
+  agi, escalating                        [d0c88274bd59] A 50.5% B 48.2%                    | first_mover: 58.7% | draws: 1.2% | rounds: 6 | winner_untouched: 80.5%
+  one square, escalating                 [db6edbbd9a74] A 50.5% B 48.2%                    | first_mover: 58.7% | draws: 1.2% | rounds: 6 | winner_untouched: 80.5%
+  agi, capped at Movement                [f7fd70927981] A 50.5% B 48.2%                    | first_mover: 58.7% | draws: 1.2% | rounds: 6 | winner_untouched: 80.5%
+  none                                   [8da823bc5604] A 52.0% B 46.8%                    | first_mover: 28.9% | draws: 1.2% | rounds: 4 | winner_untouched: 64.1%
+
+## B2d. Duel 12 apart, both tactical
+Traceback (most recent call last):
+  File "/home/claude/benjamintzudiker/ttriangularpg/sim/experiments_movement.py", line 268, in <module>
+  File "/home/claude/benjamintzudiker/ttriangularpg/sim/experiments_movement.py", line 187, in run_cell
+    s = toml_scenario(scenario_text)
+  File "/home/claude/benjamintzudiker/ttriangularpg/sim/experiments_movement.py", line 53, in toml_scenario
+    return scenario_from_toml(text, BASE_DIR)
+  File "/home/claude/benjamintzudiker/ttriangularpg/sim/src/stamina_engine/experiments/scenario.py", line 234, in scenario_from_toml
+    return Scenario(
+        name=str(table.get("name", "scenario")),
+    ...<11 lines>...
+        equipment=str(table.get("equipment", "v0_9")),
+    )
+  File "<string>", line 16, in __init__
+  File "/home/claude/benjamintzudiker/ttriangularpg/sim/src/stamina_engine/experiments/scenario.py", line 90, in __post_init__
+    raise ConfigError(f"{c.id} starts on {c.pos}, which isn't floor")
+stamina_engine.core.errors.ConfigError: B starts on (14, 6), which isn't floor

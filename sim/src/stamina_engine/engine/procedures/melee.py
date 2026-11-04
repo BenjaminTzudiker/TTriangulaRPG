@@ -54,7 +54,9 @@ def declare_steps(
     """Step 2: declare every step before rolling, and pay base + the on-turn surcharge each."""
     quotes: list[Quote] = []
     while True:
-        quote = b.pricing.melee_attack(weapon.base, len(quotes) + 1, attacker.trackers)
+        quote = b.pricing.melee_attack(
+            weapon.base, len(quotes) + 1, attacker.trackers, light=weapon.light
+        )
         if quote.total > attacker.stamina:
             break
         quotes.append(quote)

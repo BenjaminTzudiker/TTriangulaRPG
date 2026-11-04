@@ -4,6 +4,7 @@
 [scenario]
 name = "l1-duel"
 ruleset = { base = "v0.9" }          # or "v0.9", or { file = "mine.toml" }, plus overrides
+equipment = "v0_9"                   # or a variant table in data/equipment
 round_cap = 30
 trials = 2000
 seed = 1
@@ -35,7 +36,7 @@ from pathlib import Path
 from typing import Any
 
 from stamina_engine.core.errors import ConfigError
-from stamina_engine.grid.battlefield import Battlefield, Cell, load_map, parse_map
+from stamina_engine.grid.battlefield import DEFAULT_LEGEND, Battlefield, Cell, load_map, parse_map
 from stamina_engine.model.build import Build, load_build
 from stamina_engine.rules.plugins import PluginInfo, load_plugin
 from stamina_engine.rules.ruleset import RuleSet, load_ruleset, preset
@@ -70,6 +71,7 @@ class Scenario:
     plugin_paths: tuple[str, ...] = ()
     source: str = field(default="", compare=False)  # the TOML it came from, for the record
     battlefield: Battlefield | None = None
+    equipment: str = "v0_9"  # the weapon, armor and shield table (data/equipment variants)
 
     def __post_init__(self) -> None:
         if self.arena not in ARENAS:
@@ -225,7 +227,7 @@ def scenario_from_toml(text: str, base_dir: Path = Path(".")) -> Scenario:
                     cells[i],
                 )
             )
-    known = {"name", "round_cap", "trials", "seed", "dice", "arena"}
+    known = {"name", "round_cap", "trials", "seed", "dice", "arena", "equipment"}
     unknown = set(table) - known
     if unknown:
         raise ConfigError(f"unknown scenario fields {sorted(unknown)}")
@@ -242,6 +244,7 @@ def scenario_from_toml(text: str, base_dir: Path = Path(".")) -> Scenario:
         plugin_paths=plugin_paths,
         source=text,
         battlefield=battlefield,
+        equipment=str(table.get("equipment", "v0_9")),
     )
 
 
@@ -254,6 +257,10 @@ def load_scenario(path: str | Path) -> Scenario:
     return scenario_from_toml(text, p.parent)
 
 
+def _key(k: str) -> str:
+    return k if k.replace("_", "").replace("-", "").isalnum() else json.dumps(k)
+
+
 def _toml(value: object) -> str:
     if isinstance(value, bool):
         return "true" if value else "false"
@@ -262,7 +269,7 @@ def _toml(value: object) -> str:
     if isinstance(value, str):
         return json.dumps(value)
     if isinstance(value, Mapping):
-        return "{ " + ", ".join(f"{k} = {_toml(v)}" for k, v in value.items()) + " }"
+        return "{ " + ", ".join(f"{_key(str(k))} = {_toml(v)}" for k, v in value.items()) + " }"
     if isinstance(value, list | tuple):
         return "[" + ", ".join(_toml(v) for v in value) + "]"
     raise ConfigError(f"can't write {value!r} to TOML")
@@ -280,12 +287,14 @@ def scenario_to_toml(s: Scenario) -> str:
         f"dice = {_toml(s.dice)}",
         f"arena = {_toml(s.arena)}",
         f"plugins = {_toml(list(s.plugin_paths))}",
+        f"equipment = {_toml(s.equipment)}",
     ]
     if s.battlefield is not None:
         lines.append(f"map_name = {_toml(s.battlefield.name)}")
         lines.append('map_text = """\n' + "\n".join(s.battlefield.rows) + '\n"""')
         lines.append(
-            "legend = " + _toml({ch: t for ch, t in s.battlefield.legend if ch not in ".#=o"})
+            "legend = "
+            + _toml({ch: t for ch, t in s.battlefield.legend if ch not in DEFAULT_LEGEND})
         )
     lines.append("")
     rules = tomllib.loads(s.rules.to_toml())["ruleset"]

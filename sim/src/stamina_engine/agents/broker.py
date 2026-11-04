@@ -16,6 +16,7 @@ from stamina_engine.agents.decisions import (
     Draw,
     DrawOption,
     EndTurn,
+    Flee,
     Move,
     MoveAnswer,
     MoveOptions,
@@ -23,6 +24,7 @@ from stamina_engine.agents.decisions import (
     OffTurnMove,
     Pass,
     Shoot,
+    Surrender,
     TakeOA,
     TurnAnswer,
     TurnCommand,
@@ -91,6 +93,14 @@ class Broker:
         elif isinstance(answer, Draw):
             self._check_draw(req.who, req.draws, answer)
             text, acted = f"draw {answer.loadout}", True
+        elif isinstance(answer, Flee):
+            if not req.can_flee:
+                raise RulesError(f"{req.who} can't flee from here")
+            text, acted = "flee", True
+        elif isinstance(answer, Surrender):
+            if not req.can_surrender:
+                raise RulesError(f"{req.who} can't surrender here")
+            text, acted = "surrender", True
         elif isinstance(answer, EndTurn):
             text, acted = "end turn", False
         else:

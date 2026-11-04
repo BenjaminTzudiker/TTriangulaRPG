@@ -1,0 +1,7 @@
+[profile]
+description = "Chip-kill, falls back when engaged at all, flees at half HP and surrenders at a quarter when it can't get away (values its survival, Ledger GM-1)."
+commit = "chipkill"
+target = "lowest_stamina"
+retreat_engaged = 1
+flee_below = "1/2"
+surrender_below = "1/4"

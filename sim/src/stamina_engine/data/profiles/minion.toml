@@ -1,0 +1,6 @@
+[profile]
+description = "One step at a time, focusing fire; never falls back."
+commit = "fixed:1"
+target = "focus"
+retreat_engaged = 99
+low_stamina = "0"

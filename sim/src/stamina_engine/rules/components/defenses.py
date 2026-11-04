@@ -18,6 +18,7 @@ class DefenseRule(Component):
         "Ledger DF-2",
         "Ledger DF-3",
         "Review F3",
+        "Review F4",
     )
 
     def melee(
@@ -28,6 +29,7 @@ class DefenseRule(Component):
         proficient_melee: bool,
         second_weapon: bool,
         shield_bonus: int,
+        two_handed: bool = False,
     ) -> int:
         raise NotImplementedError
 
@@ -54,6 +56,11 @@ class V09Defenses(DefenseRule):
     # Review F3 option 1: fold Dodge into Ranged Defense (RD = 1 + even AGI, armor-adjusted,
     # + shield). v0_9 is as written: 1 + shield.
     ranged_mode: str = "v0_9"
+    # Review F4 option 2: +1 Melee Defense for a proficient two-handed melee grip (0 as
+    # written), and Agility's Dodge and Ranged bonus one step finer than Melee's (every point
+    # unarmored or in light armor, every 2nd in medium, every 3rd in heavy).
+    two_hander_bonus: int = 0
+    agility_split: bool = False
 
     def melee(
         self,
@@ -63,8 +70,11 @@ class V09Defenses(DefenseRule):
         proficient_melee: bool,
         second_weapon: bool,
         shield_bonus: int,
+        two_handed: bool = False,
     ) -> int:
         value = self.base if agility >= 0 else 0
+        if two_handed:
+            value += self.two_hander_bonus
         if proficient_melee:
             if finesse >= 0:
                 value += self.proficient_weapon
@@ -75,11 +85,16 @@ class V09Defenses(DefenseRule):
         value += even_count(agility, agility_step)
         return value
 
+    def _fine_step(self, agility_step: int) -> int:
+        return max(1, agility_step - 1) if self.agility_split else agility_step
+
     def ranged(self, agility: int, shield_bonus: int, agility_step: int = 2) -> int:
         value = (self.base if agility >= 0 else 0) + shield_bonus
         if self.ranged_mode == "dodge_folded":
-            value += even_count(agility, agility_step)
+            value += even_count(agility, self._fine_step(agility_step))
         return value
 
     def dodge(self, agility: int, agility_step: int) -> int:
-        return (self.base if agility >= 0 else 0) + even_count(agility, agility_step)
+        return (self.base if agility >= 0 else 0) + even_count(
+            agility, self._fine_step(agility_step)
+        )

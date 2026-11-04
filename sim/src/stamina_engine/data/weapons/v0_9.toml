@@ -9,13 +9,13 @@ step_floor = 0  # each step's roll floors at 0 (Assumptions register, pending de
 [weapons.dagger]
 base = 1
 reach = 1
-properties = ["quick-draw"]
+properties = ["quick-draw", "light"]  # light: the packet's light weapons (base 1)
 grips.one = "1d4 + max(AGI, FIN)"
 
 [weapons.shortsword]
 base = 1
 reach = 1
-properties = ["quick-draw"]
+properties = ["quick-draw", "light"]
 grips.one = "1d6 + max(AGI, FIN)"
 
 [weapons.longsword]

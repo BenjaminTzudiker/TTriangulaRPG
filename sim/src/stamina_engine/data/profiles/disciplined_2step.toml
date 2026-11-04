@@ -1,0 +1,7 @@
+[profile]
+description = "Commits 2 steps; 3 against a target below half stamina. Focuses fire with its allies and falls back when two or more can engage it."
+commit = "fixed:2"
+commit_vs_low = "fixed:3"
+low_target = "1/2"
+target = "focus"
+retreat_engaged = 2

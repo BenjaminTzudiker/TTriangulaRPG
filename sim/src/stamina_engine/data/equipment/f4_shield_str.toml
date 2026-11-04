@@ -1,0 +1,10 @@
+# Review F4 option 1 (second form): the shield keeps +2 / +2 but has a Strength requirement
+# like armor: -1 Agility and -1 Finesse per point of Strength below 2 (the value is a
+# reading; the review doesn't give one). It penalizes separately from armor's requirement.
+[table]
+weapons = "v0_9"
+
+[shields.shield]
+melee = 2
+ranged = 2
+strength_requirement = 2

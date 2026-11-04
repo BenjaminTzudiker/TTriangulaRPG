@@ -2,7 +2,16 @@
 
 import hashlib
 
-from stamina_engine.agents.decisions import Attack, Draw, EndTurn, Move, Shoot, TurnCommand
+from stamina_engine.agents.decisions import (
+    Attack,
+    Draw,
+    EndTurn,
+    Flee,
+    Move,
+    Shoot,
+    Surrender,
+    TurnCommand,
+)
 from stamina_engine.core.dice import roll
 from stamina_engine.engine.battle import Battle, BattleResult
 from stamina_engine.engine.events import (
@@ -106,6 +115,8 @@ def command_loop(b: Battle, c: CombatantState) -> None:
                 move_options(b, c, on_turn=True),
                 shot_targets(b, c),
                 draw_options(b, c, on_turn=True),
+                b.field is not None and c.pos is not None and b.field.is_exit(c.pos),
+                b.field is not None,
             )
         )
         if isinstance(answer, EndTurn):
@@ -118,6 +129,13 @@ def command_loop(b: Battle, c: CombatantState) -> None:
             shoot(b, c, b.state.get(answer.target))
         elif isinstance(answer, Draw):
             draw(b, c, answer.loadout, on_turn=True)
+        elif isinstance(answer, Flee | Surrender):
+            if isinstance(answer, Flee):
+                b.ops.flee(c)
+            else:
+                b.ops.surrender(c)
+            b.check_end()
+            return
         if b.outcome is not None:
             return
 
@@ -128,7 +146,7 @@ def targets(b: Battle, c: CombatantState) -> tuple[str, ...]:
     weapon = c.gear.weapon
     if weapon is None or weapon.ranged:
         return ()
-    if b.pricing.melee_attack(weapon.base, 1, c.trackers).total > c.stamina:
+    if b.pricing.melee_attack(weapon.base, 1, c.trackers, light=weapon.light).total > c.stamina:
         return ()
     return tuple(
         o.id for o in b.state.enemies_of(c) if o.active and b.arena.in_reach(b.state, c, o, weapon)
@@ -169,7 +187,7 @@ def run_battle(b: Battle) -> BattleResult:
         with b.context.frame(f"round {round_}"):
             for cid in order:
                 c = b.state.get(cid)
-                if c.status is Status.DEAD:
+                if c.status in (Status.DEAD, Status.FLED, Status.SURRENDERED):
                     continue
                 take_turn(b, c)
                 if b.outcome is not None:

@@ -1,0 +1,7 @@
+# Review F4 option 1 (first form): the shield gives +1 Melee Defense and +2 Ranged Defense.
+[table]
+weapons = "v0_9"
+
+[shields.shield]
+melee = 1
+ranged = 2

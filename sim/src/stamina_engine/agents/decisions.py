@@ -104,11 +104,14 @@ class TurnCommand:
     moves: MoveOptions | None = None  # None when it can't move (or there's no map)
     shots: tuple[str, ...] = ()  # enemies its ranged weapon can target, shot affordable
     draws: tuple[DrawOption, ...] = ()  # loadouts it can switch to now
+    can_flee: bool = False  # standing on an exit square (M4)
+    can_surrender: bool = False  # on a map, any active creature may (M4)
 
     @property
     def option_count(self) -> int:
         moves = self.moves.option_count if self.moves else 0
-        return len(self.targets) + 1 + moves + len(self.shots) + len(self.draws)
+        extra = int(self.can_flee) + int(self.can_surrender)
+        return len(self.targets) + 1 + moves + len(self.shots) + len(self.draws) + extra
 
 
 @dataclass(frozen=True)
@@ -141,7 +144,17 @@ class Draw:
     loadout: str
 
 
-TurnAnswer = Attack | Move | Shoot | Draw | EndTurn
+@dataclass(frozen=True)
+class Flee:
+    pass
+
+
+@dataclass(frozen=True)
+class Surrender:
+    pass
+
+
+TurnAnswer = Attack | Move | Shoot | Draw | Flee | Surrender | EndTurn
 MoveAnswer = Move | Draw | Pass
 
 

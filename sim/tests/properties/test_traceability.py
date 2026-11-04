@@ -14,7 +14,7 @@ LEDGER = (REPO / "design" / "Rules_Reconciliation_Ledger_v0.8-to-v0.9.md").read_
 REVIEW = (REPO / "design" / "Review_Playtest_Packet_v0.9.md").read_text()
 
 HEADINGS = {m.group(1).strip() for m in re.finditer(r"^#+\s+(.+)$", PACKET, re.M)}
-LEDGER_IDS = set(re.findall(r"^### ([A-Z]{2}-\d+)", LEDGER, re.M))
+LEDGER_IDS = set(re.findall(r"^### ([A-Z]{1,2}-\d+)", LEDGER, re.M))
 REVIEW_IDS = set(re.findall(r"^### (F\d+)\.", REVIEW, re.M)) | set(
     re.findall(r"^## (Addendum(?: \d+)?)\b", REVIEW, re.M)
 )

@@ -2,7 +2,7 @@
 
 For claude.ai chats in the "Tactical fantasy TTRPG" project. Claude Code keeps this file current.
 
-**Status:** milestones M0 and M1 are done (tags `m0`, `m1`). M2 (grid and positioning) and M3 (ranged) are built and in review, as stacked pull requests on the `m2-grid` and `m3-ranged` branches: maps, reach, square-by-square movement, opportunity attacks, off-turn windows, sight lines and cover, shots with aim and range bands, diving for cover, drawing weapons, and tactical agents that move, shoot and dive. Equipment variants and NPC profiles arrive in M4, abilities in M5.
+**Status:** milestones M0 and M1 are done (tags `m0`, `m1`). M2 (grid and positioning), M3 (ranged) and M4 (equipment and NPC profiles) are built and in review as stacked pull requests on `m2-grid`, `m3-ranged` and `m4-equipment`: maps and movement, opportunity attacks, ranged attacks, cover and diving, drawing weapons, equipment variant tables, NPC profiles, fleeing and surrendering, and the full phase suite. Abilities, strain and the human CLI arrive in M5.
 
 ## Reading the code
 
@@ -38,7 +38,15 @@ se suite positioning --workers 8 --out reports/m2_positioning.md
 se table 5                                             # review Table 5, exactly, beside the review's figures
 se table 5 --ruleset my_f3_idea.toml                   # the same single shots under your variant
 se suite ranged --workers 8 --out reports/m3_ranged.md # archers on three maps, F3 options
+se suite phase --workers 8 --out reports/phase_suite.md # all eight phase-suite items, review layouts
+se table 8 --equipment f8_die_upgrades                 # an exact table with a variant equipment table
 ```
+
+### Equipment variants and NPC profiles (M4)
+
+A scenario's `equipment = "f4_shield_1"` swaps the weapon, armor and shield table for a variant in `src/stamina_engine/data/equipment/` (each overlays the packet's table entry by entry; copy one to try your own). The shipped variants are Review F8's (die upgrades, Strength capped at die size) and F4's (a +1/+2 shield, a shield with a Strength requirement); F8's light-weapon discount and F4's two-hander bonus are RuleSet switches (`surcharge.light_exempt`, `defenses.two_hander_bonus`, `defenses.agility_split`).
+
+NPC profiles (`src/stamina_engine/data/profiles/`) configure the tactical agent the way a stat block would: `agent = { kind = "npc", profile = "disciplined_2step" }` commits 2 steps, 3 against a target below half stamina, and focuses fire. `cautious` flees through an exit square (`>` on a map) at half HP and surrenders at a quarter. Fleeing and surrendering aren't in the packet; they're engine end states pending the designer (Assumptions register).
 
 `--rounding half-even` reproduces the review, whose simulator used Python's `round()`. The packet's rounding is half up, which changes three Table 1 cells and Table 8's 2.125 (see the Assumptions register).
 

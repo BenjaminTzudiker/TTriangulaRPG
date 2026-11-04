@@ -63,13 +63,24 @@ def table(
         Rounding, typer.Option(help="half-even reproduces the review's printed tables.")
     ] = Rounding.HALF_UP,
     plugin: PluginOption = None,
+    equipment: Annotated[
+        str, typer.Option(help="Equipment table: v0_9, or a variant in data/equipment.")
+    ] = "v0_9",
 ) -> None:
     """Print one of the review's exact static tables."""
+    from stamina_engine.model.equipment import load_table
+
     rules, infos = _setup(ruleset, plugin)
+    try:
+        gear = load_table(equipment)
+    except ConfigError as exc:
+        raise typer.BadParameter(str(exc)) from exc
+    if equipment != "v0_9":
+        typer.echo(f"Equipment: {equipment}")
     if number == 1:
-        typer.echo(render_table1(table1(rules, rounding), rounding))
+        typer.echo(render_table1(table1(rules, rounding, gear), rounding))
     elif number == 8:
-        typer.echo(render_table8(table8(rules), rounding))
+        typer.echo(render_table8(table8(rules, gear), rounding))
     elif number == 5:
         from stamina_engine.analysis.ranged import render_table5
 
@@ -182,7 +193,9 @@ def compare(
 
 @app.command()
 def suite(
-    name: Annotated[str, typer.Argument(help="Suite to run: parity, positioning or ranged.")],
+    name: Annotated[
+        str, typer.Argument(help="Suite to run: parity, positioning, ranged or phase.")
+    ],
     workers: WorkersOption = 1,
     scale: Annotated[float, typer.Option(help="Fraction of the review's trial counts.")] = 1.0,
     trials: Annotated[int, typer.Option(help="Positioning: trials per row.")] = 500,
@@ -197,8 +210,11 @@ def suite(
     if name == "ranged":
         _ranged(workers, trials, out)
         return
+    if name == "phase":
+        _phase(workers, trials, out)
+        return
     if name != "parity":
-        raise typer.BadParameter("suites: parity, positioning, ranged", param_hint="NAME")
+        raise typer.BadParameter("suites: parity, positioning, ranged, phase", param_hint="NAME")
     from stamina_engine.experiments.oracle_bridge import Knobs
     from stamina_engine.experiments.parity import cases, render, rules_for, run_cases
 
@@ -277,6 +293,19 @@ def _ranged(workers: int, trials: int, out: Path | None) -> None:
     rules = preset("v0.9")
     stamp = collect(rules).text()
     report = render(run_rows(ROWS, trials, workers), stamp, trials, render_table5(rules))
+    if out is None:
+        typer.echo(report)
+    else:
+        out.write_text(report)
+        typer.echo(f"wrote {out}")
+
+
+def _phase(workers: int, trials: int, out: Path | None) -> None:
+    from stamina_engine.experiments.phase_suite import render, run
+    from stamina_engine.rules.ruleset import preset
+
+    stamp = collect(preset("v0.9")).text()
+    report = render(run(trials, workers), stamp, trials)
     if out is None:
         typer.echo(report)
     else:

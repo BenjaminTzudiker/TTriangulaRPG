@@ -107,7 +107,7 @@ def _max_steps(pricing: Pricing, view: CombatantView, stamina: int) -> int:
     if weapon is None or weapon.ranged:
         return 0
     trackers = view.trackers if view.trackers is not None else Trackers()
-    return pricing.max_steps(weapon.base, max(stamina, 0), trackers)
+    return pricing.max_steps(weapon.base, max(stamina, 0), trackers, light=weapon.light)
 
 
 @dataclass
@@ -188,12 +188,14 @@ class LookAhead:
             else:
                 e = self.estimator.estimate(me, target, k, self.samples, target.stamina, w)
                 inj, cost, pk = e.injury, e.cost, e.p_down
-                own = self.pricing.melee_attack(my_weapon.base, k).total
+                own = self.pricing.melee_attack(my_weapon.base, k, light=my_weapon.light).total
             my_left = min(me.max_stamina, me.stamina - own + self.recovery(me))
             reply_weapon = target.gear.weapon
             opp_k = 0
             if reply_weapon is not None and not reply_weapon.ranged:
-                opp_k = self.pricing.max_steps(reply_weapon.base, math.floor(target.stamina - cost))
+                opp_k = self.pricing.max_steps(
+                    reply_weapon.base, math.floor(target.stamina - cost), light=reply_weapon.light
+                )
             exp_inj_me: Number = zero
             if opp_k > 0:
                 worst: Number = zero
@@ -206,6 +208,20 @@ class LookAhead:
             if score > best[0]:
                 best = (score, k)
         return best[1]
+
+
+@dataclass
+class Conditional:
+    """One policy normally, another against a target whose stamina is below a fraction of
+    its maximum (an NPC profile's "2 steps; 3 against a target below half stamina")."""
+
+    default: "CommitPolicy"
+    against_low: "CommitPolicy"
+    below: Fraction
+
+    def steps(self, me: CombatantView, target: CombatantView) -> int:
+        low = target.max_stamina > 0 and target.stamina < self.below * target.max_stamina
+        return (self.against_low if low else self.default).steps(me, target)
 
 
 @dataclass
@@ -380,7 +396,17 @@ class ScriptedAgent:
 AVOID_MODES = frozenset({"worth_it", "always", "never"})
 OA_MODES = frozenset({"max", "never"})
 SCRIPTED_FIELDS = {"kind", "commit", "target", "w", "estimator", "avoid", "oa", "aims"}
-TACTICAL_FIELDS = {"retreat_engaged", "low_stamina", "reach_spacing"}
+TACTICAL_FIELDS = {
+    "retreat_engaged",
+    "low_stamina",
+    "reach_spacing",
+    "commit_vs_low",
+    "low_target",
+    "flee_below",
+    "surrender_below",
+    "profile",
+    "description",
+}
 
 
 def make_agent(
@@ -398,8 +424,15 @@ def make_agent(
         spec = {"kind": "tactical"}
     table: dict[str, object] = {"commit": spec} if isinstance(spec, str) else dict(spec)
     kind = str(table.get("kind", "scripted"))
+    if kind == "npc":  # an NPC profile: the tactical agent, configured from data/profiles
+        from stamina_engine.agents.profiles import load_profile
+
+        name = table.pop("profile", None)
+        base = load_profile(str(name)) if name is not None else {}
+        table = {**base, **{k: v for k, v in table.items() if k != "kind"}, "kind": "tactical"}
+        kind = "tactical"
     if kind not in ("scripted", "tactical"):
-        raise ConfigError(f"agent kind must be scripted or tactical, not {kind!r}")
+        raise ConfigError(f"agent kind must be scripted, tactical or npc, not {kind!r}")
     allowed = SCRIPTED_FIELDS | (TACTICAL_FIELDS if kind == "tactical" else set())
     unknown = set(table) - allowed
     if unknown:
@@ -439,6 +472,14 @@ def make_agent(
         reach_spacing = table.get("reach_spacing", True)
         if not isinstance(reach_spacing, bool):
             raise ConfigError("reach_spacing must be true or false")
+        if "commit_vs_low" in table:
+            low = make_agent(
+                {"commit": table["commit_vs_low"], "estimator": table.get("estimator", "exact")},
+                rules,
+                source,
+            )
+            assert isinstance(low, ScriptedAgent)
+            policy = Conditional(policy, low.commit, Fraction(str(table.get("low_target", "1/2"))))
         return TacticalAgent(
             rules,
             policy,
@@ -447,6 +488,8 @@ def make_agent(
             int(str(table.get("retreat_engaged", 2))),
             Fraction(str(table.get("low_stamina", "1/3"))),
             reach_spacing,
+            Fraction(str(table.get("flee_below", "0"))),
+            Fraction(str(table.get("surrender_below", "0"))),
         )
     if target not in TARGETS:
         raise ConfigError(f"unknown target policy {target!r}; known: {sorted(TARGETS)}")

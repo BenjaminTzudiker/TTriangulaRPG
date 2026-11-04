@@ -429,7 +429,9 @@ When a pending row is ruled, or a ruled row changes, the same commit updates the
 | Diagonal movement and reach | Chebyshev: a diagonal is one square | `grid.metric` | ruled (confirmed for now) |
 | Moving through creatures | Through allies, not enemies; never end in an occupied square | `grid.occupancy` | pending designer |
 | Creatures as cover | Half cover, as in 5e | `grid.creature_cover` | ruled (confirmed) |
-| Reach through walls | Needs a clear line from wielder to square | `grid.reach_needs_line` | pending designer |
+| Reach through walls | Needs a clear line from wielder to square: the centre-to-centre segment doesn't pass through the inside of a wall or pillar square, and doesn't squeeze between two of them at a corner. Low walls, crates and creatures don't block reach, so a spear reaches over an ally. Reach uses the movement metric | `grid.reach_needs_line` | pending designer |
+| Diagonal steps past wall corners | Blocked only when both orthogonal neighbours are walls or pillars (no squeezing through a zero-width gap); creatures never block a diagonal. `free` and `no_cut` (blocked if either is) are the other values | `grid.corners` | pending designer |
+| What map terrain does (M2) | `#` walls and `o` pillars block movement, sight and reach; `=` low walls and crates block movement only (their cover arrives with ranged attacks in M3). Every creature fills one square; no difficult terrain; the map edge is a wall, so nobody leaves the map | map legend | pending designer |
 | When an OA lands during a multi-square move | On leaving each square, before entering the next | `opportunity.timing` | pending designer |
 | Diving out of a point-blank shooter's reach | Dive OAs resolve first, then blocks; point-blank OAs after the shot | `ranged.point_blank_order` | pending designer |
 | Paying to avoid OAs at 0 stamina | Not allowed (debt as the variant) | `opportunity.avoid_debt` | pending designer |

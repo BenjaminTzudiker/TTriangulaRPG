@@ -1,8 +1,8 @@
 """se: the engine's command line.
 
 se table (exact static tables), se run (one scenario), se sweep (scenarios x RuleSets x
-agents), se compare (one scenario under two RuleSets on the same seeds). Every command prints
-its provenance (RuleSet, code and plugins) after its result.
+agents), se compare (one scenario under two RuleSets on the same seeds), se map (show maps).
+Every result is followed by its provenance (RuleSet, code and plugins).
 """
 
 from pathlib import Path
@@ -23,11 +23,14 @@ from stamina_engine.experiments.runner import RunResult, run_scenario
 from stamina_engine.experiments.scenario import load_scenario
 from stamina_engine.experiments.sweep import compare as compare_rules
 from stamina_engine.experiments.sweep import load_sweep, run_sweep
+from stamina_engine.grid.battlefield import library_maps, load_map
 from stamina_engine.provenance import collect
 from stamina_engine.rules.plugins import PluginInfo, load_plugin
 from stamina_engine.rules.ruleset import RuleSet, load_ruleset
 
 app = typer.Typer(no_args_is_help=True, add_completion=False)
+map_app = typer.Typer(no_args_is_help=True, help="Maps: list them, or show one with coordinates.")
+app.add_typer(map_app, name="map")
 
 RulesetOption = Annotated[
     str, typer.Option(help="A preset name (v0.9, review-candidate, review-sim) or a .toml file.")
@@ -198,3 +201,26 @@ def suite(
     typer.echo(f"{sum(len(r.records) for r in results)} fights, {bad} mismatches with the oracle")
     if bad:
         raise typer.Exit(1)
+
+
+@map_app.command("list")
+def map_list() -> None:
+    """The library maps (data/maps)."""
+    for name in library_maps():
+        typer.echo(name)
+
+
+@map_app.command("show")
+def map_show(
+    name: Annotated[str, typer.Argument(help="A library map name, or a .txt file.")],
+) -> None:
+    """Print a map with column and row numbers, its spawn markers and its legend."""
+    try:
+        field = load_map(name, Path.cwd())
+    except ConfigError as exc:
+        raise typer.BadParameter(str(exc)) from exc
+    typer.echo(f"{field.name}: {field.width} x {field.height}")
+    typer.echo(field.render())
+    for marker, cells in sorted(field.spawns.items()):
+        typer.echo(f"spawn {marker}: " + ", ".join(f"({x}, {y})" for x, y in cells))
+    typer.echo("legend: " + ", ".join(f"{ch!r} {terrain}" for ch, terrain in field.legend))

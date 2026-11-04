@@ -1,0 +1,16 @@
+; Open ground: 12 x 12 squares of floor inside a wall. Place creatures by coordinates or
+; by the markers: A and B stand 8 squares apart; 1, 2 and 3 stand 6 squares from A.
+##############
+#............#
+#............#
+#............#
+#.........1..#
+#............#
+#...A.....2.B#
+#............#
+#.........3..#
+#............#
+#............#
+#............#
+#............#
+##############

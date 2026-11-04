@@ -3,6 +3,7 @@
 An opportunity attack (M2) is this procedure with off-turn pricing and the OA cap.
 """
 
+from stamina_engine.abilities import framework as abilities
 from stamina_engine.agents.decisions import BlocksRequest, Commitment
 from stamina_engine.engine.battle import Battle
 from stamina_engine.engine.events import (
@@ -73,6 +74,7 @@ def declare_steps(
     b.ops.emit(AttackDeclared(attacker.id, target.id, steps))
     b.ops.spend(attacker, quotes[steps - 1], "attack")
     b.ops.use_weapon(attacker)
+    b.ops.record_steps(attacker, quotes[steps - 1].parts)
     return steps
 
 
@@ -116,6 +118,17 @@ def declare_blocks(
         return Blocks()
     gear = target.gear
     defense = gear.melee_defense if defense is None else defense
+    facts: dict[str, int | str] = {
+        "attacker": attacker.id,
+        "damage": attack.total,
+        "crit_dice": attack.crit_dice,
+        "defense": defense,
+        "ranged": int(ranged),
+    }
+    used = abilities.window(b, target, "before_blocks", facts)
+    flat = used == "monk_core"
+    if not target.active:
+        return Blocks()
     prior = prior_perfect(b, target, attacker)
     options = block_options(
         attack.total,
@@ -126,6 +139,7 @@ def declare_blocks(
         b.rules,
         prior,
         ranged,
+        flat,
     )
     request = BlocksRequest(
         target.id,
@@ -142,10 +156,13 @@ def declare_blocks(
         options.nondominated,
         ranged,
         cover,
+        flat,
     )
     blocks = b.broker.blocks(request)
     b.ops.emit(BlocksDeclared(target.id, blocks.perfect, blocks.grazing, prior))
-    quote = b.pricing.blocks(blocks.perfect, blocks.grazing, prior_perfect=prior, ranged=ranged)
+    quote = b.pricing.blocks(
+        blocks.perfect, blocks.grazing, prior_perfect=prior, ranged=ranged, flat=flat
+    )
     if quote.total:
         b.ops.spend(target, quote, "block")
     b.ops.count_perfect_blocks(target, attacker.id, b.state.round, blocks.perfect)

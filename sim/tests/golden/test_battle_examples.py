@@ -67,6 +67,11 @@ class Script:
     def blocks(self, request: BlocksRequest) -> Blocks:
         return self.block_answers.pop(0) if self.block_answers else Blocks()
 
+    def ability(self, request: object) -> object:
+        from stamina_engine.agents.decisions import Pass
+
+        return Pass()
+
 
 def orc() -> CombatProfile:
     """Melee Defense 4 (base, proficient weapon, shield) and armor 1."""

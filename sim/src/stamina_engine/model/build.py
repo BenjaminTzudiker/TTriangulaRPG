@@ -51,6 +51,7 @@ class Build:
     cores: tuple[str, ...] = ()
     proficiencies: frozenset[str] = field(default_factory=frozenset)
     budget: str = "check"  # "ignore" only for parity builds the review called illustrative
+    abilities: tuple[str, ...] = ()  # candidate abilities (cores bring their own); not costed yet
 
     @staticmethod
     def from_dict(name: str, data: dict[str, Any]) -> "Build":
@@ -64,6 +65,7 @@ class Build:
                 cores=tuple(data.get("cores", ())),
                 proficiencies=frozenset(data.get("proficiencies", ())),
                 budget=str(data.get("budget", "check")),
+                abilities=tuple(data.get("abilities", ())),
             )
         except (KeyError, TypeError) as exc:
             raise ConfigError(f"build {name}: {exc}") from exc

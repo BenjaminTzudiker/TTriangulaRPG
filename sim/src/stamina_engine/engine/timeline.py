@@ -2,6 +2,7 @@
 
 import hashlib
 
+from stamina_engine.abilities import framework as abilities
 from stamina_engine.agents.decisions import (
     Attack,
     Draw,
@@ -11,6 +12,7 @@ from stamina_engine.agents.decisions import (
     Shoot,
     Surrender,
     TurnCommand,
+    UseAbility,
 )
 from stamina_engine.core.dice import roll
 from stamina_engine.engine.battle import Battle, BattleResult
@@ -117,6 +119,7 @@ def command_loop(b: Battle, c: CombatantState) -> None:
                 draw_options(b, c, on_turn=True),
                 b.field is not None and c.pos is not None and b.field.is_exit(c.pos),
                 b.field is not None,
+                abilities.options(b, c, "turn"),
             )
         )
         if isinstance(answer, EndTurn):
@@ -129,6 +132,8 @@ def command_loop(b: Battle, c: CombatantState) -> None:
             shoot(b, c, b.state.get(answer.target))
         elif isinstance(answer, Draw):
             draw(b, c, answer.loadout, on_turn=True)
+        elif isinstance(answer, UseAbility):
+            abilities.use(b, c, answer.name, "turn")
         elif isinstance(answer, Flee | Surrender):
             if isinstance(answer, Flee):
                 b.ops.flee(c)

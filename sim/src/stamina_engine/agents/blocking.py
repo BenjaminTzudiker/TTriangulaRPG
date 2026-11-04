@@ -23,9 +23,10 @@ def cached_best_block(
     w: Fraction = DEFAULT_W,
     prior_perfect: int = 0,
     ranged: bool = False,
+    flat: bool = False,
 ) -> BlockChoice:
     return best_block(
-        damage, crit_dice, defense, armor, stamina, hp, rules, w, prior_perfect, ranged
+        damage, crit_dice, defense, armor, stamina, hp, rules, w, prior_perfect, ranged, flat
     )
 
 
@@ -42,4 +43,5 @@ def solver_blocks(request: BlocksRequest, rules: RuleSet, w: Fraction = DEFAULT_
         w,
         request.prior_perfect,
         request.ranged,
+        request.flat_perfect,
     ).blocks

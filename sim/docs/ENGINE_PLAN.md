@@ -472,6 +472,11 @@ When a pending row is ruled, or a ruled row changes, the same commit updates the
 | F10 options | `extra_squares = one`: extra on-turn purchases move 1 square, off-turn purchases keep 1 + odd AGI (the chasers-win lever). `extra_cap = free_movement`: purchased squares per turn are at most your Movement, the last purchase cut short | `movement.extra_squares`, `movement.extra_cap` | pending designer |
 | Max stamina at negative HP | HP term floors at 0 | `resources.max_stamina` | engine convention |
 | Spear hands | One-handed, so a shield is allowed | weapon table | pending designer |
+| Ability windows (M5) | An ability can fire only at the engine's timing windows: on your turn (between actions), in an off-turn window, after an attack on you is rolled and before you block, between turns, as your turn would begin, as you declare a melee attack, and in a melee attack's reactions step. "At any time" (the Fighter core) means your turn, off-turn windows and before blocks; not mid-move or mid-roll | — | pending designer |
+| Fighter core (M5) | 3 strain: recover your normal recovery now; offered only when below maximum stamina; usable any number of times, the strain overage then costing stamina | — | pending designer |
+| Barbarian core (M5) | 1 strain: recover the biggest stamina you spent on one attack step this turn and haven't refunded yet (each step refunds once; OA steps, paid off your turn, don't count) | — | pending designer |
+| Monk core (M5) | 1 strain, before blocks: every perfect block against this attack costs what the first would | — | pending designer |
+| Candidate abilities and the AP budget (M5) | A build lists candidate abilities (`abilities = [...]`); they aren't costed yet, so they don't count against the AP budget | build `abilities` | pending designer |
 | Where a Rogue's moved turn sits next round | Keeps the new slot | Rogue core parameter | pending designer |
 | Recovery while incapacitated | None | `resources.recovery` | pending designer |
 | Mean roll in the static tables (Table 1, `variants.py`, `grid.py`) | Round half up; `review-sim` rounds half to even, as Python's `round()` did, which changes three Table 1 cells and the L30/L99 rows (L99 k7: 80.5 → 80); printed figures likewise (Table 8's 2.125 prints as 2.12) | `se table --rounding` | engine convention |

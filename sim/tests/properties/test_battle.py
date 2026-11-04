@@ -50,6 +50,11 @@ class AllIn:
             prior_perfect=request.prior_perfect,
         ).blocks
 
+    def ability(self, request: object) -> object:
+        from stamina_engine.agents.decisions import Pass
+
+        return Pass()
+
 
 def fight(
     rules: RuleSet,

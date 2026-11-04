@@ -18,6 +18,7 @@ from typing import TYPE_CHECKING, Protocol
 
 from stamina_engine.agents.blocking import solver_blocks
 from stamina_engine.agents.decisions import (
+    AbilityRequest,
     AimRequest,
     Attack,
     Avoid,
@@ -38,6 +39,7 @@ from stamina_engine.agents.decisions import (
     TakeOA,
     TurnAnswer,
     TurnCommand,
+    UseAbility,
 )
 from stamina_engine.agents.estimates import Estimate, Target, exact_estimate, sampled_estimate
 from stamina_engine.agents.grid_view import Board, attack_squares
@@ -388,6 +390,9 @@ class ScriptedAgent:
 
     def dive(self, request: DiveRequest) -> MoveAnswer:
         return Pass()  # scripted agents never dive
+
+    def ability(self, request: AbilityRequest) -> UseAbility | Pass:
+        return Pass()  # scripted agents don't use abilities
 
 
 # --- specs ---------------------------------------------------------------------------

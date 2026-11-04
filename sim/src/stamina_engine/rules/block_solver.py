@@ -50,8 +50,10 @@ def best_block(
     w: Fraction = DEFAULT_W,
     prior_perfect: int = 0,
     ranged: bool = False,
+    flat: bool = False,
 ) -> BlockChoice:
-    """ranged prices perfect blocks as against a ranged attack (blocks.ranged_flat)."""
+    """ranged prices perfect blocks as against a ranged attack (blocks.ranged_flat); flat
+    stops their escalation (the Monk core)."""
     pricing = Pricing(rules)
     graze = rules.blocks.graze_cost
     needed = _needed(damage, defense)
@@ -72,7 +74,7 @@ def best_block(
                 break
             g += 1
         p += 1
-        perfect_cost += pricing.perfect_block(prior_perfect + p, ranged)
+        perfect_cost += pricing.perfect_block(prior_perfect + p, ranged, flat)
     assert best is not None  # (0, 0) is always affordable
     return best
 
@@ -122,6 +124,7 @@ def block_options(
     rules: RuleSet,
     prior_perfect: int = 0,
     ranged: bool = False,
+    flat: bool = False,
 ) -> BlockOptions:
     pricing = Pricing(rules)
     graze = rules.blocks.graze_cost
@@ -139,7 +142,7 @@ def block_options(
                 break  # the rest of this row costs more for no less injury
             g += 1
         p += 1
-        perfect_cost += pricing.perfect_block(prior_perfect + p, ranged)
+        perfect_cost += pricing.perfect_block(prior_perfect + p, ranged, flat)
     distinct = set(points)
     frontier = {
         (c, i)

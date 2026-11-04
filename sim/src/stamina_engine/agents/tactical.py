@@ -33,6 +33,7 @@ from fractions import Fraction
 
 from stamina_engine.agents.blocking import solver_blocks
 from stamina_engine.agents.decisions import (
+    AbilityRequest,
     AimRequest,
     Attack,
     Avoid,
@@ -56,6 +57,7 @@ from stamina_engine.agents.decisions import (
     TakeOA,
     TurnAnswer,
     TurnCommand,
+    UseAbility,
 )
 from stamina_engine.agents.estimates import Target, exact_estimate
 from stamina_engine.agents.grid_view import (
@@ -569,6 +571,9 @@ class TacticalAgent:
             return worst
 
         return cost
+
+    def ability(self, request: AbilityRequest) -> UseAbility | Pass:
+        return Pass()
 
     def dive(self, request: DiveRequest) -> MoveAnswer:
         """Dive if the roll, blocked from the best reachable cover, saves more than the move

@@ -46,6 +46,11 @@ class TwoAttacks:
         cost = request.prior_perfect + 1  # the next perfect block's price
         return Blocks(1, 0) if request.stamina >= cost else Blocks()
 
+    def ability(self, request: object) -> object:
+        from stamina_engine.agents.decisions import Pass
+
+        return Pass()
+
 
 def block_costs(reset: str, attackers: int) -> list[tuple[int, tuple[int, ...]]]:
     rules = v0_9().override({"blocks": {"reset": reset}}, name=reset)

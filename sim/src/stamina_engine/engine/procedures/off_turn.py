@@ -12,7 +12,8 @@ register):
   any other move.
 """
 
-from stamina_engine.agents.decisions import Draw, Move, OffTurnMove
+from stamina_engine.abilities import framework as abilities
+from stamina_engine.agents.decisions import Draw, Move, OffTurnMove, UseAbility
 from stamina_engine.core.errors import EngineError
 from stamina_engine.engine.battle import Battle
 from stamina_engine.engine.procedures.movement import move, move_options
@@ -50,16 +51,20 @@ def off_turn_window(b: Battle, ended: CombatantState) -> None:
                     continue
                 options = move_options(b, c, on_turn=False)
                 draws = draw_options(b, c, on_turn=False)
-                if options is None and not draws:
+                usable = abilities.options(b, c, "off_turn")
+                if options is None and not draws and not usable:
                     continue
                 answer = b.broker.off_turn_move(
-                    OffTurnMove(c.id, b.observe(c.id), b.context.path(), options, draws)
+                    OffTurnMove(c.id, b.observe(c.id), b.context.path(), options, draws, usable)
                 )
                 if isinstance(answer, Move):
                     move(b, c, answer.path, on_turn=False)
                     moved = True
                 elif isinstance(answer, Draw):
                     draw(b, c, answer.loadout, on_turn=False)
+                    moved = True
+                elif isinstance(answer, UseAbility):
+                    abilities.use(b, c, answer.name, "off_turn")
                     moved = True
                 if b.outcome is not None:
                     return

@@ -229,6 +229,21 @@ class Fled(Event):
 
 
 @dataclass(frozen=True)
+class AbilityUsed(Event):
+    who: str
+    ability: str
+    window: str
+    strain_after: int
+
+
+@dataclass(frozen=True)
+class OrderChanged(Event):
+    """The initiative order changed mid-fight (the Rogue core)."""
+
+    order: tuple[str, ...]
+
+
+@dataclass(frozen=True)
 class BattleEnded(Event):
     reason: str  # side_out, round_cap
     winner: str | None  # winning team, or None for a draw

@@ -83,6 +83,7 @@ class CombatProfile:
     start_strain: int
     loadouts: tuple[LoadoutProfile, ...]
     ruleset_digest: str
+    abilities: tuple[str, ...] = ()  # each core's ability ("fighter_core"...) and candidates
 
     @property
     def main(self) -> LoadoutProfile:
@@ -229,4 +230,5 @@ def derive(build: Build, rules: RuleSet, table: EquipmentTable | None = None) ->
             _loadout_profile(n, lo, build, proficient, rules, table) for n, lo in build.loadouts
         ),
         ruleset_digest=rules.digest(),
+        abilities=tuple(f"{core}_core" for core in build.cores) + build.abilities,
     )

@@ -4,13 +4,27 @@ from dataclasses import dataclass
 
 from stamina_engine.rules.registry import Component, register
 
+RESETS = frozenset({"per_attack", "per_attacker_round", "per_round"})
+
 
 @dataclass(frozen=True)
 class BlockRule(Component):
-    cites = ("Packet: Blocking", "Ledger CB-3", "Ledger CB-4")
+    """reset says when the perfect-block escalation starts over (Assumptions register):
+
+    - per_attack (v0.9): every attack starts at 1.
+    - per_attacker_round: the count is kept per attacker and resets each round, so an
+      attacker's later attacks in the same round continue it. One reading of review F6
+      option 2 ("block count reset per attacker per round").
+    - per_round: one count per defender per round, shared across attackers. The other
+      reading.
+    """
+
+    cites = ("Packet: Blocking", "Ledger CB-3", "Ledger CB-4", "Review F6")
+    allowed = {"reset": RESETS}
 
     graze_cost: int = 1
     graze_leak: int = 1
+    reset: str = "per_attack"
 
     def perfect_cost(self, nth: int) -> int:
         """Cost of the nth perfect block against one attack (nth starts at 1)."""

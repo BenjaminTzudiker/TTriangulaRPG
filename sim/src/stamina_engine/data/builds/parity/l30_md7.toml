@@ -1,0 +1,7 @@
+# Parity only: review Addendum, grid.py mk(30, 7). AGI 6 in medium armor gives +2 MD. Costs 30
+# Expertise against a level-30 budget of 16, as the review's illustrative build did.
+level = 30
+budget = "ignore"
+attributes = { STR = 3, AGI = 6, FIN = 2 }
+cores = ["fighter"]
+loadouts.main = { weapon = "longsword", grip = "one", off_hand = "shield", armor = "medium" }

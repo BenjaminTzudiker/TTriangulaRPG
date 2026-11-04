@@ -14,7 +14,7 @@ import pytest
 from stamina_engine.rules.block_solver import best_block
 from stamina_engine.rules.ruleset import v0_9
 
-CASES = 10_000
+FAST, FULL = 1_000, 10_000
 CRIT = {
     "double": {"kind": "double_once"},
     "linear1": {"kind": "per_die_bonus", "bonus": 1},
@@ -25,14 +25,15 @@ SLOPES = {1.0: (1, 1), 0.5: (1, 2)}
 WS = (Fraction(3, 2), Fraction(3), Fraction(6))
 
 
+@pytest.mark.parametrize("cases", [FAST, pytest.param(FULL, marks=pytest.mark.slow)])
 @pytest.mark.parametrize("slope", sorted(SLOPES))
 @pytest.mark.parametrize("mode", sorted(CRIT))
-def test_best_block(oracle: Any, mode: str, slope: float) -> None:
+def test_best_block(oracle: Any, mode: str, slope: float, cases: int) -> None:
     oracle.CRIT_MODE, oracle.BLOCK_SLOPE = mode, slope
     num, den = SLOPES[slope]
     rules = v0_9().override({"crit": CRIT[mode], "blocks": {"slope_num": num, "slope_den": den}})
-    rng = random.Random(f"{mode}-{slope}")
-    for _ in range(CASES):
+    rng = random.Random(f"{mode}-{slope}-{cases}")
+    for _ in range(cases):
         d, crits = rng.randint(0, 60), rng.choice([0, 0, 0, 1, 1, 2, 3])
         v, a, s, hp = rng.randint(0, 7), rng.randint(0, 4), rng.randint(0, 30), rng.randint(1, 12)
         w = rng.choice(WS)

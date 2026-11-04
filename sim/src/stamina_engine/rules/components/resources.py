@@ -45,6 +45,9 @@ class ResourceRule(Component):
     def ability_budget(self, level: int) -> int:
         raise NotImplementedError
 
+    def recovers_while_incapacitated(self) -> bool:
+        raise NotImplementedError
+
 
 @register("resources", "v0_9")
 @dataclass(frozen=True)
@@ -84,6 +87,9 @@ class V09Resources(ResourceRule):
         """4 + levels 1..L whose last digit grants Expertise (L1 gives 5)."""
         gained = sum(1 for lv in range(1, level + 1) if str(lv % 10) in self.expertise_digits)
         return self.expertise_base + gained
+
+    def recovers_while_incapacitated(self) -> bool:
+        return self.recover_while_incapacitated
 
     def ability_budget(self, level: int) -> int:
         """Levels 0..L whose last digit grants an Ability Point (L1 gives 1, from level 0)."""

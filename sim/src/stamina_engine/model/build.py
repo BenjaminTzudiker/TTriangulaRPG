@@ -50,6 +50,7 @@ class Build:
     loadouts: tuple[tuple[str, Loadout], ...]
     cores: tuple[str, ...] = ()
     proficiencies: frozenset[str] = field(default_factory=frozenset)
+    budget: str = "check"  # "ignore" only for parity builds the review called illustrative
 
     @staticmethod
     def from_dict(name: str, data: dict[str, Any]) -> "Build":
@@ -62,6 +63,7 @@ class Build:
                 loadouts=loadouts,
                 cores=tuple(data.get("cores", ())),
                 proficiencies=frozenset(data.get("proficiencies", ())),
+                budget=str(data.get("budget", "check")),
             )
         except (KeyError, TypeError) as exc:
             raise ConfigError(f"build {name}: {exc}") from exc
@@ -72,8 +74,8 @@ class Build:
 
 
 def load_build(name: str) -> Build:
-    """A library build from data/builds/<name>.toml."""
-    return Build.from_dict(name, load_toml("builds", f"{name}.toml"))
+    """A library build from data/builds/<name>.toml (parity builds: "parity/<name>")."""
+    return Build.from_dict(name, load_toml("builds", *f"{name}.toml".split("/")))
 
 
 def core_proficiencies(cores: tuple[str, ...]) -> frozenset[str]:
@@ -102,12 +104,15 @@ def validate(build: Build, rules: RuleSet, table: EquipmentTable) -> None:
     for attr, value in build.attributes.as_dict().items():
         if not 0 <= value <= 6:
             raise BudgetError(f"{build.name}: {attr} {value} outside 0..6")
-    spent, budget = expertise_cost(build.attributes), res.expertise_budget(build.level)
-    if spent > budget:
-        raise BudgetError(f"{build.name}: {spent} Expertise spent, {budget} available")
-    spent, budget = ability_cost(build.cores), res.ability_budget(build.level)
-    if spent > budget:
-        raise BudgetError(f"{build.name}: {spent} AP spent, {budget} available")
+    if build.budget not in ("check", "ignore"):
+        raise ConfigError(f"{build.name}: budget must be check or ignore")
+    if build.budget == "check":
+        spent, budget = expertise_cost(build.attributes), res.expertise_budget(build.level)
+        if spent > budget:
+            raise BudgetError(f"{build.name}: {spent} Expertise spent, {budget} available")
+        spent, budget = ability_cost(build.cores), res.ability_budget(build.level)
+        if spent > budget:
+            raise BudgetError(f"{build.name}: {spent} AP spent, {budget} available")
     if len(set(build.cores)) != len(build.cores):
         raise ConfigError(f"{build.name}: a core ability is listed twice")
     core_proficiencies(build.cores)

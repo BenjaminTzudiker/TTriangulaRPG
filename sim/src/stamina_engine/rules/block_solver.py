@@ -9,6 +9,7 @@ prices blocks exactly as the engine charges them.
 
 from dataclasses import dataclass
 from fractions import Fraction
+from functools import lru_cache
 
 from stamina_engine.rules.exchange import Blocks, resolve
 from stamina_engine.rules.pricing import Pricing
@@ -47,6 +48,7 @@ def best_block(
     hp: int,
     rules: RuleSet,
     w: Fraction = DEFAULT_W,
+    prior_perfect: int = 0,
 ) -> BlockChoice:
     pricing = Pricing(rules)
     graze = rules.blocks.graze_cost
@@ -59,7 +61,7 @@ def best_block(
         while perfect_cost + g * graze <= stamina:
             blocks = Blocks(p, g)
             out = resolve(damage, crit_dice, defense, armor, blocks, rules)
-            cost = perfect_cost + g * graze  # == pricing.blocks(p, g).total
+            cost = perfect_cost + g * graze  # == pricing.blocks(p, g, prior_perfect=...).total
             choice = BlockChoice(blocks, cost, out.injury, out.injury >= hp, w * out.injury + cost)
             if best is None or choice.key() < best.key():
                 best = choice
@@ -68,7 +70,7 @@ def best_block(
                 break
             g += 1
         p += 1
-        perfect_cost += pricing.perfect_block(p)
+        perfect_cost += pricing.perfect_block(prior_perfect + p)
     assert best is not None  # (0, 0) is always affordable
     return best
 
@@ -80,6 +82,7 @@ def cheapest_zero_injury(
     armor: int,
     rules: RuleSet,
     stamina: int | None = None,
+    prior_perfect: int = 0,
 ) -> BlockChoice | None:
     """The cheapest blocks that leave no injury, or None if none exist (within stamina)."""
     pricing = Pricing(rules)
@@ -88,10 +91,56 @@ def cheapest_zero_injury(
     best: BlockChoice | None = None
     for p in range(limit + 1):
         for g in range(limit - p + 1):
-            cost = pricing.blocks(p, g).total
+            cost = pricing.blocks(p, g, prior_perfect=prior_perfect).total
             if stamina is not None and cost > stamina:
                 continue
             out = resolve(damage, crit_dice, defense, armor, Blocks(p, g), rules)
             if out.injury == 0 and (best is None or cost < best.cost):
                 best = BlockChoice(Blocks(p, g), cost, 0, False, Fraction(cost))
     return best
+
+
+@dataclass(frozen=True)
+class BlockOptions:
+    """How many choices a Blocks decision offers (F11): every affordable (perfect, grazing)
+    pair, and the pairs no other affordable pair beats on both stamina and injury."""
+
+    affordable: int
+    nondominated: int
+
+
+@lru_cache(maxsize=1 << 16)
+def block_options(
+    damage: int,
+    crit_dice: int,
+    defense: int,
+    armor: int,
+    stamina: int,
+    rules: RuleSet,
+    prior_perfect: int = 0,
+) -> BlockOptions:
+    pricing = Pricing(rules)
+    graze = rules.blocks.graze_cost
+    affordable = 0
+    points: list[tuple[int, int]] = []  # (cost, injury)
+    needed = _needed(damage, defense)
+    p, perfect_cost = 0, 0
+    while perfect_cost <= stamina:
+        affordable += (stamina - perfect_cost) // graze + 1
+        g = 0
+        while perfect_cost + g * graze <= stamina:
+            out = resolve(damage, crit_dice, defense, armor, Blocks(p, g), rules)
+            points.append((perfect_cost + g * graze, out.injury))
+            if needed is not None and p + g >= needed and out.after_armor == 0:
+                break  # the rest of this row costs more for no less injury
+            g += 1
+        p += 1
+        perfect_cost += pricing.perfect_block(prior_perfect + p)
+    distinct = set(points)
+    frontier = {
+        (c, i)
+        for c, i in distinct
+        if not any(c2 <= c and i2 <= i and (c2, i2) != (c, i) for c2, i2 in distinct)
+    }
+    nondominated = sum(1 for pt in points if pt in frontier)
+    return BlockOptions(affordable, nondominated)

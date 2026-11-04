@@ -1,0 +1,5 @@
+# Parity only: review Addendum, grid.py mk(30, 5). Within the level-30 budget (13 of 16).
+level = 30
+attributes = { STR = 3, AGI = 2, FIN = 2, CUN = 1 }
+cores = ["fighter"]
+loadouts.main = { weapon = "longsword", grip = "one", off_hand = "shield", armor = "medium" }

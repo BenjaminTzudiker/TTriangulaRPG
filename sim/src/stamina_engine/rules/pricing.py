@@ -171,11 +171,18 @@ class Pricing:
     def perfect_block(self, nth: int) -> int:
         return self.rules.blocks.perfect_cost(nth)
 
-    def blocks(self, perfect: int, grazing: int, stamina: int | None = None) -> Quote:
-        """Escalation applies within this attack only; it isn't part of any track."""
+    def blocks(
+        self, perfect: int, grazing: int, stamina: int | None = None, prior_perfect: int = 0
+    ) -> Quote:
+        """Escalation applies within this attack only; it isn't part of any track.
+
+        prior_perfect is how many perfect blocks already count toward the escalation. It is
+        0 in v0.9, where the count resets every attack; block-reset variants carry it over.
+        """
         b = self.rules.blocks
-        parts = tuple(b.perfect_cost(i) for i in range(1, perfect + 1)) + (b.graze_cost,) * grazing
-        return _ensure(Quote(parts), stamina)
+        first = prior_perfect + 1
+        perfect_parts = tuple(b.perfect_cost(i) for i in range(first, first + perfect))
+        return _ensure(Quote(perfect_parts + (b.graze_cost,) * grazing), stamina)
 
     # --- other -----------------------------------------------------------------------
 

@@ -31,13 +31,18 @@ packages = ["src/stamina_engine"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-q --import-mode=importlib"
+addopts = "-q --import-mode=importlib -m 'not slow'"
+markers = ["slow: full-count parity runs and long oracle differentials (pytest -m slow)"]
 
 [tool.mypy]
 strict = true
 python_version = "3.12"
 mypy_path = "src"
 exclude = ["tests/oracle/"]
+
+[[tool.mypy.overrides]]
+module = ["pyarrow", "pyarrow.*"]
+ignore_missing_imports = true
 
 [tool.ruff]
 line-length = 100

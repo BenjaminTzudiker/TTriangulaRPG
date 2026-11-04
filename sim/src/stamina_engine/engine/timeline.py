@@ -4,7 +4,6 @@ from stamina_engine.agents.decisions import EndTurn, TurnCommand
 from stamina_engine.core.dice import roll
 from stamina_engine.engine.battle import Battle, BattleResult
 from stamina_engine.engine.events import BattleEnded, BattleStarted, InitiativeRolled, RoundStarted
-from stamina_engine.engine.observe import observe
 from stamina_engine.engine.procedures.melee import melee_attack
 from stamina_engine.model.state import CombatantState, Status
 
@@ -85,7 +84,7 @@ def command_loop(b: Battle, c: CombatantState) -> None:
     """Move and act in any order until the agent ends the turn. M1 offers melee attacks."""
     while True:
         answer = b.broker.turn_command(
-            TurnCommand(c.id, observe(b.state, b.rules, c.id), b.context.path(), targets(b, c))
+            TurnCommand(c.id, b.observe(c.id), b.context.path(), targets(b, c))
         )
         if isinstance(answer, EndTurn):
             return

@@ -11,7 +11,6 @@ from stamina_engine.engine.events import (
     AttackRolled,
     BlocksDeclared,
 )
-from stamina_engine.engine.observe import observe
 from stamina_engine.model.derive import WeaponProfile
 from stamina_engine.model.state import CombatantState
 from stamina_engine.rules.block_solver import block_options
@@ -61,7 +60,7 @@ def declare_steps(
         quotes.append(quote)
     request = Commitment(
         attacker.id,
-        observe(b.state, b.rules, attacker.id),
+        b.observe(attacker.id),
         b.context.path(),
         target.id,
         tuple(quotes),
@@ -87,8 +86,14 @@ def reactions(b: Battle, attacker: CombatantState, target: CombatantState) -> No
 
 
 def prior_perfect(b: Battle, target: CombatantState, attacker: CombatantState) -> int:
-    """Perfect blocks already counted toward this attack's escalation (0: v0.9 resets every
-    attack)."""
+    """Perfect blocks already counted toward this attack's escalation, by blocks.reset:
+    0 in v0.9, where every attack starts over."""
+    mode = b.rules.blocks.reset
+    round_ = b.state.round
+    if mode == "per_attacker_round":
+        return target.perfect_blocks.get((attacker.id, round_), 0)
+    if mode == "per_round":
+        return sum(n for (_, r), n in target.perfect_blocks.items() if r == round_)
     return 0
 
 
@@ -112,7 +117,7 @@ def declare_blocks(
     )
     request = BlocksRequest(
         target.id,
-        observe(b.state, b.rules, target.id),
+        b.observe(target.id),
         b.context.path(),
         attacker.id,
         attack.total,

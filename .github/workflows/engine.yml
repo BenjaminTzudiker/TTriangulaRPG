@@ -1,0 +1,31 @@
+# The rules engine's checks (sim/). Fast checks on every push and pull request, so design
+# chats' exp/ branches get tested; the slow parity suite on pull requests into main.
+name: engine
+
+on:
+  push:
+  pull_request:
+
+defaults:
+  run:
+    working-directory: sim
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --python 3.12
+      - run: uv run ruff check src tests examples
+      - run: uv run mypy src
+      - run: uv run pytest
+
+  slow:
+    if: github.event_name == 'pull_request' && github.base_ref == 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --python 3.12
+      - run: uv run pytest -m slow

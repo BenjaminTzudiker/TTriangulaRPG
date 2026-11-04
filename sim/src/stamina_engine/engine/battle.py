@@ -4,10 +4,13 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 
 from stamina_engine.agents.broker import Broker
-from stamina_engine.agents.decisions import Agent, DecisionRecord
+from stamina_engine.agents.decisions import Agent, DecisionRecord, Observation
+from stamina_engine.core.errors import ConfigError
 from stamina_engine.core.rng import DiceProvider
 from stamina_engine.engine.context import TimingContext
 from stamina_engine.engine.events import Event, log_sha256
+from stamina_engine.engine.ledger import PublicLedger
+from stamina_engine.engine.observe import observe
 from stamina_engine.engine.stateops import StateOps
 from stamina_engine.model.derive import CombatProfile
 from stamina_engine.model.state import BattleState, new_combatant
@@ -69,6 +72,16 @@ class Battle:
         self.dice_mode = dice_mode
         self.round_cap = round_cap
         self.outcome: tuple[str | None, str] | None = None  # (winner, reason) once over
+        self.ledger: PublicLedger | None = None
+        info = rules.information
+        if info.stamina_visibility() == "hidden":
+            if info.builds_visibility() != "known":
+                raise ConfigError("hidden stamina with unknown builds needs priors (Phase 0)")
+            self.ledger = PublicLedger(self.state, rules)
+            self.ops.listeners.append(self.ledger.observe)
+
+    def observe(self, who: str) -> Observation:
+        return observe(self.state, self.rules, who, self.ledger)
 
     def run(self) -> BattleResult:
         from stamina_engine.engine.timeline import run_battle

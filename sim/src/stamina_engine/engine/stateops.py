@@ -4,6 +4,8 @@ Each op checks the rules' invariants, applies the change, and appends a typed ev
 check=True every op re-validates the whole state afterwards.
 """
 
+from collections.abc import Callable
+
 from stamina_engine.core.errors import EngineError, RulesError, Unaffordable
 from stamina_engine.engine.events import (
     DyingRolled,
@@ -37,6 +39,7 @@ class StateOps:
         self.rules = rules
         self.log = log
         self.check = check
+        self.listeners: list[Callable[[Event], None]] = []  # e.g. the public ledger
 
     # --- reads used by the ops -------------------------------------------------------
 
@@ -105,9 +108,11 @@ class StateOps:
     def emit(self, event: Event) -> None:
         """Record an event that changes no state (declarations, rolls, outcomes)."""
         self.log.append(event)
+        for listen in self.listeners:
+            listen(event)
 
     def _emit(self, event: Event) -> None:
-        self.log.append(event)
+        self.emit(event)
         self._bump()
 
     def _bump(self) -> None:

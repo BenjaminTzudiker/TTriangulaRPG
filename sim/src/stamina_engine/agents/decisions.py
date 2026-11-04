@@ -228,6 +228,8 @@ class BlocksRequest:
     prior_perfect: int
     affordable: int  # option counts (F11)
     nondominated: int
+    ranged: bool = False  # against a ranged attack (prices perfect blocks: blocks.ranged_flat)
+    cover: int = 0  # the cover bonus included in defense
 
     @property
     def option_count(self) -> int:

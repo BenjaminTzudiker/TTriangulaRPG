@@ -57,7 +57,7 @@ def _setup(ruleset: str, plugins: list[Path] | None) -> tuple[RuleSet, list[Plug
 
 @app.command()
 def table(
-    number: Annotated[int, typer.Argument(help="Review table number: 1 or 8.")],
+    number: Annotated[int, typer.Argument(help="Review table number: 1, 5 or 8.")],
     ruleset: RulesetOption = "v0.9",
     rounding: Annotated[
         Rounding, typer.Option(help="half-even reproduces the review's printed tables.")
@@ -70,8 +70,13 @@ def table(
         typer.echo(render_table1(table1(rules, rounding), rounding))
     elif number == 8:
         typer.echo(render_table8(table8(rules), rounding))
+    elif number == 5:
+        from stamina_engine.analysis.ranged import render_table5
+
+        typer.echo("Target spends / takes / downed, exactly (review Table 5's static part):")
+        typer.echo(render_table5(rules))
     else:
-        raise typer.BadParameter("M0 has tables 1 and 8", param_hint="NUMBER")
+        raise typer.BadParameter("tables 1, 5 and 8", param_hint="NUMBER")
     typer.echo("")
     typer.echo(collect(rules, infos).text())
 

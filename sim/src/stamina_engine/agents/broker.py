@@ -115,7 +115,9 @@ class Broker:
         answer = self.agents[req.who].blocks(req)
         if not isinstance(answer, Blocks) or answer.perfect < 0 or answer.grazing < 0:
             raise RulesError(f"{req.who} gave {answer!r} to a Blocks request")
-        cost = self.pricing.blocks(answer.perfect, answer.grazing, prior_perfect=req.prior_perfect)
+        cost = self.pricing.blocks(
+            answer.perfect, answer.grazing, prior_perfect=req.prior_perfect, ranged=req.ranged
+        )
         if cost.total > req.stamina:
             raise RulesError(f"{req.who}'s blocks cost {cost.total}, has {req.stamina}")
         self._record(

@@ -5,7 +5,7 @@ Pure functions: M1's melee procedure calls them and applies the result through S
 
 from dataclasses import dataclass
 
-from stamina_engine.core.dice import DiceSource, roll
+from stamina_engine.core.dice import Dice, DiceSource, roll
 from stamina_engine.model.derive import Damage, WeaponProfile
 from stamina_engine.rules.components.crit import CritRule
 from stamina_engine.rules.ruleset import RuleSet
@@ -21,6 +21,12 @@ cites = (
     "Ledger CB-6",
     "Ledger CB-7",
     "Ledger EQ-1",
+    "Packet: Ranged Attacks",
+    "Packet: Aim",
+    "Packet: Range Bands",
+    "Ledger RG-1",
+    "Ledger RG-2",
+    "Ledger RG-3",
 )
 
 
@@ -34,10 +40,11 @@ class StepRoll:
 @dataclass(frozen=True)
 class AttackRoll:
     steps: tuple[StepRoll, ...]
+    penalty: int = 0  # subtracted from the total, floored at 0 (range-band variant)
 
     @property
     def total(self) -> int:
-        return sum(s.total for s in self.steps)
+        return max(0, sum(s.total for s in self.steps) - self.penalty)
 
     @property
     def crit_dice(self) -> int:
@@ -64,6 +71,37 @@ def roll_attack(
     return AttackRoll(
         tuple(roll_step(weapon.damage, weapon.crit_widen, crit, source) for _ in range(steps))
     )
+
+
+def roll_shot(
+    weapon: WeaponProfile,
+    aims: int,
+    finesse: int,
+    band: str,
+    rules: RuleSet,
+    source: DiceSource,
+) -> AttackRoll:
+    """A ranged attack's roll (Packet: Ranged Attacks step 4, Aim, Range Bands): the weapon's
+    damage, then each aim step (aim_die + Finesse; at medium and long range the first one or
+    two add only Finesse and roll no die). Under precision aim, aim steps add nothing and
+    widen the shot's critical range instead. Shots that need more aims than were bought
+    miss: callers check required_aims before rolling."""
+    r = rules.ranged
+    precision = r.precision_aim()
+    widen = weapon.crit_widen + (aims if precision else 0)
+    steps = [roll_step(weapon.damage, widen, rules.crit, source)]
+    if not precision:
+        dropped = r.dropped_aim_dice(band)
+        aim_widen = weapon.crit_widen if rules.crit.aim_dice_can_crit else -1
+        for i in range(aims):
+            if i < dropped:
+                steps.append(StepRoll((), max(0, finesse), 0))
+                continue
+            (face,) = roll(Dice(1, r.aim_dice()), source)
+            crit = int(aim_widen >= 0 and rules.crit.is_crit(face, r.aim_dice(), aim_widen))
+            steps.append(StepRoll((face,), max(0, face + finesse), crit))
+    penalty = sum(roll(Dice(r.penalty_dice(band), 6), source)) if r.penalty_dice(band) else 0
+    return AttackRoll(tuple(steps), penalty)
 
 
 @dataclass(frozen=True)

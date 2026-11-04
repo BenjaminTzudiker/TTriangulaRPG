@@ -48,6 +48,7 @@ class WeaponProfile:
     proficient: bool
     damage: Damage
     crit_widen: int
+    ranges: tuple[int, ...] = ()  # short, medium, long (squares), for ranged weapons
 
 
 @dataclass(frozen=True)
@@ -137,6 +138,7 @@ def _weapon_profile(
         proficient=weapon.name in proficient,
         damage=resolve_damage(weapon.damage(grip), attrs, table.step_floor),
         crit_widen=rules.crit.widen(attrs.FIN),
+        ranges=weapon.ranges,
     )
 
 
@@ -177,7 +179,7 @@ def _loadout_profile(
         melee_defense=d.melee(
             attrs.AGI, attrs.FIN, armor.agility_step, proficient_melee, second, shield_md
         ),
-        ranged_defense=d.ranged(attrs.AGI, shield_rd),
+        ranged_defense=d.ranged(attrs.AGI, shield_rd, armor.agility_step),
         dodge_defense=d.dodge(attrs.AGI, armor.agility_step),
         movement=mv.free_movement(attrs.AGI),
         squares_per_purchase=mv.squares_per_purchase(attrs.AGI),

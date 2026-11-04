@@ -365,11 +365,17 @@ class Pricing:
 
     # --- blocks ----------------------------------------------------------------------
 
-    def perfect_block(self, nth: int) -> int:
-        return self.rules.blocks.perfect_cost(nth)
+    def perfect_block(self, nth: int, ranged: bool = False) -> int:
+        b = self.rules.blocks
+        return b.ranged_perfect_cost(nth) if ranged else b.perfect_cost(nth)
 
     def blocks(
-        self, perfect: int, grazing: int, stamina: int | None = None, prior_perfect: int = 0
+        self,
+        perfect: int,
+        grazing: int,
+        stamina: int | None = None,
+        prior_perfect: int = 0,
+        ranged: bool = False,
     ) -> Quote:
         """Escalation applies within this attack only; it isn't part of any track.
 
@@ -378,7 +384,7 @@ class Pricing:
         """
         b = self.rules.blocks
         first = prior_perfect + 1
-        perfect_parts = tuple(b.perfect_cost(i) for i in range(first, first + perfect))
+        perfect_parts = tuple(self.perfect_block(i, ranged) for i in range(first, first + perfect))
         return _ensure(Quote(perfect_parts + (b.graze_cost,) * grazing), stamina)
 
     # --- other -----------------------------------------------------------------------

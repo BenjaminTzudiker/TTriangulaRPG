@@ -15,7 +15,7 @@ def test_se_table() -> None:
     eight = runner.invoke(app, ["table", "8"])
     assert eight.exit_code == 0
     assert "Greataxe 2d6 + 6 (base 3) | 4.33" in eight.output
-    assert runner.invoke(app, ["table", "5"]).exit_code != 0
+    assert runner.invoke(app, ["table", "4"]).exit_code != 0
     assert "RuleSet v0.9 " in eight.output and "source " in eight.output
 
 

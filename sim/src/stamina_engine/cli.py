@@ -186,8 +186,9 @@ def suite(
     from stamina_engine.experiments.oracle_bridge import Knobs
     from stamina_engine.experiments.parity import cases, render, rules_for, run_cases
 
+    stamp = collect(rules_for(Knobs())).text()  # before running: the code that runs
     results = run_cases(cases(), scale, workers)
-    report = render(results, collect(rules_for(Knobs())).text(), scale)
+    report = render(results, stamp, scale)
     if out is None:
         typer.echo(report)
     else:

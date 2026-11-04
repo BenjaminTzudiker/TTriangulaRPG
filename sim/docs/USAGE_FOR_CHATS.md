@@ -2,7 +2,7 @@
 
 For claude.ai chats in the "Tactical fantasy TTRPG" project. Claude Code keeps this file current.
 
-**Status:** milestones M0 (tag `m0`) and M1 (branch `m1-turn-engine`) are built: exact single-exchange calculators, plus whole fights with no grid (everyone adjacent), the review's five scripted policies, seeded runs, sweeps and paired comparisons. Movement, opportunity attacks and ranged fights arrive in M2 and M3.
+**Status:** milestones M0 and M1 are done (tags `m0`, `m1`): exact single-exchange calculators, plus whole fights with no grid (everyone adjacent), the review's five scripted policies, seeded runs, sweeps and paired comparisons. Movement, opportunity attacks and ranged fights arrive in M2 and M3; M2 is next, not started.
 
 ## Reading the code
 

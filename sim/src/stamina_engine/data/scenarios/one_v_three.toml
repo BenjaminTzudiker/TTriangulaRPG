@@ -1,0 +1,21 @@
+# Review Table 4: one sample fighter against three, attackers committing 2 steps each.
+# The defender hits the lowest-stamina attacker with 2 steps.
+[scenario]
+name = "one-v-three"
+ruleset = "v0.9"
+round_cap = 20
+trials = 1000
+seed = 20261103
+
+[[combatant]]
+id = "D"
+team = "defender"
+build = "l1_sample"
+agent = { commit = "fixed:2", target = "lowest_stamina" }
+
+[[combatant]]
+id = "A"
+team = "attackers"
+build = "l1_sample"
+agent = "fixed:2"
+count = 3

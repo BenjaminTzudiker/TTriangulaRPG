@@ -1,0 +1,17 @@
+# Review Table 2 / 3: two level-1 sample fighters, all-adjacent, chip-kill vs chip-kill.
+[scenario]
+name = "l1-duel"
+ruleset = "v0.9"
+round_cap = 30
+trials = 2000
+seed = 20261103
+
+[[combatant]]
+id = "A"
+build = "l1_sample"
+agent = "chipkill"
+
+[[combatant]]
+id = "B"
+build = "l1_sample"
+agent = "chipkill"

@@ -1,0 +1,13 @@
+# The level-1 duel and 1v3 under v0.9 and the +2 surcharge, on the same seeds.
+[sweep]
+name = "surcharge"
+scenarios = ["l1_duel.toml", "one_v_three.toml"]
+trials = 500
+
+[[ruleset]]
+label = "v0.9"
+spec = "v0.9"
+
+[[ruleset]]
+label = "surcharge+2"
+spec = { base = "v0.9", name = "surcharge+2", surcharge = { slope = 2 } }

@@ -475,15 +475,20 @@ def metrics(result: CaseResult) -> dict[str, Interval | float]:
 
 
 def check(value: Interval | float, published: Published, pct: bool) -> str:
-    """✓ if the printed figure is consistent with the engine's, ✗ if not, · to read by eye."""
+    """✓ if the printed figure is consistent with the engine's, ✗ if not, · to read by eye.
+
+    Allows for two independent samples of the same size, plus half the printed rounding unit:
+    a figure printed as a whole number ("-3", "28", "54%") was rounded to 1, a figure printed
+    with a decimal ("6.3") to 0.1.
+    """
     if isinstance(published, str) or not isinstance(value, Interval) or value.n == 0:
         return "·"
     scale = 100.0 if pct else 1.0
     est = value.estimate * scale
     half = (value.high - value.low) / 2 * scale
-    # Two independent samples of the same size, plus half the printed rounding unit.
-    slack = math.sqrt(2) * half + (0.5 if pct else 0.05)
     lo, hi = (published, published) if isinstance(published, int | float) else published
+    whole = all(isinstance(x, int) for x in (lo, hi))
+    slack = math.sqrt(2) * half + (0.5 if whole else 0.05)
     return "✓" if lo - slack <= est <= hi + slack else "✗"
 
 

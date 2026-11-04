@@ -2,7 +2,7 @@
 
 from stamina_engine.experiments.oracle_bridge import Knobs
 from stamina_engine.experiments.parity import cases, check, render, rules_for, run_cases
-from stamina_engine.experiments.stats import wilson
+from stamina_engine.experiments.stats import Interval, wilson
 from stamina_engine.provenance import collect
 
 
@@ -27,3 +27,7 @@ def test_check_marks() -> None:
     assert check(iv, 60, pct=True) == "✗"
     assert check(iv, (54, 58), pct=True) == "✓"  # within sqrt(2) x half-width + 0.5
     assert check(iv, "text", pct=True) == "·"
+    hp = Interval(-2.44, -2.47, -2.41, 20_000)
+    assert check(hp, -3, pct=False) == "✗"  # printed "-3": rounded to 1, still too far
+    assert check(hp, -2, pct=False) == "✓"
+    assert check(Interval(6.25, 6.2, 6.3, 600), 6.3, pct=False) == "✓"  # rounded to 0.1

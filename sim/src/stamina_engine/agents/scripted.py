@@ -3,8 +3,9 @@ solver (ENGINE_PLAN, agent family 2). Ported from tests/oracle/sim.py so that, i
 with it, they make the same choices.
 
 Each agent makes at most one attack per turn, as the review's policies did. On a map (M2)
-it approaches its target by the cheapest path using free movement only, attacks if it can,
-and otherwise stands still; it never moves off-turn. Its avoidance and OA policies are spec
+it approaches its target by the cheapest path using free movement only (even when it can't
+afford to attack this turn; only the "never" policy stands still), attacks if it can, and
+otherwise stands still; it never moves off-turn. Its avoidance and OA policies are spec
 fields: avoid = "worth_it" (pay off an enemy whose OA would cost more than the price),
 "always" (pay off every enemy that could make one) or "never"; oa = "max" or "never".
 """
@@ -289,6 +290,8 @@ def approach(obs: Observation, rules: RuleSet, moves: MoveOptions, target: str) 
         return None
     board = Board(obs, rules)
     spots = attack_squares(obs.field, rules, weapon.reach, view.pos)
+    if me.pos in spots:
+        return None  # already in reach: nothing to approach
     goals = [c for c in sorted(spots) if moves.destinations.get(c, free + 1) <= free]
     if not goals:
         there = view.pos
@@ -336,7 +339,8 @@ class ScriptedAgent:
         if tid is None:
             return EndTurn()
         steps = self.commit.steps(obs.me, obs.view(tid))
-        if steps > 0 and tid not in request.targets and request.moves is not None:
+        wants = steps > 0 or not isinstance(self.commit, NeverAttack)
+        if wants and tid not in request.targets and request.moves is not None:
             step = approach(obs, self.rules, request.moves, tid)
             if step is not None:
                 return step

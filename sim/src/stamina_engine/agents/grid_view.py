@@ -12,15 +12,18 @@ Approximations (agent conventions, not rules):
 
 from dataclasses import dataclass, replace
 from fractions import Fraction
+from functools import lru_cache
 
 from stamina_engine.agents.decisions import CombatantView, MoveOptions, Observation
 from stamina_engine.agents.estimates import Target, exact_estimate
 from stamina_engine.core.errors import Unaffordable
 from stamina_engine.grid.battlefield import Battlefield, Cell
-from stamina_engine.grid.geometry import reach_cells
+from stamina_engine.grid.geometry import distance, reach_cells
+from stamina_engine.grid.los import Cover, cover
 from stamina_engine.grid.pathing import Passage, Reach, Route, best_of, cheapest_routes, reachable
 from stamina_engine.grid.threat import Body, body, melee_weapons, threatened_by
 from stamina_engine.model.derive import WeaponProfile
+from stamina_engine.rules.block_solver import best_block
 from stamina_engine.rules.pricing import FRESH, Pricing
 from stamina_engine.rules.ruleset import RuleSet
 
@@ -157,6 +160,42 @@ class Board:
             best = max(best, Fraction(e.cost) + w * Fraction(e.injury))
         return best
 
+    def attack_squares_of(self, v: CombatantView, cell: Cell) -> frozenset[Cell]:
+        """Squares from which v's main weapon would reach cell."""
+        weapon = v.gear.weapon
+        if weapon is None or weapon.ranged:
+            return frozenset()
+        return attack_squares(self.field, self.rules, weapon.reach, cell)
+
+    def attack_spots(self, cell: Cell) -> frozenset[Cell]:
+        """Squares the observer would threaten from cell with its ready melee weapons."""
+        out: frozenset[Cell] = frozenset()
+        for w in melee_weapons(self.me.gear):
+            out |= reach_cells(self.field, cell, w.reach, self.rules.grid)
+        return out
+
+    # --- shots -----------------------------------------------------------------------
+
+    def cover_at(self, shooter: Cell, target: Cell, skip: tuple[str, ...] = ()) -> Cover:
+        """Cover a creature at target would have from shooter, other creatures counting."""
+        others = [b.pos for b in self.bodies if b.id not in skip and b.pos not in (shooter, target)]
+        return cover(self.field, self.rules.grid, shooter, target, others)
+
+    def shot_exposure(self, cell: Cell) -> int:
+        """How exposed the observer would be at cell to enemy shooters holding a bow: 2 per
+        shooter in range with no cover, 1 with half cover, 0 otherwise."""
+        total = 0
+        for e in self.enemies():
+            weapon = e.gear.weapon
+            if weapon is None or not weapon.ranged or e.pos is None:
+                continue
+            band = self.rules.ranged.band(distance(e.pos, cell, self.rules.grid), weapon.ranges)
+            if band == "beyond":
+                continue
+            level = self.cover_at(e.pos, cell, (e.id, self.me.id))
+            total += max(0, 2 - int(level))
+        return total
+
     # --- paths -----------------------------------------------------------------------
 
     def routes(
@@ -189,3 +228,56 @@ class Board:
     ) -> Route | None:
         """The cheapest path to any goal (least total, then shorter, then first listed)."""
         return best_of(self.routes(moves, limit, leave_price), goals)
+
+
+# --- ranged estimates -----------------------------------------------------------------
+
+
+@lru_cache(maxsize=1 << 14)
+def shot_value(
+    weapon: WeaponProfile,
+    aims: int,
+    finesse: int,
+    band: str,
+    defense: int,
+    armor: int,
+    stamina: int,
+    hp: int,
+    rules: RuleSet,
+    w: Fraction,
+) -> tuple[Fraction, Fraction, Fraction]:
+    """(expected injury, expected stamina the target spends, P(down)) for one shot, exactly,
+    against the target's best blocks."""
+    from stamina_engine.analysis.ranged import respond, shot
+
+    r = respond(shot(weapon, aims, finesse, band, rules), defense, armor, stamina, hp, rules, w)
+    return r.injury, r.stamina, r.p_down
+
+
+def block_score(
+    damage: int,
+    crit_dice: int,
+    defense: int,
+    armor: int,
+    stamina: int,
+    hp: int,
+    rules: RuleSet,
+    w: Fraction,
+) -> Fraction:
+    """What blocking a known roll costs: stamina + w x injury, with a big penalty for going
+    down (the block solver never takes an avoidable incapacitation)."""
+    choice = best_block(
+        damage, crit_dice, defense, armor, max(stamina, 0), hp, rules, w, ranged=True
+    )
+    return choice.score + (100 * w if choice.incapacitated else 0)
+
+
+def is_shooter(view: CombatantView) -> bool:
+    return any(lo.weapon is not None and lo.weapon.ranged for lo in view.profile.loadouts)
+
+
+def ranged_loadout(view: CombatantView) -> str | None:
+    for lo in view.profile.loadouts:
+        if lo.weapon is not None and lo.weapon.ranged:
+            return lo.name
+    return None

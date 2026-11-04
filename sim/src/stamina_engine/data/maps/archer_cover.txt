@@ -1,0 +1,11 @@
+; Scattered cover: pillars (o) and crates (=) between the archer (A) and the fighter (F),
+; 12 squares apart.
+#################
+#.....o.....=...#
+#...=.....o.....#
+#........=....o.#
+#.A....o......F.#
+#.....=....o....#
+#..o......=.....#
+#.......o....=..#
+#################

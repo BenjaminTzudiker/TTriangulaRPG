@@ -1,0 +1,11 @@
+; A wall line with two gaps between the archer (A) and the fighter (F), 12 squares apart:
+; the fighter must come through a gap or round, and can wait in cover behind the wall.
+#################
+#.......#.......#
+#.......#.......#
+#...............#
+#.A.....#.....F.#
+#.......#.......#
+#...............#
+#.......#.......#
+#################

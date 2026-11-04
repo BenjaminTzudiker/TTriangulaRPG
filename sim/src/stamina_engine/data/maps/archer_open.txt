@@ -1,0 +1,11 @@
+; Archer against an approaching fighter on open ground: A (the archer) and F (the fighter)
+; start 12 squares apart, medium range for a longbow (as in review Table 6).
+#################
+#...............#
+#...............#
+#...............#
+#.A...........F.#
+#...............#
+#...............#
+#...............#
+#################

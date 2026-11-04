@@ -1,0 +1,25 @@
+# Review Table 6 on a grid (wall): a longbow archer against a sample
+# fighter, 12 squares apart (medium range). The archer is tactical: it shoots with the aim
+# count worth most, steps out of reach when it can, readies its quick-draw blade between
+# turns when the fighter could reach it, and dives for cover. Swap agents to compare.
+[scenario]
+name = "archer-wall"
+ruleset = "v0.9"
+map = "archer_wall"
+round_cap = 30
+trials = 500
+seed = 20261103
+
+[[combatant]]
+id = "A"
+team = "archer"
+build = "l1_archer"
+spawn = "A"
+agent = { kind = "tactical", commit = "chipkill" }
+
+[[combatant]]
+id = "F"
+team = "fighter"
+build = "l1_sample"
+spawn = "F"
+agent = "chipkill"

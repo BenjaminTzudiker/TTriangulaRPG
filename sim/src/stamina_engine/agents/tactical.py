@@ -32,11 +32,13 @@ from fractions import Fraction
 
 from stamina_engine.agents.blocking import solver_blocks
 from stamina_engine.agents.decisions import (
+    AimRequest,
     Attack,
     Avoid,
     AvoidOA,
     BlocksRequest,
     Commitment,
+    DiveRequest,
     EndTurn,
     Move,
     MoveAnswer,
@@ -277,6 +279,8 @@ class TacticalAgent:
         if engaged < self.retreat_engaged and not (engaged >= 1 and low):
             return Pass()
         moves = request.moves
+        if moves is None:
+            return Pass()
         budget = Fraction(me.stamina, 2)
         best: tuple[tuple[int, Fraction | int, int], tuple[Cell, ...]] | None = None
         routes = board.routes(moves, moves.max_squares)
@@ -297,3 +301,9 @@ class TacticalAgent:
 
     def take_oa(self, request: TakeOA) -> OATake:
         return largest_oa(request)
+
+    def aim(self, request: AimRequest) -> int:
+        return min(request.required, request.max_aims)
+
+    def dive(self, request: DiveRequest) -> MoveAnswer:
+        return Pass()

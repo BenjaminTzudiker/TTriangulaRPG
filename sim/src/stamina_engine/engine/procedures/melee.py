@@ -70,6 +70,7 @@ def declare_steps(
         return None  # declaration withdrawn
     b.ops.emit(AttackDeclared(attacker.id, target.id, steps))
     b.ops.spend(attacker, quotes[steps - 1], "attack")
+    b.ops.use_weapon(attacker)
     return steps
 
 
@@ -98,22 +99,31 @@ def prior_perfect(b: Battle, target: CombatantState, attacker: CombatantState) -
 
 
 def declare_blocks(
-    b: Battle, attacker: CombatantState, target: CombatantState, attack: AttackRoll
+    b: Battle,
+    attacker: CombatantState,
+    target: CombatantState,
+    attack: AttackRoll,
+    defense: int | None = None,
+    ranged: bool = False,
+    cover: int = 0,
 ) -> Blocks:
     """Step 5: the defender sees the total and the critical dice, then declares blocks.
-    An incapacitated defender can't block (Assumptions register)."""
+    An incapacitated defender can't block (Assumptions register). defense defaults to Melee
+    Defense; a ranged attack passes Ranged (or Melee) Defense plus its cover bonus."""
     if not target.active:
         return Blocks()
     gear = target.gear
+    defense = gear.melee_defense if defense is None else defense
     prior = prior_perfect(b, target, attacker)
     options = block_options(
         attack.total,
         attack.crit_dice,
-        gear.melee_defense,
+        defense,
         gear.armor,
         target.stamina,
         b.rules,
         prior,
+        ranged,
     )
     request = BlocksRequest(
         target.id,
@@ -122,16 +132,18 @@ def declare_blocks(
         attacker.id,
         attack.total,
         attack.crit_dice,
-        gear.melee_defense,
+        defense,
         gear.armor,
         target.stamina,
         prior,
         options.affordable,
         options.nondominated,
+        ranged,
+        cover,
     )
     blocks = b.broker.blocks(request)
     b.ops.emit(BlocksDeclared(target.id, blocks.perfect, blocks.grazing, prior))
-    quote = b.pricing.blocks(blocks.perfect, blocks.grazing, prior_perfect=prior)
+    quote = b.pricing.blocks(blocks.perfect, blocks.grazing, prior_perfect=prior, ranged=ranged)
     if quote.total:
         b.ops.spend(target, quote, "block")
     b.ops.count_perfect_blocks(target, attacker.id, b.state.round, blocks.perfect)
@@ -144,12 +156,12 @@ def armor_and_crits(
     target: CombatantState,
     attack: AttackRoll,
     blocks: Blocks,
+    defense: int | None = None,
 ) -> Outcome:
     """Steps 6 and 7: armor (less 1 per critical die), then the crit effect."""
     gear = target.gear
-    outcome = resolve(
-        attack.total, attack.crit_dice, gear.melee_defense, gear.armor, blocks, b.rules
-    )
+    defense = gear.melee_defense if defense is None else defense
+    outcome = resolve(attack.total, attack.crit_dice, defense, gear.armor, blocks, b.rules)
     b.ops.emit(
         AttackResolved(
             attacker.id,

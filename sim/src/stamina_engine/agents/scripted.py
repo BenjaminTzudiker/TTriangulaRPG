@@ -17,12 +17,14 @@ from typing import TYPE_CHECKING, Protocol
 
 from stamina_engine.agents.blocking import solver_blocks
 from stamina_engine.agents.decisions import (
+    AimRequest,
     Attack,
     Avoid,
     AvoidOA,
     BlocksRequest,
     CombatantView,
     Commitment,
+    DiveRequest,
     EndTurn,
     Move,
     MoveAnswer,
@@ -31,6 +33,7 @@ from stamina_engine.agents.decisions import (
     Observation,
     OffTurnMove,
     Pass,
+    Shoot,
     TakeOA,
     TurnAnswer,
     TurnCommand,
@@ -312,15 +315,22 @@ class ScriptedAgent:
     w: Fraction = DEFAULT_W  # the block agent's value of 1 HP in stamina
     avoid_mode: str = "worth_it"
     oa_mode: str = "max"
+    aims: int = 3  # a shooter's aim steps, as many of these as it can afford
     _pending: int = field(default=0, init=False)
+    _shot_round: int = field(default=-1, init=False)
 
     def turn_command(self, request: TurnCommand) -> TurnAnswer:
         """The policy is consulted every turn, even when no step is affordable, as the
         review's policies were: its look-ahead samples the target's replies even then."""
         obs = request.observation
         assert obs.me.trackers is not None
-        if obs.me.trackers.actions_this_turn > 0:
+        if obs.me.trackers.actions_this_turn > 0 or self._shot_round == obs.round:
             return EndTurn()  # one attack per turn
+        if request.shots:
+            tid = self.target(obs, request.shots)
+            if tid is not None:
+                self._shot_round = obs.round
+                return Shoot(tid)
         candidates = request.targets or tuple(v.id for v in obs.enemies() if v.status == "active")
         tid = self.target(obs, candidates)
         if tid is None:
@@ -352,13 +362,20 @@ class ScriptedAgent:
     def take_oa(self, request: TakeOA) -> OATake:
         return largest_oa(request) if self.oa_mode == "max" else OATake()
 
+    def aim(self, request: AimRequest) -> int:
+        """Its aims if it can afford them; else as many as it can (a miss if too few)."""
+        return min(max(self.aims, request.required), request.max_aims)
+
+    def dive(self, request: DiveRequest) -> MoveAnswer:
+        return Pass()  # scripted agents never dive
+
 
 # --- specs ---------------------------------------------------------------------------
 
 
 AVOID_MODES = frozenset({"worth_it", "always", "never"})
 OA_MODES = frozenset({"max", "never"})
-SCRIPTED_FIELDS = {"kind", "commit", "target", "w", "estimator", "avoid", "oa"}
+SCRIPTED_FIELDS = {"kind", "commit", "target", "w", "estimator", "avoid", "oa", "aims"}
 TACTICAL_FIELDS = {"retreat_engaged", "low_stamina", "reach_spacing"}
 
 
@@ -429,4 +446,6 @@ def make_agent(
         )
     if target not in TARGETS:
         raise ConfigError(f"unknown target policy {target!r}; known: {sorted(TARGETS)}")
-    return ScriptedAgent(rules, policy, TARGETS[target], w, avoid_mode, oa_mode)
+    return ScriptedAgent(
+        rules, policy, TARGETS[target], w, avoid_mode, oa_mode, int(str(table.get("aims", 3)))
+    )

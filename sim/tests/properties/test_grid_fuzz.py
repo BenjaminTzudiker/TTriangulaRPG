@@ -9,11 +9,14 @@ from hypothesis import given, settings
 from hypothesis import strategies as st
 
 from stamina_engine.agents.decisions import (
+    AimRequest,
     Attack,
     Avoid,
     AvoidOA,
     BlocksRequest,
     Commitment,
+    DiveRequest,
+    Draw,
     EndTurn,
     Move,
     MoveAnswer,
@@ -21,6 +24,7 @@ from stamina_engine.agents.decisions import (
     OATake,
     OffTurnMove,
     Pass,
+    Shoot,
     TakeOA,
     TurnAnswer,
     TurnCommand,
@@ -37,7 +41,15 @@ from stamina_engine.rules.exchange import Blocks
 from stamina_engine.rules.pricing import Pricing
 from stamina_engine.rules.ruleset import RuleSet, preset
 
-BUILDS = ["l1_sample", "l1_duelist", "l1_heavy", "l1_caster_dagger", "l1_greatsword"]
+BUILDS = [
+    "l1_sample",
+    "l1_duelist",
+    "l1_heavy",
+    "l1_caster_dagger",
+    "l1_greatsword",
+    "l1_archer",
+    "l1_spear",
+]
 
 
 @dataclass
@@ -61,6 +73,10 @@ class RandomAgent:
 
     def turn_command(self, request: TurnCommand) -> TurnAnswer:
         roll = self.rng.random()
+        if request.shots and roll < 0.4:
+            return Shoot(self.rng.choice(request.shots))
+        if request.draws and roll > 0.9:
+            return Draw(self.rng.choice(request.draws).loadout)
         if request.targets and roll < 0.5:
             return Attack(self.rng.choice(request.targets))
         if request.moves is not None and roll < 0.8:
@@ -82,6 +98,17 @@ class RandomAgent:
         return self.rng.choice(options)
 
     def off_turn_move(self, request: OffTurnMove) -> MoveAnswer:
+        roll = self.rng.random()
+        if request.draws and roll < 0.15:
+            return Draw(self.rng.choice(request.draws).loadout)
+        if request.moves is not None and roll < 0.3:
+            return self._path(request.observation.field, request.moves)
+        return Pass()
+
+    def aim(self, request: AimRequest) -> int:
+        return self.rng.randint(0, request.max_aims)
+
+    def dive(self, request: DiveRequest) -> MoveAnswer:
         if self.rng.random() < 0.3:
             return self._path(request.observation.field, request.moves)
         return Pass()
@@ -107,6 +134,8 @@ VARIANTS = [
     {"opportunity": {"avoid_track": "off_turn", "avoid_debt": True}},
     {"movement": {"extra_squares": "one", "extra_cap": "free_movement", "leftover": "move"}},
     {"grid": {"occupancy": "anyone", "bodies": "blocking", "corners": "no_cut"}},
+    {"ranged": {"bands": "minus_d6", "aim_mode": "precision"}, "blocks": {"ranged_flat": 2}},
+    {"defenses": {"ranged_mode": "dodge_folded"}, "opportunity": {"point_blank_avoidable": True}},
 ]
 
 

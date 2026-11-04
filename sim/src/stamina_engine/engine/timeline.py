@@ -2,7 +2,7 @@
 
 import hashlib
 
-from stamina_engine.agents.decisions import Attack, EndTurn, Move, TurnCommand
+from stamina_engine.agents.decisions import Attack, Draw, EndTurn, Move, Shoot, TurnCommand
 from stamina_engine.core.dice import roll
 from stamina_engine.engine.battle import Battle, BattleResult
 from stamina_engine.engine.events import (
@@ -15,6 +15,7 @@ from stamina_engine.engine.events import (
 from stamina_engine.engine.procedures.melee import melee_attack
 from stamina_engine.engine.procedures.movement import move, move_options
 from stamina_engine.engine.procedures.off_turn import off_turn_window
+from stamina_engine.engine.procedures.ranged import draw, draw_options, shoot, shot_targets
 from stamina_engine.model.state import CombatantState, Status
 
 cites = (
@@ -103,6 +104,8 @@ def command_loop(b: Battle, c: CombatantState) -> None:
                 b.context.path(),
                 targets(b, c),
                 move_options(b, c, on_turn=True),
+                shot_targets(b, c),
+                draw_options(b, c, on_turn=True),
             )
         )
         if isinstance(answer, EndTurn):
@@ -111,6 +114,10 @@ def command_loop(b: Battle, c: CombatantState) -> None:
             move(b, c, answer.path, on_turn=True)
         elif isinstance(answer, Attack):
             melee_attack(b, c, b.state.get(answer.target))
+        elif isinstance(answer, Shoot):
+            shoot(b, c, b.state.get(answer.target))
+        elif isinstance(answer, Draw):
+            draw(b, c, answer.loadout, on_turn=True)
         if b.outcome is not None:
             return
 

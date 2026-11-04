@@ -3,16 +3,19 @@ golden tests and worked examples: the fight goes exactly as written, or the brok
 an answer and says why.
 
 When a list runs out the agent answers with the do-nothing choice: end the turn, block
-nothing, pass, pay no one, decline the OA. A commitment takes the next entry of `commit`.
+nothing, pass, pay no one, decline the OA, aim 0, stay put. A commitment takes the next entry
+of `commit`; an aim request the next entry of `aims`.
 """
 
 from dataclasses import dataclass, field
 
 from stamina_engine.agents.decisions import (
+    AimRequest,
     Avoid,
     AvoidOA,
     BlocksRequest,
     Commitment,
+    DiveRequest,
     EndTurn,
     MoveAnswer,
     OATake,
@@ -35,26 +38,44 @@ class Listed:
     off_turn: list[MoveAnswer] = field(default_factory=list)
     avoids: list[Avoid] = field(default_factory=list)
     oas: list[OATake] = field(default_factory=list)
+    aims: list[int] = field(default_factory=list)
+    dives: list[MoveAnswer] = field(default_factory=list)
     seen: list[str] = field(default_factory=list)  # each request's context, for tests
+    requests: list[object] = field(default_factory=list)  # every request, for tests
 
     def turn_command(self, request: TurnCommand) -> TurnAnswer:
+        self.requests.append(request)
         self.seen.append(" > ".join(request.context))
         return self.turns.pop(0) if self.turns else EndTurn()
 
     def commitment(self, request: Commitment) -> int:
+        self.requests.append(request)
         return self.commit.pop(0) if self.commit else 0
 
     def blocks(self, request: BlocksRequest) -> Blocks:
+        self.requests.append(request)
         return self.block_answers.pop(0) if self.block_answers else Blocks()
 
     def off_turn_move(self, request: OffTurnMove) -> MoveAnswer:
+        self.requests.append(request)
         self.seen.append(" > ".join(request.context))
         return self.off_turn.pop(0) if self.off_turn else Pass()
 
     def avoid(self, request: AvoidOA) -> Avoid:
+        self.requests.append(request)
         self.seen.append(" > ".join(request.context))
         return self.avoids.pop(0) if self.avoids else Avoid()
 
     def take_oa(self, request: TakeOA) -> OATake:
+        self.requests.append(request)
         self.seen.append(" > ".join(request.context))
         return self.oas.pop(0) if self.oas else OATake()
+
+    def aim(self, request: AimRequest) -> int:
+        self.requests.append(request)
+        return self.aims.pop(0) if self.aims else 0
+
+    def dive(self, request: DiveRequest) -> MoveAnswer:
+        self.requests.append(request)
+        self.seen.append(" > ".join(request.context))
+        return self.dives.pop(0) if self.dives else Pass()

@@ -185,6 +185,39 @@ class OpportunityDeclared(Event):
 
 
 @dataclass(frozen=True)
+class ShotDeclared(Event):
+    """A ranged attack: its aim steps, range band and the target's cover when declared."""
+
+    shooter: str
+    target: str
+    aims: int
+    band: str
+    cover: int  # 0 none, 1 half, 2 three-quarters
+
+
+@dataclass(frozen=True)
+class ShotMissed(Event):
+    shooter: str
+    target: str
+    reason: str  # too few aims for the range band
+
+
+@dataclass(frozen=True)
+class Dived(Event):
+    """The target dove for cover; cover is what the shot now faces (total counts as 3/4)."""
+
+    target: str
+    cover: int
+
+
+@dataclass(frozen=True)
+class Drew(Event):
+    who: str
+    loadout: str
+    cost: int
+
+
+@dataclass(frozen=True)
 class BattleEnded(Event):
     reason: str  # side_out, round_cap
     winner: str | None  # winning team, or None for a draw

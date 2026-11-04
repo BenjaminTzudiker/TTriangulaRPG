@@ -33,6 +33,10 @@ class CombatantState:
     free_move_left: int = 0  # free squares left this turn
     banked: int = 0  # squares bought this turn and not yet used (on-turn purchases)
     debt: int = 0  # avoidance paid without stamina, owed from the next recovery (F14 variant)
+    used_weapon: bool = False  # used a weapon this turn: drawing on your turn now costs
+    bow_hands: bool = (
+        False  # shot a bow this turn: no normal weapon into those hands until your next turn
+    )
 
     @property
     def hp(self) -> int:

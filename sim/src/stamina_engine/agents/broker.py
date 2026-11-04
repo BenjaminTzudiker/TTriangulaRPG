@@ -5,12 +5,16 @@ from collections.abc import Mapping
 
 from stamina_engine.agents.decisions import (
     Agent,
+    AimRequest,
     Attack,
     Avoid,
     AvoidOA,
     BlocksRequest,
     Commitment,
     DecisionRecord,
+    DiveRequest,
+    Draw,
+    DrawOption,
     EndTurn,
     Move,
     MoveAnswer,
@@ -18,6 +22,7 @@ from stamina_engine.agents.decisions import (
     OATake,
     OffTurnMove,
     Pass,
+    Shoot,
     TakeOA,
     TurnAnswer,
     TurnCommand,
@@ -79,6 +84,13 @@ class Broker:
         elif isinstance(answer, Move):
             self.check_path(req.who, req.observation.field, req.moves, answer.path)
             text, acted = path_text(answer.path), True
+        elif isinstance(answer, Shoot):
+            if answer.target not in req.shots:
+                raise RulesError(f"{req.who} can't shoot {answer.target}; options {req.shots}")
+            text, acted = f"shoot {answer.target}", True
+        elif isinstance(answer, Draw):
+            self._check_draw(req.who, req.draws, answer)
+            text, acted = f"draw {answer.loadout}", True
         elif isinstance(answer, EndTurn):
             text, acted = "end turn", False
         else:
@@ -132,11 +144,20 @@ class Broker:
         )
         return answer
 
+    def _check_draw(self, who: str, draws: tuple[DrawOption, ...], answer: Draw) -> None:
+        if answer.loadout not in {d.loadout for d in draws}:
+            raise RulesError(
+                f"{who} can't draw {answer.loadout!r} now; options {[d.loadout for d in draws]}"
+            )
+
     def off_turn_move(self, req: OffTurnMove) -> MoveAnswer:
         answer = self.agents[req.who].off_turn_move(req)
         if isinstance(answer, Move):
             self.check_path(req.who, req.observation.field, req.moves, answer.path)
             text, acted = path_text(answer.path), True
+        elif isinstance(answer, Draw):
+            self._check_draw(req.who, req.draws, answer)
+            text, acted = f"draw {answer.loadout}", True
         elif isinstance(answer, Pass):
             text, acted = "pass", False
         else:
@@ -201,6 +222,43 @@ class Broker:
             None,
             f"oa {answer.weapon} {answer.steps}" if answer.steps else "decline",
             answer.steps > 0,
+            req.context,
+        )
+        return answer
+
+    def aim(self, req: AimRequest) -> int:
+        aims = self.agents[req.who].aim(req)
+        if not isinstance(aims, int) or isinstance(aims, bool) or not 0 <= aims <= req.max_aims:
+            raise RulesError(f"{req.who} aimed {aims!r}; options 0..{req.max_aims}")
+        self._record(
+            req.observation.round,
+            req.who,
+            "aim",
+            req.option_count,
+            None,
+            str(aims),
+            True,
+            req.context,
+        )
+        return aims
+
+    def dive(self, req: DiveRequest) -> MoveAnswer:
+        answer = self.agents[req.who].dive(req)
+        if isinstance(answer, Move):
+            self.check_path(req.who, req.observation.field, req.moves, answer.path)
+            text, acted = path_text(answer.path), True
+        elif isinstance(answer, Pass):
+            text, acted = "stay", False
+        else:
+            raise RulesError(f"{req.who} gave {answer!r} to a dive request")
+        self._record(
+            req.observation.round,
+            req.who,
+            "dive",
+            req.option_count,
+            None,
+            text,
+            acted,
             req.context,
         )
         return answer

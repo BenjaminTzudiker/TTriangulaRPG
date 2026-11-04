@@ -57,7 +57,7 @@ uv run ruff check src tests
 
 ## Working on milestones
 
-Work one milestone at a time (M0–M5 in `sim/docs/ENGINE_PLAN.md`). Plan first, then build. A milestone is done only when its "Done when" gate passes. Current milestone: **M0 Foundations**.
+Work one milestone at a time (M0–M5 in `sim/docs/ENGINE_PLAN.md`). Plan first, then build. A milestone is done only when its "Done when" gate passes. Current milestone: **M1 Turn engine, no movement**. M0 is done (tag `m0`).
 
 When a result looks like a design finding (a rule behaving differently than the packet intends), write it up in `sim/reports/` with the RuleSet digest, the assumption switches used, trial counts and confidence intervals, and stop to flag it. Don't fix the rules to make the numbers look better.
 

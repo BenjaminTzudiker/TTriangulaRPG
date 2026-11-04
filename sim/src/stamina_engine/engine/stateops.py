@@ -177,10 +177,12 @@ class StateOps:
         c.banked += squares
         self._bump()
 
-    def end_move(self, c: CombatantState) -> None:
-        """A move may pass through an ally's square but never end in an occupied one."""
+    def end_move(self, c: CombatantState, stopped: bool = False) -> None:
+        """A move may pass through an ally's square but never end in an occupied one. A move
+        stopped early (the mover downed, or the fight over) ends where it is, even if that is
+        an ally's square: a downed body can lie under an ally's feet."""
         self.state.moving = None
-        if c.pos is not None and len(self.state.at(c.pos)) > 1:
+        if not stopped and c.pos is not None and len(self.state.at(c.pos)) > 1:
             others = [o.id for o in self.state.at(c.pos) if o is not c]
             raise RulesError(f"{c.id} can't end its move on {others[0]}'s square {c.pos}")
         self._bump()
@@ -226,6 +228,7 @@ class StateOps:
                     continue
                 if not self.field.walkable(c.pos):
                     raise EngineError(f"{c.id} stands on {self.field.terrain(c.pos).name}")
-                if c.pos in seen and self.state.moving not in (c.id, seen[c.pos]):
+                shared = c.pos in seen and self.state.moving not in (c.id, seen[c.pos])
+                if shared and all(o.active for o in self.state.at(c.pos)):
                     raise EngineError(f"{c.id} and {seen[c.pos]} share {c.pos}")
                 seen[c.pos] = c.id

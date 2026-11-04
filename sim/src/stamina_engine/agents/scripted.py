@@ -14,11 +14,18 @@ from typing import Protocol
 from stamina_engine.agents.blocking import solver_blocks
 from stamina_engine.agents.decisions import (
     Attack,
+    Avoid,
+    AvoidOA,
     BlocksRequest,
     CombatantView,
     Commitment,
     EndTurn,
+    MoveAnswer,
+    OATake,
     Observation,
+    OffTurnMove,
+    Pass,
+    TakeOA,
     TurnAnswer,
     TurnCommand,
 )
@@ -247,6 +254,15 @@ class ScriptedAgent:
 
     def blocks(self, request: BlocksRequest) -> Blocks:
         return solver_blocks(request, self.rules, self.w)
+
+    def off_turn_move(self, request: OffTurnMove) -> MoveAnswer:
+        return Pass()  # scripted agents never move off-turn
+
+    def avoid(self, request: AvoidOA) -> Avoid:
+        return Avoid()
+
+    def take_oa(self, request: TakeOA) -> OATake:
+        return OATake()
 
 
 # --- specs ---------------------------------------------------------------------------

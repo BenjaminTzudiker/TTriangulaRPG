@@ -159,6 +159,32 @@ class Moved(Event):
 
 
 @dataclass(frozen=True)
+class OpportunityProvoked(Event):
+    """The mover is leaving a square these enemies threaten (in the order they'd be asked)."""
+
+    mover: str
+    square: tuple[int, int]
+    enemies: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class OpportunityAvoided(Event):
+    mover: str
+    square: tuple[int, int]
+    enemies: tuple[str, ...]  # paid off for this square
+
+
+@dataclass(frozen=True)
+class OpportunityDeclared(Event):
+    """An OA's steps, declared and paid like an attack's (AttackDeclared is on-turn only)."""
+
+    attacker: str
+    target: str
+    weapon: str  # main or off_hand
+    steps: int
+
+
+@dataclass(frozen=True)
 class BattleEnded(Event):
     reason: str  # side_out, round_cap
     winner: str | None  # winning team, or None for a draw

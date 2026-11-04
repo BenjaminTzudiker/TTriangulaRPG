@@ -2,7 +2,7 @@
 
 import hashlib
 
-from stamina_engine.agents.decisions import EndTurn, TurnCommand
+from stamina_engine.agents.decisions import Attack, EndTurn, Move, TurnCommand
 from stamina_engine.core.dice import roll
 from stamina_engine.engine.battle import Battle, BattleResult
 from stamina_engine.engine.events import (
@@ -13,10 +13,12 @@ from stamina_engine.engine.events import (
     RoundStarted,
 )
 from stamina_engine.engine.procedures.melee import melee_attack
+from stamina_engine.engine.procedures.movement import move, move_options
 from stamina_engine.model.state import CombatantState, Status
 
 cites = (
     "Packet: Starting Combat and Turn Structure",
+    "Packet: On-Turn Movement",
     "Packet: Stamina",
     "Packet: Dying and Death",
     "Ledger CB-9",
@@ -89,14 +91,24 @@ def take_turn(b: Battle, c: CombatantState) -> None:
 
 
 def command_loop(b: Battle, c: CombatantState) -> None:
-    """Move and act in any order until the agent ends the turn. M1 offers melee attacks."""
-    while True:
+    """Move and act in any order until the agent ends the turn (Packet: Starting Combat and
+    Turn Structure: movement can be split up around actions)."""
+    while c.active:
         answer = b.broker.turn_command(
-            TurnCommand(c.id, b.observe(c.id), b.context.path(), targets(b, c))
+            TurnCommand(
+                c.id,
+                b.observe(c.id),
+                b.context.path(),
+                targets(b, c),
+                move_options(b, c, on_turn=True),
+            )
         )
         if isinstance(answer, EndTurn):
             return
-        melee_attack(b, c, b.state.get(answer.target))
+        if isinstance(answer, Move):
+            move(b, c, answer.path, on_turn=True)
+        elif isinstance(answer, Attack):
+            melee_attack(b, c, b.state.get(answer.target))
         if b.outcome is not None:
             return
 

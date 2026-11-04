@@ -7,6 +7,7 @@ the packet, so stabilize() only records the outcome.
 
 from dataclasses import dataclass, replace
 
+from stamina_engine.core.dice import Dice
 from stamina_engine.rules.registry import Component, register
 
 
@@ -25,6 +26,10 @@ class DyingState:
 @dataclass(frozen=True)
 class DyingRule(Component):
     cites = ("Packet: Dying and Death", "Ledger IN-1")
+
+    def roll_dice(self) -> Dice | None:
+        """The dice of the start-of-turn dying roll (Strength is added), or None."""
+        return None
 
     def take_damage(self, state: DyingState, damage: int) -> DyingState:
         raise NotImplementedError
@@ -47,6 +52,9 @@ class SystemShock(DyingRule):
     stabilize_at: int = 15  # roll of 15 + Shock or more: -1 Shock
     death_shock: int = 10
     death_hp: int = -10
+
+    def roll_dice(self) -> Dice | None:
+        return Dice(self.roll_count, self.roll_size)
 
     def _check_death(self, state: DyingState) -> DyingState:
         if state.shock >= self.death_shock or state.hp <= self.death_hp:

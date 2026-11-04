@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass
 
+from stamina_engine.core.dice import Dice
 from stamina_engine.core.mathx import odd_count
 from stamina_engine.rules.registry import Component, register
 
@@ -12,6 +13,12 @@ class TurnOrderRule(Component):
     allowed = {"tiebreak": frozenset({"reroll", "list_order", "higher_agility"})}
 
     def initiative_bonus(self, agility: int, cunning: int) -> int:
+        raise NotImplementedError
+
+    def initiative_dice(self) -> Dice:
+        raise NotImplementedError
+
+    def tiebreak_mode(self) -> str:
         raise NotImplementedError
 
 
@@ -26,3 +33,9 @@ class V09Initiative(TurnOrderRule):
 
     def initiative_bonus(self, agility: int, cunning: int) -> int:
         return odd_count(agility) + odd_count(cunning)
+
+    def initiative_dice(self) -> Dice:
+        return Dice(self.dice_count, self.dice_size)
+
+    def tiebreak_mode(self) -> str:
+        return self.tiebreak

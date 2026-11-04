@@ -4,6 +4,8 @@ import hashlib
 import random
 from typing import Protocol
 
+from stamina_engine.core.dice import DiceSource
+
 
 def derive_seed(master_seed: int, name: str) -> int:
     """A 64-bit seed for the named stream, stable across processes and platforms."""
@@ -24,7 +26,7 @@ class SeededDice:
 class DiceProvider(Protocol):
     """Hands out the dice source for a purpose ("initiative", "attack:<id>", ...)."""
 
-    def dice(self, name: str) -> SeededDice: ...
+    def dice(self, name: str) -> DiceSource: ...
 
 
 class Streams:

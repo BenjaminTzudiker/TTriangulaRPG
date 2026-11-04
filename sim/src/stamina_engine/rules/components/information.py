@@ -10,8 +10,14 @@ class InformationRule(Component):
     cites = ("Packet: Commitment", "Review F6")
     allowed = {"stamina": frozenset({"public", "hidden"})}
 
+    def stamina_visibility(self) -> str:
+        raise NotImplementedError
+
 
 @register("information", "v0_9")
 @dataclass(frozen=True)
 class V09Information(InformationRule):
     stamina: str = "public"
+
+    def stamina_visibility(self) -> str:
+        return self.stamina

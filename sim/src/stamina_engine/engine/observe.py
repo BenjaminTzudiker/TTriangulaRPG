@@ -24,7 +24,7 @@ def _view(c: CombatantState, rules: RuleSet, own: bool) -> CombatantView:
 
 
 def observe(state: BattleState, rules: RuleSet, who: str) -> Observation:
-    if rules.information.stamina != "public":  # type: ignore[attr-defined]
+    if rules.information.stamina_visibility() != "public":
         raise ConfigError("hidden stamina observations arrive in M1 slice 8")
     me = state.get(who)
     return Observation(

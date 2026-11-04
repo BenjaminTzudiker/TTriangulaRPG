@@ -9,6 +9,7 @@ prices blocks exactly as the engine charges them.
 
 from dataclasses import dataclass
 from fractions import Fraction
+from functools import lru_cache
 
 from stamina_engine.rules.exchange import Blocks, resolve
 from stamina_engine.rules.pricing import Pricing
@@ -108,6 +109,7 @@ class BlockOptions:
     nondominated: int
 
 
+@lru_cache(maxsize=1 << 16)
 def block_options(
     damage: int,
     crit_dice: int,

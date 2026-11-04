@@ -2,7 +2,7 @@
 
 For claude.ai chats in the "Tactical fantasy TTRPG" project. Claude Code keeps this file current.
 
-**Status:** milestone M0 (Foundations) is done, tagged `m0`: dice, RuleSets, builds and derived numbers, Pricing, single-attack resolution, the block solver and the exact static tables. There is no battle loop yet; that's M1, in progress.
+**Status:** milestone M0 (Foundations) is done, tagged `m0`: dice, RuleSets, builds and derived numbers, Pricing, single-attack resolution, the block solver and the exact static tables. There is no battle loop yet; that's the next milestone, M1.
 
 ## Reading the code
 

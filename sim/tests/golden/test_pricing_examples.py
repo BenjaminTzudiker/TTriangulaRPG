@@ -78,7 +78,8 @@ def test_strain_example() -> None:
 
 def test_quick_reference_costs() -> None:
     assert P.extra_movement().total == 1
-    assert P.extra_movement().after(Trackers(3, 2)) == Trackers(3, 2)
+    after = P.extra_movement().after(Trackers(3, 2))
+    assert (after.actions_this_turn, after.off_turn_costs) == (3, 2)  # not an action, no escalation
     assert [P.perfect_block(i) for i in range(1, 6)] == [1, 2, 3, 4, 5]
     assert P.blocks(3, 2).total == 1 + 2 + 3 + 1 + 1
     assert P.draw_between_turns(quick_draw=False).total == 1

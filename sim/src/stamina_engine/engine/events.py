@@ -56,6 +56,24 @@ class Spent(Event):
 
 
 @dataclass(frozen=True)
+class Indebted(Event):
+    """Part of a Spent paid without stamina (only avoidance, with opportunity.avoid_debt)."""
+
+    who: str
+    owed: int
+    debt_after: int
+
+
+@dataclass(frozen=True)
+class DebtPaid(Event):
+    """Recovery that went to paying off debt before any stamina came back."""
+
+    who: str
+    amount: int
+    debt_after: int
+
+
+@dataclass(frozen=True)
 class Recovered(Event):
     who: str
     amount: int

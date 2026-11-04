@@ -436,7 +436,16 @@ When a pending row is ruled, or a ruled row changes, the same commit updates the
 | What map terrain does (M2) | `#` walls and `o` pillars block movement, sight and reach; `=` low walls and crates block movement only (their cover arrives with ranged attacks in M3). Every creature fills one square; no difficult terrain; the map edge is a wall, so nobody leaves the map | map legend | pending designer |
 | When an OA lands during a multi-square move | On leaving each square, before entering the next | `opportunity.timing` | pending designer |
 | Diving out of a point-blank shooter's reach | Dive OAs resolve first, then blocks; point-blank OAs after the shot | `ranged.point_blank_order` | pending designer |
-| Paying to avoid OAs at 0 stamina | Not allowed (debt as the variant) | `opportunity.avoid_debt` | pending designer |
+| Paying to avoid OAs at 0 stamina | Not allowed. The debt variant (F14): only avoidance can be paid without stamina; the shortfall comes out of the next recovery before any stamina is regained, carrying over if larger; stamina never goes below 0 | `opportunity.avoid_debt` | pending designer |
+| Free squares before purchases | Purchases are only bought once the turn's free movement is used up (paying for free squares would be dominated) | — | engine convention |
+| A purchase gives N squares and you use fewer | On your turn the rest is kept for the turn and can be split around actions like free movement; off-turn, it lasts only for that move | `movement.leftover` | pending designer |
+| When a movement purchase is paid | When it is first needed, square by square, so a mover stopped by an OA never pays for squares it doesn't reach | — | engine convention |
+| Negative Agility and movement | No bonus: the odd count of a negative value is 0, as for Finesse | — | engine convention |
+| Purchases in one off-turn move | Any number; F14's "purchase cap" isn't in the packet | `off_turn.purchase_cap` (0 = none) | pending designer |
+| F9 option 1, cap from the weapon | `cap_rule = weapon_base`: cap = the OA weapon's base + odd FIN; escalation still counts against it; stacks with the per-square rule | `opportunity.cap_rule` | pending designer |
+| F9 option 2, avoidance at the attacker's cap | `avoid_price = attacker_cap`: each enemy denied costs its cap as its formula gives it, not reduced by its escalation or stamina (so the price reveals nothing hidden) | `opportunity.avoid_price` | pending designer |
+| F9 option 3, avoidance on the off-turn track | Each avoidance costs 1 + earlier off-turn costs and counts as one, so the third enemy slipped past costs 3. On your own turn this makes your post-turn window pricier, which conflicts with "your own on-turn movement and actions never make it pricier", so two values are built: `off_turn` (always) and `off_turn_only` (only when paid off-turn) | `opportunity.avoid_track` | pending designer |
+| F10 options | `extra_squares = one`: extra on-turn purchases move 1 square, off-turn purchases keep 1 + odd AGI (the chasers-win lever). `extra_cap = free_movement`: purchased squares per turn are at most your Movement, the last purchase cut short | `movement.extra_squares`, `movement.extra_cap` | pending designer |
 | Max stamina at negative HP | HP term floors at 0 | `resources.max_stamina` | engine convention |
 | Spear hands | One-handed, so a shield is allowed | weapon table | pending designer |
 | Where a Rogue's moved turn sits next round | Keeps the new slot | Rogue core parameter | pending designer |

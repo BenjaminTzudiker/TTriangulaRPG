@@ -63,9 +63,10 @@ class LoadoutProfile:
     ranged_defense: int
     dodge_defense: int
     movement: int
-    squares_per_purchase: int
+    squares_per_purchase: int  # off-turn
     initiative_bonus: int
-    oa_cap: int
+    oa_cap: int  # with the main weapon (the cap can depend on the weapon: F9 option 1)
+    extra_squares_per_purchase: int = 0  # extra on-turn movement
 
 
 @dataclass(frozen=True)
@@ -181,7 +182,8 @@ def _loadout_profile(
         movement=mv.free_movement(attrs.AGI),
         squares_per_purchase=mv.squares_per_purchase(attrs.AGI),
         initiative_bonus=rules.turn_order.initiative_bonus(attrs.AGI, attrs.CUN),
-        oa_cap=rules.opportunity.cap(attrs.FIN),
+        oa_cap=rules.opportunity.cap(attrs.FIN, main.base if main is not None else 0),
+        extra_squares_per_purchase=mv.extra_squares_per_purchase(attrs.AGI),
     )
 
 

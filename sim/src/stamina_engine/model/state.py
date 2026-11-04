@@ -32,6 +32,7 @@ class CombatantState:
     pos: Cell | None = None  # None in the all-adjacent arena
     free_move_left: int = 0  # free squares left this turn
     banked: int = 0  # squares bought this turn and not yet used (on-turn purchases)
+    debt: int = 0  # avoidance paid without stamina, owed from the next recovery (F14 variant)
 
     @property
     def hp(self) -> int:

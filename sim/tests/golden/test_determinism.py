@@ -50,15 +50,15 @@ SWARM = [("d", "red", "l1_heavy", "fixed:2")] + [
 DEEP = [("a", "red", "l30_sample", "lookahead"), ("b", "blue", "l30_duelist", "reserve:5")]
 
 PINNED = [
-    ("v0.9", DUEL, 7, False, "6c39e11e897f757aa3c8c2b649596ed77cbfc3f11a11ba3d1f25a20ef2492dbe"),
+    ("v0.9", DUEL, 7, False, "98e51f458deedabb6223c48a4f6526cd9c7e6f144438c60109ad7ec84c385f9f"),
     (
         "review-candidate",
         SWARM,
         3,
         False,
-        "2a3695c363a5b725bf28a84cf6b284de62188ea9e400bef4dcab5aa861ceb796",
+        "29778fb23231ed7e97f09e78833e01fa93b6274e60bc7f0060ec99b8c8e652c6",
     ),
-    ("v0.9", DEEP, 5, True, "809d35cd8bfca85ca9c16215955574712e334deba30d136f06d9b135d81c835f"),
+    ("v0.9", DEEP, 5, True, "673b53c6dae31ae73f09baecdc845c3805b0bf0d240bc2c8e4ffc5b7e0fb6b67"),
 ]
 
 

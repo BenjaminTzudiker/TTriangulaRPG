@@ -150,6 +150,7 @@ STATE_FIELDS = {
     "free_move_left",
     "banked",
     "moving",
+    "debt",
 }
 ALLOWED = {"engine/stateops.py", "model/state.py"}
 

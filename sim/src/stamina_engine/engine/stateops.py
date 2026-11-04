@@ -8,8 +8,10 @@ from collections.abc import Callable
 
 from stamina_engine.core.errors import EngineError, RulesError, Unaffordable
 from stamina_engine.engine.events import (
+    DebtPaid,
     DyingRolled,
     Event,
+    Indebted,
     Injured,
     Moved,
     Placed,
@@ -64,20 +66,33 @@ class StateOps:
 
     # --- ops -------------------------------------------------------------------------
 
-    def spend(self, c: CombatantState, quote: Quote, category: str) -> None:
+    def spend(
+        self, c: CombatantState, quote: Quote, category: str, allow_debt: bool = False
+    ) -> None:
+        """Pay a quote. With allow_debt (avoidance under opportunity.avoid_debt only), a
+        shortfall becomes debt instead of being refused; stamina never goes below 0."""
         if not c.active:
             raise RulesError(f"{c.id} is {c.status.value} and can't spend stamina")
-        if quote.total > c.stamina:
+        owed = max(0, quote.total - c.stamina)
+        if owed and not allow_debt:
             raise Unaffordable(f"{c.id}: {category} costs {quote.total}, has {c.stamina}")
-        c.stamina -= quote.total
+        c.stamina -= quote.total - owed
         c.trackers = quote.after(c.trackers)
         self._emit(Spent(c.id, quote.total, category, quote.track.value, quote.parts, c.stamina))
+        if owed:
+            c.debt += owed
+            self._emit(Indebted(c.id, owed, c.debt))
 
     def recover(self, c: CombatantState, amount: int) -> None:
-        """Recover up to maximum stamina; anything over the cap is wasted."""
-        gained = max(0, min(amount, self.max_stamina(c) - c.stamina))
+        """Recover up to maximum stamina; anything over the cap is wasted. Debt is paid
+        first."""
+        paid = min(c.debt, amount)
+        if paid:
+            c.debt -= paid
+            self._emit(DebtPaid(c.id, paid, c.debt))
+        gained = max(0, min(amount - paid, self.max_stamina(c) - c.stamina))
         c.stamina += gained
-        self._emit(Recovered(c.id, gained, amount - gained, c.stamina))
+        self._emit(Recovered(c.id, gained, amount - paid - gained, c.stamina))
 
     def injure(self, c: CombatantState, damage: int) -> None:
         """Lose HP through the dying rule, then clamp stamina to the new maximum."""
@@ -200,6 +215,8 @@ class StateOps:
             top = self.max_stamina(c)
             if not 0 <= c.stamina <= top:
                 raise EngineError(f"{c.id}: stamina {c.stamina} outside 0..{top}")
+            if c.debt < 0:
+                raise EngineError(f"{c.id}: debt {c.debt} below 0")
             if c.dying.in_shock and c.dying.shock <= 0:
                 raise EngineError(f"{c.id}: in System Shock with {c.dying.shock} Shock")
         if self.field is not None:

@@ -6,7 +6,7 @@ the legal options with their Pricing quotes, and the timing context.
 
 from collections.abc import Mapping
 from dataclasses import dataclass, field
-from typing import Protocol
+from typing import Protocol, runtime_checkable
 
 from stamina_engine.grid.battlefield import Battlefield, Cell
 from stamina_engine.model.derive import CombatProfile, LoadoutProfile
@@ -369,6 +369,13 @@ class Agent(Protocol):
     def dive(self, request: DiveRequest) -> MoveAnswer: ...
 
     def ability(self, request: AbilityRequest) -> "UseAbility | Pass": ...
+
+
+@runtime_checkable
+class Timed(Protocol):
+    """An agent that times its answers (a person): the broker logs the seconds."""
+
+    def take_seconds(self) -> float | None: ...
 
 
 @dataclass(frozen=True)

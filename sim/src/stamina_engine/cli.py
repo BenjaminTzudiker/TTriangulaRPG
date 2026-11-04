@@ -273,6 +273,81 @@ def _positioning(workers: int, trials: int, out: Path | None) -> None:
         typer.echo(f"wrote {out}")
 
 
+@app.command()
+def play(
+    scenario: Annotated[Path, typer.Argument(help="A scenario TOML file.")],
+    who: Annotated[str, typer.Option("--as", help="The combatant id you play.")],
+    trial: Annotated[int, typer.Option(help="Which trial's dice to fight with.")] = 0,
+    log: Annotated[Path | None, typer.Option(help="Write the session log here (JSONL).")] = None,
+) -> None:
+    """Play one fight as one combatant, at the keyboard; everyone else keeps the scenario's
+    agent. Every decision is timed; --log keeps them for `se load --session`."""
+    from stamina_engine.experiments.session import play as play_fight
+    from stamina_engine.experiments.session import write_session
+
+    try:
+        s = load_scenario(scenario)
+        result, seed = play_fight(s, who, trial)
+    except ConfigError as exc:
+        raise typer.BadParameter(str(exc)) from exc
+    except (EOFError, KeyboardInterrupt):
+        typer.echo("\nsession abandoned; nothing logged")
+        raise typer.Exit(1) from None
+    typer.echo(f"{result.reason}: winner {result.winner}, {result.rounds} rounds")
+    if log is not None:
+        write_session(log, s, who, trial, seed, result)
+        typer.echo(f"wrote {log}")
+
+
+@app.command()
+def load(
+    scenario: Annotated[
+        Path | None, typer.Argument(help="A scenario to run with its engine agents.")
+    ] = None,
+    session: Annotated[
+        list[Path] | None, typer.Option(help="Session logs from se play (repeatable).")
+    ] = None,
+    trials: Annotated[int, typer.Option(help="Trials, for a scenario.")] = 200,
+    workers: WorkersOption = 1,
+    out: Annotated[Path | None, typer.Option(help="Write the report here (markdown).")] = None,
+) -> None:
+    """The load report (Review F11): requests per round by kind, their option counts, how
+    many are non-trivial, dice per attack, and for sessions the seconds each took."""
+    from stamina_engine.experiments.load import load_report
+
+    if (scenario is None) == (not session):
+        raise typer.BadParameter("give a scenario or --session logs, not both")
+    if scenario is not None:
+        s = load_scenario(scenario)
+        run = run_scenario(s, trials, workers)
+        rounds = sum(int(f["rounds"]) for f in run.fights) * len(s.combatants)
+        report = load_report(
+            run.decisions,
+            run.attacks,
+            rounds,
+            f"Load: {s.name}, engine agents, {trials} trials",
+        )
+    else:
+        from stamina_engine.experiments.session import read_session
+
+        decisions, attacks, rounds, people = [], [], 0, set()
+        for path in session or []:
+            sess = read_session(path)
+            who = str(sess.header["played_by_human"])
+            people.add(who)
+            decisions += [d for d in sess.decisions if d["who"] == who]
+            attacks += [a for a in sess.attacks if a["attacker"] == who]
+            rounds += int(sess.result.get("rounds", 0))
+        report = load_report(
+            decisions, attacks, rounds, f"Load: {len(session or [])} session(s), people's decisions"
+        )
+    if out is None:
+        typer.echo(report)
+    else:
+        out.write_text(report)
+        typer.echo(f"wrote {out}")
+
+
 @app.command(name="trace")
 def trace_cmd(
     scenario: Annotated[Path, typer.Argument(help="A scenario TOML file.")],

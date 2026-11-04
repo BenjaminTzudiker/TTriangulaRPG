@@ -28,6 +28,7 @@ from stamina_engine.agents.decisions import (
     Shoot,
     Surrender,
     TakeOA,
+    Timed,
     TurnAnswer,
     TurnCommand,
     UseAbility,
@@ -58,6 +59,7 @@ class Broker:
         self.agents = agents
         self.pricing = pricing
         self.records: list[DecisionRecord] = []
+        self._timed = {who: a for who, a in agents.items() if isinstance(a, Timed)}
 
     def check_path(
         self, who: str, field: Battlefield | None, moves: MoveOptions | None, path: object
@@ -326,6 +328,10 @@ class Broker:
         acted: bool,
         context: tuple[str, ...],
     ) -> None:
+        timed = self._timed.get(who)
+        seconds = timed.take_seconds() if timed is not None else None
         self.records.append(
-            DecisionRecord(round_, who, kind, options, nondominated, answer, acted, context)
+            DecisionRecord(
+                round_, who, kind, options, nondominated, answer, acted, context, seconds
+            )
         )

@@ -167,7 +167,7 @@ def attack_rows(result: BattleResult, trial: int) -> list[Row]:
         elif isinstance(e, Spent) and e.category in ("attack", "opportunity", "shot"):
             current["cost"] = e.amount
         elif isinstance(e, AttackRolled):
-            current.update(total=e.total, crit_dice=e.crit_dice)
+            current.update(total=e.total, crit_dice=e.crit_dice, dice=len(e.faces))
         elif isinstance(e, BlocksDeclared):
             current.update(perfect=e.perfect, grazing=e.grazing)
         elif isinstance(e, Spent) and e.category == "block":
@@ -190,6 +190,7 @@ def decision_rows(result: BattleResult, trial: int) -> list[Row]:
             "answer": d.answer,
             "acted": d.acted,
             "context": " > ".join(d.context),
+            "seconds": d.seconds,
         }
         for d in result.decisions
     ]

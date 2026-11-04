@@ -2,7 +2,7 @@
 
 For claude.ai chats in the "Tactical fantasy TTRPG" project. Claude Code keeps this file current.
 
-**Status:** milestones M0 and M1 are done (tags `m0`, `m1`). M2 (grid and positioning), M3 (ranged) and M4 (equipment and NPC profiles) are built and in review as stacked pull requests on `m2-grid`, `m3-ranged` and `m4-equipment`: maps and movement, opportunity attacks, ranged attacks, cover and diving, drawing weapons, equipment variant tables, NPC profiles, fleeing and surrendering, and the full phase suite. Abilities, strain and the human CLI arrive in M5.
+**Status:** milestones M0 and M1 are done (tags `m0`, `m1`). M2 (grid and positioning), M3 (ranged), M4 (equipment and NPC profiles) and M5 (abilities and load) are built and in review as stacked pull requests on `m2-grid`, `m3-ranged`, `m4-equipment` and `m5-content`: maps and movement, opportunity attacks, ranged attacks, cover and diving, drawing weapons, equipment variant tables, NPC profiles, fleeing and surrendering, the full phase suite, class cores and candidate abilities with strain, playing a side yourself, and the load report.
 
 ## Reading the code
 
@@ -40,6 +40,10 @@ se table 5 --ruleset my_f3_idea.toml                   # the same single shots u
 se suite ranged --workers 8 --out reports/m3_ranged.md # archers on three maps, F3 options
 se suite phase --workers 8 --out reports/phase_suite.md # all eight phase-suite items, review layouts
 se table 8 --equipment f8_die_upgrades                 # an exact table with a variant equipment table
+se suite cores --workers 8 --out reports/cores_suite.md # each core and candidate ability, off and on
+se play src/stamina_engine/data/scenarios/l1_duel_open.toml --as A --log session.jsonl
+se load src/stamina_engine/data/scenarios/one_v_three_open.toml --trials 200
+se load --session session.jsonl                        # a person's decisions, with seconds
 ```
 
 ### Equipment variants and NPC profiles (M4)
@@ -48,11 +52,19 @@ A scenario's `equipment = "f4_shield_1"` swaps the weapon, armor and shield tabl
 
 NPC profiles (`src/stamina_engine/data/profiles/`) configure the tactical agent the way a stat block would: `agent = { kind = "npc", profile = "disciplined_2step" }` commits 2 steps, 3 against a target below half stamina, and focuses fire. `cautious` flees through an exit square (`>` on a map) at half HP and surrenders at a quarter. Fleeing and surrendering aren't in the packet; they're engine end states pending the designer (Assumptions register).
 
+### Abilities, people and load (M5)
+
+A build's cores bring their abilities (`cores = ["barbarian"]` gives it `barbarian_core`), and `abilities = ["heavy_swing"]` adds candidate abilities (`heavy_swing`, `riposte`, `tactical_withdrawal`; Feint waits for contests). The library has the sample fighter's stats with each core (`l1_sample` is the Fighter, `l1_barbarian`, `l1_monk`, `l1_rogue`) and with each candidate alone (`l1_heavy_swing`, `l1_withdrawal`, `l1_riposte`). How each one reads where the packet is silent is in the Assumptions register; `src/stamina_engine/abilities/cores.py` shows how one is written. Strain starts at 0 every fight, so a fight's results are the best case for a day of several.
+
+Engine agents pass every ability window unless their spec says `abilities = "use"`, so results without abilities stay comparable; the heuristics they then follow are documented in `src/stamina_engine/agents/ability_policy.py`. `se suite cores` prices each ability by turning it off and on over the same seeds, in duels and one against three, and plays the four cores against each other.
+
+`se play scenario.toml --as ID` lets you play one combatant at the keyboard; everyone else keeps the scenario's agent, and the dice are trial N's, so the fight is comparable with the engine's. Each prompt lists the options with their prices (`?` shows the answer formats). Every decision is timed, and `--log` writes the session as JSON lines. `se load` reports decision load (Review F11): requests per creature-round by kind, their option counts, how many are non-trivial, how often they did something, dice per attack, and, from session logs, seconds per decision.
+
 `--rounding half-even` reproduces the review, whose simulator used Python's `round()`. The packet's rounding is half up, which changes three Table 1 cells and Table 8's 2.125 (see the Assumptions register).
 
 ### Fights
 
-A **scenario** names the combatants, their builds and agents, the RuleSet, the round cap, trials and seed. The format is documented at the top of `src/stamina_engine/experiments/scenario.py`; the examples are in `src/stamina_engine/data/scenarios/`. Agents are `alpha`, `fixed:2`, `reserve:5`, `chipkill`, `lookahead` or `never`, or a table such as `{ commit = "chipkill", target = "lowest_stamina", w = "3" }`; they block with the exact solver.
+A **scenario** names the combatants, their builds and agents, the RuleSet, the round cap, trials and seed. The format is documented at the top of `src/stamina_engine/experiments/scenario.py`; the examples are in `src/stamina_engine/data/scenarios/`. Agents are `alpha`, `fixed:2`, `reserve:5`, `chipkill`, `lookahead` or `never`, or a table such as `{ commit = "chipkill", target = "lowest_stamina", w = "3" }`; they block with the exact solver. Add `abilities = "use"` to a table to have it use its abilities.
 
 - `se run` prints win rates with 95% Wilson intervals, rounds, first-mover rate, winner-untouched rate, the loser's final HP, deaths and decisions per round, then the provenance stamp.
 - `se compare` runs the same scenario under two RuleSets **on the same seeds** and reports each difference with a paired 95% interval. It is the cheapest honest way to test a rule change.

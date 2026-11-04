@@ -6,11 +6,12 @@ in a sweep or a comparison fight on the same dice (common random numbers).
 """
 
 import hashlib
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from concurrent.futures import ProcessPoolExecutor
 from dataclasses import dataclass, field
 from functools import lru_cache
 
+from stamina_engine.agents.decisions import Agent
 from stamina_engine.agents.scripted import make_agent
 from stamina_engine.core.rng import DiceProvider, SharedStream, Streams, derive_seed
 from stamina_engine.engine.battle import Battle, BattleResult, Entrant
@@ -33,7 +34,13 @@ def _table(name: str) -> EquipmentTable:
     return load_table(name)
 
 
-def battle_for(scenario: Scenario, seed: int, check: bool = False) -> Battle:
+def battle_for(
+    scenario: Scenario,
+    seed: int,
+    check: bool = False,
+    agents: Mapping[str, Agent] | None = None,
+) -> Battle:
+    """agents replaces the scenario's agents by combatant id (a person, in `se play`)."""
     dice: DiceProvider = SharedStream(seed) if scenario.dice == "lockstep" else Streams(seed)
     profiles: dict[str, CombatProfile] = {}
     entrants = []
@@ -41,11 +48,13 @@ def battle_for(scenario: Scenario, seed: int, check: bool = False) -> Battle:
     for c in scenario.combatants:
         if c.build.name not in profiles:
             profiles[c.build.name] = derive(c.build, scenario.rules, table)
-        agent = make_agent(
+        agent: Agent = make_agent(
             dict(c.agent) if not isinstance(c.agent, str) else c.agent,
             scenario.rules,
             dice.dice(f"agent:{c.id}"),
         )
+        if agents and c.id in agents:
+            agent = agents[c.id]
         entrants.append(Entrant(c.id, c.team, profiles[c.build.name], agent, c.loadout, c.pos))
     return Battle(
         scenario.rules,

@@ -16,6 +16,7 @@ from stamina_engine.experiments.oracle_bridge import (
     engine_duel,
     engine_one_v_three,
     oracle_duel,
+    oracle_maker,
     oracle_one_v_three,
 )
 from stamina_engine.model.build import load_build
@@ -78,6 +79,13 @@ DUELS: list[tuple[str, str, str, str, Knobs]] = [
         for p in ("alpha", "chipkill")
     ],
     ("l30_sample", "l30_sample", "fixed:2", "fixed:2", Knobs(step_slope=2)),
+    # The Addendum grid's illustrative builds (grid.py mk()), including the over-budget ones.
+    *[
+        (b, b, p, p, knobs)
+        for b in ("parity/l1_md5", "parity/l30_md5", "parity/l30_md7")
+        for knobs in (Knobs(), Knobs(block_slope=0.5, crit_mode="linear2"))
+        for p in ("alpha", "chipkill")
+    ],
 ]
 
 ONE_V_THREE = [  # Table 4
@@ -90,8 +98,7 @@ ONE_V_THREE = [  # Table 4
 
 
 def maker(build: str) -> Callable[[Any], Any]:
-    level, variant = BUILDS[build]
-    return lambda sim: sim.make_fighter(level, variant)
+    return oracle_maker(build)
 
 
 def _id(case: tuple[str, str, str, str, Knobs]) -> str:

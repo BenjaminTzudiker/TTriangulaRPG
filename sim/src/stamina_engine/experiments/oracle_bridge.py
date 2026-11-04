@@ -212,6 +212,54 @@ def oracle_one_v_three(
         )
 
 
+def oracle_mk(sim: Any, level: int, md_target: int) -> Any:
+    """grid.py mk(), line for line: a shield + medium fighter with the given Melee Defense."""
+    if level == 1:
+        if md_target == 4:
+            f = sim.Fighter("X", STR=2, AGI=1, FIN=1, level=1)
+        elif md_target == 5:
+            f = sim.Fighter("X", STR=2, AGI=3, FIN=1, level=1)
+        else:
+            raise ValueError
+    else:
+        if md_target == 5:
+            f = sim.Fighter("X", STR=3, AGI=2, FIN=2, CUN=1, level=30)
+        elif md_target == 6:
+            f = sim.Fighter("X", STR=3, AGI=3, FIN=2, CUN=1, level=30)
+        elif md_target == 7:
+            f = sim.Fighter("X", STR=3, AGI=6, FIN=2, level=30)
+        else:
+            raise ValueError
+    f.weapon = sim.Weapon("ls", base=2, die=8, flat=f.STR + f.FIN)
+    assert f.melee_defense() == md_target, (f.melee_defense(), md_target)
+    return f
+
+
+# Engine build -> how the oracle makes the same fighter.
+ORACLE_FIGHTERS: dict[str, tuple[str, int, str | int]] = {
+    "l1_sample": ("make", 1, "sample"),
+    "l1_twohand": ("make", 1, "twohand"),
+    "l1_greatsword": ("make", 1, "greatsword"),
+    "l1_heavy": ("make", 1, "heavy"),
+    "l1_duelist": ("make", 1, "duelist"),
+    "l30_sample": ("make", 30, "sample"),
+    "l30_strbrute": ("make", 30, "strbrute"),
+    "l30_duelist": ("make", 30, "duelist"),
+    "l30_heavy": ("make", 30, "heavy"),
+    "l99_sample": ("make", 99, "sample"),
+    "parity/l1_md5": ("mk", 1, 5),
+    "parity/l30_md5": ("mk", 30, 5),
+    "parity/l30_md7": ("mk", 30, 7),
+}
+
+
+def oracle_maker(build: str) -> Callable[[Any], Any]:
+    how, level, arg = ORACLE_FIGHTERS[build]
+    if how == "make":
+        return lambda sim: sim.make_fighter(level, arg)
+    return lambda sim: oracle_mk(sim, level, int(arg))
+
+
 # --- the engine side -----------------------------------------------------------------
 
 

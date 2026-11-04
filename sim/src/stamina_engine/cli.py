@@ -170,3 +170,30 @@ def compare(
     for d in diffs:
         typer.echo(f"{d.metric:<12} {d.a!s:<26} {d.b!s:<26} {d.diff}")
     _stamp([run_a, run_b])
+
+
+@app.command()
+def suite(
+    name: Annotated[str, typer.Argument(help="Suite to run: parity.")],
+    workers: WorkersOption = 1,
+    scale: Annotated[float, typer.Option(help="Fraction of the review's trial counts.")] = 1.0,
+    out: Annotated[Path | None, typer.Option(help="Write the report here (markdown).")] = None,
+) -> None:
+    """Run a suite. parity: every published review configuration in lockstep with the
+    review's simulator, reported beside the review's figures."""
+    if name != "parity":
+        raise typer.BadParameter("M1 has the parity suite", param_hint="NAME")
+    from stamina_engine.experiments.oracle_bridge import Knobs
+    from stamina_engine.experiments.parity import cases, render, rules_for, run_cases
+
+    results = run_cases(cases(), scale, workers)
+    report = render(results, collect(rules_for(Knobs())).text(), scale)
+    if out is None:
+        typer.echo(report)
+    else:
+        out.write_text(report)
+        typer.echo(f"wrote {out}")
+    bad = sum(len(r.mismatches) for r in results)
+    typer.echo(f"{sum(len(r.records) for r in results)} fights, {bad} mismatches with the oracle")
+    if bad:
+        raise typer.Exit(1)

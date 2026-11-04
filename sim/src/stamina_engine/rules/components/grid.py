@@ -48,6 +48,9 @@ class GridRule(Component):
     def body_mode(self) -> str:
         raise NotImplementedError
 
+    def creature_cover_mode(self) -> str:
+        raise NotImplementedError
+
 
 @register("grid", "v0_9")
 @dataclass(frozen=True)
@@ -73,3 +76,6 @@ class V09Grid(GridRule):
 
     def body_mode(self) -> str:
         return self.bodies
+
+    def creature_cover_mode(self) -> str:
+        return self.creature_cover

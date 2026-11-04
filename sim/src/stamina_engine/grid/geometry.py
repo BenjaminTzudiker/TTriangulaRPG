@@ -76,8 +76,9 @@ def neighbour_table(field: Battlefield, rule: GridRule) -> dict[Cell, tuple[Cell
     return _neighbour_table(field, rule.corner_mode())
 
 
-def _crosses_inside(p: Cell, q: Cell, box: tuple[int, int, int, int]) -> bool:
-    """Does segment p-q pass through the open box (x0, x1) x (y0, y1)? (doubled coords)"""
+def crosses_inside(p: Cell, q: Cell, box: tuple[int, int, int, int]) -> bool:
+    """Does segment p-q pass through the open box (x0, x1) x (y0, y1)? Points and box are in
+    the same integer coordinates (geometry uses doubled ones, los.py square corners)."""
     x0, x1, y0, y1 = box
     lo, hi = Fraction(0), Fraction(1)
     for start, delta, low, high in ((p[0], q[0] - p[0], x0, x1), (p[1], q[1] - p[1], y0, y1)):
@@ -102,7 +103,7 @@ def _clear(field: Battlefield, a: Cell, b: Cell) -> bool:
         for y in range(min(a[1], b[1]), max(a[1], b[1]) + 1):
             if (x, y) in (a, b) or not field.tall((x, y)):
                 continue
-            if _crosses_inside(p, q, (2 * x, 2 * x + 2, 2 * y, 2 * y + 2)):
+            if crosses_inside(p, q, (2 * x, 2 * x + 2, 2 * y, 2 * y + 2)):
                 return False
     # Squeezing: the segment passes exactly through a corner point with tall squares on both
     # sides of it (the two squares it touches only at that point).

@@ -3,6 +3,7 @@
 from stamina_engine.agents.decisions import CombatantView, Observation
 from stamina_engine.core.errors import ConfigError
 from stamina_engine.engine.ledger import PublicLedger
+from stamina_engine.grid.battlefield import Battlefield
 from stamina_engine.model.state import BattleState, CombatantState
 from stamina_engine.rules.ruleset import RuleSet
 
@@ -24,11 +25,18 @@ def _view(
         stamina_exact=not hidden,
         status=c.status.value,
         trackers=c.trackers if own else None,
+        pos=c.pos,
+        free_move_left=c.free_move_left if own else None,
+        banked=c.banked if own else None,
     )
 
 
 def observe(
-    state: BattleState, rules: RuleSet, who: str, ledger: PublicLedger | None = None
+    state: BattleState,
+    rules: RuleSet,
+    who: str,
+    ledger: PublicLedger | None = None,
+    field: Battlefield | None = None,
 ) -> Observation:
     """Everything a creature sees. With hidden stamina, others' stamina is the public ledger's
     reconstruction; its own is exact."""
@@ -41,4 +49,6 @@ def observe(
         me=_view(me, rules, True, use),
         others=tuple(_view(c, rules, False, use) for c in state.combatants if c.id != who),
         round=state.round,
+        field=field,
+        order=state.order,
     )

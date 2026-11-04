@@ -7,6 +7,7 @@ the legal options with their Pricing quotes, and the timing context.
 from dataclasses import dataclass
 from typing import Protocol
 
+from stamina_engine.grid.battlefield import Battlefield, Cell
 from stamina_engine.model.derive import CombatProfile, LoadoutProfile
 from stamina_engine.rules.exchange import Blocks
 from stamina_engine.rules.pricing import Quote, Trackers
@@ -26,6 +27,9 @@ class CombatantView:
     stamina_exact: bool  # False when stamina is an estimate
     status: str
     trackers: Trackers | None  # only for the observer itself
+    pos: Cell | None = None  # positions are public; None in the all-adjacent arena
+    free_move_left: int | None = None  # only for the observer itself
+    banked: int | None = None  # only for the observer itself
 
 
 @dataclass(frozen=True)
@@ -33,6 +37,8 @@ class Observation:
     me: CombatantView
     others: tuple[CombatantView, ...]
     round: int
+    field: Battlefield | None = None  # the map; None in the all-adjacent arena
+    order: tuple[str, ...] = ()  # initiative order
 
     def view(self, cid: str) -> CombatantView:
         if cid == self.me.id:

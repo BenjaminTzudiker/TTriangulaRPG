@@ -117,6 +117,30 @@ class AttackResolved(Event):
 
 
 @dataclass(frozen=True)
+class MapLoaded(Event):
+    """Grid battles only, right after BattleStarted (so all-adjacent logs are unchanged)."""
+
+    name: str
+    width: int
+    height: int
+    rows_sha256: str
+
+
+@dataclass(frozen=True)
+class Placed(Event):
+    who: str
+    pos: tuple[int, int]
+
+
+@dataclass(frozen=True)
+class Moved(Event):
+    who: str
+    frm: tuple[int, int]
+    to: tuple[int, int]
+    how: str  # free, extra (bought on turn) or off_turn
+
+
+@dataclass(frozen=True)
 class BattleEnded(Event):
     reason: str  # side_out, round_cap
     winner: str | None  # winning team, or None for a draw

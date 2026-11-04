@@ -38,7 +38,7 @@ def battle_for(scenario: Scenario, seed: int, check: bool = False) -> Battle:
             scenario.rules,
             dice.dice(f"agent:{c.id}"),
         )
-        entrants.append(Entrant(c.id, c.team, profiles[c.build.name], agent, c.loadout))
+        entrants.append(Entrant(c.id, c.team, profiles[c.build.name], agent, c.loadout, c.pos))
     return Battle(
         scenario.rules,
         entrants,
@@ -47,6 +47,7 @@ def battle_for(scenario: Scenario, seed: int, check: bool = False) -> Battle:
         dice_mode=scenario.dice,
         round_cap=scenario.round_cap,
         check=check,
+        field=scenario.battlefield,
     )
 
 

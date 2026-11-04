@@ -1,0 +1,46 @@
+# Phase suite item 8, the integration check: a mixed party (sample fighter, duelist, archer)
+# against three NPCs (two sample fighters and an archer) on a terrain map. The party is
+# tactical; the NPCs use the disciplined_2step profile (swap profiles to turn the dial).
+[scenario]
+name = "party-3v3"
+ruleset = "v0.9"
+map = "party_field"
+round_cap = 30
+trials = 300
+seed = 20261103
+
+[[combatant]]
+id = "fighter"
+team = "party"
+build = "l1_sample"
+spawn = "P"
+agent = { kind = "tactical", commit = "chipkill" }
+
+[[combatant]]
+id = "duelist"
+team = "party"
+build = "l1_duelist"
+spawn = "P"
+agent = { kind = "tactical", commit = "chipkill" }
+
+[[combatant]]
+id = "archer"
+team = "party"
+build = "l1_archer"
+spawn = "P"
+agent = { kind = "tactical", commit = "chipkill" }
+
+[[combatant]]
+id = "npc"
+team = "npcs"
+build = "l1_sample"
+count = 2
+spawn = ["N", "N"]
+agent = { kind = "npc", profile = "disciplined_2step" }
+
+[[combatant]]
+id = "npc_archer"
+team = "npcs"
+build = "l1_archer"
+spawn = "N"
+agent = { kind = "npc", profile = "disciplined_2step" }

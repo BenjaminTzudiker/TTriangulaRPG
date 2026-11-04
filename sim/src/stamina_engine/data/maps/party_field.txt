@@ -1,0 +1,13 @@
+; The 3v3 integration map: a field with a ruined wall, pillars and crates. The party
+; (P: fighter, duelist, archer) starts on the left, the NPCs (N) on the right, about 12
+; squares apart. Exits (>) on the NPCs' side let them flee.
+##################
+#P.......o......N>
+#.....==.........#
+#P.......#....=..#
+#........#.......#
+#...o....#.......#
+#P............o..N
+#......=.........#
+#..........o....N>
+##################

@@ -1,0 +1,23 @@
+# Equal duels on open ground, starting adjacent (the review's duels, with movement, off-turn
+# windows and opportunity attacks): the phase suite swaps the builds and agents.
+[scenario]
+name = "duel-open"
+ruleset = "v0.9"
+map = "open_12x12"
+round_cap = 30
+trials = 500
+seed = 20261103
+
+[[combatant]]
+id = "A"
+team = "A"
+build = "l1_sample"
+spawn = [6, 6]
+agent = "chipkill"
+
+[[combatant]]
+id = "B"
+team = "B"
+build = "l1_sample"
+spawn = [7, 6]
+agent = "chipkill"

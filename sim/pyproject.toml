@@ -31,7 +31,8 @@ packages = ["src/stamina_engine"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-q --import-mode=importlib"
+addopts = "-q --import-mode=importlib -m 'not slow'"
+markers = ["slow: full-count parity runs and long oracle differentials (pytest -m slow)"]
 
 [tool.mypy]
 strict = true

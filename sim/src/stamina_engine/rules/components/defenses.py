@@ -8,6 +8,7 @@ from stamina_engine.rules.registry import Component, register
 
 @dataclass(frozen=True)
 class DefenseRule(Component):
+    allowed = {"ranged_mode": frozenset({"v0_9", "dodge_folded"})}
     cites = (
         "Packet: Defenses",
         "Packet: Melee Defense",
@@ -16,6 +17,7 @@ class DefenseRule(Component):
         "Ledger DF-1",
         "Ledger DF-2",
         "Ledger DF-3",
+        "Review F3",
     )
 
     def melee(
@@ -29,7 +31,7 @@ class DefenseRule(Component):
     ) -> int:
         raise NotImplementedError
 
-    def ranged(self, agility: int, shield_bonus: int) -> int:
+    def ranged(self, agility: int, shield_bonus: int, agility_step: int = 2) -> int:
         raise NotImplementedError
 
     def dodge(self, agility: int, agility_step: int) -> int:
@@ -49,6 +51,9 @@ class V09Defenses(DefenseRule):
     base: int = 1
     proficient_weapon: int = 1
     second_weapon_bonus: int = 1
+    # Review F3 option 1: fold Dodge into Ranged Defense (RD = 1 + even AGI, armor-adjusted,
+    # + shield). v0_9 is as written: 1 + shield.
+    ranged_mode: str = "v0_9"
 
     def melee(
         self,
@@ -70,8 +75,11 @@ class V09Defenses(DefenseRule):
         value += even_count(agility, agility_step)
         return value
 
-    def ranged(self, agility: int, shield_bonus: int) -> int:
-        return (self.base if agility >= 0 else 0) + shield_bonus
+    def ranged(self, agility: int, shield_bonus: int, agility_step: int = 2) -> int:
+        value = (self.base if agility >= 0 else 0) + shield_bonus
+        if self.ranged_mode == "dodge_folded":
+            value += even_count(agility, agility_step)
+        return value
 
     def dodge(self, agility: int, agility_step: int) -> int:
         return (self.base if agility >= 0 else 0) + even_count(agility, agility_step)

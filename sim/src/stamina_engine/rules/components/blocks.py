@@ -19,16 +19,22 @@ class BlockRule(Component):
       reading.
     """
 
-    cites = ("Packet: Blocking", "Ledger CB-3", "Ledger CB-4", "Review F6")
+    cites = ("Packet: Blocking", "Ledger CB-3", "Ledger CB-4", "Review F3", "Review F6")
     allowed = {"reset": RESETS}
 
     graze_cost: int = 1
     graze_leak: int = 1
     reset: str = "per_attack"
+    # Review F3 option 2: perfect blocks against a ranged attack cost this flat amount each
+    # (no escalation). 0 is as written: the same escalation as melee.
+    ranged_flat: int = 0
 
     def perfect_cost(self, nth: int) -> int:
         """Cost of the nth perfect block against one attack (nth starts at 1)."""
         raise NotImplementedError
+
+    def ranged_perfect_cost(self, nth: int) -> int:
+        return self.ranged_flat if self.ranged_flat > 0 else self.perfect_cost(nth)
 
     def perfect_total(self, count: int) -> int:
         return sum(self.perfect_cost(i) for i in range(1, count + 1))

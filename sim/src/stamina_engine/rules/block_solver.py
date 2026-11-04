@@ -49,7 +49,9 @@ def best_block(
     rules: RuleSet,
     w: Fraction = DEFAULT_W,
     prior_perfect: int = 0,
+    ranged: bool = False,
 ) -> BlockChoice:
+    """ranged prices perfect blocks as against a ranged attack (blocks.ranged_flat)."""
     pricing = Pricing(rules)
     graze = rules.blocks.graze_cost
     needed = _needed(damage, defense)
@@ -70,7 +72,7 @@ def best_block(
                 break
             g += 1
         p += 1
-        perfect_cost += pricing.perfect_block(prior_perfect + p)
+        perfect_cost += pricing.perfect_block(prior_perfect + p, ranged)
     assert best is not None  # (0, 0) is always affordable
     return best
 
@@ -83,6 +85,7 @@ def cheapest_zero_injury(
     rules: RuleSet,
     stamina: int | None = None,
     prior_perfect: int = 0,
+    ranged: bool = False,
 ) -> BlockChoice | None:
     """The cheapest blocks that leave no injury, or None if none exist (within stamina)."""
     pricing = Pricing(rules)
@@ -91,7 +94,7 @@ def cheapest_zero_injury(
     best: BlockChoice | None = None
     for p in range(limit + 1):
         for g in range(limit - p + 1):
-            cost = pricing.blocks(p, g, prior_perfect=prior_perfect).total
+            cost = pricing.blocks(p, g, prior_perfect=prior_perfect, ranged=ranged).total
             if stamina is not None and cost > stamina:
                 continue
             out = resolve(damage, crit_dice, defense, armor, Blocks(p, g), rules)
@@ -118,6 +121,7 @@ def block_options(
     stamina: int,
     rules: RuleSet,
     prior_perfect: int = 0,
+    ranged: bool = False,
 ) -> BlockOptions:
     pricing = Pricing(rules)
     graze = rules.blocks.graze_cost
@@ -135,7 +139,7 @@ def block_options(
                 break  # the rest of this row costs more for no less injury
             g += 1
         p += 1
-        perfect_cost += pricing.perfect_block(prior_perfect + p)
+        perfect_cost += pricing.perfect_block(prior_perfect + p, ranged)
     distinct = set(points)
     frontier = {
         (c, i)

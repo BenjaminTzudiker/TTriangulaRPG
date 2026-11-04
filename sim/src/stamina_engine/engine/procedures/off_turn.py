@@ -1,7 +1,8 @@
 """Off-turn windows (Packet: Starting Combat and Turn Structure step 3, Off-Turn Movement).
 
 After any creature's turn ends, including its own and an incapacitated creature's dying-roll
-turn, anyone may buy off-turn movement (readings in the Assumptions register):
+turn, anyone may buy off-turn movement or draw a weapon (readings in the Assumptions
+register):
 - every active creature is asked, in off_turn.order over initiative positions (lowest
   initiative first as written by default), whether to move or pass;
 - a creature with nowhere it can reach and afford isn't asked;
@@ -11,10 +12,11 @@ turn, anyone may buy off-turn movement (readings in the Assumptions register):
   any other move.
 """
 
-from stamina_engine.agents.decisions import Move, OffTurnMove
+from stamina_engine.agents.decisions import Draw, Move, OffTurnMove
 from stamina_engine.core.errors import EngineError
 from stamina_engine.engine.battle import Battle
 from stamina_engine.engine.procedures.movement import move, move_options
+from stamina_engine.engine.procedures.ranged import draw, draw_options
 from stamina_engine.model.state import CombatantState
 
 cites = (
@@ -47,13 +49,17 @@ def off_turn_window(b: Battle, ended: CombatantState) -> None:
                 if not c.active:
                     continue
                 options = move_options(b, c, on_turn=False)
-                if options is None:
+                draws = draw_options(b, c, on_turn=False)
+                if options is None and not draws:
                     continue
                 answer = b.broker.off_turn_move(
-                    OffTurnMove(c.id, b.observe(c.id), b.context.path(), options)
+                    OffTurnMove(c.id, b.observe(c.id), b.context.path(), options, draws)
                 )
                 if isinstance(answer, Move):
                     move(b, c, answer.path, on_turn=False)
+                    moved = True
+                elif isinstance(answer, Draw):
+                    draw(b, c, answer.loadout, on_turn=False)
                     moved = True
                 if b.outcome is not None:
                     return

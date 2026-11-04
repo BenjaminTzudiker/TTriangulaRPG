@@ -27,16 +27,20 @@ Weights are data in the agent spec, which is the hook M4's NPC profiles fill. Co
 and diving wait for ranged attacks (M3).
 """
 
+from collections.abc import Callable
 from dataclasses import dataclass, field, replace
 from fractions import Fraction
 
 from stamina_engine.agents.blocking import solver_blocks
 from stamina_engine.agents.decisions import (
+    AimRequest,
     Attack,
     Avoid,
     AvoidOA,
     BlocksRequest,
     Commitment,
+    DiveRequest,
+    Draw,
     EndTurn,
     Move,
     MoveAnswer,
@@ -45,15 +49,25 @@ from stamina_engine.agents.decisions import (
     Observation,
     OffTurnMove,
     Pass,
+    Shoot,
     TakeOA,
     TurnAnswer,
     TurnCommand,
 )
-from stamina_engine.agents.grid_view import Board, attack_squares
+from stamina_engine.agents.estimates import Target, exact_estimate
+from stamina_engine.agents.grid_view import (
+    Board,
+    attack_squares,
+    block_score,
+    is_shooter,
+    ranged_loadout,
+    shot_value,
+)
 from stamina_engine.agents.scripted import CommitPolicy, avoid_worth_it, largest_oa
 from stamina_engine.core.errors import ConfigError
 from stamina_engine.grid.battlefield import Cell
 from stamina_engine.grid.geometry import distance
+from stamina_engine.grid.los import Cover
 from stamina_engine.rules.exchange import Blocks
 from stamina_engine.rules.pricing import Pricing
 from stamina_engine.rules.ruleset import RuleSet
@@ -114,6 +128,8 @@ class TacticalAgent:
         me = obs.me
         assert me.trackers is not None and me.pos is not None
         stage = self._plan[1] if self._plan[0] == obs.round else ""
+        if is_shooter(me):
+            return self._archer_turn(board, request, stage)
         if me.trackers.actions_this_turn > 0:
             if stage != "after" and request.moves is not None:
                 self._plan = (obs.round, "after")
@@ -136,6 +152,98 @@ class TacticalAgent:
         if request.targets:  # the chosen target is out of reach but another isn't
             return self._attack(obs, request.targets[0], request)
         return EndTurn()
+
+    # --- shooters ----------------------------------------------------------------------
+
+    def _archer_turn(self, board: Board, request: TurnCommand, stage: str) -> TurnAnswer:
+        """Ready the bow (free before using a weapon), step out of reach if it can still shoot
+        from there, shoot once, then step away with what free movement is left."""
+        obs, me = board.obs, board.me
+        assert me.pos is not None
+        bow = ranged_loadout(me)
+        weapon = me.gear.weapon
+        holding_bow = weapon is not None and weapon.ranged
+        if stage == "shot":
+            if request.moves is not None:
+                self._plan = (obs.round, "done")
+                step = self._kite(board, request.moves, None)
+                if step is not None:
+                    return step
+            return EndTurn()
+        if stage == "done":
+            return EndTurn()
+        if not holding_bow:
+            free_bow = [d for d in request.draws if d.loadout == bow and d.quote.total == 0]
+            bow_weapon = me.profile.loadout(bow).weapon if bow is not None else None
+            shot_base = bow_weapon.base if bow_weapon is not None else 0
+            if free_bow and me.stamina >= shot_base:
+                return Draw(free_bow[0].loadout)
+            if request.targets and me.trackers is not None and not me.trackers.actions_this_turn:
+                return self._attack(obs, request.targets[0], request)  # fight with the blade
+            return EndTurn()
+        shots = request.shots
+        exposed = board.engagers(me.pos) > 0 or bool(board.threatening(me.pos))
+        if stage == "" and request.moves is not None and exposed:
+            self._plan = (obs.round, "kited")
+            step = self._kite(board, request.moves, self._target_of(board, shots))
+            if step is not None:
+                return step
+        tid = self._target_of(board, shots)
+        if tid is None:
+            if stage == "" and request.moves is not None:
+                self._plan = (obs.round, "kited")
+                enemy = self._target(board)
+                goal = obs.view(enemy).pos if enemy is not None else None
+                step = self._approach(board, goal, request.moves)
+                if step is not None:
+                    return step
+            return EndTurn()
+        self._plan = (obs.round, "shot")
+        return Shoot(tid)
+
+    def _target_of(self, board: Board, shots: tuple[str, ...]) -> str | None:
+        if not shots:
+            return None
+        views = [board.obs.view(t) for t in shots]
+        if self.target_mode == "nearest" and board.me.pos is not None:
+            here = board.me.pos
+            return min(views, key=lambda v: distance(here, v.pos, self.rules.grid)).id  # type: ignore[arg-type]
+        if self.target_mode == "first":
+            return views[0].id
+        return min(views, key=lambda v: (v.stamina, v.hp)).id
+
+    def _kite(self, board: Board, moves: MoveOptions, keep: str | None) -> Move | None:
+        """Free movement only, at most 3 stamina in avoidance: out of every enemy's reach now
+        (so a shot doesn't provoke, and is blocked with Ranged Defense), or to a square fewer
+        enemies could engage next turn; keeping a shot at `keep` if given. Fewest engagers,
+        then least exposure to shooters, then cheapest."""
+        me = board.me
+        assert me.pos is not None
+        free = (me.free_move_left or 0) + (me.banked or 0)
+        if free <= 0:
+            return None
+        weapon = me.gear.weapon
+        now = board.engagers(me.pos)
+        threatened_now = bool(board.threatening(me.pos))
+        routes = board.routes(moves, free)
+        best: tuple[tuple[bool, int, int, int, int], tuple[Cell, ...]] | None = None
+        for c, route in routes.items():
+            if route.total > 3:
+                continue
+            if keep is not None and weapon is not None:
+                there = board.obs.view(keep).pos
+                assert there is not None
+                band = self.rules.ranged.band(distance(c, there, self.rules.grid), weapon.ranges)
+                if band == "beyond" or board.cover_at(c, there, (keep, me.id)) >= Cover.TOTAL:
+                    continue
+            threatened = bool(board.threatening(c))
+            e = board.engagers(c, moved=True)
+            if not (e < now or (threatened_now and not threatened)):
+                continue
+            key = (threatened, e, board.shot_exposure(c), int(route.total), len(route.path))
+            if best is None or key < best[0]:
+                best = (key, route.path)
+        return Move(best[1]) if best is not None else None
 
     def _attack_in_place(self, request: TurnCommand) -> TurnAnswer:
         obs = request.observation
@@ -191,7 +299,9 @@ class TacticalAgent:
             return None
         closest = min(distance(c, goal, self.rules.grid) for c in options)
         nearest = [c for c in options if distance(c, goal, self.rules.grid) == closest]
-        pick = min(nearest, key=lambda c: (board.engagers(c, moved=True), c))
+        pick = min(
+            nearest, key=lambda c: (board.shot_exposure(c), board.engagers(c, moved=True), c)
+        )
         if distance(pick, goal, self.rules.grid) >= now:
             return None
         route = board.route(moves, [pick], free)
@@ -274,9 +384,12 @@ class TacticalAgent:
         assert me.pos is not None
         engaged = board.engagers(me.pos)
         low = me.stamina < self.low_stamina * me.max_stamina
+        blade = self._blade(request)
         if engaged < self.retreat_engaged and not (engaged >= 1 and low):
-            return Pass()
+            return blade if engaged >= 1 and blade is not None else Pass()
         moves = request.moves
+        if moves is None:
+            return blade if blade is not None else Pass()
         budget = Fraction(me.stamina, 2)
         best: tuple[tuple[int, Fraction | int, int], tuple[Cell, ...]] | None = None
         routes = board.routes(moves, moves.max_squares)
@@ -290,10 +403,162 @@ class TacticalAgent:
             key = (e, route.total, len(route.path))
             if best is None or key < best[0]:
                 best = (key, route.path)
-        return Move(best[1]) if best is not None else Pass()
+        if best is not None:
+            return Move(best[1])
+        return blade if blade is not None else Pass()
+
+    def _blade(self, request: OffTurnMove) -> Draw | None:
+        """A shooter holding its bow readies a free melee loadout (a quick-draw blade)."""
+        weapon = request.observation.me.gear.weapon
+        if weapon is None or not weapon.ranged:
+            return None
+        for d in request.draws:
+            lo = request.observation.me.profile.loadout(d.loadout)
+            if d.quote.total == 0 and lo.weapon is not None and not lo.weapon.ranged:
+                return Draw(d.loadout)
+        return None
 
     def avoid(self, request: AvoidOA) -> Avoid:
         return avoid_worth_it(request, self.rules, self.w)
 
     def take_oa(self, request: TakeOA) -> OATake:
         return largest_oa(request)
+
+    def aim(self, request: AimRequest) -> int:
+        """The aim count with the best expected value, exactly: w x injury + the stamina the
+        target spends + 10w x P(down), minus the shot's cost (a miss is all cost)."""
+        obs = request.observation
+        me, target = obs.me, obs.view(request.target)
+        weapon = me.gear.weapon
+        assert weapon is not None
+        defense = target.gear.ranged_defense
+        if obs.field is not None and me.pos is not None and target.pos is not None:
+            from stamina_engine.grid.threat import body, threatened_by
+
+            reach = threatened_by(
+                obs.field,
+                self.rules.grid,
+                body(target.id, target.team, target.pos, target.gear, True),
+            )
+            if me.pos in reach:
+                defense = target.gear.melee_defense
+        defense += self.rules.ranged.cover_bonus(request.cover)
+        reply = self._reply_cost(obs) if obs.field is not None else None
+        best = (Fraction(-(10**9)), 0)
+        for k, quote in enumerate(request.quotes):
+            value = Fraction(-quote.total)
+            if reply is not None:
+                value -= reply(me.stamina - quote.total)
+            if k >= request.required:
+                inj, drained, down = shot_value(
+                    weapon,
+                    k,
+                    me.gear.attributes.FIN,
+                    request.band,
+                    defense,
+                    target.gear.armor,
+                    max(0, target.stamina),
+                    target.hp,
+                    self.rules,
+                    self.w,
+                )
+                value += self.w * inj + drained + 10 * self.w * down
+            if value > best[0]:
+                best = (value, k)
+        return best[1]
+
+    def _reply_cost(self, obs: Observation) -> "Callable[[int], Fraction] | None":
+        """One ply, as the review's look-ahead: what the worst enemy reply next turn would
+        cost me (w x injury + stamina + 10w x P(down)) if I keep `left` stamina now and
+        recover before it. None if no enemy could engage me next turn."""
+        board = Board(obs, self.rules)
+        me = obs.me
+        assert me.pos is not None
+        foes = [
+            e
+            for e in board.enemies()
+            if e.gear.weapon is not None
+            and not e.gear.weapon.ranged
+            and board.free_reach(e).steps.keys() & board.attack_squares_of(e, me.pos)
+        ]
+        if not foes:
+            return None
+        md = max(
+            (
+                lo.melee_defense
+                for lo in me.profile.loadouts
+                if lo.weapon is None or not lo.weapon.ranged
+            ),
+            default=me.gear.melee_defense,
+        )
+        w = self.w
+
+        def cost(left: int) -> Fraction:
+            mine = min(me.max_stamina, max(0, left) + me.profile.recovery)
+            worst = Fraction(0)
+            for e in foes:
+                weapon = e.gear.weapon
+                assert weapon is not None
+                k = min(2, Pricing(self.rules).max_steps(weapon.base, max(0, e.stamina)))
+                if k == 0:
+                    continue
+                est = exact_estimate(
+                    weapon, k, Target(md, me.gear.armor, mine, me.hp), self.rules, w
+                )
+                worst = max(
+                    worst,
+                    w * Fraction(est.injury) + Fraction(est.cost) + 10 * w * Fraction(est.p_down),
+                )
+            return worst
+
+        return cost
+
+    def dive(self, request: DiveRequest) -> MoveAnswer:
+        """Dive if the roll, blocked from the best reachable cover, saves more than the move
+        costs (its purchases, plus 1 per enemy threatening each square it leaves)."""
+        obs = request.observation
+        if obs.field is None:
+            return Pass()
+        board = Board(obs, self.rules)
+        me = obs.me
+        gear = me.gear
+        shooter = obs.view(request.shooter)
+        r = self.rules.ranged
+
+        def defense_at(cell: Cell, level: int) -> int:
+            assert shooter.pos is not None
+            near = shooter.pos in board.attack_spots(cell)
+            return (gear.melee_defense if near else gear.ranged_defense) + r.cover_bonus(level)
+
+        assert me.pos is not None
+        stay = block_score(
+            request.damage,
+            request.crit_dice,
+            defense_at(me.pos, request.cover),
+            gear.armor,
+            me.stamina,
+            me.hp,
+            self.rules,
+            self.w,
+        )
+        routes = board.routes(request.moves, request.moves.max_squares)
+        best: tuple[Fraction, tuple[Cell, ...]] | None = None
+        for c, level in request.cover_after.items():
+            route = routes.get(c)
+            if route is None or level <= request.cover:
+                continue
+            spend = route.total
+            there = block_score(
+                request.damage,
+                request.crit_dice,
+                defense_at(c, level),
+                gear.armor,
+                me.stamina - int(spend),
+                me.hp,
+                self.rules,
+                self.w,
+            )
+            gain = stay - there - Fraction(spend)
+            if gain > 0 and (best is None or gain > best[0]):
+                best = (gain, route.path)
+        return Move(best[1]) if best is not None else Pass()

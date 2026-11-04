@@ -46,6 +46,7 @@ uv run mypy src
 uv run ruff check src tests examples
 uv run se suite parity --workers 8   # M1 parity report (lockstep with the oracle)
 uv run se suite positioning --workers 8   # M2 grid scenarios across agent families
+uv run se suite ranged --workers 8        # M3 archers on three maps, Table 5, F3 options
 uv run se trace <scenario.toml> --trial N # one fight, with the board at each turn
 ```
 

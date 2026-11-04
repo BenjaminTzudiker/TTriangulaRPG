@@ -167,7 +167,15 @@ SPECS = [
     "tactical",
     {"kind": "tactical", "commit": "alpha", "target": "nearest", "retreat_engaged": 1},
 ]
-BUILDS = ["l1_sample", "l1_duelist", "l1_heavy", "l1_greatsword", "l1_caster_dagger"]
+BUILDS = [
+    "l1_sample",
+    "l1_duelist",
+    "l1_heavy",
+    "l1_greatsword",
+    "l1_caster_dagger",
+    "l1_archer",
+    "l1_spear",
+]
 VARIANTS = [
     {},
     {"opportunity": {"per_square_cap": True, "cap_rule": "weapon_base"}},

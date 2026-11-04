@@ -21,6 +21,9 @@ cites = (
     "Packet: Off-Turn Movement",
     "Packet: Avoiding Opportunity Attacks",
     "Packet: Making Opportunity Attacks",
+    "Packet: Ranged Attacks",
+    "Packet: Cover",
+    "Packet: Drawing Weapons",
     "Review F11",
 )
 
@@ -84,18 +87,28 @@ class MoveOptions:
 
 
 @dataclass(frozen=True)
+class DrawOption:
+    loadout: str
+    quote: Quote
+
+
+@dataclass(frozen=True)
 class TurnCommand:
-    """Each loop of a creature's own turn: move, attack a target in reach, or end the turn."""
+    """Each loop of a creature's own turn: move, attack a target in reach, shoot, draw, or
+    end the turn."""
 
     who: str
     observation: Observation
     context: tuple[str, ...]
     targets: tuple[str, ...]  # active enemies it can attack, with at least one step affordable
     moves: MoveOptions | None = None  # None when it can't move (or there's no map)
+    shots: tuple[str, ...] = ()  # enemies its ranged weapon can target, shot affordable
+    draws: tuple[DrawOption, ...] = ()  # loadouts it can switch to now
 
     @property
     def option_count(self) -> int:
-        return len(self.targets) + 1 + (self.moves.option_count if self.moves else 0)
+        moves = self.moves.option_count if self.moves else 0
+        return len(self.targets) + 1 + moves + len(self.shots) + len(self.draws)
 
 
 @dataclass(frozen=True)
@@ -118,18 +131,72 @@ class Pass:
     pass
 
 
-TurnAnswer = Attack | Move | EndTurn
-MoveAnswer = Move | Pass
+@dataclass(frozen=True)
+class Shoot:
+    target: str
+
+
+@dataclass(frozen=True)
+class Draw:
+    loadout: str
+
+
+TurnAnswer = Attack | Move | Shoot | Draw | EndTurn
+MoveAnswer = Move | Draw | Pass
 
 
 @dataclass(frozen=True)
 class OffTurnMove:
-    """In an off-turn window: move (with off-turn purchases), or pass."""
+    """In an off-turn window: move (with off-turn purchases), draw another loadout, or pass."""
 
     who: str
     observation: Observation
     context: tuple[str, ...]
+    moves: MoveOptions | None
+    draws: tuple[DrawOption, ...] = ()
+
+    @property
+    def option_count(self) -> int:
+        return (self.moves.option_count if self.moves else 0) + len(self.draws) + 1
+
+
+@dataclass(frozen=True)
+class AimRequest:
+    """After declaring a shot: how many aim steps. quotes[k] is the price of the shot with k
+    aims (from 0); fewer than `required` aims miss at this range."""
+
+    who: str
+    observation: Observation
+    context: tuple[str, ...]
+    target: str
+    band: str
+    cover: int  # the target's cover now (0 none, 1 half, 2 three-quarters)
+    required: int
+    quotes: tuple[Quote, ...]
+
+    @property
+    def max_aims(self) -> int:
+        return len(self.quotes) - 1
+
+    @property
+    def option_count(self) -> int:
+        return len(self.quotes)
+
+
+@dataclass(frozen=True)
+class DiveRequest:
+    """A shot at you has been rolled: dive for cover with off-turn movement, or don't.
+    cover_after says the cover the shot would then face from each destination."""
+
+    who: str
+    observation: Observation
+    context: tuple[str, ...]
+    shooter: str
+    damage: int
+    crit_dice: int
+    cover: int  # if it stays
     moves: MoveOptions
+    cover_after: Mapping[Cell, int]
 
     @property
     def option_count(self) -> int:
@@ -228,6 +295,8 @@ class BlocksRequest:
     prior_perfect: int
     affordable: int  # option counts (F11)
     nondominated: int
+    ranged: bool = False  # against a ranged attack (prices perfect blocks: blocks.ranged_flat)
+    cover: int = 0  # the cover bonus included in defense
 
     @property
     def option_count(self) -> int:
@@ -247,6 +316,10 @@ class Agent(Protocol):
 
     def take_oa(self, request: TakeOA) -> OATake: ...
 
+    def aim(self, request: AimRequest) -> int: ...
+
+    def dive(self, request: DiveRequest) -> MoveAnswer: ...
+
 
 @dataclass(frozen=True)
 class DecisionRecord:
@@ -254,7 +327,7 @@ class DecisionRecord:
 
     round: int
     who: str
-    kind: str  # turn_command, commitment, blocks, off_turn_move, avoid, take_oa
+    kind: str  # turn_command, commitment, blocks, off_turn_move, avoid, take_oa, aim, dive
     option_count: int
     nondominated: int | None
     answer: str

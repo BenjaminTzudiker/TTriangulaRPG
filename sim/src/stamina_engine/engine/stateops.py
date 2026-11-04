@@ -9,6 +9,7 @@ from collections.abc import Callable
 from stamina_engine.core.errors import EngineError, RulesError, Unaffordable
 from stamina_engine.engine.events import (
     DebtPaid,
+    Drew,
     DyingRolled,
     Event,
     Indebted,
@@ -113,6 +114,8 @@ class StateOps:
         c.trackers = Trackers(0, 0, c.trackers.strain)
         c.free_move_left = c.gear.movement
         c.banked = 0
+        c.used_weapon = False
+        c.bow_hands = False
         self.state.turn_of = c.id
         self._emit(TurnStarted(c.id, self.state.round))
 
@@ -127,6 +130,24 @@ class StateOps:
             key = (attacker, round_)
             defender.perfect_blocks[key] = defender.perfect_blocks.get(key, 0) + count
             self._bump()
+
+    # --- weapons -------------------------------------------------------------------
+
+    def use_weapon(self, c: CombatantState, bow: bool = False) -> None:
+        """An attack or shot uses a weapon: drawing on your turn stops being free, and a bow
+        shot ties up its hands until the start of your next turn (Packet: Drawing Weapons)."""
+        c.used_weapon = True
+        if bow:
+            c.bow_hands = True
+        self._bump()
+
+    def draw(self, c: CombatantState, loadout: str, cost: int) -> None:
+        """Switch to another loadout (paid separately through spend)."""
+        c.profile.loadout(loadout)  # raises if it doesn't exist
+        if not c.active:
+            raise RulesError(f"{c.id} is {c.status.value} and can't draw")
+        c.loadout = loadout
+        self._emit(Drew(c.id, loadout, cost))
 
     # --- positions -----------------------------------------------------------------
 

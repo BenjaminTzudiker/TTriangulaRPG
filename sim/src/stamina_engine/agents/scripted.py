@@ -3,8 +3,9 @@ solver (ENGINE_PLAN, agent family 2). Ported from tests/oracle/sim.py so that, i
 with it, they make the same choices.
 
 Each agent makes at most one attack per turn, as the review's policies did. On a map (M2)
-it approaches its target by the cheapest path using free movement only, attacks if it can,
-and otherwise stands still; it never moves off-turn. Its avoidance and OA policies are spec
+it approaches its target by the cheapest path using free movement only (even when it can't
+afford to attack this turn; only the "never" policy stands still), attacks if it can, and
+otherwise stands still; it never moves off-turn. Its avoidance and OA policies are spec
 fields: avoid = "worth_it" (pay off an enemy whose OA would cost more than the price),
 "always" (pay off every enemy that could make one) or "never"; oa = "max" or "never".
 """
@@ -17,12 +18,14 @@ from typing import TYPE_CHECKING, Protocol
 
 from stamina_engine.agents.blocking import solver_blocks
 from stamina_engine.agents.decisions import (
+    AimRequest,
     Attack,
     Avoid,
     AvoidOA,
     BlocksRequest,
     CombatantView,
     Commitment,
+    DiveRequest,
     EndTurn,
     Move,
     MoveAnswer,
@@ -31,6 +34,7 @@ from stamina_engine.agents.decisions import (
     Observation,
     OffTurnMove,
     Pass,
+    Shoot,
     TakeOA,
     TurnAnswer,
     TurnCommand,
@@ -286,6 +290,8 @@ def approach(obs: Observation, rules: RuleSet, moves: MoveOptions, target: str) 
         return None
     board = Board(obs, rules)
     spots = attack_squares(obs.field, rules, weapon.reach, view.pos)
+    if me.pos in spots:
+        return None  # already in reach: nothing to approach
     goals = [c for c in sorted(spots) if moves.destinations.get(c, free + 1) <= free]
     if not goals:
         there = view.pos
@@ -312,21 +318,29 @@ class ScriptedAgent:
     w: Fraction = DEFAULT_W  # the block agent's value of 1 HP in stamina
     avoid_mode: str = "worth_it"
     oa_mode: str = "max"
+    aims: int = 3  # a shooter's aim steps, as many of these as it can afford
     _pending: int = field(default=0, init=False)
+    _shot_round: int = field(default=-1, init=False)
 
     def turn_command(self, request: TurnCommand) -> TurnAnswer:
         """The policy is consulted every turn, even when no step is affordable, as the
         review's policies were: its look-ahead samples the target's replies even then."""
         obs = request.observation
         assert obs.me.trackers is not None
-        if obs.me.trackers.actions_this_turn > 0:
+        if obs.me.trackers.actions_this_turn > 0 or self._shot_round == obs.round:
             return EndTurn()  # one attack per turn
+        if request.shots:
+            tid = self.target(obs, request.shots)
+            if tid is not None:
+                self._shot_round = obs.round
+                return Shoot(tid)
         candidates = request.targets or tuple(v.id for v in obs.enemies() if v.status == "active")
         tid = self.target(obs, candidates)
         if tid is None:
             return EndTurn()
         steps = self.commit.steps(obs.me, obs.view(tid))
-        if steps > 0 and tid not in request.targets and request.moves is not None:
+        wants = steps > 0 or not isinstance(self.commit, NeverAttack)
+        if wants and tid not in request.targets and request.moves is not None:
             step = approach(obs, self.rules, request.moves, tid)
             if step is not None:
                 return step
@@ -352,13 +366,20 @@ class ScriptedAgent:
     def take_oa(self, request: TakeOA) -> OATake:
         return largest_oa(request) if self.oa_mode == "max" else OATake()
 
+    def aim(self, request: AimRequest) -> int:
+        """Its aims if it can afford them; else as many as it can (a miss if too few)."""
+        return min(max(self.aims, request.required), request.max_aims)
+
+    def dive(self, request: DiveRequest) -> MoveAnswer:
+        return Pass()  # scripted agents never dive
+
 
 # --- specs ---------------------------------------------------------------------------
 
 
 AVOID_MODES = frozenset({"worth_it", "always", "never"})
 OA_MODES = frozenset({"max", "never"})
-SCRIPTED_FIELDS = {"kind", "commit", "target", "w", "estimator", "avoid", "oa"}
+SCRIPTED_FIELDS = {"kind", "commit", "target", "w", "estimator", "avoid", "oa", "aims"}
 TACTICAL_FIELDS = {"retreat_engaged", "low_stamina", "reach_spacing"}
 
 
@@ -429,4 +450,6 @@ def make_agent(
         )
     if target not in TARGETS:
         raise ConfigError(f"unknown target policy {target!r}; known: {sorted(TARGETS)}")
-    return ScriptedAgent(rules, policy, TARGETS[target], w, avoid_mode, oa_mode)
+    return ScriptedAgent(
+        rules, policy, TARGETS[target], w, avoid_mode, oa_mode, int(str(table.get("aims", 3)))
+    )

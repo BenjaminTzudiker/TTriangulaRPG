@@ -50,6 +50,10 @@ class OpportunityRule(Component):
     def per_square(self) -> bool:
         raise NotImplementedError
 
+    def point_blank_avoid(self) -> bool:
+        """Can the shooter pay to avoid the OAs a point-blank shot provokes? (Not for now.)"""
+        raise NotImplementedError
+
 
 @register("opportunity", "v0_9")
 @dataclass(frozen=True)
@@ -91,3 +95,6 @@ class V09Opportunity(OpportunityRule):
 
     def per_square(self) -> bool:
         return self.per_square_cap
+
+    def point_blank_avoid(self) -> bool:
+        return self.point_blank_avoidable

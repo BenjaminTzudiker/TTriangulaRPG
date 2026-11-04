@@ -7,9 +7,13 @@ Quote says what it costs and how far it moves the on-turn or off-turn track.
 from collections.abc import Iterator, Sequence
 from dataclasses import dataclass, replace
 from enum import Enum
+from typing import TYPE_CHECKING
 
 from stamina_engine.core.errors import Unaffordable
 from stamina_engine.rules.ruleset import RuleSet
+
+if TYPE_CHECKING:
+    from stamina_engine.model.derive import LoadoutProfile
 
 cites = (
     "Packet: Actions and the On-Turn Surcharge",
@@ -365,11 +369,17 @@ class Pricing:
 
     # --- blocks ----------------------------------------------------------------------
 
-    def perfect_block(self, nth: int) -> int:
-        return self.rules.blocks.perfect_cost(nth)
+    def perfect_block(self, nth: int, ranged: bool = False) -> int:
+        b = self.rules.blocks
+        return b.ranged_perfect_cost(nth) if ranged else b.perfect_cost(nth)
 
     def blocks(
-        self, perfect: int, grazing: int, stamina: int | None = None, prior_perfect: int = 0
+        self,
+        perfect: int,
+        grazing: int,
+        stamina: int | None = None,
+        prior_perfect: int = 0,
+        ranged: bool = False,
     ) -> Quote:
         """Escalation applies within this attack only; it isn't part of any track.
 
@@ -378,13 +388,44 @@ class Pricing:
         """
         b = self.rules.blocks
         first = prior_perfect + 1
-        perfect_parts = tuple(b.perfect_cost(i) for i in range(first, first + perfect))
+        perfect_parts = tuple(self.perfect_block(i, ranged) for i in range(first, first + perfect))
         return _ensure(Quote(perfect_parts + (b.graze_cost,) * grazing), stamina)
 
     # --- other -----------------------------------------------------------------------
 
     def draw_between_turns(self, quick_draw: bool) -> Quote:
         return Quote((self.rules.ranged.draw_cost(quick_draw),))
+
+    def draw(
+        self,
+        current: "LoadoutProfile",
+        new: "LoadoutProfile",
+        *,
+        on_turn: bool,
+        used_weapon: bool,
+        bow_hands: bool,
+    ) -> Quote | None:
+        """Switching loadouts (Packet: Drawing Weapons), or None if not allowed now. Each
+        weapon or shield the new loadout holds that the current one doesn't is drawn:
+        free on your turn until you use a weapon; otherwise 1 for a normal item and 0 for a
+        quick-draw weapon. After a bow shot, no normal item can be drawn until your next
+        turn. Armor can't change mid-fight, so loadouts with other armor aren't offered."""
+        if new.name == current.name or new.armor_name != current.armor_name:
+            return None
+        held = {current.weapon.name if current.weapon else None, current.shield}
+        if current.off_hand_weapon is not None:
+            held.add(current.off_hand_weapon.name)
+        drawn: list[bool] = []  # quick-draw?
+        for w in (new.weapon, new.off_hand_weapon):
+            if w is not None and w.name not in held:
+                drawn.append(w.quick_draw)
+        if new.shield is not None and new.shield not in held:
+            drawn.append(False)
+        if bow_hands and not all(drawn):
+            return None
+        if on_turn and not used_weapon:
+            return Quote((0,) * len(drawn)) if drawn else Quote(())
+        return Quote(tuple(self.rules.ranged.draw_cost(q) for q in drawn))
 
     def strain_ability(
         self, stamina_cost: int, strain_cost: int, trackers: Trackers, strain_max: int

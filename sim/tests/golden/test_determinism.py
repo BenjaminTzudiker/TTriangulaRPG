@@ -71,6 +71,7 @@ def test_pinned_log_hashes(
 
 
 GRID_PINNED = [
+    ("archer_wall.toml", 2, "0f1cbcf44bcd30bd8ee63259477730c4097ba8725f6556c8f57b7f77ce2e2529"),
     (
         "one_v_three_corridor.toml",
         0,

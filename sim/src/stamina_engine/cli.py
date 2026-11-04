@@ -182,7 +182,7 @@ def compare(
 
 @app.command()
 def suite(
-    name: Annotated[str, typer.Argument(help="Suite to run: parity or positioning.")],
+    name: Annotated[str, typer.Argument(help="Suite to run: parity, positioning or ranged.")],
     workers: WorkersOption = 1,
     scale: Annotated[float, typer.Option(help="Fraction of the review's trial counts.")] = 1.0,
     trials: Annotated[int, typer.Option(help="Positioning: trials per row.")] = 500,
@@ -194,8 +194,11 @@ def suite(
     if name == "positioning":
         _positioning(workers, trials, out)
         return
+    if name == "ranged":
+        _ranged(workers, trials, out)
+        return
     if name != "parity":
-        raise typer.BadParameter("suites: parity, positioning", param_hint="NAME")
+        raise typer.BadParameter("suites: parity, positioning, ranged", param_hint="NAME")
     from stamina_engine.experiments.oracle_bridge import Knobs
     from stamina_engine.experiments.parity import cases, render, rules_for, run_cases
 
@@ -263,3 +266,19 @@ def trace_cmd(
     except ConfigError as exc:
         raise typer.BadParameter(str(exc)) from exc
     typer.echo(trace(s, trial, cell))
+
+
+def _ranged(workers: int, trials: int, out: Path | None) -> None:
+    from stamina_engine.analysis.ranged import render_table5
+    from stamina_engine.experiments.positioning import run_rows
+    from stamina_engine.experiments.ranged_suite import ROWS, render
+    from stamina_engine.rules.ruleset import preset
+
+    rules = preset("v0.9")
+    stamp = collect(rules).text()
+    report = render(run_rows(ROWS, trials, workers), stamp, trials, render_table5(rules))
+    if out is None:
+        typer.echo(report)
+    else:
+        out.write_text(report)
+        typer.echo(f"wrote {out}")

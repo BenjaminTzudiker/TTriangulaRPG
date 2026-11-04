@@ -2,7 +2,7 @@
 
 For claude.ai chats in the "Tactical fantasy TTRPG" project. Claude Code keeps this file current.
 
-**Status:** milestones M0 and M1 are done (tags `m0`, `m1`): exact single-exchange calculators, plus whole fights with the review's five scripted policies, seeded runs, sweeps and paired comparisons. M2 (grid and positioning) is built and in review on the `m2-grid` branch: maps, reach, square-by-square movement, opportunity attacks and avoidance, off-turn windows, and a tactical agent. Ranged fights arrive in M3.
+**Status:** milestones M0 and M1 are done (tags `m0`, `m1`). M2 (grid and positioning) and M3 (ranged) are built and in review, as stacked pull requests on the `m2-grid` and `m3-ranged` branches: maps, reach, square-by-square movement, opportunity attacks, off-turn windows, sight lines and cover, shots with aim and range bands, diving for cover, drawing weapons, and tactical agents that move, shoot and dive. Equipment variants and NPC profiles arrive in M4, abilities in M5.
 
 ## Reading the code
 
@@ -35,6 +35,9 @@ se map show corridor                                   # a map with coordinates 
 se run src/stamina_engine/data/scenarios/one_v_three_corridor.toml --trials 500 --workers 4
 se trace src/stamina_engine/data/scenarios/one_v_three_corridor.toml --trial 0
 se suite positioning --workers 8 --out reports/m2_positioning.md
+se table 5                                             # review Table 5, exactly, beside the review's figures
+se table 5 --ruleset my_f3_idea.toml                   # the same single shots under your variant
+se suite ranged --workers 8 --out reports/m3_ranged.md # archers on three maps, F3 options
 ```
 
 `--rounding half-even` reproduces the review, whose simulator used Python's `round()`. The packet's rounding is half up, which changes three Table 1 cells and Table 8's 2.125 (see the Assumptions register).
@@ -59,7 +62,9 @@ Agents on a grid:
 - **Scripted** (`alpha`, `chipkill`, ...): approach their target with free movement, attack if they can, never move off-turn. Add `avoid = "worth_it" | "always" | "never"` and `oa = "max" | "never"` to a table spec.
 - **Tactical** (`"tactical"`, or `{ kind = "tactical", commit = "fixed:2", target = "lowest_stamina" }`): picks squares by how many enemies could engage it, keeps reach-weapon spacing, retreats off-turn when two or more could engage it (`retreat_engaged`) or when engaged with low stamina (`low_stamina = "1/3"`), and values avoidance exactly.
 
-Report positional results for both families: agent behavior can drive a result as much as the rules do. The variant switches Phase 4 asks about:
+At range (M3), a creature with a bow shoots enemies within its long range that aren't in total cover. Cover is the 5e corner method; the target may dive for cover with off-turn movement after the roll; a shooter within an enemy's reach provokes from every enemy threatening it. Scripted shooters take `aims = 3` (a spec field) and stand; tactical archers choose aims by exact expected value (looking one enemy reply ahead), step out of reach, ready a quick-draw blade between turns and dive. Builds with several loadouts (`l1_archer`: `bow` and `blade`) switch with the packet's drawing costs.
+
+Report positional results for both families: agent behavior can drive a result as much as the rules do. The variant switches Phases 4 and 5 ask about:
 
 ```toml
 [ruleset]
@@ -72,6 +77,11 @@ opportunity = { cap_rule = "weapon_base" }       # F9 option 1: cap = weapon bas
 # movement = { extra_squares = "one" }           # F10 option 1
 # movement = { extra_cap = "free_movement" }     # F10 option 2
 # off_turn = { order = "descending_initiative" } # F14: who moves first after a turn
+# defenses = { ranged_mode = "dodge_folded" }    # F3 option 1: RD gains even Agility
+# blocks = { ranged_flat = 2 }                   # F3 option 2: flat ranged perfect blocks
+# ranged = { aim_mode = "precision" }            # F3 option 3: aim widens crit range instead
+# ranged = { bands = "minus_d6" }                # F11 (b): range bands as -1d6 / -2d6
+# crit = { aim_dice_can_crit = false }           # the packet's TODO
 ```
 
 From Python:

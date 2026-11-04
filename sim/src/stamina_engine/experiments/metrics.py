@@ -11,12 +11,16 @@ from stamina_engine.engine.events import (
     AttackResolved,
     AttackRolled,
     BlocksDeclared,
+    Dived,
+    Drew,
     Moved,
     OpportunityAvoided,
     OpportunityDeclared,
     OpportunityProvoked,
     Recovered,
     RoundStarted,
+    ShotDeclared,
+    ShotMissed,
     Spent,
 )
 from stamina_engine.experiments.stats import Interval, mean_interval, median, wilson
@@ -24,7 +28,16 @@ from stamina_engine.model.state import Status
 
 Row = dict[str, Any]
 
-CATEGORIES = ("attack", "block", "opportunity", "avoid", "extra_move", "off_turn_move")
+CATEGORIES = (
+    "attack",
+    "block",
+    "opportunity",
+    "avoid",
+    "extra_move",
+    "off_turn_move",
+    "shot",
+    "draw",
+)
 
 
 def fight_row(result: BattleResult, trial: int, seed: int) -> Row:
@@ -36,7 +49,7 @@ def fight_row(result: BattleResult, trial: int, seed: int) -> Row:
     spent: Counter[str] = Counter()
     moved: Counter[str] = Counter()
     wasted = 0
-    provoked = avoided = taken = 0
+    provoked = avoided = taken = shots = aims = missed = dives = draws = 0
     contact: int | None = None
     round_ = 0
     for e in result.log:
@@ -52,10 +65,19 @@ def fight_row(result: BattleResult, trial: int, seed: int) -> Row:
             provoked += len(e.enemies)
         elif isinstance(e, OpportunityAvoided):
             avoided += len(e.enemies)
-        elif isinstance(e, OpportunityDeclared | AttackDeclared):
+        elif isinstance(e, OpportunityDeclared | AttackDeclared | ShotDeclared):
             taken += isinstance(e, OpportunityDeclared)
+            if isinstance(e, ShotDeclared):
+                shots += 1
+                aims += e.aims
             if contact is None:
                 contact = round_
+        elif isinstance(e, ShotMissed):
+            missed += 1
+        elif isinstance(e, Dived):
+            dives += 1
+        elif isinstance(e, Drew):
+            draws += 1
     row: Row = {
         "trial": trial,
         "seed": str(seed),  # 64-bit unsigned: text, so every table format can hold it
@@ -84,6 +106,11 @@ def fight_row(result: BattleResult, trial: int, seed: int) -> Row:
         "oa_provoked": provoked,  # enemies provoked, counted per square left
         "oa_avoided": avoided,
         "oa_taken": taken,
+        "shots": shots,
+        "aims": aims,
+        "shots_missed": missed,
+        "dives": dives,
+        "draws": draws,
         "log_sha256": result.log_sha256(),
     }
     for team in teams:
@@ -106,20 +133,25 @@ def attack_rows(result: BattleResult, trial: int) -> list[Row]:
     for e in result.log:
         if isinstance(e, RoundStarted):
             round_ = e.round
-        elif isinstance(e, AttackDeclared | OpportunityDeclared):
+        elif isinstance(e, AttackDeclared | OpportunityDeclared | ShotDeclared):
+            if isinstance(e, ShotDeclared):
+                kind, attacker, steps = "shot", e.shooter, e.aims
+            else:
+                kind = "melee" if isinstance(e, AttackDeclared) else "opportunity"
+                attacker, steps = e.attacker, e.steps
             current = {
                 "trial": trial,
                 "round": round_,
-                "kind": "melee" if isinstance(e, AttackDeclared) else "opportunity",
-                "attacker": e.attacker,
+                "kind": kind,  # for a shot, steps counts its aim steps
+                "attacker": attacker,
                 "target": e.target,
-                "steps": e.steps,
+                "steps": steps,
                 "cost": 0,
                 "block_cost": 0,
                 "perfect": 0,
                 "grazing": 0,
             }
-        elif isinstance(e, Spent) and e.category in ("attack", "opportunity"):
+        elif isinstance(e, Spent) and e.category in ("attack", "opportunity", "shot"):
             current["cost"] = e.amount
         elif isinstance(e, AttackRolled):
             current.update(total=e.total, crit_dice=e.crit_dice)

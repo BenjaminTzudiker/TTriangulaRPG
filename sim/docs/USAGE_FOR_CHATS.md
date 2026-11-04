@@ -2,7 +2,7 @@
 
 For claude.ai chats in the "Tactical fantasy TTRPG" project. Claude Code keeps this file current.
 
-**Status:** milestones M0 and M1 are done (tags `m0`, `m1`): exact single-exchange calculators, plus whole fights with no grid (everyone adjacent), the review's five scripted policies, seeded runs, sweeps and paired comparisons. Movement, opportunity attacks and ranged fights arrive in M2 and M3; M2 is next, not started.
+**Status:** milestones M0 and M1 are done (tags `m0`, `m1`): exact single-exchange calculators, plus whole fights with the review's five scripted policies, seeded runs, sweeps and paired comparisons. M2 (grid and positioning) is built and in review on the `m2-grid` branch: maps, reach, square-by-square movement, opportunity attacks and avoidance, off-turn windows, and a tactical agent. Ranged fights arrive in M3.
 
 ## Reading the code
 
@@ -30,6 +30,11 @@ se run src/stamina_engine/data/scenarios/l1_duel.toml --trials 2000 --workers 4
 se compare src/stamina_engine/data/scenarios/one_v_three.toml --a v0.9 --b review-candidate
 se sweep src/stamina_engine/data/scenarios/surcharge_sweep.toml --out results/surcharge
 se suite parity --workers 8 --out reports/m1_parity.md # every published review fight, in lockstep
+se map list                                            # library maps
+se map show corridor                                   # a map with coordinates and spawns
+se run src/stamina_engine/data/scenarios/one_v_three_corridor.toml --trials 500 --workers 4
+se trace src/stamina_engine/data/scenarios/one_v_three_corridor.toml --trial 0
+se suite positioning --workers 8 --out reports/m2_positioning.md
 ```
 
 `--rounding half-even` reproduces the review, whose simulator used Python's `round()`. The packet's rounding is half up, which changes three Table 1 cells and Table 8's 2.125 (see the Assumptions register).
@@ -42,7 +47,32 @@ A **scenario** names the combatants, their builds and agents, the RuleSet, the r
 - `se compare` runs the same scenario under two RuleSets **on the same seeds** and reports each difference with a paired 95% interval. It is the cheapest honest way to test a rule change.
 - `se sweep` runs scenarios × RuleSets × agent pairings (format at the top of `src/stamina_engine/experiments/sweep.py`); RuleSets in a sweep share seeds too.
 - `--out DIR` writes Parquet tables (`runs`, `fights`, `attacks`, `decisions`); every row carries the run id and RuleSet digest, and `runs` holds the full stamp, the RuleSet TOML and the scenario TOML. Read them with Polars or pandas.
-- Any fight re-runs alone: its seed is in the `fights` table, and `run_trial(scenario, trial)` replays it.
+- Any fight re-runs alone: its seed is in the `fights` table, and `run_trial(scenario, trial)` replays it. `se trace scenario.toml --trial N` prints that fight's events with the board at each turn; read one before trusting a surprising number.
+
+### Maps and positioning (M2)
+
+A scenario with `map = "open_12x12"` (a library map in `src/stamina_engine/data/maps/`, or a `.txt` path) is fought on a grid; without one, everyone is adjacent, as in M1 and the review. Map legend: `.` floor, `#` wall, `=` low wall or crate, `o` pillar; other letters and digits are spawn markers. Each combatant gets `spawn = "A"` (a marker) or `spawn = [x, y]`; a counted group takes a list. `map_text = """..."""` puts the map inline.
+
+On a grid, movement is square by square: free movement, then extra purchases (1 stamina, flat) on your turn; off-turn purchases (escalating) in the window after every turn. Leaving a threatened square provokes an opportunity attack from each enemy threatening it unless the mover pays to avoid it. Every reading the packet leaves open (corners, reach lines, what threatens, window order, the per-square cap and the F9/F10/F14 options) is a switch in the Assumptions register in `sim/docs/ENGINE_PLAN.md`.
+
+Agents on a grid:
+- **Scripted** (`alpha`, `chipkill`, ...): approach their target with free movement, attack if they can, never move off-turn. Add `avoid = "worth_it" | "always" | "never"` and `oa = "max" | "never"` to a table spec.
+- **Tactical** (`"tactical"`, or `{ kind = "tactical", commit = "fixed:2", target = "lowest_stamina" }`): picks squares by how many enemies could engage it, keeps reach-weapon spacing, retreats off-turn when two or more could engage it (`retreat_engaged`) or when engaged with low stamina (`low_stamina = "1/3"`), and values avoidance exactly.
+
+Report positional results for both families: agent behavior can drive a result as much as the rules do. The variant switches Phase 4 asks about:
+
+```toml
+[ruleset]
+base = "v0.9"
+opportunity = { cap_rule = "weapon_base" }       # F9 option 1: cap = weapon base + odd FIN
+# opportunity = { avoid_price = "attacker_cap" } # F9 option 2
+# opportunity = { avoid_track = "off_turn" }     # F9 option 3 (or "off_turn_only")
+# opportunity = { per_square_cap = true }        # the packet's optional rule
+# opportunity = { avoid_debt = true }            # F14: avoidance paid from the next recovery
+# movement = { extra_squares = "one" }           # F10 option 1
+# movement = { extra_cap = "free_movement" }     # F10 option 2
+# off_turn = { order = "descending_initiative" } # F14: who moves first after a turn
+```
 
 From Python:
 
@@ -52,6 +82,7 @@ from stamina_engine.experiments.runner import run_scenario
 from stamina_engine.experiments.metrics import summarize
 from stamina_engine.experiments.sweep import compare
 from stamina_engine.analysis.strike import mirror_strike   # the opening full strike, exactly
+from stamina_engine.analysis.retreat import escape, table  # Addendum 2 retreat costs, exactly
 
 s = load_scenario("src/stamina_engine/data/scenarios/l1_duel.toml")
 print("\n".join(summarize(run_scenario(s, trials=500).fights).lines()))

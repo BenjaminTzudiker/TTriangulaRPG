@@ -56,6 +56,24 @@ class Spent(Event):
 
 
 @dataclass(frozen=True)
+class Indebted(Event):
+    """Part of a Spent paid without stamina (only avoidance, with opportunity.avoid_debt)."""
+
+    who: str
+    owed: int
+    debt_after: int
+
+
+@dataclass(frozen=True)
+class DebtPaid(Event):
+    """Recovery that went to paying off debt before any stamina came back."""
+
+    who: str
+    amount: int
+    debt_after: int
+
+
+@dataclass(frozen=True)
 class Recovered(Event):
     who: str
     amount: int
@@ -114,6 +132,56 @@ class AttackResolved(Event):
     leaked: int
     armor_applied: int
     injury: int
+
+
+@dataclass(frozen=True)
+class MapLoaded(Event):
+    """Grid battles only, right after BattleStarted (so all-adjacent logs are unchanged)."""
+
+    name: str
+    width: int
+    height: int
+    rows_sha256: str
+
+
+@dataclass(frozen=True)
+class Placed(Event):
+    who: str
+    pos: tuple[int, int]
+
+
+@dataclass(frozen=True)
+class Moved(Event):
+    who: str
+    frm: tuple[int, int]
+    to: tuple[int, int]
+    how: str  # free, extra (bought on turn) or off_turn
+
+
+@dataclass(frozen=True)
+class OpportunityProvoked(Event):
+    """The mover is leaving a square these enemies threaten (in the order they'd be asked)."""
+
+    mover: str
+    square: tuple[int, int]
+    enemies: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class OpportunityAvoided(Event):
+    mover: str
+    square: tuple[int, int]
+    enemies: tuple[str, ...]  # paid off for this square
+
+
+@dataclass(frozen=True)
+class OpportunityDeclared(Event):
+    """An OA's steps, declared and paid like an attack's (AttackDeclared is on-turn only)."""
+
+    attacker: str
+    target: str
+    weapon: str  # main or off_hand
+    steps: int
 
 
 @dataclass(frozen=True)

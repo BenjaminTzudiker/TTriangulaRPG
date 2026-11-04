@@ -146,6 +146,11 @@ STATE_FIELDS = {
     "turn_of",
     "version",
     "loadout",
+    "pos",
+    "free_move_left",
+    "banked",
+    "moving",
+    "debt",
 }
 ALLOWED = {"engine/stateops.py", "model/state.py"}
 

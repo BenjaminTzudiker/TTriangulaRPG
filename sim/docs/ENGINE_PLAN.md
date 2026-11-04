@@ -96,7 +96,7 @@ stamina_engine/
     geometry.py     distance metric, reach
     los.py          line of sight and 5e-style cover
     threat.py       cached threat maps
-    pathing.py      reachable sets, cost-aware A*
+    pathing.py      reachable sets, exact cheapest paths under an agent's cost model
   engine/
     battle.py       Battle = state + ruleset + rng + broker + log
     stateops.py     the only mutator; emits events
@@ -108,7 +108,9 @@ stamina_engine/
     decisions.py    DecisionRequest types, Observation
     broker.py       routing, validation, decision logging
     scripted.py     alpha, fixed_k, reserve, chip_kill, lookahead
+    grid_view.py    what an agent can work out about the grid from its observation
     tactical.py     grid-aware utility agent
+    listed.py       answers from lists given in advance (tests, worked examples)
     profiles.py     NPC aggression profiles (data-driven)
     search.py       expectimax / MCTS auditor (later)
     human_cli.py    ASCII map and prompts, with timing
@@ -425,14 +427,35 @@ When a pending row is ruled, or a ruled row changes, the same commit updates the
 | Per-die crit bonus (+N per crit die) | Dropped as a design candidate. Kept only as a parity component under `review-sim`, where it is added even when nothing gets past armor, as the review's simulator did | `crit` kind `per_die_bonus` | ruled 2026-11-03 |
 | Initiative ties | Reroll the tied creatures (the review's simulator gave ties to the first-listed combatant) | `turn_order.tiebreak` | pending designer |
 | Order of off-turn movement after a turn | Lowest initiative first; repeat passes until everyone passes | `off_turn.order` | pending designer |
+| Who and when in an off-turn window | After every turn that is taken, including an incapacitated creature's dying-roll turn (dead creatures take no turn, so there is no window). Every active creature may move, including the one whose turn just ended; only movement (drawing waits for M3). Order is over initiative positions, where ties are already broken; a creature that passed may move in a later pass; a creature with nowhere it can reach and afford isn't asked | `off_turn.order`, `off_turn.repeat_until_all_pass` | pending designer |
+| "Since the start of your last turn" before your first turn | Counts from the start of the fight | — | engine convention |
 | What a dive to half cover gives | Half cover; total cover counts as three-quarters, as written | `ranged.dive` | pending designer |
 | Diagonal movement and reach | Chebyshev: a diagonal is one square | `grid.metric` | ruled (confirmed for now) |
-| Moving through creatures | Through allies, not enemies; never end in an occupied square | `grid.occupancy` | pending designer |
+| Moving through creatures | Through allies, not enemies; a move never ends in an occupied square, so you can't stop in an ally's square between actions. Incapacitated and dead creatures still fill their square but anyone may pass through it; passing through costs nothing extra | `grid.occupancy`, `grid.bodies` | pending designer |
+| What threatens a square | Every ready melee weapon in the current loadout, main and off-hand, threatens its reach (so an off-hand dagger can make an OA under the default cap of 1 even when the longsword can't). A bow, a sheathed weapon or no weapon threatens nothing; unarmed threatens only with an unarmed proficiency, as for MD. Threat is geometric: it doesn't depend on whether the enemy can afford an OA. Incapacitated and dead creatures threaten nothing. An OA uses one ready melee weapon of the attacker's choice that reaches the square | — | pending designer |
+| Which weapon an on-turn attack uses | The main weapon, as in M1; the packet has no two-weapon attack rules | — | engine convention |
 | Creatures as cover | Half cover, as in 5e | `grid.creature_cover` | ruled (confirmed) |
-| Reach through walls | Needs a clear line from wielder to square | `grid.reach_needs_line` | pending designer |
-| When an OA lands during a multi-square move | On leaving each square, before entering the next | `opportunity.timing` | pending designer |
+| Reach through walls | Needs a clear line from wielder to square: the centre-to-centre segment doesn't pass through the inside of a wall or pillar square, and doesn't squeeze between two of them at a corner. Low walls, crates and creatures don't block reach, so a spear reaches over an ally. Reach uses the movement metric | `grid.reach_needs_line` | pending designer |
+| Diagonal steps past wall corners | Blocked only when both orthogonal neighbours are walls or pillars (no squeezing through a zero-width gap); creatures never block a diagonal. `free` and `no_cut` (blocked if either is) are the other values | `grid.corners` | pending designer |
+| What map terrain does (M2) | `#` walls and `o` pillars block movement, sight and reach; `=` low walls and crates block movement only (their cover arrives with ranged attacks in M3). Every creature fills one square; no difficult terrain; the map edge is a wall, so nobody leaves the map | map legend | pending designer |
+| When an OA lands during a multi-square move | On leaving each square, before entering the next: the mover is still in the square it is leaving. On each square left, the mover first decides which threatening enemies to pay off, not knowing who would attack; then each remaining enemy decides, in `off_turn.order` (lowest initiative first by default), each OA resolving before the next enemy decides | `opportunity.timing`, `off_turn.order` | pending designer |
+| Repeat OAs during one move | Each threatened square left is its own trigger, so an enemy may OA on every one (its cap is per OA, so escalation usually stops repeats); one OA per enemy per trigger. Entering reach doesn't provoke; leaving the first square inside reach does (stepping closer to a spear) | — | pending designer |
+| Paying off an enemy that couldn't OA | Allowed; it's a waste, not an error | — | pending designer |
+| A mover downed by an OA | It stays in the square it was leaving and the move ends; enemies left on that square aren't offered OAs (attacks on the incapacitated aren't offered). If that square is an ally's, the body shares it | — | pending designer |
+| The packet's optional per-square cap | One pooled cap per enemy per move: each square the mover leaves within your reach without paying you off adds 1 + odd FIN; an OA can spend what has built up minus what you already spent on that mover this move. So a FIN-0 spearman can pass at the first square and attack for 2 at the second (the packet's "up to 3 stamina" example only works pooled). Uses "leaves" (the packet), not "moves within" (the ledger) | `opportunity.per_square_cap` | pending designer |
+| Committing to a path | A move is a whole path, carried out square by square; it stops only if the mover is incapacitated or the fight ends. Agents re-plan by moving in shorter hops. Each move is one logged decision (F11) | — | engine convention |
+| Requests with one legal answer | Not asked: an avoidance request when the mover can't pay anyone, an OA request when no step fits the cap and stamina, an off-turn move request when nothing is reachable and affordable. Keeps all-adjacent logs identical to M1 | — | engine convention |
 | Diving out of a point-blank shooter's reach | Dive OAs resolve first, then blocks; point-blank OAs after the shot | `ranged.point_blank_order` | pending designer |
-| Paying to avoid OAs at 0 stamina | Not allowed (debt as the variant) | `opportunity.avoid_debt` | pending designer |
+| Paying to avoid OAs at 0 stamina | Not allowed. The debt variant (F14): only avoidance can be paid without stamina; the shortfall comes out of the next recovery before any stamina is regained, carrying over if larger; stamina never goes below 0 | `opportunity.avoid_debt` | pending designer |
+| Free squares before purchases | Purchases are only bought once the turn's free movement is used up (paying for free squares would be dominated) | — | engine convention |
+| A purchase gives N squares and you use fewer | On your turn the rest is kept for the turn and can be split around actions like free movement; off-turn, it lasts only for that move | `movement.leftover` | pending designer |
+| When a movement purchase is paid | When the move is declared, like an attack's steps: a move is one declared path, paid for before the mover sets off (so it is down that stamina even if an OA stops it), and nothing is paid for moves it hasn't declared yet. Between moves it can stop and re-plan; within one it can't, so agents that want to react square by square move in shorter hops | — | ruled 2026-11-03 |
+| Negative Agility and movement | No bonus: the odd count of a negative value is 0, as for Finesse | — | engine convention |
+| Purchases in one off-turn move | Any number; F14's "purchase cap" isn't in the packet | `off_turn.purchase_cap` (0 = none) | pending designer |
+| F9 option 1, cap from the weapon | `cap_rule = weapon_base`: cap = the OA weapon's base + odd FIN; escalation still counts against it; stacks with the per-square rule | `opportunity.cap_rule` | pending designer |
+| F9 option 2, avoidance at the attacker's cap | `avoid_price = attacker_cap`: each enemy denied costs its cap as its formula gives it, not reduced by its escalation or stamina (so the price reveals nothing hidden) | `opportunity.avoid_price` | pending designer |
+| F9 option 3, avoidance on the off-turn track | Each avoidance costs 1 + earlier off-turn costs and counts as one, so the third enemy slipped past costs 3. On your own turn this makes your post-turn window pricier, which conflicts with "your own on-turn movement and actions never make it pricier", so two values are built: `off_turn` (always) and `off_turn_only` (only when paid off-turn) | `opportunity.avoid_track` | pending designer |
+| F10 options | `extra_squares = one`: extra on-turn purchases move 1 square, off-turn purchases keep 1 + odd AGI (the chasers-win lever). `extra_cap = free_movement`: purchased squares per turn are at most your Movement, the last purchase cut short | `movement.extra_squares`, `movement.extra_cap` | pending designer |
 | Max stamina at negative HP | HP term floors at 0 | `resources.max_stamina` | engine convention |
 | Spear hands | One-handed, so a shield is allowed | weapon table | pending designer |
 | Where a Rogue's moved turn sits next round | Keeps the new slot | Rogue core parameter | pending designer |
@@ -470,7 +493,9 @@ When a pending row is ruled, or a ruled row changes, the same commit updates the
 | HP under hidden stamina | Wounds, and so HP, stay visible | — | pending designer |
 | Perfect-block count reset (F6 option 2) | v0.9 resets every attack (`per_attack`). F6's "reset per attacker per round" reads two ways, both built as named values: `per_attacker_round` (an attacker's later attacks in a round continue its count; in the review's 1v3, where each attacker attacks once, this changes nothing) and `per_round` (one count per defender per round, shared, which makes focus fire harder on the defender). Neither matches "directly targets focus fire", so the option's wording needs the designer | `blocks.reset` | pending designer |
 | Decision option counts (F11) | Commitment: 1 + max affordable steps; Blocks: affordable (perfect, grazing) pairs, plus the count not beaten on both stamina and injury | — | engine convention |
-| All-adjacent arena (M1) | Everyone threatens everyone; the off-turn window exists but offers nothing; no OAs. M2 replaces it with maps | scenario `arena` | engine convention |
+| All-adjacent arena (M1) | Everyone is in reach of everyone and there is nowhere to move, so no square is ever left and no OA is provoked. It stays the default for scenarios without a map (the parity runs); a scenario with `map` uses the grid | scenario `arena`, `map` | engine convention |
+| Scripted agents on a grid | They approach the chosen target by the cheapest path using free movement only (least avoidance exposure, then shortest), attack if in reach, and never move off-turn; an agent whose policy commits no steps stands still. Avoidance and OAs are spec fields: `avoid = worth_it` (pay off an enemy whose OA's expected cost, block stamina + w × injury, is more than the price) or `always` or `never`; `oa = max` or `never`. In the all-adjacent arena they behave exactly as in M1 | agent spec | engine convention |
+| Tactical agent v1 | Melee only: target by policy; attack from the reachable square with the fewest enemies able to engage it next turn (then least exposure, then shortest), buying movement only if its commitment stays affordable; after attacking, reach spacing (a reach weapon steps out of the target's reach) or a free-of-avoidance step to a less engaged square; off-turn, retreats when `retreat_engaged` (2) enemies could engage it, or one with stamina below `low_stamina` (1/3), to the square with the fewest engagers if strictly fewer and it costs at most half its stamina. Enemies' next-turn reach is free movement only, and their OAs are priced as if their off-turn track were empty (others' trackers aren't observed) | agent spec | engine convention |
 | Sweep and comparison seeds | Trial seeds key on (master seed, scenario and agent pairing, trial), not the RuleSet, so RuleSets are compared on the same dice | — | engine convention |
 
 Off-turn order can move headline numbers on its own (it decides who ends adjacent to whom), so it gets a sensitivity run in the phase suite until it is decided.
@@ -498,7 +523,7 @@ The engine is trusted only once it reproduces every worked example in the packet
 
 **3. Property tests** (`hypothesis`) over random builds, rule variants and decisions: stamina stays within 0 and max; trackers reset when the rules say; every charge equals the quote the agent saw; no incapacitated creature acts; a replayed log reproduces the battle; a RuleSet survives a round trip through TOML.
 
-**4. Geometry tests:** hand-drawn LOS and cover cases, including corner-grazing lines; threat maps with reach weapons and walls; path costs with avoidance payments.
+**4. Geometry tests:** hand-drawn reach lines, including lines that touch a corner or squeeze between two walls; steps around corners under each corner reading; threat maps with reach weapons and walls; path costs with avoidance payments; reachable sets against brute force (`tests/geometry/`, M2). LOS and cover for ranged attacks follow in M3.
 
 **5. Traceability.** Each rule component and procedure declares what it implements (`cites = ("Packet: Blocking", "Ledger MV-3")`). A generated report lists packet sections with no implementation or no test, so gaps show up when the packet changes.
 
@@ -512,7 +537,7 @@ Six milestones, each ending at a gate of known numbers, so the engine is useful 
 |---|---|---|---|
 | M0 Foundations | dice, RuleSet and registry, builds and derivation, Pricing, exchange resolution, block solver, exact calculators | Phase 0, Phase 1 (static) | Packet examples pass; Tables 1 and 8 match exactly; matches sim.py on random inputs |
 | M1 Turn engine, no movement | timeline, StateOps, events, broker, scripted policies, runner, sweeps, metrics, all-adjacent arena | Phases 1–3, first pass | Every fight behind Tables 2–4, 7, 9 and the Addendum grid identical to the oracle in lockstep; parity report beside the review's figures; same seed gives the same log |
-| M2 Grid and positioning | maps, threat, pathing, square-by-square movement, OAs, avoidance, off-turn windows, tactical agent v1 | Phases 3 and 4 | Addendum 2 retreat costs match; reach and 1v3 scenarios run; geometry tests pass |
+| M2 Grid and positioning | maps, threat, pathing, square-by-square movement, OAs, avoidance, off-turn windows, tactical agent v1 | Phases 3 and 4 | Packet movement and OA examples pass as battles; Addendum 2 retreat costs exact (calculator and played battle); geometry tests pass; 1v3 (open and corridor), reach-chokepoint and retreat scenarios run for both agent families, with the report; M1 lockstep parity still identical and all-adjacent logs unchanged apart from the digest; the broker never rejects an engine agent on random maps; pinned grid-battle hashes (ruled 2026-11-03) |
 | M3 Ranged | sight lines and cover, range bands, aim, dive window, point-blank OAs, drawing weapons, archer agent | Phase 5 | Table 5 static part matches; archer scenario on three maps |
 | M4 Equipment and NPC profiles | variant weapon and armor tables, NPC profiles, 3v3 integration scenario, report generator | Phase 6, F6 dial | Full phase suite in one command; reports print review layouts |
 | M5 Content hooks and load | abilities, strain and overage, class cores, System Shock, control-track stub, human CLI with timing, load report | Phases 7 and 8 | Class cores priced in sims; one human session logged |

@@ -4,7 +4,8 @@ Quotes are pure: they read the RuleSet and a Trackers snapshot and never change 
 Quote says what it costs and how far it moves the on-turn or off-turn track.
 """
 
-from dataclasses import dataclass
+from collections.abc import Iterator, Sequence
+from dataclasses import dataclass, replace
 from enum import Enum
 
 from stamina_engine.core.errors import Unaffordable
@@ -34,6 +35,9 @@ cites = (
     "Ledger MV-5",
     "Ledger EQ-3",
     "Ledger CR-5",
+    "Review F9",
+    "Review F10",
+    "Review F14",
 )
 
 
@@ -41,6 +45,7 @@ class Track(Enum):
     NONE = "none"
     ON_TURN = "on_turn"  # the on-turn surcharge (actions)
     OFF_TURN = "off_turn"  # the off-turn escalation track
+    EXTRA_MOVE = "extra_move"  # extra on-turn movement bought this turn (never escalates)
 
 
 @dataclass(frozen=True)
@@ -50,6 +55,7 @@ class Trackers:
     actions_this_turn: int = 0
     off_turn_costs: int = 0
     strain: int = 0
+    extra_purchases: int = 0  # extra on-turn movement purchases this turn (F10's cap variant)
 
 
 @dataclass(frozen=True)
@@ -69,18 +75,39 @@ class Quote:
 
     def after(self, trackers: Trackers) -> Trackers:
         """The trackers once this has been paid."""
+        n = self.advances
         if self.track is Track.ON_TURN:
-            return Trackers(
-                trackers.actions_this_turn + self.advances,
-                trackers.off_turn_costs,
-                trackers.strain,
-            )
+            return replace(trackers, actions_this_turn=trackers.actions_this_turn + n)
         if self.track is Track.OFF_TURN:
-            return Trackers(
-                trackers.actions_this_turn,
-                trackers.off_turn_costs + self.advances,
-                trackers.strain,
-            )
+            return replace(trackers, off_turn_costs=trackers.off_turn_costs + n)
+        if self.track is Track.EXTRA_MOVE:
+            return replace(trackers, extra_purchases=trackers.extra_purchases + n)
+        return trackers
+
+
+@dataclass(frozen=True)
+class MoveQuote:
+    """What moving some squares costs: free squares first, then squares already bought this
+    turn, then new purchases (each with its own quote, in order)."""
+
+    squares: int
+    free: int
+    banked: int
+    purchases: tuple[Quote, ...]
+    bought: tuple[int, ...]  # squares each purchase gives
+
+    @property
+    def total(self) -> int:
+        return sum(q.total for q in self.purchases)
+
+    @property
+    def leftover(self) -> int:
+        """Bought squares this move doesn't use."""
+        return sum(self.bought) - (self.squares - self.free - self.banked)
+
+    def after(self, trackers: Trackers) -> Trackers:
+        for q in self.purchases:
+            trackers = q.after(trackers)
         return trackers
 
 
@@ -131,9 +158,17 @@ class Pricing:
 
     # --- movement --------------------------------------------------------------------
 
-    def extra_movement(self) -> Quote:
-        """Always flat; not an action and not an off-turn cost."""
-        return Quote((self.rules.movement.extra_movement_cost(),))
+    def extra_movement(self, trackers: Trackers = FRESH) -> Quote:
+        """Always flat; not an action and not an off-turn cost. Its track only counts
+        purchases, for the variant that caps purchased movement."""
+        return Quote((self.rules.movement.extra_movement_cost(),), Track.EXTRA_MOVE)
+
+    def extra_purchase_squares(self, trackers: Trackers, movement: int, per_purchase: int) -> int:
+        """Squares the next extra on-turn purchase gives; 0 once the cap (if any) is reached."""
+        cap = self.rules.movement.extra_cap_squares(movement)
+        if cap is None:
+            return per_purchase
+        return max(0, min(per_purchase, cap - trackers.extra_purchases * per_purchase))
 
     def off_turn_purchase(self, trackers: Trackers, stamina: int | None = None) -> Quote:
         ot = self.rules.off_turn
@@ -141,6 +176,141 @@ class Pricing:
             Quote((ot.cost(ot.purchase_base(), trackers.off_turn_costs),), Track.OFF_TURN),
             stamina,
         )
+
+    def move(
+        self,
+        squares: int,
+        *,
+        on_turn: bool,
+        trackers: Trackers,
+        free_left: int = 0,
+        banked: int = 0,
+        movement: int = 0,
+        extra_squares: int = 1,
+        off_turn_squares: int = 1,
+        stamina: int | None = None,
+    ) -> MoveQuote:
+        """The price of moving `squares` squares now. On your turn: free movement, then
+        squares already bought, then extra purchases (flat). Off your turn: off-turn
+        purchases (escalating). Raises if a cap stops it or stamina (when given) is short."""
+        if squares < 0:
+            raise ValueError("squares must be at least 0")
+        free = min(squares, free_left) if on_turn else 0
+        use_bank = min(squares - free, banked) if on_turn else 0
+        rest = squares - free - use_bank
+        purchases: list[Quote] = []
+        bought: list[int] = []
+        t = trackers
+        cap = self.rules.off_turn.max_purchases()
+        while rest > 0:
+            if on_turn:
+                give = self.extra_purchase_squares(t, movement, extra_squares)
+                if give <= 0:
+                    raise Unaffordable(f"purchased movement is capped at {movement} squares")
+                q = self.extra_movement(t)
+            else:
+                if cap and len(purchases) >= cap:
+                    raise Unaffordable(f"at most {cap} off-turn purchases in one move")
+                give = off_turn_squares
+                q = self.off_turn_purchase(t)
+            purchases.append(q)
+            bought.append(give)
+            t = q.after(t)
+            rest -= give
+        quote = MoveQuote(squares, free, use_bank, tuple(purchases), tuple(bought))
+        if stamina is not None and quote.total > stamina:
+            raise Unaffordable(f"moving {squares} squares costs {quote.total}, {stamina} available")
+        return quote
+
+    def _purchases(
+        self,
+        *,
+        on_turn: bool,
+        trackers: Trackers,
+        movement: int,
+        extra_squares: int,
+        off_turn_squares: int,
+    ) -> Iterator[tuple[Quote, int]]:
+        """The purchases a move would make, in order: (quote, squares it gives), until a cap
+        stops them."""
+        t = trackers
+        cap = self.rules.off_turn.max_purchases()
+        made = 0
+        while True:
+            if on_turn:
+                give = self.extra_purchase_squares(t, movement, extra_squares)
+                if give <= 0:
+                    return
+                q = self.extra_movement(t)
+            else:
+                if cap and made >= cap:
+                    return
+                give = off_turn_squares
+                q = self.off_turn_purchase(t)
+            yield q, give
+            made += 1
+            t = q.after(t)
+
+    def max_move(
+        self,
+        *,
+        on_turn: bool,
+        trackers: Trackers,
+        stamina: int,
+        free_left: int = 0,
+        banked: int = 0,
+        movement: int = 0,
+        extra_squares: int = 1,
+        off_turn_squares: int = 1,
+        limit: int = 200,
+    ) -> int:
+        """The most squares affordable now (stopping at limit)."""
+        return (
+            len(
+                self.move_prices(
+                    on_turn=on_turn,
+                    trackers=trackers,
+                    stamina=stamina,
+                    free_left=free_left,
+                    banked=banked,
+                    movement=movement,
+                    extra_squares=extra_squares,
+                    off_turn_squares=off_turn_squares,
+                    limit=limit,
+                )
+            )
+            - 1
+        )
+
+    def move_prices(
+        self,
+        *,
+        on_turn: bool,
+        trackers: Trackers,
+        stamina: int,
+        free_left: int = 0,
+        banked: int = 0,
+        movement: int = 0,
+        extra_squares: int = 1,
+        off_turn_squares: int = 1,
+        limit: int = 200,
+    ) -> tuple[int, ...]:
+        """[n] = the stamina for moving n squares now, for every affordable n up to limit
+        (the same totals as move(n).total, computed in one pass)."""
+        prices = [0] * (min(limit, free_left + banked if on_turn else 0) + 1)
+        paid = 0
+        for q, give in self._purchases(
+            on_turn=on_turn,
+            trackers=trackers,
+            movement=movement,
+            extra_squares=extra_squares,
+            off_turn_squares=off_turn_squares,
+        ):
+            if len(prices) > limit or paid + q.total > stamina:
+                break
+            paid += q.total
+            prices.extend([paid] * min(give, limit + 1 - len(prices)))
+        return tuple(prices)
 
     # --- opportunity attacks ---------------------------------------------------------
 
@@ -162,9 +332,36 @@ class Pricing:
             raise Unaffordable(f"opportunity attack costs {quote.total}, cap is {cap}")
         return _ensure(quote, stamina)
 
-    def avoid_opportunity(self, enemies: int, stamina: int | None = None) -> Quote:
-        """1 per enemy for the square being left. Doesn't escalate or touch any track."""
-        return _ensure(Quote((self.rules.opportunity.avoid_cost(enemies),)), stamina)
+    def oa_cap(self, finesse: int, weapon_base: int) -> int:
+        """The most stamina one opportunity attack may cost (before the per-square rule)."""
+        return self.rules.opportunity.cap(finesse, weapon_base)
+
+    def avoid_opportunity(
+        self,
+        enemies: int,
+        stamina: int | None = None,
+        *,
+        caps: Sequence[int] | None = None,
+        trackers: Trackers = FRESH,
+        on_turn: bool = True,
+    ) -> Quote:
+        """Deny `enemies` enemies their OA for the square being left: one part each. As
+        written, 1 each, never escalating and on no track. Variants price each at that
+        enemy's cap (caps, in the same order) and put avoidance on the off-turn track.
+        With avoid_debt, a shortfall is allowed (StateOps takes it from the next recovery)."""
+        rule = self.rules.opportunity
+        bases = [rule.avoid_part(caps[i] if caps is not None else 0) for i in range(enemies)]
+        if rule.avoid_on_track(on_turn):
+            ot = self.rules.off_turn
+            earlier = trackers.off_turn_costs
+            quote = Quote(
+                tuple(ot.cost(b, earlier + i) for i, b in enumerate(bases)), Track.OFF_TURN
+            )
+        else:
+            quote = Quote(tuple(bases))
+        if rule.allows_debt():
+            return quote
+        return _ensure(quote, stamina)
 
     # --- blocks ----------------------------------------------------------------------
 

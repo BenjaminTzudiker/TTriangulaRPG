@@ -4,6 +4,7 @@ import copy
 from dataclasses import dataclass, field
 from enum import Enum
 
+from stamina_engine.grid.battlefield import Cell
 from stamina_engine.model.derive import CombatProfile, LoadoutProfile
 from stamina_engine.rules.components.dying import DyingState
 from stamina_engine.rules.pricing import Trackers
@@ -28,6 +29,10 @@ class CombatantState:
     damage_taken: list[int] = field(default_factory=list)
     # Perfect blocks already made, keyed by (attacker, round), for block-reset variants.
     perfect_blocks: dict[tuple[str, int], int] = field(default_factory=dict)
+    pos: Cell | None = None  # None in the all-adjacent arena
+    free_move_left: int = 0  # free squares left this turn
+    banked: int = 0  # squares bought this turn and not yet used (on-turn purchases)
+    debt: int = 0  # avoidance paid without stamina, owed from the next recovery (F14 variant)
 
     @property
     def hp(self) -> int:
@@ -56,6 +61,7 @@ class BattleState:
     round: int = 0
     order: tuple[str, ...] = ()  # initiative order, highest first
     turn_of: str | None = None
+    moving: str | None = None  # a creature mid-move may share an ally's square
     version: int = 0
 
     def get(self, cid: str) -> CombatantState:
@@ -66,6 +72,9 @@ class BattleState:
 
     def enemies_of(self, c: CombatantState) -> tuple[CombatantState, ...]:
         return tuple(o for o in self.combatants if o.team != c.team)
+
+    def at(self, cell: Cell) -> tuple[CombatantState, ...]:
+        return tuple(c for c in self.combatants if c.pos == cell)
 
     def teams(self) -> tuple[str, ...]:
         return tuple(dict.fromkeys(c.team for c in self.combatants))

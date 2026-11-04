@@ -1,14 +1,26 @@
 """Rounds, initiative and the turn loop (Packet: Starting Combat and Turn Structure)."""
 
-from stamina_engine.agents.decisions import EndTurn, TurnCommand
+import hashlib
+
+from stamina_engine.agents.decisions import Attack, EndTurn, Move, TurnCommand
 from stamina_engine.core.dice import roll
 from stamina_engine.engine.battle import Battle, BattleResult
-from stamina_engine.engine.events import BattleEnded, BattleStarted, InitiativeRolled, RoundStarted
+from stamina_engine.engine.events import (
+    BattleEnded,
+    BattleStarted,
+    InitiativeRolled,
+    MapLoaded,
+    RoundStarted,
+)
 from stamina_engine.engine.procedures.melee import melee_attack
+from stamina_engine.engine.procedures.movement import move, move_options
+from stamina_engine.engine.procedures.off_turn import off_turn_window
 from stamina_engine.model.state import CombatantState, Status
 
 cites = (
     "Packet: Starting Combat and Turn Structure",
+    "Packet: On-Turn Movement",
+    "Packet: Off-Turn Movement",
     "Packet: Stamina",
     "Packet: Dying and Death",
     "Ledger CB-9",
@@ -81,31 +93,52 @@ def take_turn(b: Battle, c: CombatantState) -> None:
 
 
 def command_loop(b: Battle, c: CombatantState) -> None:
-    """Move and act in any order until the agent ends the turn. M1 offers melee attacks."""
-    while True:
+    """Move and act in any order until the agent ends the turn (Packet: Starting Combat and
+    Turn Structure: movement can be split up around actions)."""
+    while c.active:
         answer = b.broker.turn_command(
-            TurnCommand(c.id, b.observe(c.id), b.context.path(), targets(b, c))
+            TurnCommand(
+                c.id,
+                b.observe(c.id),
+                b.context.path(),
+                targets(b, c),
+                move_options(b, c, on_turn=True),
+            )
         )
         if isinstance(answer, EndTurn):
             return
-        melee_attack(b, c, b.state.get(answer.target))
+        if isinstance(answer, Move):
+            move(b, c, answer.path, on_turn=True)
+        elif isinstance(answer, Attack):
+            melee_attack(b, c, b.state.get(answer.target))
         if b.outcome is not None:
             return
 
 
 def targets(b: Battle, c: CombatantState) -> tuple[str, ...]:
-    """Active enemies in reach (everyone, in the all-adjacent arena), if a step is affordable."""
+    """Active enemies in the main weapon's reach (everyone, in the all-adjacent arena), if a
+    step is affordable. On-turn attacks use the main weapon, as in M1."""
     weapon = c.gear.weapon
     if weapon is None or weapon.ranged:
         return ()
     if b.pricing.melee_attack(weapon.base, 1, c.trackers).total > c.stamina:
         return ()
-    return tuple(o.id for o in b.state.enemies_of(c) if o.active)
+    return tuple(
+        o.id for o in b.state.enemies_of(c) if o.active and b.arena.in_reach(b.state, c, o, weapon)
+    )
 
 
-def off_turn_window(b: Battle, c: CombatantState) -> None:
-    """After any creature's turn, anyone may buy off-turn movement. No arena in M1 gives
-    movement anywhere to go, so the window offers nothing yet (M2)."""
+def place_everyone(b: Battle) -> None:
+    """On a map: record the map, then put each creature on its starting square."""
+    if b.field is None:
+        return
+    rows = "\n".join(b.field.rows).encode()
+    b.ops.emit(
+        MapLoaded(b.field.name, b.field.width, b.field.height, hashlib.sha256(rows).hexdigest())
+    )
+    for e in b.entrants:
+        assert e.pos is not None
+        b.ops.place(b.state.get(e.id), e.pos)
 
 
 def run_battle(b: Battle) -> BattleResult:
@@ -118,6 +151,7 @@ def run_battle(b: Battle) -> BattleResult:
             b.dice_mode,
         )
     )
+    place_everyone(b)
     order = roll_initiative(b)
     b.check_end()  # a side with no one able to fight has already lost
     round_ = 0

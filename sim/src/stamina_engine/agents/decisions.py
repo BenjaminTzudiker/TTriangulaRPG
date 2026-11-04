@@ -4,14 +4,25 @@ Agents see the battle only through these: an Observation filtered by the informa
 the legal options with their Pricing quotes, and the timing context.
 """
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Protocol
 
+from stamina_engine.grid.battlefield import Battlefield, Cell
 from stamina_engine.model.derive import CombatProfile, LoadoutProfile
 from stamina_engine.rules.exchange import Blocks
 from stamina_engine.rules.pricing import Quote, Trackers
 
-cites = ("Packet: Commitment", "Packet: Attack Procedure", "Packet: Blocking", "Review F11")
+cites = (
+    "Packet: Commitment",
+    "Packet: Attack Procedure",
+    "Packet: Blocking",
+    "Packet: On-Turn Movement",
+    "Packet: Off-Turn Movement",
+    "Packet: Avoiding Opportunity Attacks",
+    "Packet: Making Opportunity Attacks",
+    "Review F11",
+)
 
 
 @dataclass(frozen=True)
@@ -26,6 +37,9 @@ class CombatantView:
     stamina_exact: bool  # False when stamina is an estimate
     status: str
     trackers: Trackers | None  # only for the observer itself
+    pos: Cell | None = None  # positions are public; None in the all-adjacent arena
+    free_move_left: int | None = None  # only for the observer itself
+    banked: int | None = None  # only for the observer itself
 
 
 @dataclass(frozen=True)
@@ -33,6 +47,8 @@ class Observation:
     me: CombatantView
     others: tuple[CombatantView, ...]
     round: int
+    field: Battlefield | None = None  # the map; None in the all-adjacent arena
+    order: tuple[str, ...] = ()  # initiative order
 
     def view(self, cid: str) -> CombatantView:
         if cid == self.me.id:
@@ -50,17 +66,36 @@ class Observation:
 
 
 @dataclass(frozen=True)
+class MoveOptions:
+    """Where a creature can move right now. A path is any sequence of legal steps that ends
+    on one of the destinations, at most max_squares long; it costs price_by_length[len]."""
+
+    start: Cell
+    on_turn: bool
+    max_squares: int
+    price_by_length: tuple[int, ...]  # [n] = stamina for n squares, n = 0..max_squares
+    destinations: Mapping[Cell, int]  # squares it could end on -> fewest squares to get there
+    no_entry: frozenset[Cell]  # squares it can't enter (enemies, as the rules have it)
+    no_stop: frozenset[Cell]  # squares it can pass but not end on (occupied)
+
+    @property
+    def option_count(self) -> int:
+        return len(self.destinations)
+
+
+@dataclass(frozen=True)
 class TurnCommand:
-    """Each loop of a creature's own turn: attack a target in reach, or end the turn."""
+    """Each loop of a creature's own turn: move, attack a target in reach, or end the turn."""
 
     who: str
     observation: Observation
     context: tuple[str, ...]
     targets: tuple[str, ...]  # active enemies it can attack, with at least one step affordable
+    moves: MoveOptions | None = None  # None when it can't move (or there's no map)
 
     @property
     def option_count(self) -> int:
-        return len(self.targets) + 1
+        return len(self.targets) + 1 + (self.moves.option_count if self.moves else 0)
 
 
 @dataclass(frozen=True)
@@ -73,7 +108,88 @@ class EndTurn:
     pass
 
 
-TurnAnswer = Attack | EndTurn
+@dataclass(frozen=True)
+class Move:
+    path: tuple[Cell, ...]  # the squares entered, in order
+
+
+@dataclass(frozen=True)
+class Pass:
+    pass
+
+
+TurnAnswer = Attack | Move | EndTurn
+MoveAnswer = Move | Pass
+
+
+@dataclass(frozen=True)
+class OffTurnMove:
+    """In an off-turn window: move (with off-turn purchases), or pass."""
+
+    who: str
+    observation: Observation
+    context: tuple[str, ...]
+    moves: MoveOptions
+
+    @property
+    def option_count(self) -> int:
+        return self.moves.option_count + 1
+
+
+@dataclass(frozen=True)
+class AvoidOA:
+    """Leaving a threatened square: which threatening enemies to pay off for this square.
+    The mover decides before any of them says whether it would attack."""
+
+    who: str
+    observation: Observation
+    context: tuple[str, ...]
+    leaving: Cell
+    enemies: tuple[str, ...]  # threatening enemies, in the order they would be asked
+    caps: tuple[int, ...]  # each enemy's OA cap here (prices avoidance under some variants)
+    on_turn: bool
+    trackers: Trackers
+    stamina: int
+    affordable: int  # how many subsets of enemies it can pay for (F11)
+
+    @property
+    def option_count(self) -> int:
+        return self.affordable
+
+
+@dataclass(frozen=True)
+class Avoid:
+    enemies: tuple[str, ...] = ()  # the enemies paid off, in the request's order
+
+
+@dataclass(frozen=True)
+class OAOption:
+    weapon: str  # "main" or "off_hand"
+    name: str
+    quotes: tuple[Quote, ...]  # quotes[k - 1] is the price of k steps, all within the cap
+
+
+@dataclass(frozen=True)
+class TakeOA:
+    """An enemy left a square you threaten: attack it with steps within your cap, or not."""
+
+    who: str
+    observation: Observation
+    context: tuple[str, ...]
+    target: str
+    leaving: Cell
+    cap: int
+    options: tuple[OAOption, ...]  # one per ready melee weapon that reaches the square
+
+    @property
+    def option_count(self) -> int:
+        return 1 + sum(len(o.quotes) for o in self.options)
+
+
+@dataclass(frozen=True)
+class OATake:
+    weapon: str = "main"
+    steps: int = 0  # 0 declines
 
 
 @dataclass(frozen=True)
@@ -125,6 +241,12 @@ class Agent(Protocol):
 
     def blocks(self, request: BlocksRequest) -> Blocks: ...
 
+    def off_turn_move(self, request: OffTurnMove) -> MoveAnswer: ...
+
+    def avoid(self, request: AvoidOA) -> Avoid: ...
+
+    def take_oa(self, request: TakeOA) -> OATake: ...
+
 
 @dataclass(frozen=True)
 class DecisionRecord:
@@ -132,7 +254,7 @@ class DecisionRecord:
 
     round: int
     who: str
-    kind: str  # turn_command, commitment, blocks
+    kind: str  # turn_command, commitment, blocks, off_turn_move, avoid, take_oa
     option_count: int
     nondominated: int | None
     answer: str

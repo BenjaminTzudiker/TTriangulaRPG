@@ -21,6 +21,20 @@ class OffTurnRule(Component):
     def purchase_base(self) -> int:
         raise NotImplementedError
 
+    def max_purchases(self) -> int:
+        """Most purchases in one off-turn move; 0 for no cap."""
+        raise NotImplementedError
+
+    def windows_open(self) -> bool:
+        """False reproduces the review's duels, which had no off-turn movement."""
+        raise NotImplementedError
+
+    def order_mode(self) -> str:
+        raise NotImplementedError
+
+    def repeats(self) -> bool:
+        raise NotImplementedError
+
 
 @register("off_turn", "escalation")
 @dataclass(frozen=True)
@@ -35,9 +49,22 @@ class Escalation(OffTurnRule):
     order: str = "ascending_initiative"
     repeat_until_all_pass: bool = True
     enabled: bool = True
+    purchase_cap: int = 0  # most purchases in one off-turn move; 0 means no cap (as written)
 
     def cost(self, base: int, earlier_costs: int) -> int:
         return base + self.slope * earlier_costs
 
     def purchase_base(self) -> int:
         return self.movement_base
+
+    def max_purchases(self) -> int:
+        return self.purchase_cap
+
+    def windows_open(self) -> bool:
+        return self.enabled
+
+    def order_mode(self) -> str:
+        return self.order
+
+    def repeats(self) -> bool:
+        return self.repeat_until_all_pass

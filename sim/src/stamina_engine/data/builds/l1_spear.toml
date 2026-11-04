@@ -1,0 +1,6 @@
+# The sample fighter with a spear (reach 2) instead of a longsword: one-handed with a shield,
+# as the Assumptions register reads the spear's TODO hands. OA cap 2 (FIN 1).
+level = 1
+attributes = { STR = 2, AGI = 1, FIN = 1 }
+cores = ["fighter"]
+loadouts.main = { weapon = "spear", grip = "one", off_hand = "shield", armor = "medium" }

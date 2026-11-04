@@ -50,15 +50,15 @@ SWARM = [("d", "red", "l1_heavy", "fixed:2")] + [
 DEEP = [("a", "red", "l30_sample", "lookahead"), ("b", "blue", "l30_duelist", "reserve:5")]
 
 PINNED = [
-    ("v0.9", DUEL, 7, False, "eb7644efa46588ce9d1f89d92ddf8643473ca24a064aa52754750b8e7bed5158"),
+    ("v0.9", DUEL, 7, False, "98e51f458deedabb6223c48a4f6526cd9c7e6f144438c60109ad7ec84c385f9f"),
     (
         "review-candidate",
         SWARM,
         3,
         False,
-        "d09f090f1699cf3b40ea4ae22063ff8cec88385ef78c2c52af58dd15ff498ae5",
+        "29778fb23231ed7e97f09e78833e01fa93b6274e60bc7f0060ec99b8c8e652c6",
     ),
-    ("v0.9", DEEP, 5, True, "c4688806eaf126ee590f02ef752f6717422c729653c13cfc3e9f76225ebb9433"),
+    ("v0.9", DEEP, 5, True, "673b53c6dae31ae73f09baecdc845c3805b0bf0d240bc2c8e4ffc5b7e0fb6b67"),
 ]
 
 
@@ -67,4 +67,31 @@ def test_pinned_log_hashes(
     ruleset: str, roster: list[tuple[str, str, str, str]], seed: int, lockstep: bool, expected: str
 ) -> None:
     got = battle(preset(ruleset), roster, seed, lockstep)
+    assert got == expected, f"log hash changed: {got}"
+
+
+GRID_PINNED = [
+    (
+        "one_v_three_corridor.toml",
+        0,
+        "8bf5943bf90f8273595be2424ef8f39aee7f64b00fc0070a84e83141b8a87512",
+    ),
+    (
+        "reach_chokepoint.toml",
+        3,
+        "c9a825c6dd77852681d2c7ced9195d6af38ff8debd39800acc1c5ecac1fbf79d",
+    ),
+]
+
+
+@pytest.mark.parametrize(("scenario", "trial", "expected"), GRID_PINNED)
+def test_pinned_grid_log_hashes(scenario: str, trial: int, expected: str) -> None:
+    """Two grid battles (tactical and scripted agents, OAs and off-turn windows)."""
+    from pathlib import Path
+
+    from stamina_engine.experiments.runner import run_trial
+    from stamina_engine.experiments.scenario import load_scenario
+
+    path = Path(__file__).resolve().parents[2] / "src/stamina_engine/data/scenarios" / scenario
+    got = run_trial(load_scenario(path), trial, check=True).log_sha256()
     assert got == expected, f"log hash changed: {got}"

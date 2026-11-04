@@ -1,0 +1,40 @@
+# Review Addendum 2 and phase suite item 6: a fleer and a chaser start adjacent, two
+# against two. The fleer's ally holds a line 6 squares back; the chaser's second follows.
+# The tactical fleer retreats as soon as one enemy can engage it (retreat_engaged = 1).
+# Scripted chasers close with free movement only; give them a tactical spec to make them
+# buy extra movement (which is what Review F10's options change).
+[scenario]
+name = "retreat-economics"
+ruleset = "v0.9"
+map = "retreat_line"
+round_cap = 30
+trials = 500
+seed = 20261103
+
+[[combatant]]
+id = "F"
+team = "line"
+build = "l1_sample"
+spawn = "F"
+agent = { kind = "tactical", commit = "fixed:2", retreat_engaged = 1 }
+
+[[combatant]]
+id = "A"
+team = "line"
+build = "l1_sample"
+spawn = [4, 4]
+agent = "fixed:2"
+
+[[combatant]]
+id = "C"
+team = "chasers"
+build = "l1_sample"
+spawn = "C"
+agent = "alpha"
+
+[[combatant]]
+id = "B"
+team = "chasers"
+build = "l1_sample"
+spawn = "B"
+agent = "alpha"

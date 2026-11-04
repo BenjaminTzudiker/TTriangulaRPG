@@ -31,6 +31,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field, replace
 from fractions import Fraction
 
+from stamina_engine.agents.ability_policy import AbilityPolicy, is_riposte
 from stamina_engine.agents.blocking import solver_blocks
 from stamina_engine.agents.decisions import (
     AbilityRequest,
@@ -98,6 +99,7 @@ class TacticalAgent:
     reach_spacing: bool = True
     flee_below: Fraction = Fraction(0)  # at or below this fraction of max HP, head for an exit
     surrender_below: Fraction = Fraction(0)  # ...and surrender when engaged (0: never)
+    abilities: AbilityPolicy | None = None  # None: pass every ability window
     _pending: int = field(default=0, init=False)
     _plan: tuple[int, str] = field(default=(-1, ""), init=False)  # (round, stage) this turn
 
@@ -173,6 +175,10 @@ class TacticalAgent:
 
     def turn_command(self, request: TurnCommand) -> TurnAnswer:
         obs = request.observation
+        if self.abilities is not None and request.abilities:
+            use = self.abilities.on_turn(obs, request.abilities)
+            if use is not None:
+                return use
         if obs.field is None:  # the all-adjacent arena: attack, as a scripted agent would
             return self._attack_in_place(request)
         board = Board(obs, self.rules)
@@ -476,6 +482,8 @@ class TacticalAgent:
         return avoid_worth_it(request, self.rules, self.w)
 
     def take_oa(self, request: TakeOA) -> OATake:
+        if self.abilities is None and is_riposte(request.context):
+            return OATake()
         return largest_oa(request)
 
     def aim(self, request: AimRequest) -> int:
@@ -573,11 +581,17 @@ class TacticalAgent:
         return cost
 
     def ability(self, request: AbilityRequest) -> UseAbility | Pass:
-        return Pass()
+        if self.abilities is None:
+            return Pass()
+        return self.abilities.at_window(request, self._pending)
 
     def dive(self, request: DiveRequest) -> MoveAnswer:
         """Dive if the roll, blocked from the best reachable cover, saves more than the move
         costs (its purchases, plus 1 per enemy threatening each square it leaves)."""
+        if self.abilities is not None:
+            step = self.abilities.withdrawal_move(request)
+            if step is not None:
+                return step
         obs = request.observation
         if obs.field is None:
             return Pass()

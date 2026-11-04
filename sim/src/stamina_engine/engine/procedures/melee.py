@@ -108,7 +108,11 @@ def reactions(
     Returns True if the attack is avoided."""
     if attack is None or weapon is None or not target.active:
         return False
-    facts: dict[str, int | str] = {"attacker": attacker.id, "damage": attack.total}
+    facts: dict[str, int | str] = {
+        "attacker": attacker.id,
+        "damage": attack.total,
+        "crit_dice": attack.crit_dice,
+    }
     if abilities.window(b, target, "reactions", facts) != "tactical_withdrawal":
         return False
     from stamina_engine.agents.decisions import DiveRequest, Move

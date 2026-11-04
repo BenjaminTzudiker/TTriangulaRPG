@@ -84,7 +84,13 @@ MONK = register(
 
 
 def _rogue_can(b: "Battle", c: "CombatantState", window: str, facts: Facts) -> bool:
-    return c.id not in b.state.acted
+    """Between turns: jump in if it hasn't acted (or come back if waiting). At its turn's
+    start: wait, unless it's the last turn left in the round."""
+    if c.id in b.state.acted:
+        return False
+    if window == "turn_start":
+        return bool(facts.get("later", 0))
+    return True
 
 
 ROGUE = register(

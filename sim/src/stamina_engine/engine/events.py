@@ -244,6 +244,24 @@ class OrderChanged(Event):
 
 
 @dataclass(frozen=True)
+class AttackAvoided(Event):
+    """The target got out of the attacker's reach before blocks (Tactical Withdrawal)."""
+
+    attacker: str
+    target: str
+
+
+@dataclass(frozen=True)
+class ControlChanged(Event):
+    """A control effect's progress on a creature (the control-track stub, Ledger H-4)."""
+
+    who: str
+    effect: str
+    progress: int
+    by: str  # who moved it: the source, or the creature resisting
+
+
+@dataclass(frozen=True)
 class BattleEnded(Event):
     reason: str  # side_out, round_cap
     winner: str | None  # winning team, or None for a draw

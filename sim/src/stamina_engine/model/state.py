@@ -37,6 +37,7 @@ class CombatantState:
     debt: int = 0  # avoidance paid without stamina, owed from the next recovery (F14 variant)
     out: str | None = None  # "fled" or "surrendered": out of the fight without going down
     step_costs: list[int] = field(default_factory=list)  # attack steps paid this turn, unrefunded
+    control: dict[str, int] = field(default_factory=dict)  # control effects' progress (stub)
     used_weapon: bool = False  # used a weapon this turn: drawing on your turn now costs
     bow_hands: bool = (
         False  # shot a bow this turn: no normal weapon into those hands until your next turn
@@ -73,6 +74,7 @@ class BattleState:
     turn_of: str | None = None
     moving: str | None = None  # a creature mid-move may share an ally's square
     acted: frozenset[str] = frozenset()  # creatures that have taken their turn this round
+    delayed: frozenset[str] = frozenset()  # Rogues waiting to take their turn this round
     version: int = 0
 
     def get(self, cid: str) -> CombatantState:

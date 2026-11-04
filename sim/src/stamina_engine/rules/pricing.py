@@ -145,10 +145,12 @@ class Pricing:
         trackers: Trackers = FRESH,
         stamina: int | None = None,
         light: bool = False,
+        extra: int = 0,
     ) -> Quote:
-        """k attack steps, declared and paid together. Raises if stamina is given and short."""
+        """k attack steps, declared and paid together. Raises if stamina is given and short.
+        extra is added to every step (Heavy Swing's +1)."""
         prior = trackers.actions_this_turn
-        parts = tuple(self.melee_step(base, prior + i, light) for i in range(steps))
+        parts = tuple(self.melee_step(base, prior + i, light) + extra for i in range(steps))
         return _ensure(Quote(parts, Track.ON_TURN), stamina)
 
     def max_steps(

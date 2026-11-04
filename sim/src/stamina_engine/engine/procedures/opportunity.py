@@ -71,7 +71,9 @@ def _weapons(attacker: CombatantState) -> list[tuple[str, WeaponProfile]]:
 
 
 def _reaching(b: Battle, attacker: CombatantState, square: Cell) -> list[tuple[str, WeaponProfile]]:
-    if b.field is None or attacker.pos is None:
+    if b.field is None:
+        return _weapons(attacker)  # all-adjacent: everyone is in reach (only Riposte gets here)
+    if attacker.pos is None:
         return []
     return [
         (slot, w)

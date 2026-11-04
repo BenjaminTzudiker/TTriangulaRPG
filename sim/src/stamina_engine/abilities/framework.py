@@ -102,10 +102,18 @@ def options(
         a = REGISTRY.get(name)
         if a is None or window not in a.windows or not a.usable(b, c, window, facts):
             continue
-        quote = b.pricing.strain_ability(a.stamina, a.strain, c.trackers, c.profile.strain_max)
+        strain = _strain(b, c, a)
+        quote = b.pricing.strain_ability(a.stamina, strain, c.trackers, c.profile.strain_max)
         if quote.total <= c.stamina:
-            out.append(AbilityOption(a.name, quote, a.strain))
+            out.append(AbilityOption(a.name, quote, strain))
     return tuple(out)
+
+
+def _strain(b: "Battle", c: "CombatantState", a: Ability) -> int:
+    """A Rogue that already paid to wait chooses when to come back for free."""
+    if a.name == "rogue_core" and c.id in b.state.delayed:
+        return 0
+    return a.strain
 
 
 def use(
@@ -113,11 +121,12 @@ def use(
 ) -> None:
     """Pay for and apply an ability the broker has already allowed."""
     a = known(name)
-    quote = b.pricing.strain_ability(a.stamina, a.strain, c.trackers, c.profile.strain_max)
+    strain = _strain(b, c, a)
+    quote = b.pricing.strain_ability(a.stamina, strain, c.trackers, c.profile.strain_max)
     with b.context.frame(f"ability {c.id} {name}"):
         if quote.total:
             b.ops.spend(c, quote, f"ability:{name}")
-        b.ops.ability_used(c, name, window, a.strain)
+        b.ops.ability_used(c, name, window, strain)
         a.apply(b, c, window, facts or {})
 
 

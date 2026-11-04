@@ -176,12 +176,16 @@ class Pricing:
     # --- movement --------------------------------------------------------------------
 
     def extra_movement(self, trackers: Trackers = FRESH) -> Quote:
-        """Always flat; not an action and not an off-turn cost. Its track only counts
-        purchases, for the variant that caps purchased movement."""
-        return Quote((self.rules.movement.extra_movement_cost(),), Track.EXTRA_MOVE)
+        """Flat as written (v0.9); not an action and not an off-turn cost. Its track counts
+        purchases, for the capped and escalating variants (movement.extra_cap, extra_mode)."""
+        cost = self.rules.movement.extra_movement_cost(trackers.extra_purchases)
+        return Quote((cost,), Track.EXTRA_MOVE)
 
     def extra_purchase_squares(self, trackers: Trackers, movement: int, per_purchase: int) -> int:
-        """Squares the next extra on-turn purchase gives; 0 once the cap (if any) is reached."""
+        """Squares the next extra on-turn purchase gives; 0 once the cap (if any) is reached,
+        and 0 under movement.extra_mode = none."""
+        if not self.rules.movement.extra_allowed():
+            return 0
         cap = self.rules.movement.extra_cap_squares(movement)
         if cap is None:
             return per_purchase

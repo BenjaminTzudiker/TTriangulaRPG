@@ -24,6 +24,11 @@ class MovementRule(Component):
         # Unused squares of an on-turn purchase: kept for the rest of the turn, or lost when
         # that move ends. Off-turn squares always last only for their move.
         "leftover": frozenset({"turn", "move"}),
+        # Extra on-turn purchases (Review F10, movement experiments): "flat" prices every
+        # purchase at extra_cost (v0.9); "escalating" prices the nth purchase this turn at
+        # extra_cost + extra_slope x (n - 1); "none" removes extra on-turn movement, so
+        # moving beyond your free Movement before your next turn means off-turn purchases.
+        "extra_mode": frozenset({"flat", "escalating", "none"}),
     }
 
     def free_movement(self, agility: int) -> int:
@@ -41,7 +46,12 @@ class MovementRule(Component):
         """The most squares you can buy on one turn, or None for no cap."""
         raise NotImplementedError
 
-    def extra_movement_cost(self) -> int:
+    def extra_movement_cost(self, purchases_made: int = 0) -> int:
+        """Cost of the next extra on-turn purchase, given how many were made this turn."""
+        raise NotImplementedError
+
+    def extra_allowed(self) -> bool:
+        """False removes extra on-turn movement altogether."""
         raise NotImplementedError
 
     def keeps_leftover(self) -> bool:
@@ -59,6 +69,8 @@ class V09Movement(MovementRule):
     extra_squares: str = "agility"
     extra_cap: str = "none"
     leftover: str = "turn"
+    extra_mode: str = "flat"
+    extra_slope: int = 1
 
     def free_movement(self, agility: int) -> int:
         return self.free_base + odd_count(agility)
@@ -74,8 +86,13 @@ class V09Movement(MovementRule):
     def extra_cap_squares(self, movement: int) -> int | None:
         return movement if self.extra_cap == "free_movement" else None
 
-    def extra_movement_cost(self) -> int:
+    def extra_movement_cost(self, purchases_made: int = 0) -> int:
+        if self.extra_mode == "escalating":
+            return self.extra_cost + self.extra_slope * purchases_made
         return self.extra_cost
+
+    def extra_allowed(self) -> bool:
+        return self.extra_mode != "none"
 
     def keeps_leftover(self) -> bool:
         return self.leftover == "turn"

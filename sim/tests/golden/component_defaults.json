@@ -55,6 +55,8 @@
   "movement/v0_9": {
     "extra_cap": "none",
     "extra_cost": 1,
+    "extra_mode": "flat",
+    "extra_slope": 1,
     "extra_squares": "agility",
     "free_base": 5,
     "leftover": "turn",
@@ -66,6 +68,8 @@
     "order": "ascending_initiative",
     "purchase_cap": 0,
     "repeat_until_all_pass": true,
+    "restart_after_move": false,
+    "scope": "all",
     "slope": 1
   },
   "opportunity/v0_9": {

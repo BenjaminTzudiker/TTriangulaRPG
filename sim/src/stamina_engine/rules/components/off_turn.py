@@ -13,7 +13,13 @@ class OffTurnRule(Component):
         "Ledger MV-2",
         "Ledger MV-4",
     )
-    allowed = {"order": frozenset({"ascending_initiative", "descending_initiative"})}
+    allowed = {
+        "order": frozenset({"ascending_initiative", "descending_initiative"}),
+        # Who is asked in the window after a turn: everyone (as written), or everyone except
+        # the allies of the creature whose turn just ended (you still move after your own
+        # turn and after an enemy's). A decision-load experiment, not a packet reading.
+        "scope": frozenset({"all", "not_after_allies"}),
+    }
 
     def cost(self, base: int, earlier_costs: int) -> int:
         raise NotImplementedError
@@ -35,6 +41,16 @@ class OffTurnRule(Component):
     def repeats(self) -> bool:
         raise NotImplementedError
 
+    def restarts(self) -> bool:
+        """After any move, start the pass over from the first creature in order (so the
+        first in order may answer every move). With descending order this is the
+        designer's declaration scheme: whoever wants to move, highest initiative first,
+        and everyone may respond once a move is done."""
+        raise NotImplementedError
+
+    def scope_mode(self) -> str:
+        raise NotImplementedError
+
 
 @register("off_turn", "escalation")
 @dataclass(frozen=True)
@@ -50,6 +66,8 @@ class Escalation(OffTurnRule):
     repeat_until_all_pass: bool = True
     enabled: bool = True
     purchase_cap: int = 0  # most purchases in one off-turn move; 0 means no cap (as written)
+    restart_after_move: bool = False
+    scope: str = "all"
 
     def cost(self, base: int, earlier_costs: int) -> int:
         return base + self.slope * earlier_costs
@@ -68,3 +86,9 @@ class Escalation(OffTurnRule):
 
     def repeats(self) -> bool:
         return self.repeat_until_all_pass
+
+    def restarts(self) -> bool:
+        return self.restart_after_move
+
+    def scope_mode(self) -> str:
+        return self.scope

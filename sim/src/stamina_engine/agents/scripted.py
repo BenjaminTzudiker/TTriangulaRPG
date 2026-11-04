@@ -437,6 +437,9 @@ TACTICAL_FIELDS = {
     "surrender_below",
     "profile",
     "description",
+    "off_turn",
+    "pin_budget",
+    "hold",
 }
 
 
@@ -523,6 +526,9 @@ def make_agent(
             Fraction(str(table.get("flee_below", "0"))),
             Fraction(str(table.get("surrender_below", "0"))),
             uses,
+            str(table.get("off_turn", "retreat")),
+            Fraction(str(table.get("pin_budget", "1/2"))),
+            bool(table.get("hold", False)),
         )
     if target not in TARGETS:
         raise ConfigError(f"unknown target policy {target!r}; known: {sorted(TARGETS)}")

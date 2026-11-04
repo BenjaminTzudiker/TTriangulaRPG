@@ -8,6 +8,9 @@ register):
 - a creature with nowhere it can reach and afford isn't asked;
 - with repeat_until_all_pass, passes repeat until one in which nobody moves, and a creature
   that passed may move in a later pass;
+- with restart_after_move, a pass starts over from the first creature in order as soon as
+  anyone moves, so the first in order is offered an answer to every move (with descending
+  order: the designer's "declare, tiebreak on initiative, respond" scheme);
 - each move uses off-turn purchases on the mover's escalation track and provokes OAs like
   any other move.
 """
@@ -49,6 +52,12 @@ def off_turn_window(b: Battle, ended: CombatantState) -> None:
                 c = b.state.get(cid)
                 if not c.active:
                     continue
+                if (
+                    b.rules.off_turn.scope_mode() == "not_after_allies"
+                    and c.id != ended.id
+                    and c.team == ended.team
+                ):
+                    continue
                 options = move_options(b, c, on_turn=False)
                 draws = draw_options(b, c, on_turn=False)
                 usable = abilities.options(b, c, "off_turn")
@@ -68,6 +77,8 @@ def off_turn_window(b: Battle, ended: CombatantState) -> None:
                     moved = True
                 if b.outcome is not None:
                     return
+                if moved and b.rules.off_turn.restarts():
+                    break
             if not moved or not b.rules.off_turn.repeats():
                 return
         raise EngineError(

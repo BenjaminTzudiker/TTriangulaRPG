@@ -15,10 +15,17 @@ What it does:
 - **After attacking.** With free movement left: a reach weapon steps back out of the target's
   reach while keeping it in its own (reach spacing); otherwise, if two or more enemies could
   engage it, it steps to a square with fewer, if that costs no avoidance.
+- **Holding.** With `hold = true` it never moves on its turn: it attacks a target in reach
+  (its target policy's choice if reachable, else the first) or ends the turn. For terrain
+  experiments: a defender that keeps its square.
 - **Off-turn windows.** It retreats when at least `retreat_engaged` enemies could engage it,
   or when it is engaged at all with stamina below `low_stamina` of its maximum: to the
   affordable square with the fewest engagers, if that is strictly fewer and costs at most
-  half its stamina. It never moves off-turn otherwise.
+  half its stamina. With `off_turn = "pin"` or `"retreat_pin"` it also closes off-turn: when
+  its target is out of its reach and a square from which it would threaten the target is
+  reachable for at most `pin_budget` of its stamina, it moves there (fewest engagers, then
+  cheapest), so the target pays to leave or shoot before its own turn (movement experiments:
+  the "low initiative closes in" question). Otherwise it never moves off-turn.
 - **Avoidance.** It pays off an enemy when that enemy could make an OA and the OA's expected
   cost to it is more than the price.
 - **Opportunity attacks.** It takes the largest one that fits.
@@ -86,6 +93,7 @@ cites = (
 )
 
 TARGET_MODES = frozenset({"lowest_stamina", "nearest", "first", "focus"})
+OFF_TURN_MODES = frozenset({"retreat", "pin", "retreat_pin"})
 
 
 @dataclass
@@ -100,12 +108,17 @@ class TacticalAgent:
     flee_below: Fraction = Fraction(0)  # at or below this fraction of max HP, head for an exit
     surrender_below: Fraction = Fraction(0)  # ...and surrender when engaged (0: never)
     abilities: AbilityPolicy | None = None  # None: pass every ability window
+    off_turn: str = "retreat"  # or "pin" / "retreat_pin": close off-turn (movement experiments)
+    pin_budget: Fraction = Fraction(1, 2)
+    hold: bool = False  # never move on its turn: attack what it can reach, else end the turn
     _pending: int = field(default=0, init=False)
     _plan: tuple[int, str] = field(default=(-1, ""), init=False)  # (round, stage) this turn
 
     def __post_init__(self) -> None:
         if self.target_mode not in TARGET_MODES:
             raise ConfigError(f"tactical target must be one of {sorted(TARGET_MODES)}")
+        if self.off_turn not in OFF_TURN_MODES:
+            raise ConfigError(f"tactical off_turn must be one of {sorted(OFF_TURN_MODES)}")
         self.pricing = Pricing(self.rules)
 
     # --- helpers ---------------------------------------------------------------------
@@ -199,6 +212,12 @@ class TacticalAgent:
             return EndTurn()
         tid = self._target(board)
         if tid is None:
+            return EndTurn()
+        if self.hold:
+            if tid in request.targets:
+                return self._attack(obs, tid, request)
+            if request.targets:
+                return self._attack(obs, request.targets[0], request)
             return EndTurn()
         if tid in request.targets and stage == "moved":
             return self._attack(obs, tid, request)
@@ -446,7 +465,14 @@ class TacticalAgent:
         low = me.stamina < self.low_stamina * me.max_stamina
         blade = self._blade(request)
         if engaged < self.retreat_engaged and not (engaged >= 1 and low):
+            if self.off_turn in ("pin", "retreat_pin") and request.moves is not None:
+                pin = self._pin(board, request.moves)
+                if pin is not None:
+                    return pin
             return blade if engaged >= 1 and blade is not None else Pass()
+        if self.off_turn == "pin":
+            pin = self._pin(board, request.moves) if request.moves is not None else None
+            return pin if pin is not None else (blade if blade is not None else Pass())
         moves = request.moves
         if moves is None:
             return blade if blade is not None else Pass()
@@ -466,6 +492,34 @@ class TacticalAgent:
         if best is not None:
             return Move(best[1])
         return blade if blade is not None else Pass()
+
+    def _pin(self, board: Board, moves: MoveOptions) -> Move | None:
+        """Close on the target off-turn: the cheapest square within pin_budget from which
+        the observer's melee weapon would reach the target, fewest engagers first; nothing
+        if the target is already in reach or no such square is affordable."""
+        me = board.me
+        if me.pos is None or me.gear.weapon is None or me.gear.weapon.ranged:
+            return None
+        tid = self._target(board)
+        if tid is None:
+            return None
+        target = board.obs.view(tid)
+        if target.pos is None:
+            return None
+        spots = attack_squares(board.field, self.rules, me.gear.weapon.reach, target.pos)
+        if me.pos in spots:
+            return None
+        budget = self.pin_budget * me.stamina
+        routes = board.routes(moves, moves.max_squares)
+        best: tuple[tuple[int, Fraction | int, int], tuple[Cell, ...]] | None = None
+        for c in sorted(spots & set(moves.destinations)):
+            route = routes.get(c)
+            if route is None or route.total > budget or not route.path:
+                continue
+            key = (board.engagers(c, moved=True), route.total, len(route.path))
+            if best is None or key < best[0]:
+                best = (key, route.path)
+        return Move(best[1]) if best is not None else None
 
     def _blade(self, request: OffTurnMove) -> Draw | None:
         """A shooter holding its bow readies a free melee loadout (a quick-draw blade)."""

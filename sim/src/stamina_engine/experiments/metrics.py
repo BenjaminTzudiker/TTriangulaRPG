@@ -11,6 +11,10 @@ from stamina_engine.engine.events import (
     AttackResolved,
     AttackRolled,
     BlocksDeclared,
+    Moved,
+    OpportunityAvoided,
+    OpportunityDeclared,
+    OpportunityProvoked,
     Recovered,
     RoundStarted,
     Spent,
@@ -20,6 +24,8 @@ from stamina_engine.model.state import Status
 
 Row = dict[str, Any]
 
+CATEGORIES = ("attack", "block", "opportunity", "avoid", "extra_move", "off_turn_move")
+
 
 def fight_row(result: BattleResult, trial: int, seed: int) -> Row:
     state = result.state
@@ -28,12 +34,28 @@ def fight_row(result: BattleResult, trial: int, seed: int) -> Row:
     winners = [c for c in state.combatants if c.team == result.winner]
     losers = [c for c in state.combatants if result.winner is not None and c.team != result.winner]
     spent: Counter[str] = Counter()
+    moved: Counter[str] = Counter()
     wasted = 0
+    provoked = avoided = taken = 0
+    contact: int | None = None
+    round_ = 0
     for e in result.log:
-        if isinstance(e, Spent):
+        if isinstance(e, RoundStarted):
+            round_ = e.round
+        elif isinstance(e, Spent):
             spent[f"{state.get(e.who).team}:{e.category}"] += e.amount
         elif isinstance(e, Recovered):
             wasted += e.wasted
+        elif isinstance(e, Moved):
+            moved[f"{state.get(e.who).team}:{'off' if e.how == 'off_turn' else 'on'}"] += 1
+        elif isinstance(e, OpportunityProvoked):
+            provoked += len(e.enemies)
+        elif isinstance(e, OpportunityAvoided):
+            avoided += len(e.enemies)
+        elif isinstance(e, OpportunityDeclared | AttackDeclared):
+            taken += isinstance(e, OpportunityDeclared)
+            if contact is None:
+                contact = round_
     row: Row = {
         "trial": trial,
         "seed": str(seed),  # 64-bit unsigned: text, so every table format can hold it
@@ -58,12 +80,22 @@ def fight_row(result: BattleResult, trial: int, seed: int) -> Row:
         "decisions": len(result.decisions),
         "acted_decisions": sum(1 for d in result.decisions if d.acted),
         "recovery_wasted": wasted,
+        "contact_round": contact,  # the first round anyone attacked (None: nobody did)
+        "oa_provoked": provoked,  # enemies provoked, counted per square left
+        "oa_avoided": avoided,
+        "oa_taken": taken,
         "log_sha256": result.log_sha256(),
     }
     for team in teams:
         row[f"win:{team}"] = result.winner == team
-        for category in ("attack", "block"):
+        for category in CATEGORIES:
             row[f"spent:{team}:{category}"] = spent[f"{team}:{category}"]
+        row[f"moved:{team}:on"] = moved[f"{team}:on"]
+        row[f"moved:{team}:off"] = moved[f"{team}:off"]
+        row[f"down:{team}"] = sum(1 for c in state.combatants if c.team == team and not c.active)
+        row[f"dead:{team}"] = sum(
+            1 for c in state.combatants if c.team == team and c.status is Status.DEAD
+        )
     return row
 
 
@@ -74,10 +106,11 @@ def attack_rows(result: BattleResult, trial: int) -> list[Row]:
     for e in result.log:
         if isinstance(e, RoundStarted):
             round_ = e.round
-        elif isinstance(e, AttackDeclared):
+        elif isinstance(e, AttackDeclared | OpportunityDeclared):
             current = {
                 "trial": trial,
                 "round": round_,
+                "kind": "melee" if isinstance(e, AttackDeclared) else "opportunity",
                 "attacker": e.attacker,
                 "target": e.target,
                 "steps": e.steps,
@@ -86,7 +119,7 @@ def attack_rows(result: BattleResult, trial: int) -> list[Row]:
                 "perfect": 0,
                 "grazing": 0,
             }
-        elif isinstance(e, Spent) and e.category == "attack":
+        elif isinstance(e, Spent) and e.category in ("attack", "opportunity"):
             current["cost"] = e.amount
         elif isinstance(e, AttackRolled):
             current.update(total=e.total, crit_dice=e.crit_dice)
@@ -129,6 +162,9 @@ class Summary:
     loser_hp: Interval
     dead: Interval  # deaths per fight
     decisions_per_round: float
+    contact_round: Interval | None = None  # among fights with any attack
+    oa_taken: Interval | None = None  # per fight
+    off_turn_squares: Interval | None = None  # per fight, all teams
 
     def lines(self) -> list[str]:
         out = [f"Trials: {self.trials}"]
@@ -142,6 +178,12 @@ class Summary:
             f"Deaths per fight: {self.dead}",
             f"Decisions per round: {self.decisions_per_round:.2f}",
         ]
+        if self.contact_round is not None:
+            out.append(f"Rounds to contact: {self.contact_round}")
+        if self.oa_taken is not None:
+            out.append(f"Opportunity attacks per fight: {self.oa_taken}")
+        if self.off_turn_squares is not None:
+            out.append(f"Squares moved off-turn per fight: {self.off_turn_squares}")
         return out
 
 
@@ -164,4 +206,18 @@ def summarize(fights: Sequence[Row]) -> Summary:
         dead=mean_interval([float(f["dead"]) for f in fights]),
         decisions_per_round=sum(f["decisions"] for f in fights)
         / max(1, sum(f["rounds"] for f in fights)),
+        contact_round=_mean_or_none(
+            [float(f["contact_round"]) for f in fights if f.get("contact_round") is not None]
+        ),
+        oa_taken=_mean_or_none([float(f.get("oa_taken", 0)) for f in fights]),
+        off_turn_squares=_mean_or_none(
+            [
+                float(sum(v for k, v in f.items() if k.startswith("moved:") and k.endswith(":off")))
+                for f in fights
+            ]
+        ),
     )
+
+
+def _mean_or_none(values: list[float]) -> Interval | None:
+    return mean_interval(values) if values else None

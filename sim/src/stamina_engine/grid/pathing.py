@@ -14,7 +14,7 @@ from dataclasses import dataclass
 from fractions import Fraction
 
 from stamina_engine.grid.battlefield import Battlefield, Cell
-from stamina_engine.grid.geometry import neighbours
+from stamina_engine.grid.geometry import neighbour_table
 from stamina_engine.grid.threat import Body, blocked_squares, threatened_by
 from stamina_engine.rules.components.grid import GridRule
 
@@ -69,10 +69,11 @@ def reachable(
     steps: dict[Cell, int] = {start: 0}
     parent: dict[Cell, Cell] = {}
     frontier = [start]
+    table = neighbour_table(field, rule)
     for n in range(1, limit + 1):
         nxt = []
         for cell in frontier:
-            for nb in neighbours(field, cell, rule):
+            for nb in table.get(cell, ()):
                 if nb in steps or nb in passage.no_entry:
                     continue
                 steps[nb] = n
@@ -95,6 +96,49 @@ class Route:
         return self.exposure + self.movement
 
 
+def cheapest_routes(
+    field: Battlefield,
+    rule: GridRule,
+    start: Cell,
+    passage: Passage,
+    leave_cost: Callable[[Cell], Number],
+    length_cost: Callable[[int], Number | None],
+    limit: int,
+) -> dict[Cell, Route]:
+    """Exact, in one pass: for each path length up to limit, the least-exposure path to every
+    square, then for each square the best length overall (ties go to the shorter path).
+    length_cost(n) is the movement stamina for n squares, or None if n squares can't be
+    afforded. Squares the mover can't stop on are left out."""
+    layer: dict[Cell, tuple[Number, tuple[Cell, ...]]] = {start: (0, ())}
+    best: dict[Cell, Route] = {}
+    leave: dict[Cell, Number] = {}
+    table = neighbour_table(field, rule)
+    for n in range(1, limit + 1):
+        moving = length_cost(n)
+        if moving is None:
+            break
+        nxt: dict[Cell, tuple[Number, tuple[Cell, ...]]] = {}
+        for cell, (cost, path) in layer.items():
+            if cell not in leave:
+                leave[cell] = leave_cost(cell)
+            left = cost + leave[cell]
+            for nb in table.get(cell, ()):
+                if nb in passage.no_entry:
+                    continue
+                if nb not in nxt or left < nxt[nb][0]:
+                    nxt[nb] = (left, path + (nb,))
+        layer = nxt
+        for cell, (exposure, path) in layer.items():
+            if cell == start or cell in passage.no_stop:
+                continue
+            route = Route(path, exposure, moving)
+            if cell not in best or route.total < best[cell].total:
+                best[cell] = route
+        if not layer:
+            break
+    return best
+
+
 def cheapest_path(
     field: Battlefield,
     rule: GridRule,
@@ -105,36 +149,19 @@ def cheapest_path(
     length_cost: Callable[[int], Number | None],
     limit: int,
 ) -> Route | None:
-    """Exact: for each path length up to limit, the least-exposure path to every square,
-    then the best goal and length overall. length_cost(n) is the movement stamina for n
-    squares, or None if n squares can't be afforded. Ties go to the shorter path, then to
-    the goal listed first."""
-    goal_list = [g for g in goals if g not in passage.no_stop and g != start]
-    goal_set = set(goal_list)
-    layer: dict[Cell, tuple[Number, tuple[Cell, ...]]] = {start: (0, ())}
-    best: tuple[Number, int, int, Route] | None = None
-    for n in range(1, limit + 1):
-        moving = length_cost(n)
-        if moving is None:
-            break
-        nxt: dict[Cell, tuple[Number, tuple[Cell, ...]]] = {}
-        for cell, (cost, path) in layer.items():
-            left = cost + leave_cost(cell)
-            for nb in neighbours(field, cell, rule):
-                if nb in passage.no_entry:
-                    continue
-                if nb not in nxt or left < nxt[nb][0]:
-                    nxt[nb] = (left, path + (nb,))
-        layer = nxt
-        for g in goal_set & set(layer):
-            exposure, path = layer[g]
-            route = Route(path, exposure, moving)
-            key = (route.total, n, goal_list.index(g), route)
-            if best is None or key[:3] < best[:3]:
-                best = key
-        if not layer:
-            break
-    return best[3] if best is not None else None
+    """The best of cheapest_routes over the goals: least total, then shorter, then the goal
+    listed first."""
+    routes = cheapest_routes(field, rule, start, passage, leave_cost, length_cost, limit)
+    return best_of(routes, goals)
+
+
+def best_of(routes: dict[Cell, Route], goals: Iterable[Cell]) -> Route | None:
+    found = [
+        (routes[g].total, len(routes[g].path), i, routes[g])
+        for i, g in enumerate(goals)
+        if g in routes
+    ]
+    return min(found)[3] if found else None
 
 
 def out_of_reach(

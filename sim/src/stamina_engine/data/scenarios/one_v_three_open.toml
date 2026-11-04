@@ -1,0 +1,25 @@
+# Phase 3 on a grid: one sample fighter against three on open ground, starting apart (the
+# attackers 6 squares away). Attackers commit 2 steps each, as in review Table 4. The
+# defender's agent is the variable: scripted (as the review) or tactical (moves and retreats).
+[scenario]
+name = "one-v-three-open"
+ruleset = "v0.9"
+map = "open_12x12"
+round_cap = 20
+trials = 500
+seed = 20261103
+
+[[combatant]]
+id = "D"
+team = "defender"
+build = "l1_sample"
+spawn = "A"
+agent = { kind = "tactical", commit = "fixed:2" }
+
+[[combatant]]
+id = "x"
+team = "attackers"
+build = "l1_sample"
+count = 3
+spawn = ["1", "2", "3"]
+agent = "fixed:2"

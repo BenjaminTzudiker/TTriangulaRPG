@@ -70,6 +70,12 @@ def neighbours(field: Battlefield, cell: Cell, rule: GridRule) -> tuple[Cell, ..
     return _neighbour_table(field, rule.corner_mode()).get(cell, ())
 
 
+def neighbour_table(field: Battlefield, rule: GridRule) -> dict[Cell, tuple[Cell, ...]]:
+    """neighbours() for every square at once, for searches that visit many squares."""
+    _check_metric(rule)
+    return _neighbour_table(field, rule.corner_mode())
+
+
 def _crosses_inside(p: Cell, q: Cell, box: tuple[int, int, int, int]) -> bool:
     """Does segment p-q pass through the open box (x0, x1) x (y0, y1)? (doubled coords)"""
     x0, x1, y0, y1 = box

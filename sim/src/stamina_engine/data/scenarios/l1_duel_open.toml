@@ -1,0 +1,22 @@
+# The L1 duel on open ground, starting 8 squares apart: chip-kill against chip-kill.
+[scenario]
+name = "l1-duel-open"
+ruleset = "v0.9"
+map = "open_12x12"
+round_cap = 30
+trials = 500
+seed = 20261103
+
+[[combatant]]
+id = "A"
+team = "A"
+build = "l1_sample"
+spawn = "A"
+agent = "chipkill"
+
+[[combatant]]
+id = "B"
+team = "B"
+build = "l1_sample"
+spawn = "B"
+agent = "chipkill"

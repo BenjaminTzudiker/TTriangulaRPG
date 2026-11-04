@@ -177,15 +177,20 @@ def compare(
 
 @app.command()
 def suite(
-    name: Annotated[str, typer.Argument(help="Suite to run: parity.")],
+    name: Annotated[str, typer.Argument(help="Suite to run: parity or positioning.")],
     workers: WorkersOption = 1,
     scale: Annotated[float, typer.Option(help="Fraction of the review's trial counts.")] = 1.0,
+    trials: Annotated[int, typer.Option(help="Positioning: trials per row.")] = 500,
     out: Annotated[Path | None, typer.Option(help="Write the report here (markdown).")] = None,
 ) -> None:
     """Run a suite. parity: every published review configuration in lockstep with the
-    review's simulator, reported beside the review's figures."""
+    review's simulator, reported beside the review's figures. positioning: the M2 grid
+    scenarios across agent families and the Phase 3 and 4 RuleSet variants."""
+    if name == "positioning":
+        _positioning(workers, trials, out)
+        return
     if name != "parity":
-        raise typer.BadParameter("M1 has the parity suite", param_hint="NAME")
+        raise typer.BadParameter("suites: parity, positioning", param_hint="NAME")
     from stamina_engine.experiments.oracle_bridge import Knobs
     from stamina_engine.experiments.parity import cases, render, rules_for, run_cases
 
@@ -224,3 +229,32 @@ def map_show(
     for marker, cells in sorted(field.spawns.items()):
         typer.echo(f"spawn {marker}: " + ", ".join(f"({x}, {y})" for x, y in cells))
     typer.echo("legend: " + ", ".join(f"{ch!r} {terrain}" for ch, terrain in field.legend))
+
+
+def _positioning(workers: int, trials: int, out: Path | None) -> None:
+    from stamina_engine.experiments.positioning import ROWS, render, run_rows
+    from stamina_engine.rules.ruleset import preset
+
+    stamp = collect(preset("v0.9")).text()  # before running: the code that runs
+    report = render(run_rows(ROWS, trials, workers), stamp, trials)
+    if out is None:
+        typer.echo(report)
+    else:
+        out.write_text(report)
+        typer.echo(f"wrote {out}")
+
+
+@app.command(name="trace")
+def trace_cmd(
+    scenario: Annotated[Path, typer.Argument(help="A scenario TOML file.")],
+    trial: Annotated[int, typer.Option(help="Which trial to replay.")] = 0,
+    cell: Annotated[str, typer.Option(help="Cell key, if the trial came from a sweep.")] = "",
+) -> None:
+    """Replay one fight of a scenario: every event, with the board at each turn."""
+    from stamina_engine.experiments.trace import trace
+
+    try:
+        s = load_scenario(scenario)
+    except ConfigError as exc:
+        raise typer.BadParameter(str(exc)) from exc
+    typer.echo(trace(s, trial, cell))

@@ -68,3 +68,30 @@ def test_pinned_log_hashes(
 ) -> None:
     got = battle(preset(ruleset), roster, seed, lockstep)
     assert got == expected, f"log hash changed: {got}"
+
+
+GRID_PINNED = [
+    (
+        "one_v_three_corridor.toml",
+        0,
+        "8bf5943bf90f8273595be2424ef8f39aee7f64b00fc0070a84e83141b8a87512",
+    ),
+    (
+        "reach_chokepoint.toml",
+        3,
+        "c9a825c6dd77852681d2c7ced9195d6af38ff8debd39800acc1c5ecac1fbf79d",
+    ),
+]
+
+
+@pytest.mark.parametrize(("scenario", "trial", "expected"), GRID_PINNED)
+def test_pinned_grid_log_hashes(scenario: str, trial: int, expected: str) -> None:
+    """Two grid battles (tactical and scripted agents, OAs and off-turn windows)."""
+    from pathlib import Path
+
+    from stamina_engine.experiments.runner import run_trial
+    from stamina_engine.experiments.scenario import load_scenario
+
+    path = Path(__file__).resolve().parents[2] / "src/stamina_engine/data/scenarios" / scenario
+    got = run_trial(load_scenario(path), trial, check=True).log_sha256()
+    assert got == expected, f"log hash changed: {got}"

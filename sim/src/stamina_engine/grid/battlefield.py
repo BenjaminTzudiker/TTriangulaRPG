@@ -103,9 +103,12 @@ class Battlefield:
                 f"map {self.name} has no spawn {marker!r}; it has {sorted(self.spawns)}"
             ) from None
 
-    def render(self, marks: Mapping[Cell, str] | None = None) -> str:
-        """The map with column and row numbers; marks overwrite squares (e.g. creatures)."""
+    def render(self, marks: Mapping[Cell, str] | None = None, spawns: bool = True) -> str:
+        """The map with column and row numbers; marks overwrite squares (e.g. creatures).
+        Without spawns, spawn markers are drawn as the floor they are."""
         marks = marks or {}
+        if not spawns:
+            marks = {**{c: "." for _, cells in self.spawn_list for c in cells}, **marks}
         tens = "".join(str(x // 10) if x >= 10 else " " for x in range(self.width))
         ones = "".join(str(x % 10) for x in range(self.width))
         lines = [f"    {tens}", f"    {ones}"] if self.width > 10 else [f"    {ones}"]

@@ -18,8 +18,8 @@ from stamina_engine.agents.estimates import Target, exact_estimate
 from stamina_engine.core.errors import Unaffordable
 from stamina_engine.grid.battlefield import Battlefield, Cell
 from stamina_engine.grid.geometry import reach_cells
-from stamina_engine.grid.pathing import Passage, Reach, Route, cheapest_path, reachable
-from stamina_engine.grid.threat import Body, body, melee_weapons, threatening
+from stamina_engine.grid.pathing import Passage, Reach, Route, best_of, cheapest_routes, reachable
+from stamina_engine.grid.threat import Body, body, melee_weapons, threatened_by
 from stamina_engine.model.derive import WeaponProfile
 from stamina_engine.rules.pricing import FRESH, Pricing
 from stamina_engine.rules.ruleset import RuleSet
@@ -59,6 +59,14 @@ class Board:
         self.bodies = bodies_from(self.obs)
         self.pricing = Pricing(self.rules)
         self._reach: dict[tuple[str, Cell | None], Reach] = {}
+        self._engagers: dict[tuple[Cell, bool], int] = {}
+        self._routes: dict[tuple[Cell, int, Fraction | int], dict[Cell, Route]] = {}
+        threats: dict[Cell, list[str]] = {}
+        for b in self.bodies:  # initiative order, so each list is too
+            if b.team != self.me.team:
+                for cell in threatened_by(self.field, self.rules.grid, b):
+                    threats.setdefault(cell, []).append(b.id)
+        self._threats = {c: tuple(ids) for c, ids in threats.items()}
 
     @property
     def me(self) -> CombatantView:
@@ -69,7 +77,7 @@ class Board:
 
     def threatening(self, cell: Cell) -> tuple[str, ...]:
         """Enemies of mine that threaten cell, in initiative order."""
-        return threatening(self.field, self.rules.grid, self.bodies, self.me.team, cell)
+        return self._threats.get(cell, ())
 
     def free_reach(self, v: CombatantView, me_at: Cell | None = None) -> Reach:
         """Where v could get to on its next turn with free movement alone, with the observer
@@ -91,6 +99,9 @@ class Board:
         needs its own square it can reach (free movement) from which its main weapon reaches
         cell. With moved, the observer is taken to have moved there (its old square is
         empty and it blocks the new one)."""
+        key = (cell, moved)
+        if key in self._engagers:
+            return self._engagers[key]
         taken: set[Cell] = set()
         count = 0
         for e in self.enemies():
@@ -108,6 +119,7 @@ class Board:
                     taken.add(s)
                     count += 1
                     break
+        self._engagers[key] = count
         return count
 
     # --- opportunity attacks against me ----------------------------------------------
@@ -147,6 +159,27 @@ class Board:
 
     # --- paths -----------------------------------------------------------------------
 
+    def routes(
+        self, moves: MoveOptions, limit: int, leave_price: Fraction | int = 1
+    ) -> dict[Cell, Route]:
+        """The cheapest path to every square within limit squares: movement stamina plus
+        leave_price per threatening enemy on each square left."""
+        key = (moves.start, limit, leave_price)
+        if key not in self._routes:
+            prices = moves.price_by_length
+
+            def leave(c: Cell) -> Fraction | int:
+                return leave_price * len(self.threatening(c))
+
+            def length(n: int) -> int | None:
+                return prices[n] if n < len(prices) and n <= limit else None
+
+            passage = Passage(moves.no_entry, moves.no_stop)
+            self._routes[key] = cheapest_routes(
+                self.field, self.rules.grid, moves.start, passage, leave, length, limit
+            )
+        return self._routes[key]
+
     def route(
         self,
         moves: MoveOptions,
@@ -154,17 +187,5 @@ class Board:
         limit: int,
         leave_price: Fraction | int = 1,
     ) -> Route | None:
-        """The cheapest path to any goal within limit squares: movement stamina plus
-        leave_price per threatening enemy on each square left."""
-        prices = moves.price_by_length
-
-        def leave(c: Cell) -> Fraction | int:
-            return leave_price * len(self.threatening(c))
-
-        def length(n: int) -> int | None:
-            return prices[n] if n < len(prices) and n <= limit else None
-
-        passage = Passage(moves.no_entry, moves.no_stop)
-        return cheapest_path(
-            self.field, self.rules.grid, moves.start, goals, passage, leave, length, limit
-        )
+        """The cheapest path to any goal (least total, then shorter, then first listed)."""
+        return best_of(self.routes(moves, limit, leave_price), goals)

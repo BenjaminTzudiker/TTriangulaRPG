@@ -96,7 +96,7 @@ stamina_engine/
     geometry.py     distance metric, reach
     los.py          line of sight and 5e-style cover
     threat.py       cached threat maps
-    pathing.py      reachable sets, cost-aware A*
+    pathing.py      reachable sets, exact cheapest paths under an agent's cost model
   engine/
     battle.py       Battle = state + ruleset + rng + broker + log
     stateops.py     the only mutator; emits events
@@ -108,7 +108,9 @@ stamina_engine/
     decisions.py    DecisionRequest types, Observation
     broker.py       routing, validation, decision logging
     scripted.py     alpha, fixed_k, reserve, chip_kill, lookahead
+    grid_view.py    what an agent can work out about the grid from its observation
     tactical.py     grid-aware utility agent
+    listed.py       answers from lists given in advance (tests, worked examples)
     profiles.py     NPC aggression profiles (data-driven)
     search.py       expectimax / MCTS auditor (later)
     human_cli.py    ASCII map and prompts, with timing
@@ -521,7 +523,7 @@ The engine is trusted only once it reproduces every worked example in the packet
 
 **3. Property tests** (`hypothesis`) over random builds, rule variants and decisions: stamina stays within 0 and max; trackers reset when the rules say; every charge equals the quote the agent saw; no incapacitated creature acts; a replayed log reproduces the battle; a RuleSet survives a round trip through TOML.
 
-**4. Geometry tests:** hand-drawn LOS and cover cases, including corner-grazing lines; threat maps with reach weapons and walls; path costs with avoidance payments.
+**4. Geometry tests:** hand-drawn reach lines, including lines that touch a corner or squeeze between two walls; steps around corners under each corner reading; threat maps with reach weapons and walls; path costs with avoidance payments; reachable sets against brute force (`tests/geometry/`, M2). LOS and cover for ranged attacks follow in M3.
 
 **5. Traceability.** Each rule component and procedure declares what it implements (`cites = ("Packet: Blocking", "Ledger MV-3")`). A generated report lists packet sections with no implementation or no test, so gaps show up when the packet changes.
 
@@ -535,7 +537,7 @@ Six milestones, each ending at a gate of known numbers, so the engine is useful 
 |---|---|---|---|
 | M0 Foundations | dice, RuleSet and registry, builds and derivation, Pricing, exchange resolution, block solver, exact calculators | Phase 0, Phase 1 (static) | Packet examples pass; Tables 1 and 8 match exactly; matches sim.py on random inputs |
 | M1 Turn engine, no movement | timeline, StateOps, events, broker, scripted policies, runner, sweeps, metrics, all-adjacent arena | Phases 1–3, first pass | Every fight behind Tables 2–4, 7, 9 and the Addendum grid identical to the oracle in lockstep; parity report beside the review's figures; same seed gives the same log |
-| M2 Grid and positioning | maps, threat, pathing, square-by-square movement, OAs, avoidance, off-turn windows, tactical agent v1 | Phases 3 and 4 | Addendum 2 retreat costs match; reach and 1v3 scenarios run; geometry tests pass |
+| M2 Grid and positioning | maps, threat, pathing, square-by-square movement, OAs, avoidance, off-turn windows, tactical agent v1 | Phases 3 and 4 | Packet movement and OA examples pass as battles; Addendum 2 retreat costs exact (calculator and played battle); geometry tests pass; 1v3 (open and corridor), reach-chokepoint and retreat scenarios run for both agent families, with the report; M1 lockstep parity still identical and all-adjacent logs unchanged apart from the digest; the broker never rejects an engine agent on random maps; pinned grid-battle hashes (ruled 2026-11-03) |
 | M3 Ranged | sight lines and cover, range bands, aim, dive window, point-blank OAs, drawing weapons, archer agent | Phase 5 | Table 5 static part matches; archer scenario on three maps |
 | M4 Equipment and NPC profiles | variant weapon and armor tables, NPC profiles, 3v3 integration scenario, report generator | Phase 6, F6 dial | Full phase suite in one command; reports print review layouts |
 | M5 Content hooks and load | abilities, strain and overage, class cores, System Shock, control-track stub, human CLI with timing, load report | Phases 7 and 8 | Class cores priced in sims; one human session logged |

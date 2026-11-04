@@ -1,0 +1,11 @@
+; Retreat economics: F (the fleer) and C (the chaser) start adjacent in the open; the
+; fleer's ally holds the line at A, 6 squares behind it, and the chaser's second (B) follows.
+##################
+#................#
+#................#
+#................#
+#...A.....FC....B#
+#................#
+#................#
+#................#
+##################

@@ -1,0 +1,11 @@
+; One against three: open ground on the left, a corridor one square wide on the right.
+; D starts in the corridor's first square; 1, 2 and 3 start 6 squares away in the open.
+################
+#.......########
+#.......########
+#.1.....########
+#.2.....D......#
+#.3.....########
+#.......########
+#.......########
+################

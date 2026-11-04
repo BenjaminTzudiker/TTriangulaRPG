@@ -1,0 +1,5 @@
+# Review F9's spearman: FIN 0, so the default OA cap of 1 can't pay the spear's base 2.
+level = 1
+attributes = { STR = 2, AGI = 1, FIN = 0 }
+cores = ["fighter"]
+loadouts.main = { weapon = "spear", grip = "one", off_hand = "shield", armor = "medium" }

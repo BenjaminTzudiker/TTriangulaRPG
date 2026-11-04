@@ -1,0 +1,24 @@
+# One against three with a corridor at the defender's back: in the corridor only one
+# attacker at a time can reach it.
+[scenario]
+name = "one-v-three-corridor"
+ruleset = "v0.9"
+map = "corridor"
+round_cap = 20
+trials = 500
+seed = 20261103
+
+[[combatant]]
+id = "D"
+team = "defender"
+build = "l1_sample"
+spawn = "D"
+agent = { kind = "tactical", commit = "fixed:2" }
+
+[[combatant]]
+id = "x"
+team = "attackers"
+build = "l1_sample"
+count = 3
+spawn = ["1", "2", "3"]
+agent = "fixed:2"

@@ -1,0 +1,24 @@
+# One against three on open ground, starting engaged: the attackers stand around the
+# defender, as in the review's all-adjacent 1v3, but now everyone can move.
+[scenario]
+name = "one-v-three-engaged"
+ruleset = "v0.9"
+map = "open_12x12"
+round_cap = 20
+trials = 500
+seed = 20261103
+
+[[combatant]]
+id = "D"
+team = "defender"
+build = "l1_sample"
+spawn = [6, 6]
+agent = { kind = "tactical", commit = "fixed:2" }
+
+[[combatant]]
+id = "x"
+team = "attackers"
+build = "l1_sample"
+count = 3
+spawn = [[5, 6], [7, 6], [6, 5]]
+agent = "fixed:2"

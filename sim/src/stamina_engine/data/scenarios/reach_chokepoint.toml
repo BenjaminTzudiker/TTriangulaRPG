@@ -1,0 +1,24 @@
+# Review F9 and phase suite item 5: a spear holding a door against a sword. Passing the door
+# means leaving a square the spear threatens. Swap the spearman's build for l1_spear_fin0 to
+# see the FIN-0 spearman, who can never make an OA at the default cap.
+[scenario]
+name = "reach-chokepoint"
+ruleset = "v0.9"
+map = "chokepoint"
+round_cap = 30
+trials = 500
+seed = 20261103
+
+[[combatant]]
+id = "S"
+team = "spear"
+build = "l1_spear"
+spawn = "S"
+agent = { kind = "tactical", commit = "chipkill" }
+
+[[combatant]]
+id = "W"
+team = "sword"
+build = "l1_sample"
+spawn = "W"
+agent = "chipkill"

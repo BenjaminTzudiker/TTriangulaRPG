@@ -189,10 +189,9 @@ class TacticalAgent:
         options = [c for c, n in moves.destinations.items() if n <= free]
         if not options:
             return None
-        pick = min(
-            options,
-            key=lambda c: (distance(c, goal, self.rules.grid), board.engagers(c, moved=True), c),
-        )
+        closest = min(distance(c, goal, self.rules.grid) for c in options)
+        nearest = [c for c in options if distance(c, goal, self.rules.grid) == closest]
+        pick = min(nearest, key=lambda c: (board.engagers(c, moved=True), c))
         if distance(pick, goal, self.rules.grid) >= now:
             return None
         route = board.route(moves, [pick], free)
@@ -246,12 +245,14 @@ class TacticalAgent:
         engaged = board.engagers(me.pos)
         if engaged >= 2:
             better = []
+            routes = board.routes(moves, free)
             for c in options:
+                route = routes.get(c)
+                if route is None or route.exposure != 0:
+                    continue
                 e = board.engagers(c, moved=True)
                 if e < engaged:
-                    route = board.route(moves, [c], free)
-                    if route is not None and route.exposure == 0:
-                        better.append(((e, len(route.path), c), route))
+                    better.append(((e, len(route.path), c), route))
             if better:
                 return Move(min(better, key=lambda b: b[0])[1].path)
         return None
@@ -278,12 +279,13 @@ class TacticalAgent:
         moves = request.moves
         budget = Fraction(me.stamina, 2)
         best: tuple[tuple[int, Fraction | int, int], tuple[Cell, ...]] | None = None
+        routes = board.routes(moves, moves.max_squares)
         for c in sorted(moves.destinations):
+            route = routes.get(c)
+            if route is None or route.total > budget:
+                continue
             e = board.engagers(c, moved=True)
             if e >= engaged:
-                continue
-            route = board.route(moves, [c], moves.max_squares)
-            if route is None or route.total > budget:
                 continue
             key = (e, route.total, len(route.path))
             if best is None or key < best[0]:

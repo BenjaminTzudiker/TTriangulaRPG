@@ -45,6 +45,8 @@ uv run pytest tests/golden    # packet worked examples only
 uv run mypy src
 uv run ruff check src tests examples
 uv run se suite parity --workers 8   # M1 parity report (lockstep with the oracle)
+uv run se suite positioning --workers 8   # M2 grid scenarios across agent families
+uv run se trace <scenario.toml> --trial N # one fight, with the board at each turn
 ```
 
 ## Git workflow

@@ -1,0 +1,11 @@
+; Reach control at a door: a wall line with a one-square gap at (6, 4). S holds two squares
+; behind the door; W starts on the far side.
+#############
+#.....W.....#
+#...........#
+#...........#
+######.######
+#...........#
+#.....S.....#
+#...........#
+#############

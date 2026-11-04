@@ -53,9 +53,10 @@ def move_options(b: Battle, c: CombatantState, on_turn: bool) -> MoveOptions | N
         return None
     args = _price_args(c, on_turn)
     limit = field.width * field.height
-    most = b.pricing.max_move(
+    prices = b.pricing.move_prices(
         on_turn=on_turn, trackers=c.trackers, stamina=c.stamina, limit=limit, **args
     )
+    most = len(prices) - 1
     if most == 0:
         return None
     passage = Passage.for_mover(b.rules.grid, c.id, c.team, bodies(b.state))
@@ -63,10 +64,6 @@ def move_options(b: Battle, c: CombatantState, on_turn: bool) -> MoveOptions | N
     destinations = reach.destinations()
     if not destinations:
         return None
-    prices = tuple(
-        b.pricing.move(n, on_turn=on_turn, trackers=c.trackers, **args).total
-        for n in range(most + 1)
-    )
     return MoveOptions(
         c.pos, on_turn, most, prices, destinations, passage.no_entry, passage.no_stop
     )

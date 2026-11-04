@@ -131,3 +131,23 @@ def test_f14_avoidance_debt() -> None:
     with pytest.raises(RulesError):
         c.dying = rules.dying.take_damage(c.dying, 100)
         ops.spend(c, q, "avoid", allow_debt=True)
+
+
+def test_move_prices_match_move_quotes() -> None:
+    for on_turn in (True, False):
+        for rules in (V09, variant(movement={"extra_cap": "free_movement"})):
+            p = Pricing(rules)
+            args = {
+                "free_left": 3,
+                "banked": 1,
+                "movement": 6,
+                "extra_squares": 2,
+                "off_turn_squares": 3,
+            }
+            prices = p.move_prices(on_turn=on_turn, trackers=FRESH, stamina=9, **args)
+            for n, price in enumerate(prices):
+                assert p.move(n, on_turn=on_turn, trackers=FRESH, **args).total == price
+            n = len(prices)
+            with pytest.raises(Unaffordable):
+                p.move(n, on_turn=on_turn, trackers=FRESH, stamina=9, **args)
+            assert p.max_move(on_turn=on_turn, trackers=FRESH, stamina=9, **args) == n - 1

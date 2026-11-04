@@ -14,11 +14,13 @@ from stamina_engine.engine.events import (
 )
 from stamina_engine.engine.procedures.melee import melee_attack
 from stamina_engine.engine.procedures.movement import move, move_options
+from stamina_engine.engine.procedures.off_turn import off_turn_window
 from stamina_engine.model.state import CombatantState, Status
 
 cites = (
     "Packet: Starting Combat and Turn Structure",
     "Packet: On-Turn Movement",
+    "Packet: Off-Turn Movement",
     "Packet: Stamina",
     "Packet: Dying and Death",
     "Ledger CB-9",
@@ -137,11 +139,6 @@ def place_everyone(b: Battle) -> None:
     for e in b.entrants:
         assert e.pos is not None
         b.ops.place(b.state.get(e.id), e.pos)
-
-
-def off_turn_window(b: Battle, c: CombatantState) -> None:
-    """After any creature's turn, anyone may buy off-turn movement. No arena in M1 gives
-    movement anywhere to go, so the window offers nothing yet (M2)."""
 
 
 def run_battle(b: Battle) -> BattleResult:

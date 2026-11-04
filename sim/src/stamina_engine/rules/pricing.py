@@ -4,7 +4,7 @@ Quotes are pure: they read the RuleSet and a Trackers snapshot and never change 
 Quote says what it costs and how far it moves the on-turn or off-turn track.
 """
 
-from collections.abc import Sequence
+from collections.abc import Iterator, Sequence
 from dataclasses import dataclass, replace
 from enum import Enum
 
@@ -222,6 +222,35 @@ class Pricing:
             raise Unaffordable(f"moving {squares} squares costs {quote.total}, {stamina} available")
         return quote
 
+    def _purchases(
+        self,
+        *,
+        on_turn: bool,
+        trackers: Trackers,
+        movement: int,
+        extra_squares: int,
+        off_turn_squares: int,
+    ) -> Iterator[tuple[Quote, int]]:
+        """The purchases a move would make, in order: (quote, squares it gives), until a cap
+        stops them."""
+        t = trackers
+        cap = self.rules.off_turn.max_purchases()
+        made = 0
+        while True:
+            if on_turn:
+                give = self.extra_purchase_squares(t, movement, extra_squares)
+                if give <= 0:
+                    return
+                q = self.extra_movement(t)
+            else:
+                if cap and made >= cap:
+                    return
+                give = off_turn_squares
+                q = self.off_turn_purchase(t)
+            yield q, give
+            made += 1
+            t = q.after(t)
+
     def max_move(
         self,
         *,
@@ -236,26 +265,52 @@ class Pricing:
         limit: int = 200,
     ) -> int:
         """The most squares affordable now (stopping at limit)."""
-        best = 0
-        n = free_left + banked if on_turn else 0
-        while n <= limit:
-            try:
-                self.move(
-                    n,
+        return (
+            len(
+                self.move_prices(
                     on_turn=on_turn,
                     trackers=trackers,
+                    stamina=stamina,
                     free_left=free_left,
                     banked=banked,
                     movement=movement,
                     extra_squares=extra_squares,
                     off_turn_squares=off_turn_squares,
-                    stamina=stamina,
+                    limit=limit,
                 )
-            except Unaffordable:
+            )
+            - 1
+        )
+
+    def move_prices(
+        self,
+        *,
+        on_turn: bool,
+        trackers: Trackers,
+        stamina: int,
+        free_left: int = 0,
+        banked: int = 0,
+        movement: int = 0,
+        extra_squares: int = 1,
+        off_turn_squares: int = 1,
+        limit: int = 200,
+    ) -> tuple[int, ...]:
+        """[n] = the stamina for moving n squares now, for every affordable n up to limit
+        (the same totals as move(n).total, computed in one pass)."""
+        prices = [0] * (min(limit, free_left + banked if on_turn else 0) + 1)
+        paid = 0
+        for q, give in self._purchases(
+            on_turn=on_turn,
+            trackers=trackers,
+            movement=movement,
+            extra_squares=extra_squares,
+            off_turn_squares=off_turn_squares,
+        ):
+            if len(prices) > limit or paid + q.total > stamina:
                 break
-            best = n
-            n += 1
-        return min(best, limit)
+            paid += q.total
+            prices.extend([paid] * min(give, limit + 1 - len(prices)))
+        return tuple(prices)
 
     # --- opportunity attacks ---------------------------------------------------------
 

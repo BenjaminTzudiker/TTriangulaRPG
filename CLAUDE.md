@@ -48,7 +48,10 @@ uv run se suite parity --workers 8   # M1 parity report (lockstep with the oracl
 uv run se suite positioning --workers 8   # M2 grid scenarios across agent families
 uv run se suite ranged --workers 8        # M3 archers on three maps, Table 5, F3 options
 uv run se suite phase --workers 8         # M4 the full phase suite in the review's layouts
+uv run se suite cores --workers 8         # M5 class cores and candidate abilities, off and on
 uv run se trace <scenario.toml> --trial N # one fight, with the board at each turn
+uv run se play <scenario.toml> --as ID --log session.jsonl  # play one side yourself, timed
+uv run se load <scenario.toml>            # decision load per round (or --session logs)
 ```
 
 ## Git workflow
@@ -63,7 +66,7 @@ uv run se trace <scenario.toml> --trial N # one fight, with the board at each tu
 
 ## Working on milestones
 
-Work one milestone at a time (M0–M5 in `sim/docs/ENGINE_PLAN.md`). Plan first, then build. A milestone is done only when its "Done when" gate passes. Current milestone: **M2 Grid and positioning**. M0 and M1 are done (tags `m0`, `m1`).
+Work one milestone at a time (M0–M5 in `sim/docs/ENGINE_PLAN.md`). Plan first, then build. A milestone is done only when its "Done when" gate passes. M0 and M1 are done (tags `m0`, `m1`). M2–M5 are built and in review as stacked pull requests (`m2-grid` ← `m3-ranged` ← `m4-equipment` ← `m5-content`); each gets its tag when it merges. M5's gate still needs one human session, played by the designer.
 
 When a result looks like a design finding (a rule behaving differently than the packet intends), write it up in `sim/reports/` with the RuleSet digest, the assumption switches used, trial counts and confidence intervals, and stop to flag it. Don't fix the rules to make the numbers look better.
 

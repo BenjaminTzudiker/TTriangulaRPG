@@ -154,6 +154,9 @@ class Grab:
     def take_oa(self, request: TakeOA) -> OATake:
         return OATake()
 
+    def ability(self, request: object) -> Pass:
+        return Pass()
+
 
 def test_window_order_decides_who_gets_the_square() -> None:
     """Both creatures want the square between them; whoever is asked first takes it."""

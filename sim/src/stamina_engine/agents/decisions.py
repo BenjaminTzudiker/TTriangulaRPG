@@ -5,8 +5,8 @@ the legal options with their Pricing quotes, and the timing context.
 """
 
 from collections.abc import Mapping
-from dataclasses import dataclass
-from typing import Protocol
+from dataclasses import dataclass, field
+from typing import Protocol, runtime_checkable
 
 from stamina_engine.grid.battlefield import Battlefield, Cell
 from stamina_engine.model.derive import CombatProfile, LoadoutProfile
@@ -93,6 +93,20 @@ class DrawOption:
 
 
 @dataclass(frozen=True)
+class AbilityOption:
+    """An ability usable now: its stamina quote (cost plus strain overage) and strain."""
+
+    name: str
+    quote: Quote
+    strain: int
+
+
+@dataclass(frozen=True)
+class UseAbility:
+    name: str
+
+
+@dataclass(frozen=True)
 class TurnCommand:
     """Each loop of a creature's own turn: move, attack a target in reach, shoot, draw, or
     end the turn."""
@@ -106,11 +120,12 @@ class TurnCommand:
     draws: tuple[DrawOption, ...] = ()  # loadouts it can switch to now
     can_flee: bool = False  # standing on an exit square (M4)
     can_surrender: bool = False  # on a map, any active creature may (M4)
+    abilities: tuple[AbilityOption, ...] = ()  # usable on its turn now (M5)
 
     @property
     def option_count(self) -> int:
         moves = self.moves.option_count if self.moves else 0
-        extra = int(self.can_flee) + int(self.can_surrender)
+        extra = int(self.can_flee) + int(self.can_surrender) + len(self.abilities)
         return len(self.targets) + 1 + moves + len(self.shots) + len(self.draws) + extra
 
 
@@ -154,8 +169,8 @@ class Surrender:
     pass
 
 
-TurnAnswer = Attack | Move | Shoot | Draw | Flee | Surrender | EndTurn
-MoveAnswer = Move | Draw | Pass
+TurnAnswer = Attack | Move | Shoot | Draw | Flee | Surrender | UseAbility | EndTurn
+MoveAnswer = Move | Draw | UseAbility | Pass
 
 
 @dataclass(frozen=True)
@@ -167,10 +182,29 @@ class OffTurnMove:
     context: tuple[str, ...]
     moves: MoveOptions | None
     draws: tuple[DrawOption, ...] = ()
+    abilities: tuple[AbilityOption, ...] = ()  # usable between turns (M5)
 
     @property
     def option_count(self) -> int:
-        return (self.moves.option_count if self.moves else 0) + len(self.draws) + 1
+        moves = self.moves.option_count if self.moves else 0
+        return moves + len(self.draws) + len(self.abilities) + 1
+
+
+@dataclass(frozen=True)
+class AbilityRequest:
+    """A timing window where abilities can fire (before blocks, between turns, ...): use
+    one, or pass. `facts` describes the moment (the incoming roll before blocks, say)."""
+
+    who: str
+    observation: Observation
+    context: tuple[str, ...]
+    window: str
+    options: tuple[AbilityOption, ...]
+    facts: Mapping[str, int | str] = field(default_factory=dict)
+
+    @property
+    def option_count(self) -> int:
+        return len(self.options) + 1
 
 
 @dataclass(frozen=True)
@@ -310,6 +344,7 @@ class BlocksRequest:
     nondominated: int
     ranged: bool = False  # against a ranged attack (prices perfect blocks: blocks.ranged_flat)
     cover: int = 0  # the cover bonus included in defense
+    flat_perfect: bool = False  # perfect blocks don't escalate for this attack (Monk core)
 
     @property
     def option_count(self) -> int:
@@ -333,6 +368,15 @@ class Agent(Protocol):
 
     def dive(self, request: DiveRequest) -> MoveAnswer: ...
 
+    def ability(self, request: AbilityRequest) -> "UseAbility | Pass": ...
+
+
+@runtime_checkable
+class Timed(Protocol):
+    """An agent that times its answers (a person): the broker logs the seconds."""
+
+    def take_seconds(self) -> float | None: ...
+
 
 @dataclass(frozen=True)
 class DecisionRecord:
@@ -340,9 +384,10 @@ class DecisionRecord:
 
     round: int
     who: str
-    kind: str  # turn_command, commitment, blocks, off_turn_move, avoid, take_oa, aim, dive
+    kind: str  # turn_command, commitment, blocks, off_turn_move, avoid, take_oa, aim, dive, ability
     option_count: int
     nondominated: int | None
     answer: str
     acted: bool  # differed from passing (attacked, committed steps, blocked)
     context: tuple[str, ...]
+    seconds: float | None = None  # how long a human took to answer (human agents only)

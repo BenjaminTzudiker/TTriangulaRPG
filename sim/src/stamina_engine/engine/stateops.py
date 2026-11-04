@@ -5,9 +5,12 @@ check=True every op re-validates the whole state afterwards.
 """
 
 from collections.abc import Callable
+from dataclasses import replace
 
 from stamina_engine.core.errors import EngineError, RulesError, Unaffordable
 from stamina_engine.engine.events import (
+    AbilityUsed,
+    ControlChanged,
     DebtPaid,
     Drew,
     DyingRolled,
@@ -16,6 +19,7 @@ from stamina_engine.engine.events import (
     Indebted,
     Injured,
     Moved,
+    OrderChanged,
     Placed,
     Recovered,
     Spent,
@@ -118,7 +122,9 @@ class StateOps:
         c.banked = 0
         c.used_weapon = False
         c.bow_hands = False
+        c.step_costs = []
         self.state.turn_of = c.id
+        self.state.acted = self.state.acted | {c.id}
         self._emit(TurnStarted(c.id, self.state.round))
 
     def end_turn(self, c: CombatantState) -> None:
@@ -150,6 +156,59 @@ class StateOps:
             raise RulesError(f"{c.id} is {c.status.value} and can't draw")
         c.loadout = loadout
         self._emit(Drew(c.id, loadout, cost))
+
+    # --- abilities -----------------------------------------------------------------
+
+    def ability_used(self, c: CombatantState, name: str, window: str, strain: int) -> None:
+        """Record an ability's use and gain its strain (its stamina is a separate spend)."""
+        if not c.active:
+            raise RulesError(f"{c.id} is {c.status.value} and can't use abilities")
+        c.strain += strain
+        c.trackers = replace(c.trackers, strain=c.strain)
+        self._emit(AbilityUsed(c.id, name, window, c.strain))
+
+    def record_steps(self, c: CombatantState, parts: tuple[int, ...]) -> None:
+        """Attack steps paid on your turn, for refunds (the Barbarian core)."""
+        c.step_costs.extend(parts)
+        self._bump()
+
+    def refund_step(self, c: CombatantState) -> int:
+        """Take back the biggest unrefunded attack step paid this turn; returns its cost."""
+        if not c.step_costs:
+            raise RulesError(f"{c.id} has no attack step to refund")
+        biggest = max(c.step_costs)
+        c.step_costs.remove(biggest)
+        self._bump()
+        return biggest
+
+    def reorder(self, order: tuple[str, ...]) -> None:
+        self.state.order = order
+        self._emit(OrderChanged(order))
+
+    def delay(self, c: CombatantState, waiting: bool) -> None:
+        """A Rogue waits to take its turn after a later one (or stops waiting)."""
+        self.state.delayed = self.state.delayed | {c.id} if waiting else self.state.delayed - {c.id}
+        self._bump()
+
+    # --- control effects (stub) ------------------------------------------------------
+
+    def advance_control(self, target: CombatantState, effect: str, amount: int, by: str) -> None:
+        """A control effect gains progress on target (Packet: Conditions and Control Effects:
+        progressive and resistible with stamina). What the progress does is Phase 7's."""
+        if amount < 0:
+            raise EngineError("advance by a positive amount; resist_control pushes back")
+        target.control[effect] = target.control.get(effect, 0) + amount
+        self._emit(ControlChanged(target.id, effect, target.control[effect], by))
+
+    def resist_control(self, c: CombatantState, effect: str, stamina: int) -> None:
+        """Push a control effect back 1 per stamina spent (paid through spend separately)."""
+        now = c.control.get(effect, 0)
+        if stamina > now:
+            raise RulesError(f"{c.id} can push {effect} back {now} at most")
+        c.control[effect] = now - stamina
+        if c.control[effect] == 0:
+            del c.control[effect]
+        self._emit(ControlChanged(c.id, effect, c.control.get(effect, 0), c.id))
 
     # --- leaving the fight ---------------------------------------------------------
 
@@ -231,6 +290,8 @@ class StateOps:
 
     def set_round(self, round_: int) -> None:
         self.state.round = round_
+        self.state.acted = frozenset()
+        self.state.delayed = frozenset()
         self._bump()
 
     def set_order(self, order: tuple[str, ...]) -> None:

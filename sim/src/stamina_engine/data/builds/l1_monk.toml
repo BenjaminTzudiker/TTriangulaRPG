@@ -1,0 +1,7 @@
+# The sample fighter's stats with the monk core instead of the fighter's, for pricing class
+# cores. The monk core grants no proficiencies, so the longsword is listed.
+level = 1
+attributes = { STR = 2, AGI = 1, FIN = 1 }
+cores = ["monk"]
+proficiencies = ["longsword"]
+loadouts.main = { weapon = "longsword", grip = "one", off_hand = "shield", armor = "medium" }

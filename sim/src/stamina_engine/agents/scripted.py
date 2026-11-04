@@ -16,8 +16,10 @@ from dataclasses import dataclass, field
 from fractions import Fraction
 from typing import TYPE_CHECKING, Protocol
 
+from stamina_engine.agents.ability_policy import AbilityPolicy, is_riposte, make_policy
 from stamina_engine.agents.blocking import solver_blocks
 from stamina_engine.agents.decisions import (
+    AbilityRequest,
     AimRequest,
     Attack,
     Avoid,
@@ -38,6 +40,7 @@ from stamina_engine.agents.decisions import (
     TakeOA,
     TurnAnswer,
     TurnCommand,
+    UseAbility,
 )
 from stamina_engine.agents.estimates import Estimate, Target, exact_estimate, sampled_estimate
 from stamina_engine.agents.grid_view import Board, attack_squares
@@ -335,6 +338,7 @@ class ScriptedAgent:
     avoid_mode: str = "worth_it"
     oa_mode: str = "max"
     aims: int = 3  # a shooter's aim steps, as many of these as it can afford
+    abilities: AbilityPolicy | None = None  # None: pass every ability window
     _pending: int = field(default=0, init=False)
     _shot_round: int = field(default=-1, init=False)
 
@@ -343,6 +347,10 @@ class ScriptedAgent:
         review's policies were: its look-ahead samples the target's replies even then."""
         obs = request.observation
         assert obs.me.trackers is not None
+        if self.abilities is not None and request.abilities:
+            use = self.abilities.on_turn(obs, request.abilities)
+            if use is not None:
+                return use
         if obs.me.trackers.actions_this_turn > 0 or self._shot_round == obs.round:
             return EndTurn()  # one attack per turn
         if request.shots:
@@ -380,6 +388,8 @@ class ScriptedAgent:
         return avoid_choice(request, self.rules, self.w, self.avoid_mode)
 
     def take_oa(self, request: TakeOA) -> OATake:
+        if self.abilities is None and is_riposte(request.context):
+            return OATake()
         return largest_oa(request) if self.oa_mode == "max" else OATake()
 
     def aim(self, request: AimRequest) -> int:
@@ -387,7 +397,18 @@ class ScriptedAgent:
         return min(max(self.aims, request.required), request.max_aims)
 
     def dive(self, request: DiveRequest) -> MoveAnswer:
-        return Pass()  # scripted agents never dive
+        """Scripted agents never dive for cover; with abilities on, they make Tactical
+        Withdrawal's move."""
+        if self.abilities is not None:
+            step = self.abilities.withdrawal_move(request)
+            if step is not None:
+                return step
+        return Pass()
+
+    def ability(self, request: AbilityRequest) -> UseAbility | Pass:
+        if self.abilities is None:
+            return Pass()
+        return self.abilities.at_window(request, self._pending)
 
 
 # --- specs ---------------------------------------------------------------------------
@@ -395,7 +416,17 @@ class ScriptedAgent:
 
 AVOID_MODES = frozenset({"worth_it", "always", "never"})
 OA_MODES = frozenset({"max", "never"})
-SCRIPTED_FIELDS = {"kind", "commit", "target", "w", "estimator", "avoid", "oa", "aims"}
+SCRIPTED_FIELDS = {
+    "kind",
+    "commit",
+    "target",
+    "w",
+    "estimator",
+    "avoid",
+    "oa",
+    "aims",
+    "abilities",
+}
 TACTICAL_FIELDS = {
     "retreat_engaged",
     "low_stamina",
@@ -416,8 +447,8 @@ def make_agent(
     "never", "tactical", or a table {kind = "scripted" | "tactical", commit = "...",
     target = "first" | "lowest_stamina" (tactical: or "nearest"), w = "3",
     estimator = "exact" | "sampled", avoid = "worth_it" | "always" | "never",
-    oa = "max" | "never"}; tactical also takes retreat_engaged = 2, low_stamina = "1/3",
-    reach_spacing = true."""
+    oa = "max" | "never", abilities = "none" | "use"}; tactical also takes
+    retreat_engaged = 2, low_stamina = "1/3", reach_spacing = true."""
     from stamina_engine.agents.tactical import TacticalAgent
 
     if spec == "tactical":
@@ -445,6 +476,7 @@ def make_agent(
     commit = str(table.get("commit", "chipkill" if kind == "tactical" else "alpha"))
     target = str(table.get("target", "lowest_stamina" if kind == "tactical" else "first"))
     w = Fraction(str(table.get("w", "3")))
+    uses = make_policy(str(table.get("abilities", "none")), rules, w)
     estimator = Estimator(rules, str(table.get("estimator", "exact")), source)
     pricing = Pricing(rules)
     name, _, arg = commit.partition(":")
@@ -490,9 +522,17 @@ def make_agent(
             reach_spacing,
             Fraction(str(table.get("flee_below", "0"))),
             Fraction(str(table.get("surrender_below", "0"))),
+            uses,
         )
     if target not in TARGETS:
         raise ConfigError(f"unknown target policy {target!r}; known: {sorted(TARGETS)}")
     return ScriptedAgent(
-        rules, policy, TARGETS[target], w, avoid_mode, oa_mode, int(str(table.get("aims", 3)))
+        rules,
+        policy,
+        TARGETS[target],
+        w,
+        avoid_mode,
+        oa_mode,
+        int(str(table.get("aims", 3))),
+        uses,
     )

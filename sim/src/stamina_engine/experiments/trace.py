@@ -17,7 +17,7 @@ from stamina_engine.grid.battlefield import Cell
 cites = ("Packet: Starting Combat and Turn Structure",)
 
 
-def _line(e: Event) -> str:
+def event_line(e: Event) -> str:
     d = json.loads(e.to_json())
     kind = d.pop("event")
     fields = " ".join(f"{k}={v}" for k, v in d.items())
@@ -71,5 +71,5 @@ def trace(scenario: Scenario, trial: int = 0, cell: str = "") -> str:
         board.apply(e)
         if type(e).__name__ == "TurnStarted" and field is not None:
             lines.append(field.render(board.marks(), spawns=False))
-        lines.append(_line(e))
+        lines.append(event_line(e))
     return "\n".join(lines)

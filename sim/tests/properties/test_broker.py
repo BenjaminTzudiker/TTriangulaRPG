@@ -42,6 +42,11 @@ class Fixed:
     def blocks(self, request: BlocksRequest) -> Blocks:
         return self.block
 
+    def ability(self, request: object) -> object:
+        from stamina_engine.agents.decisions import Pass
+
+        return Pass()
+
 
 def setup() -> tuple[BattleState, TurnCommand, Commitment, BlocksRequest]:
     p = derive(load_build("l1_sample"), RULES)

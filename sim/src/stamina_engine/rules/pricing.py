@@ -145,10 +145,12 @@ class Pricing:
         trackers: Trackers = FRESH,
         stamina: int | None = None,
         light: bool = False,
+        extra: int = 0,
     ) -> Quote:
-        """k attack steps, declared and paid together. Raises if stamina is given and short."""
+        """k attack steps, declared and paid together. Raises if stamina is given and short.
+        extra is added to every step (Heavy Swing's +1)."""
         prior = trackers.actions_this_turn
-        parts = tuple(self.melee_step(base, prior + i, light) for i in range(steps))
+        parts = tuple(self.melee_step(base, prior + i, light) + extra for i in range(steps))
         return _ensure(Quote(parts, Track.ON_TURN), stamina)
 
     def max_steps(
@@ -380,9 +382,11 @@ class Pricing:
 
     # --- blocks ----------------------------------------------------------------------
 
-    def perfect_block(self, nth: int, ranged: bool = False) -> int:
+    def perfect_block(self, nth: int, ranged: bool = False, flat: bool = False) -> int:
+        """The nth perfect block's cost. flat: the Monk core (no escalation this attack)."""
         b = self.rules.blocks
-        return b.ranged_perfect_cost(nth) if ranged else b.perfect_cost(nth)
+        n = 1 if flat else nth
+        return b.ranged_perfect_cost(n) if ranged else b.perfect_cost(n)
 
     def blocks(
         self,
@@ -391,6 +395,7 @@ class Pricing:
         stamina: int | None = None,
         prior_perfect: int = 0,
         ranged: bool = False,
+        flat: bool = False,
     ) -> Quote:
         """Escalation applies within this attack only; it isn't part of any track.
 
@@ -399,7 +404,9 @@ class Pricing:
         """
         b = self.rules.blocks
         first = prior_perfect + 1
-        perfect_parts = tuple(self.perfect_block(i, ranged) for i in range(first, first + perfect))
+        perfect_parts = tuple(
+            self.perfect_block(i, ranged, flat) for i in range(first, first + perfect)
+        )
         return _ensure(Quote(perfect_parts + (b.graze_cost,) * grazing), stamina)
 
     # --- other -----------------------------------------------------------------------

@@ -4,6 +4,8 @@ logs each decision. It never substitutes an answer (ground rule 5)."""
 from collections.abc import Mapping
 
 from stamina_engine.agents.decisions import (
+    AbilityOption,
+    AbilityRequest,
     Agent,
     AimRequest,
     Attack,
@@ -26,8 +28,10 @@ from stamina_engine.agents.decisions import (
     Shoot,
     Surrender,
     TakeOA,
+    Timed,
     TurnAnswer,
     TurnCommand,
+    UseAbility,
 )
 from stamina_engine.core.errors import RulesError
 from stamina_engine.grid.battlefield import Battlefield, Cell
@@ -55,6 +59,7 @@ class Broker:
         self.agents = agents
         self.pricing = pricing
         self.records: list[DecisionRecord] = []
+        self._timed = {who: a for who, a in agents.items() if isinstance(a, Timed)}
 
     def check_path(
         self, who: str, field: Battlefield | None, moves: MoveOptions | None, path: object
@@ -93,6 +98,9 @@ class Broker:
         elif isinstance(answer, Draw):
             self._check_draw(req.who, req.draws, answer)
             text, acted = f"draw {answer.loadout}", True
+        elif isinstance(answer, UseAbility):
+            self._check_ability(req.who, req.abilities, answer)
+            text, acted = f"ability {answer.name}", True
         elif isinstance(answer, Flee):
             if not req.can_flee:
                 raise RulesError(f"{req.who} can't flee from here")
@@ -138,7 +146,11 @@ class Broker:
         if not isinstance(answer, Blocks) or answer.perfect < 0 or answer.grazing < 0:
             raise RulesError(f"{req.who} gave {answer!r} to a Blocks request")
         cost = self.pricing.blocks(
-            answer.perfect, answer.grazing, prior_perfect=req.prior_perfect, ranged=req.ranged
+            answer.perfect,
+            answer.grazing,
+            prior_perfect=req.prior_perfect,
+            ranged=req.ranged,
+            flat=req.flat_perfect,
         )
         if cost.total > req.stamina:
             raise RulesError(f"{req.who}'s blocks cost {cost.total}, has {req.stamina}")
@@ -168,6 +180,9 @@ class Broker:
         elif isinstance(answer, Draw):
             self._check_draw(req.who, req.draws, answer)
             text, acted = f"draw {answer.loadout}", True
+        elif isinstance(answer, UseAbility):
+            self._check_ability(req.who, req.abilities, answer)
+            text, acted = f"ability {answer.name}", True
         elif isinstance(answer, Pass):
             text, acted = "pass", False
         else:
@@ -236,6 +251,35 @@ class Broker:
         )
         return answer
 
+    def _check_ability(
+        self, who: str, options: tuple[AbilityOption, ...], answer: UseAbility
+    ) -> None:
+        if answer.name not in {o.name for o in options}:
+            raise RulesError(
+                f"{who} can't use {answer.name!r} now; options {[o.name for o in options]}"
+            )
+
+    def ability(self, req: AbilityRequest) -> UseAbility | Pass:
+        answer = self.agents[req.who].ability(req)
+        if isinstance(answer, UseAbility):
+            self._check_ability(req.who, req.options, answer)
+            text, acted = f"ability {answer.name}", True
+        elif isinstance(answer, Pass):
+            text, acted = "pass", False
+        else:
+            raise RulesError(f"{req.who} gave {answer!r} to an ability request")
+        self._record(
+            req.observation.round,
+            req.who,
+            "ability",
+            req.option_count,
+            None,
+            text,
+            acted,
+            req.context,
+        )
+        return answer
+
     def aim(self, req: AimRequest) -> int:
         aims = self.agents[req.who].aim(req)
         if not isinstance(aims, int) or isinstance(aims, bool) or not 0 <= aims <= req.max_aims:
@@ -284,6 +328,10 @@ class Broker:
         acted: bool,
         context: tuple[str, ...],
     ) -> None:
+        timed = self._timed.get(who)
+        seconds = timed.take_seconds() if timed is not None else None
         self.records.append(
-            DecisionRecord(round_, who, kind, options, nondominated, answer, acted, context)
+            DecisionRecord(
+                round_, who, kind, options, nondominated, answer, acted, context, seconds
+            )
         )

@@ -69,16 +69,38 @@ def move_options(b: Battle, c: CombatantState, on_turn: bool) -> MoveOptions | N
     )
 
 
-def move(b: Battle, mover: CombatantState, path: tuple[Cell, ...], on_turn: bool) -> None:
-    """Carry out a path the broker has already checked."""
+def free_move_options(b: Battle, c: CombatantState, limit: int) -> MoveOptions | None:
+    """Up to `limit` squares already paid for (Tactical Withdrawal)."""
+    if b.field is None or c.pos is None or not c.active or limit <= 0:
+        return None
+    passage = Passage.for_mover(b.rules.grid, c.id, c.team, bodies(b.state))
+    reach = reachable(b.field, b.rules.grid, c.pos, passage, limit)
+    destinations = reach.destinations()
+    if not destinations:
+        return None
+    return MoveOptions(
+        c.pos, False, limit, (0,) * (limit + 1), destinations, passage.no_entry, passage.no_stop
+    )
+
+
+def move(
+    b: Battle,
+    mover: CombatantState,
+    path: tuple[Cell, ...],
+    on_turn: bool,
+    prepaid: bool = False,
+) -> None:
+    """Carry out a path the broker has already checked. prepaid: its squares were paid for
+    already (an ability's move), so no purchases."""
     with b.context.frame(f"move {mover.id}"):
-        quote = b.pricing.move(
-            len(path), on_turn=on_turn, trackers=mover.trackers, **_price_args(mover, on_turn)
-        )
-        for purchase in quote.purchases:
-            b.ops.spend(mover, purchase, "extra_move" if on_turn else "off_turn_move")
-        if on_turn and quote.bought:
-            b.ops.bank(mover, sum(quote.bought))
+        if not prepaid:
+            quote = b.pricing.move(
+                len(path), on_turn=on_turn, trackers=mover.trackers, **_price_args(mover, on_turn)
+            )
+            for purchase in quote.purchases:
+                b.ops.spend(mover, purchase, "extra_move" if on_turn else "off_turn_move")
+            if on_turn and quote.bought:
+                b.ops.bank(mover, sum(quote.bought))
         oa = OAContext()  # per-square cap accrual, for this move only
         stopped = False
         for nxt in path:

@@ -9,6 +9,7 @@ from hypothesis import given, settings
 from hypothesis import strategies as st
 
 from stamina_engine.agents.decisions import (
+    AbilityRequest,
     AimRequest,
     Attack,
     Avoid,
@@ -28,6 +29,7 @@ from stamina_engine.agents.decisions import (
     TakeOA,
     TurnAnswer,
     TurnCommand,
+    UseAbility,
 )
 from stamina_engine.core.rng import Streams
 from stamina_engine.engine.battle import Battle, Entrant
@@ -77,6 +79,8 @@ class RandomAgent:
             return Shoot(self.rng.choice(request.shots))
         if request.draws and roll > 0.9:
             return Draw(self.rng.choice(request.draws).loadout)
+        if request.abilities and 0.85 < roll <= 0.9:
+            return UseAbility(self.rng.choice(request.abilities).name)
         if request.targets and roll < 0.5:
             return Attack(self.rng.choice(request.targets))
         if request.moves is not None and roll < 0.8:
@@ -114,6 +118,11 @@ class RandomAgent:
     def dive(self, request: DiveRequest) -> MoveAnswer:
         if self.rng.random() < 0.3:
             return self._path(request.observation.field, request.moves)
+        return Pass()
+
+    def ability(self, request: AbilityRequest) -> UseAbility | Pass:
+        if request.options and self.rng.random() < 0.3:
+            return UseAbility(self.rng.choice(request.options).name)
         return Pass()
 
     def avoid(self, request: AvoidOA) -> Avoid:

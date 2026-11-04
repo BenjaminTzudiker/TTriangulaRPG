@@ -7,6 +7,7 @@ from typing import Any
 
 from stamina_engine.engine.battle import BattleResult
 from stamina_engine.engine.events import (
+    AbilityUsed,
     AttackDeclared,
     AttackResolved,
     AttackRolled,
@@ -37,6 +38,7 @@ CATEGORIES = (
     "off_turn_move",
     "shot",
     "draw",
+    "ability",  # every ability's stamina (cost and strain overage), summed
 )
 
 
@@ -48,6 +50,7 @@ def fight_row(result: BattleResult, trial: int, seed: int) -> Row:
     losers = [c for c in state.combatants if result.winner is not None and c.team != result.winner]
     spent: Counter[str] = Counter()
     moved: Counter[str] = Counter()
+    uses: Counter[str] = Counter()
     wasted = 0
     provoked = avoided = taken = shots = aims = missed = dives = draws = 0
     contact: int | None = None
@@ -56,7 +59,9 @@ def fight_row(result: BattleResult, trial: int, seed: int) -> Row:
         if isinstance(e, RoundStarted):
             round_ = e.round
         elif isinstance(e, Spent):
-            spent[f"{state.get(e.who).team}:{e.category}"] += e.amount
+            spent[f"{state.get(e.who).team}:{e.category.split(':')[0]}"] += e.amount
+        elif isinstance(e, AbilityUsed):
+            uses[state.get(e.who).team] += 1
         elif isinstance(e, Recovered):
             wasted += e.wasted
         elif isinstance(e, Moved):
@@ -117,6 +122,8 @@ def fight_row(result: BattleResult, trial: int, seed: int) -> Row:
         row[f"win:{team}"] = result.winner == team
         for category in CATEGORIES:
             row[f"spent:{team}:{category}"] = spent[f"{team}:{category}"]
+        row[f"abilities:{team}"] = uses[team]  # ability uses by the team's creatures
+        row[f"strain:{team}"] = sum(c.strain for c in state.combatants if c.team == team)
         row[f"moved:{team}:on"] = moved[f"{team}:on"]
         row[f"moved:{team}:off"] = moved[f"{team}:off"]
         row[f"down:{team}"] = sum(1 for c in state.combatants if c.team == team and not c.active)
@@ -160,7 +167,7 @@ def attack_rows(result: BattleResult, trial: int) -> list[Row]:
         elif isinstance(e, Spent) and e.category in ("attack", "opportunity", "shot"):
             current["cost"] = e.amount
         elif isinstance(e, AttackRolled):
-            current.update(total=e.total, crit_dice=e.crit_dice)
+            current.update(total=e.total, crit_dice=e.crit_dice, dice=len(e.faces))
         elif isinstance(e, BlocksDeclared):
             current.update(perfect=e.perfect, grazing=e.grazing)
         elif isinstance(e, Spent) and e.category == "block":
@@ -183,6 +190,7 @@ def decision_rows(result: BattleResult, trial: int) -> list[Row]:
             "answer": d.answer,
             "acted": d.acted,
             "context": " > ".join(d.context),
+            "seconds": d.seconds,
         }
         for d in result.decisions
     ]

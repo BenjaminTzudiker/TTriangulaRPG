@@ -1,0 +1,9 @@
+# The sample fighter's stats with no core and the candidate ability Riposte, for pricing it
+# alone (se suite cores). With no core the longsword is listed as a proficiency.
+# Candidate abilities aren't costed yet, so this doesn't count against the AP budget.
+level = 1
+attributes = { STR = 2, AGI = 1, FIN = 1 }
+cores = []
+proficiencies = ["longsword"]
+abilities = ["riposte"]
+loadouts.main = { weapon = "longsword", grip = "one", off_hand = "shield", armor = "medium" }

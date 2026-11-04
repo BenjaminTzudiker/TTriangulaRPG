@@ -10,6 +10,7 @@ of `commit`; an aim request the next entry of `aims`.
 from dataclasses import dataclass, field
 
 from stamina_engine.agents.decisions import (
+    AbilityRequest,
     AimRequest,
     Avoid,
     AvoidOA,
@@ -24,6 +25,7 @@ from stamina_engine.agents.decisions import (
     TakeOA,
     TurnAnswer,
     TurnCommand,
+    UseAbility,
 )
 from stamina_engine.rules.exchange import Blocks
 
@@ -40,6 +42,7 @@ class Listed:
     oas: list[OATake] = field(default_factory=list)
     aims: list[int] = field(default_factory=list)
     dives: list[MoveAnswer] = field(default_factory=list)
+    uses: list[UseAbility | Pass] = field(default_factory=list)  # ability windows
     seen: list[str] = field(default_factory=list)  # each request's context, for tests
     requests: list[object] = field(default_factory=list)  # every request, for tests
 
@@ -79,3 +82,7 @@ class Listed:
         self.requests.append(request)
         self.seen.append(" > ".join(request.context))
         return self.dives.pop(0) if self.dives else Pass()
+
+    def ability(self, request: AbilityRequest) -> UseAbility | Pass:
+        self.requests.append(request)
+        return self.uses.pop(0) if self.uses else Pass()

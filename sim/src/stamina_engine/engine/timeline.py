@@ -2,6 +2,7 @@
 
 import hashlib
 
+from stamina_engine.abilities import framework as abilities
 from stamina_engine.agents.decisions import (
     Attack,
     Draw,
@@ -11,6 +12,7 @@ from stamina_engine.agents.decisions import (
     Shoot,
     Surrender,
     TurnCommand,
+    UseAbility,
 )
 from stamina_engine.core.dice import roll
 from stamina_engine.engine.battle import Battle, BattleResult
@@ -117,6 +119,7 @@ def command_loop(b: Battle, c: CombatantState) -> None:
                 draw_options(b, c, on_turn=True),
                 b.field is not None and c.pos is not None and b.field.is_exit(c.pos),
                 b.field is not None,
+                abilities.options(b, c, "turn"),
             )
         )
         if isinstance(answer, EndTurn):
@@ -129,6 +132,8 @@ def command_loop(b: Battle, c: CombatantState) -> None:
             shoot(b, c, b.state.get(answer.target))
         elif isinstance(answer, Draw):
             draw(b, c, answer.loadout, on_turn=True)
+        elif isinstance(answer, UseAbility):
+            abilities.use(b, c, answer.name, "turn")
         elif isinstance(answer, Flee | Surrender):
             if isinstance(answer, Flee):
                 b.ops.flee(c)
@@ -166,6 +171,47 @@ def place_everyone(b: Battle) -> None:
         b.ops.place(b.state.get(e.id), e.pos)
 
 
+OUT = (Status.DEAD, Status.FLED, Status.SURRENDERED)
+
+
+def play_round(b: Battle) -> None:
+    """Each creature's turn in initiative order. A Rogue may jump in between turns, or wait
+    at its turn's start and come back after a later turn (Packet: Core Abilities); the order
+    it actually took becomes its slot from the next round on (Assumptions register)."""
+    queue = list(b.state.order)
+    taken: list[str] = []
+    while queue and b.outcome is None:
+        _rogue_jump(b, queue)
+        cid = queue.pop(0)
+        c = b.state.get(cid)
+        if c.status in OUT:
+            continue
+        if c.active and queue and abilities.window(b, c, "turn_start", {"later": len(queue)}):
+            b.ops.delay(c, True)
+            queue.insert(1, cid)  # after the next creature's turn
+            continue
+        if cid in b.state.delayed:
+            b.ops.delay(c, False)
+        take_turn(b, c)
+        taken.append(cid)
+    if b.outcome is None:
+        new = tuple(taken) + tuple(cid for cid in b.state.order if cid not in taken)
+        if new != b.state.order:
+            b.ops.reorder(new)
+
+
+def _rogue_jump(b: Battle, queue: list[str]) -> None:
+    """Between turns: a Rogue later in the queue (or waiting) may take its turn now."""
+    for rid in queue[1:]:
+        r = b.state.get(rid)
+        if not r.active or rid in b.state.acted:
+            continue
+        if abilities.window(b, r, "between_turns", {"next": queue[0]}) == "rogue_core":
+            queue.remove(rid)
+            queue.insert(0, rid)
+            return
+
+
 def run_battle(b: Battle) -> BattleResult:
     b.ops.emit(
         BattleStarted(
@@ -185,13 +231,7 @@ def run_battle(b: Battle) -> BattleResult:
         b.ops.set_round(round_)
         b.ops.emit(RoundStarted(round_))
         with b.context.frame(f"round {round_}"):
-            for cid in order:
-                c = b.state.get(cid)
-                if c.status in (Status.DEAD, Status.FLED, Status.SURRENDERED):
-                    continue
-                take_turn(b, c)
-                if b.outcome is not None:
-                    break
+            play_round(b)
     winner, reason = b.outcome if b.outcome is not None else (None, "round_cap")
     b.ops.emit(BattleEnded(reason, winner, round_))
     return BattleResult(

@@ -17,7 +17,7 @@ from stamina_engine.rules import components as _components  # noqa: F401  (regis
 from stamina_engine.rules.components.blocks import BlockRule, PerfectSlope
 from stamina_engine.rules.components.crit import CritRule, DoubleOnce
 from stamina_engine.rules.components.defenses import DefenseRule, V09Defenses
-from stamina_engine.rules.components.dying import DyingRule, SystemShock
+from stamina_engine.rules.components.dying import DyingRule, NoShock, SystemShock
 from stamina_engine.rules.components.grid import GridRule, V09Grid
 from stamina_engine.rules.components.information import InformationRule, V09Information
 from stamina_engine.rules.components.movement import MovementRule, V09Movement
@@ -161,8 +161,9 @@ def review_candidate() -> RuleSet:
 def review_sim() -> RuleSet:
     """The review simulator's quirks, for parity runs only (see CLAUDE.md, The oracle).
 
-    Initiative ties go to the first-listed combatant, and duels have no off-turn movement or
-    opportunity attacks. Its crit modes are selected per run with crit overrides.
+    Initiative ties go to the first-listed combatant, duels have no off-turn movement or
+    opportunity attacks, and there is no System Shock: a creature at 0 HP or below is out and
+    rolls nothing. Its crit modes are selected per run with crit overrides.
     """
     base = v0_9()
     return base.with_(
@@ -170,6 +171,7 @@ def review_sim() -> RuleSet:
         turn_order=V09Initiative(tiebreak="list_order"),
         off_turn=Escalation(enabled=False),
         opportunity=V09Opportunity(enabled=False),
+        dying=NoShock(),
     )
 
 

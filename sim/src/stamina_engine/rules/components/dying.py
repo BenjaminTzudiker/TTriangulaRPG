@@ -85,3 +85,21 @@ class SystemShock(DyingRule):
         if state.dead:
             return state
         return replace(state, shock=0, in_shock=False)
+
+
+@register("dying", "none")
+@dataclass(frozen=True)
+class NoShock(DyingRule):
+    """Parity only (review-sim): no System Shock. At 0 HP or below a creature is simply out,
+    and never rolls or dies, as in the review's simulator."""
+
+    def take_damage(self, state: DyingState, damage: int) -> DyingState:
+        if damage <= 0:
+            return state
+        return replace(state, hp=state.hp - damage)
+
+    def dying_roll(self, state: DyingState, total: int) -> DyingState:
+        return state
+
+    def stabilize(self, state: DyingState) -> DyingState:
+        return state

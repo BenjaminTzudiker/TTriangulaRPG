@@ -29,6 +29,7 @@ def test_presets_differ_where_intended() -> None:
         "turn_order",
         "off_turn",
         "opportunity",
+        "dying",
     }
 
 

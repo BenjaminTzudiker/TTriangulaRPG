@@ -230,9 +230,7 @@ class ScriptedAgent:
         assert obs.me.trackers is not None
         if obs.me.trackers.actions_this_turn > 0:
             return EndTurn()  # one attack per turn
-        candidates = request.targets or tuple(
-            v.id for v in obs.enemies() if v.status == "active"
-        )
+        candidates = request.targets or tuple(v.id for v in obs.enemies() if v.status == "active")
         tid = self.target(obs, candidates)
         if tid is None:
             return EndTurn()

@@ -13,6 +13,8 @@ the difference is paired. Two settings:
 - One against three on open ground, the attackers committing 2 steps each (Phase 3's
   layout), the ability on the defender, for both agent families.
 
+Then the four class cores against each other, both sides using theirs (chip-kill duels).
+
 A single fight starts at 0 strain (Packet: Strain recovers only overnight), so these are
 upper bounds for a day of several fights.
 """
@@ -57,6 +59,8 @@ FAMILIES: tuple[tuple[str, Mapping[str, object]], ...] = (
 )
 
 MODES = (("off", "none"), ("on", "use"))
+CORES = ABILITIES[:4]
+MATRIX = "Core against core (both sides use their cores)"
 
 
 DUELS = "Duels, chip-kill agents (side A has the ability; B, its opponent, uses none)"
@@ -78,6 +82,20 @@ def rows() -> list[SuiteRow]:
                     "v0.9",
                     {"A": {**DUELIST, "abilities": uses}, "B": dict(DUELIST)},
                     {"A": build, "B": opponent},
+                    side="A",
+                )
+            )
+    for a_label, a_build, _ in CORES:
+        for b_label, b_build, _ in CORES:
+            use = {**DUELIST, "abilities": "use"}
+            out.append(
+                SuiteRow(
+                    MATRIX,
+                    f"{a_label} v {b_label}",
+                    "duel_open.toml",
+                    "v0.9",
+                    {"A": use, "B": use},
+                    {"A": a_build, "B": b_build},
                     side="A",
                 )
             )
@@ -145,6 +163,21 @@ def headline(results: Sequence[tuple[SuiteRow, RunResult]]) -> str:
     return "\n".join(lines)
 
 
+def matrix(results: Sequence[tuple[SuiteRow, RunResult]]) -> str:
+    """Side A's win rate with its core (rows) against B's (columns), both using them."""
+    by = {(r.group, r.label): run.fights for r, run in results}
+    names = [label.removesuffix(" core") for label, _, _ in CORES]
+    lines = ["| A's core \\ B's core | " + " | ".join(names) + " |", "|---" * 5 + "|"]
+    for (a_label, _, _), a_name in zip(CORES, names, strict=True):
+        cells = []
+        for b_label, _, _ in CORES:
+            fights = by[(MATRIX, f"{a_label} v {b_label}")]
+            wins = sum(1 for f in fights if f.get("win:A"))
+            cells.append(f"{100 * wins / max(1, len(fights)):.0f}%")
+        lines.append(f"| {a_name} | " + " | ".join(cells) + " |")
+    return "\n".join(lines)
+
+
 def render(results: Sequence[tuple[SuiteRow, RunResult]], stamp: str, trials: int) -> str:
     body = render_rows(results, stamp, trials, "Cores suite", CORES_COLUMNS, "se suite cores")
     head, _, tables = body.partition("\n## ")
@@ -154,7 +187,12 @@ def render(results: Sequence[tuple[SuiteRow, RunResult]], stamp: str, trials: in
         "intervals. Duels: side A's win rate, in percentage points. One against three: "
         "the rounds the fight lasts, which is how long the defender holds out. The "
         "policies that decide when each ability is used are in "
-        "`agents/ability_policy.py`.\n\n" + headline(results) + "\n"
+        "`agents/ability_policy.py`.\n\n" + headline(results) + "\n\n"
+        "### Core against core\n\n"
+        "Side A's win rate, both sides using their cores (chip-kill duels, adjacent on open "
+        "ground; draws are the rest). Each cell's interval is in its row below.\n\n"
+        + matrix(results)
+        + "\n"
     )
     return f"{head}{intro}\n## {tables}"
 

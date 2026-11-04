@@ -85,7 +85,7 @@ Flat perfect blocks (Monk) lengthen fights; recovering (Fighter) and refunding s
 
 By option count nearly every request is non-trivial. A turn offers 80–140 options once every reachable square counts, and blocks offer 18–28 affordable pairs.
 
-**Off-turn windows are the biggest share of the load** (Review F14 and F11): 2–3.4 asks per creature-round, and the engine agents move in at most 14% of them. Whether people pass that often is the question a human session answers.
+**Off-turn windows are the biggest share of the load** (Review F14 and F11), a third to a half of it: 1.8–3.4 asks per creature-round, and the engine agents move in at most 14% of them. Whether people pass that often is the question a human session answers.
 
 **Ability windows add about half a request per creature-round.** For example, the sample fighter's core is offered before every block once it is below maximum stamina. So M1–M4 decision counts rise in M5 for builds with a core. The rules and the logs are unchanged; it's a new request.
 

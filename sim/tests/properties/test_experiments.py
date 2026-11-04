@@ -1,12 +1,11 @@
 """Scenarios, the runner, sweeps, metrics, stats, Parquet output and the CLI."""
 
+import sys
 from pathlib import Path
 
-import pyarrow.parquet as pq
 import pytest
-from typer.testing import CliRunner
 
-from stamina_engine.cli import app
+from stamina_engine.cli import invoke
 from stamina_engine.core.errors import ConfigError
 from stamina_engine.experiments.metrics import summarize
 from stamina_engine.experiments.results import write_results
@@ -139,6 +138,7 @@ def test_sweep_cells_share_seeds(tmp_path: Path) -> None:
     assert duel[0].seed_key == duel[1].seed_key  # RuleSets compared on the same dice
     assert duel[0].scenario.rules.surcharge != duel[1].scenario.rules.surcharge
     results = run_sweep(cells, trials=8)
+    pq = pytest.importorskip("pyarrow.parquet")
     paths = write_results(results, tmp_path)
     fights = pq.read_table(tmp_path / "fights.parquet")
     assert fights.num_rows == 32
@@ -148,17 +148,27 @@ def test_sweep_cells_share_seeds(tmp_path: Path) -> None:
     assert len(paths) == 4
 
 
-def test_cli_commands(tmp_path: Path) -> None:
-    runner = CliRunner()
-    out = runner.invoke(app, ["run", str(DUEL), "--trials", "20", "--out", str(tmp_path)])
+def test_cli_commands() -> None:
+    out = invoke(["run", str(DUEL), "--trials", "20"])
     assert out.exit_code == 0, out.output
     assert "A wins:" in out.output and "RuleSet v0.9" in out.output
-    assert (tmp_path / "decisions.parquet").exists()
-    cmp = runner.invoke(
-        app, ["compare", str(DUEL), "--a", "v0.9", "--b", "review-candidate", "--trials", "20"]
-    )
+    cmp = invoke(["compare", str(DUEL), "--a", "v0.9", "--b", "review-candidate", "--trials", "20"])
     assert cmp.exit_code == 0, cmp.output
     assert "B - A" in cmp.output and "RuleSet review-candidate" in cmp.output
-    sw = runner.invoke(app, ["sweep", str(SCENARIOS / "surcharge_sweep.toml"), "--trials", "4"])
+    sw = invoke(["sweep", str(SCENARIOS / "surcharge_sweep.toml"), "--trials", "4"])
     assert sw.exit_code == 0, sw.output
     assert sw.output.count("Trials: 4") == 4
+
+
+def test_cli_out_writes_parquet(tmp_path: Path) -> None:
+    pytest.importorskip("pyarrow")
+    out = invoke(["run", str(DUEL), "--trials", "5", "--out", str(tmp_path)])
+    assert out.exit_code == 0, out.output
+    assert (tmp_path / "decisions.parquet").exists()
+
+
+def test_cli_out_without_pyarrow_says_so(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """pyarrow is optional: everything but --out runs without it."""
+    monkeypatch.setitem(sys.modules, "pyarrow", None)  # makes `import pyarrow` fail
+    out = invoke(["run", str(DUEL), "--trials", "5", "--out", str(tmp_path)])
+    assert out.exit_code == 2 and "--out needs pyarrow" in out.output, out.output

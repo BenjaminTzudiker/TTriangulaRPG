@@ -6,10 +6,9 @@ from collections import Counter
 from fractions import Fraction
 
 import pytest
-from typer.testing import CliRunner
 
 from stamina_engine.analysis.ranged import bows, check_table5, shot
-from stamina_engine.cli import app
+from stamina_engine.cli import invoke
 from stamina_engine.core.dice import ScriptedDice
 from stamina_engine.model.build import load_build
 from stamina_engine.model.derive import derive
@@ -122,6 +121,6 @@ def test_f3_option_2_flat_ranged_blocks() -> None:
 
 
 def test_se_table_5() -> None:
-    out = CliRunner().invoke(app, ["table", "5"])
+    out = invoke(["table", "5"])
     assert out.exit_code == 0, out.output
     assert "Shortbow, 0 aim (3 st)" in out.output and "✗" not in out.output

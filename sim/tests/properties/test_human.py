@@ -4,10 +4,8 @@ typed lines, re-asked when invalid, timed, and logged."""
 from itertools import count
 from pathlib import Path
 
-from typer.testing import CliRunner
-
 from stamina_engine.agents.human import HumanAgent, ScriptedIO
-from stamina_engine.cli import app
+from stamina_engine.cli import invoke
 from stamina_engine.experiments.load import load_report
 from stamina_engine.experiments.runner import run_trial
 from stamina_engine.experiments.scenario import load_scenario
@@ -83,7 +81,7 @@ def test_a_person_plays_a_duel_and_every_decision_is_timed(tmp_path: Path) -> No
     )
     assert "Seconds (mean)" in report and "turn_command" in report
 
-    out = CliRunner().invoke(app, ["load", "--session", str(path)])
+    out = invoke(["load", "--session", str(path)])
     assert out.exit_code == 0, out.output
     assert "people's decisions" in out.output
 
@@ -113,10 +111,8 @@ def test_moves_by_destination_or_exact_path() -> None:
 def test_cli_play_logs_a_session(tmp_path: Path) -> None:
     path = tmp_path / "s.jsonl"
     keys = "\n".join(["a", "2", "1", "p", "e"] * 50) + "\n"
-    out = CliRunner().invoke(
-        app,
-        ["play", str(SCENARIOS / "l1_duel.toml"), "--as", "A", "--log", str(path)],
-        input=keys,
+    out = invoke(["play", str(SCENARIOS / "l1_duel.toml"), "--as", "A", "--log", str(path)],
+        stdin=keys,
     )
     assert out.exit_code in (0, 1), out.output
     if out.exit_code == 0:

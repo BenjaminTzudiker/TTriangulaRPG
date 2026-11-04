@@ -3,19 +3,19 @@ name = "stamina-engine"
 version = "0.0.1"
 description = "Rules engine for testing the stamina TTRPG's v0.9 design fixes"
 requires-python = ">=3.12"
-dependencies = [
-    "numpy>=2.0",
-    "polars>=1.0",
-    "pyarrow>=16",
-    "typer>=0.12",
-    "rich>=13",
-]
+# The engine and its CLI need only the standard library, so a checkout runs without
+# installing anything (PYTHONPATH=src python3 -m stamina_engine ...). pyarrow is for --out.
+dependencies = []
+
+[project.optional-dependencies]
+parquet = ["pyarrow>=16"]
 
 [project.scripts]
-se = "stamina_engine.cli:app"
+se = "stamina_engine.cli:main"
 
 [dependency-groups]
 dev = [
+    "pyarrow>=16",
     "pytest>=8",
     "hypothesis>=6.100",
     "mypy>=1.10",

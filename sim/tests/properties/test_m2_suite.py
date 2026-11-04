@@ -4,9 +4,8 @@ import sys
 from pathlib import Path
 
 import pytest
-from typer.testing import CliRunner
 
-from stamina_engine.cli import app
+from stamina_engine.cli import invoke
 from stamina_engine.experiments.metrics import attack_rows, fight_row, summarize
 from stamina_engine.experiments.positioning import ROWS, build_scenario, render, run_rows
 from stamina_engine.experiments.runner import run_trial
@@ -66,7 +65,7 @@ def test_oa_rows_are_marked() -> None:
 
 
 def test_se_trace() -> None:
-    out = CliRunner().invoke(app, ["trace", str(SCENARIOS / "one_v_three_corridor.toml")])
+    out = invoke(["trace", str(SCENARIOS / "one_v_three_corridor.toml")])
     assert out.exit_code == 0, out.output
     assert "Creatures: A = D (defender)" in out.output
     assert "TurnStarted" in out.output and "  4 #." in out.output

@@ -3,9 +3,8 @@
 from dataclasses import replace
 
 import pytest
-from typer.testing import CliRunner
 
-from stamina_engine.cli import app
+from stamina_engine.cli import invoke
 from stamina_engine.core.errors import ConfigError
 from stamina_engine.experiments.runner import battle_for
 from stamina_engine.experiments.scenario import scenario_from_toml, scenario_to_toml
@@ -110,6 +109,6 @@ build = "l1_sample"
 
 
 def test_se_table_with_equipment() -> None:
-    out = CliRunner().invoke(app, ["table", "8", "--equipment", "f8_str_cap"])
+    out = invoke(["table", "8", "--equipment", "f8_str_cap"])
     assert out.exit_code == 0 and "Equipment: f8_str_cap" in out.output
-    assert CliRunner().invoke(app, ["table", "8", "--equipment", "nope"]).exit_code != 0
+    assert invoke(["table", "8", "--equipment", "nope"]).exit_code != 0

@@ -1,9 +1,8 @@
 """Map parsing and the library maps (ENGINE_PLAN: Battlefield)."""
 
 import pytest
-from typer.testing import CliRunner
 
-from stamina_engine.cli import app
+from stamina_engine.cli import invoke
 from stamina_engine.core.errors import ConfigError
 from stamina_engine.grid.battlefield import library_maps, load_map, parse_map
 
@@ -72,10 +71,9 @@ def test_library_maps_load() -> None:
 
 
 def test_se_map_show() -> None:
-    runner = CliRunner()
-    out = runner.invoke(app, ["map", "show", "open_12x12"])
+    out = invoke(["map", "show", "open_12x12"])
     assert out.exit_code == 0, out.output
     assert "open_12x12: 14 x 14" in out.output
     assert "spawn A: (4, 6)" in out.output
-    assert runner.invoke(app, ["map", "list"]).output.split() == library_maps()
-    assert runner.invoke(app, ["map", "show", "nowhere"]).exit_code != 0
+    assert invoke(["map", "list"]).output.split() == library_maps()
+    assert invoke(["map", "show", "nowhere"]).exit_code != 0

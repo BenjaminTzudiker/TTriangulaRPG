@@ -39,10 +39,12 @@ Run from `sim/`:
 
 ```bash
 uv sync                       # install
-uv run pytest                 # all tests
+uv run pytest                 # fast tests (under a minute)
+uv run pytest -m slow         # full-count oracle parity and long differentials
 uv run pytest tests/golden    # packet worked examples only
 uv run mypy src
-uv run ruff check src tests
+uv run ruff check src tests examples
+uv run se suite parity --workers 8   # M1 parity report (lockstep with the oracle)
 ```
 
 ## Git workflow

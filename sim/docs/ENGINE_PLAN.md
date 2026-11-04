@@ -454,6 +454,24 @@ When a pending row is ruled, or a ruled row changes, the same commit updates the
 | Multi-die steps (greataxe 2d6) | Each die can crit separately; two crit dice ignore 2 armor | — | pending designer |
 | Finesse below 0 and crit range | No widening (odd count of a negative value is 0); the +3 cap can't be passed at FIN ≤ 6 | — | engine convention |
 | Block solver and avoidable incapacitation | Lexicographic: avoid incapacitation first, then minimize w × injury + stamina (the review used a +1000 penalty, identical below 1000) | solver option | engine convention |
+| Initiative timing | Rolled once per fight (5e-like); the packet only says "roll initiative" | — | pending designer |
+| "No tiebreaker for now" | Tied creatures reroll 2d12 + bonus among themselves until untied; `higher_agility` and (for review-sim) `list_order` are the other values | `turn_order.tiebreak` | pending designer |
+| Recovery timing vs the off-turn window | Recover at the end of your own turn, before anyone's off-turn window (packet step 2, then step 3) | — | pending designer |
+| Recovery if you did nothing | Still recover | — | pending designer |
+| What "incapacitated" stops | No actions, blocks, stamina spending or recovery; only the start-of-turn dying roll. Attacks on incapacitated creatures aren't offered (coup de grâce is silent) | `resources.recovery`, `dying` | pending designer |
+| When a fight ends | As soon as a side has no active members, checked after every injury; a round cap (30 for duels, 20 for 1v3, as the review) counts as a draw | scenario `round_cap` | engine convention |
+| Fight metrics | First mover = first in initiative; first-mover rate over decisive fights; winner untouched = took 0 HP; loser ends at = the loser's final HP; rounds = the round it ended in | — | engine convention |
+| Chip-kill and look-ahead estimates | Exact expected outcomes by default; `sampled` reproduces the review's 40/30-sample estimates in its order and float arithmetic (lockstep uses it) | agent `estimator` | engine convention |
+| 1v3 defender targeting | The lowest (stamina, HP) living attacker, ties to the first listed, 2 steps | agent `target` | engine convention |
+| Scripted policies and actions already taken | Policies size steps with real trackers; identical to the review's (which assumed 0) for one attack per turn | — | engine convention |
+| Over-budget parity builds | Allowed only in `data/builds/parity/`, marked `budget = "ignore"` (the review's "illustrative" grid builds) | build `budget` | engine convention |
+| No System Shock in the review | `review-sim` uses a parity-only dying rule: at 0 HP or below a creature is out and rolls nothing | `dying` kind `none` | engine convention |
+| What hidden stamina means | `stamina = hidden` with `builds = known`: observers see declared steps and blocks, that recovery happened, and wounds; a public ledger then reconstructs stamina exactly, so scripted agents play exactly as with public stamina. Hidden stamina changes bookkeeping load, not information, unless builds are unknown (needs priors; not built) | `information.stamina`, `information.builds` | pending designer |
+| HP under hidden stamina | Wounds, and so HP, stay visible | — | pending designer |
+| Perfect-block count reset (F6 option 2) | v0.9 resets every attack (`per_attack`). F6's "reset per attacker per round" reads two ways, both built as named values: `per_attacker_round` (an attacker's later attacks in a round continue its count; in the review's 1v3, where each attacker attacks once, this changes nothing) and `per_round` (one count per defender per round, shared, which makes focus fire harder on the defender). Neither matches "directly targets focus fire", so the option's wording needs the designer | `blocks.reset` | pending designer |
+| Decision option counts (F11) | Commitment: 1 + max affordable steps; Blocks: affordable (perfect, grazing) pairs, plus the count not beaten on both stamina and injury | — | engine convention |
+| All-adjacent arena (M1) | Everyone threatens everyone; the off-turn window exists but offers nothing; no OAs. M2 replaces it with maps | scenario `arena` | engine convention |
+| Sweep and comparison seeds | Trial seeds key on (master seed, scenario and agent pairing, trial), not the RuleSet, so RuleSets are compared on the same dice | — | engine convention |
 
 Off-turn order can move headline numbers on its own (it decides who ends adjacent to whom), so it gets a sensitivity run in the phase suite until it is decided.
 
@@ -474,7 +492,7 @@ The engine is trusted only once it reproduces every worked example in the packet
 | System Shock | The five-step sequence: −2 HP / 2 Shock through −6 HP / 1 Shock (pure `dying` transitions, in M0) |
 | Sample Character | HP 8, stamina 14, MD 4, RD 3, Dodge 1, movement 6, 2 squares per off-turn purchase, crit 7–8, OA cap 2 |
 
-**2. Parity with the review.** Tables 1 and 8 must match exactly, since they are deterministic. Tables 2–5 and the Addendum grid must fall within the review's numbers at 95% confidence, using the ported scripted policies on a two-square map that reproduces all-adjacent fights. A mismatch is investigated, not assumed to be an engine bug: the old simulator can be wrong too.
+**2. Parity with the review.** Tables 1 and 8 must match exactly, since they are deterministic. For fights, the engine runs in lockstep with the old simulator (ruled 2026-11-03): the oracle's global `random` is replaced by a seeded stream and the engine draws every die from one shared stream, so both see identical faces, and every fight behind Tables 2–4, 7, 9 and the Addendum grid must come out identical (`se suite parity`, `tests/parity/test_lockstep.py`). The suite's report then sets the engine's figures, at the review's trial counts, beside the review's printed ones; a printed figure outside the engine's interval is investigated, not assumed to be an engine bug: the review's figures are rounded and sampled, and the old simulator can be wrong too. Table 5 (ranged) waits for M3.
 
 **2a. Differential tests against the old simulator.** `sim.py` lives in `tests/oracle/` unmodified. Its pure functions (`best_block`, `attack_cost`, `max_steps`, `crit_effect` for every `CRIT_MODE`, `BLOCK_SLOPE` and `STEP_SLOPE`) are compared with the engine's over thousands of random inputs; scores must match exactly, and the chosen (perfect, grazing) pair must match wherever the old tie-break (lower cost at equal score) applies. Its `make_fighter` builds are checked against `derive()`. Its `experiments.py`, `variants.py` and `grid.py` runs become the parity scripts, at the same trial counts, under the `review-sim` preset.
 
@@ -493,7 +511,7 @@ Six milestones, each ending at a gate of known numbers, so the engine is useful 
 | Milestone | Builds | Unlocks | Done when |
 |---|---|---|---|
 | M0 Foundations | dice, RuleSet and registry, builds and derivation, Pricing, exchange resolution, block solver, exact calculators | Phase 0, Phase 1 (static) | Packet examples pass; Tables 1 and 8 match exactly; matches sim.py on random inputs |
-| M1 Turn engine, no movement | timeline, StateOps, events, broker, scripted policies, runner, sweeps, metrics, two-square map | Phases 1–3, first pass | Tables 2–4 within 95% CI; Addendum grid within 95% CI; same seed gives the same log |
+| M1 Turn engine, no movement | timeline, StateOps, events, broker, scripted policies, runner, sweeps, metrics, all-adjacent arena | Phases 1–3, first pass | Every fight behind Tables 2–4, 7, 9 and the Addendum grid identical to the oracle in lockstep; parity report beside the review's figures; same seed gives the same log |
 | M2 Grid and positioning | maps, threat, pathing, square-by-square movement, OAs, avoidance, off-turn windows, tactical agent v1 | Phases 3 and 4 | Addendum 2 retreat costs match; reach and 1v3 scenarios run; geometry tests pass |
 | M3 Ranged | sight lines and cover, range bands, aim, dive window, point-blank OAs, drawing weapons, archer agent | Phase 5 | Table 5 static part matches; archer scenario on three maps |
 | M4 Equipment and NPC profiles | variant weapon and armor tables, NPC profiles, 3v3 integration scenario, report generator | Phase 6, F6 dial | Full phase suite in one command; reports print review layouts |

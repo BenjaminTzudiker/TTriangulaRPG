@@ -8,7 +8,8 @@
 #########
 ```
 
-Default legend: `.` floor, `#` wall, `=` low wall or crate, `o` pillar. Any other letter or
+Default legend: `.` floor, `#` wall, `=` low wall or crate, `o` pillar, `>` exit (floor a
+creature can leave the map from, M4). Any other letter or
 digit is a spawn marker on a floor square; a marker may repeat, and its squares are taken in
 reading order. Outside the map counts as wall. Maps are at most 40 x 40.
 
@@ -43,9 +44,16 @@ TERRAIN: dict[str, Terrain] = {
     "wall": Terrain("wall", True, True),
     "low": Terrain("low", True, False),
     "pillar": Terrain("pillar", True, True),
+    "exit": Terrain("exit", False, False),  # floor a creature can leave the map from
 }
 
-DEFAULT_LEGEND: dict[str, str] = {".": "floor", "#": "wall", "=": "low", "o": "pillar"}
+DEFAULT_LEGEND: dict[str, str] = {
+    ".": "floor",
+    "#": "wall",
+    "=": "low",
+    "o": "pillar",
+    ">": "exit",
+}
 
 OUTSIDE = TERRAIN["wall"]
 
@@ -90,6 +98,12 @@ class Battlefield:
 
     def tall(self, cell: Cell) -> bool:
         return self.terrain(cell).tall
+
+    def is_exit(self, cell: Cell) -> bool:
+        return self.terrain(cell).name == "exit"
+
+    def exits(self) -> tuple[Cell, ...]:
+        return tuple(c for c in self.cells() if self.is_exit(c))
 
     def cells(self) -> tuple[Cell, ...]:
         """Every square, in reading order."""

@@ -166,6 +166,9 @@ SPECS = [
     {"commit": "fixed:2", "avoid": "always", "oa": "never"},
     "tactical",
     {"kind": "tactical", "commit": "alpha", "target": "nearest", "retreat_engaged": 1},
+    {"kind": "npc", "profile": "disciplined_2step"},
+    {"kind": "npc", "profile": "cautious"},
+    {"kind": "npc", "profile": "minion"},
 ]
 BUILDS = [
     "l1_sample",
@@ -187,7 +190,7 @@ VARIANTS = [
 @settings(max_examples=30, deadline=None)
 @given(
     st.integers(0, 10**6),
-    st.lists(st.text(alphabet=".....#=", min_size=8, max_size=8), min_size=7, max_size=7),
+    st.lists(st.text(alphabet=".....#=>", min_size=8, max_size=8), min_size=7, max_size=7),
     st.integers(0, len(VARIANTS) - 1),
 )
 def test_engine_agents_are_always_legal(seed: int, rows: list[str], v: int) -> None:

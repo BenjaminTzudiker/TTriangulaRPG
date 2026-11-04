@@ -211,6 +211,20 @@ class LookAhead:
 
 
 @dataclass
+class Conditional:
+    """One policy normally, another against a target whose stamina is below a fraction of
+    its maximum (an NPC profile's "2 steps; 3 against a target below half stamina")."""
+
+    default: "CommitPolicy"
+    against_low: "CommitPolicy"
+    below: Fraction
+
+    def steps(self, me: CombatantView, target: CombatantView) -> int:
+        low = target.max_stamina > 0 and target.stamina < self.below * target.max_stamina
+        return (self.against_low if low else self.default).steps(me, target)
+
+
+@dataclass
 class NeverAttack:
     def steps(self, me: CombatantView, target: CombatantView) -> int:
         return 0
@@ -382,7 +396,17 @@ class ScriptedAgent:
 AVOID_MODES = frozenset({"worth_it", "always", "never"})
 OA_MODES = frozenset({"max", "never"})
 SCRIPTED_FIELDS = {"kind", "commit", "target", "w", "estimator", "avoid", "oa", "aims"}
-TACTICAL_FIELDS = {"retreat_engaged", "low_stamina", "reach_spacing"}
+TACTICAL_FIELDS = {
+    "retreat_engaged",
+    "low_stamina",
+    "reach_spacing",
+    "commit_vs_low",
+    "low_target",
+    "flee_below",
+    "surrender_below",
+    "profile",
+    "description",
+}
 
 
 def make_agent(
@@ -400,8 +424,15 @@ def make_agent(
         spec = {"kind": "tactical"}
     table: dict[str, object] = {"commit": spec} if isinstance(spec, str) else dict(spec)
     kind = str(table.get("kind", "scripted"))
+    if kind == "npc":  # an NPC profile: the tactical agent, configured from data/profiles
+        from stamina_engine.agents.profiles import load_profile
+
+        name = table.pop("profile", None)
+        base = load_profile(str(name)) if name is not None else {}
+        table = {**base, **{k: v for k, v in table.items() if k != "kind"}, "kind": "tactical"}
+        kind = "tactical"
     if kind not in ("scripted", "tactical"):
-        raise ConfigError(f"agent kind must be scripted or tactical, not {kind!r}")
+        raise ConfigError(f"agent kind must be scripted, tactical or npc, not {kind!r}")
     allowed = SCRIPTED_FIELDS | (TACTICAL_FIELDS if kind == "tactical" else set())
     unknown = set(table) - allowed
     if unknown:
@@ -441,6 +472,14 @@ def make_agent(
         reach_spacing = table.get("reach_spacing", True)
         if not isinstance(reach_spacing, bool):
             raise ConfigError("reach_spacing must be true or false")
+        if "commit_vs_low" in table:
+            low = make_agent(
+                {"commit": table["commit_vs_low"], "estimator": table.get("estimator", "exact")},
+                rules,
+                source,
+            )
+            assert isinstance(low, ScriptedAgent)
+            policy = Conditional(policy, low.commit, Fraction(str(table.get("low_target", "1/2"))))
         return TacticalAgent(
             rules,
             policy,
@@ -449,6 +488,8 @@ def make_agent(
             int(str(table.get("retreat_engaged", 2))),
             Fraction(str(table.get("low_stamina", "1/3"))),
             reach_spacing,
+            Fraction(str(table.get("flee_below", "0"))),
+            Fraction(str(table.get("surrender_below", "0"))),
         )
     if target not in TARGETS:
         raise ConfigError(f"unknown target policy {target!r}; known: {sorted(TARGETS)}")

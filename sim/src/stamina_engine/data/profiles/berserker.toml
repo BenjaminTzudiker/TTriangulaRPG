@@ -1,0 +1,6 @@
+[profile]
+description = "Everything it can afford, at the nearest enemy; never falls back."
+commit = "alpha"
+target = "nearest"
+retreat_engaged = 99
+low_stamina = "0"

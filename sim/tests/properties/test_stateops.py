@@ -152,6 +152,7 @@ STATE_FIELDS = {
     "moving",
     "debt",
     "used_weapon",
+    "out",
     "bow_hands",
 }
 ALLOWED = {"engine/stateops.py", "model/state.py"}

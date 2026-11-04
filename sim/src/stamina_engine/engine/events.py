@@ -218,6 +218,17 @@ class Drew(Event):
 
 
 @dataclass(frozen=True)
+class Surrendered(Event):
+    who: str
+
+
+@dataclass(frozen=True)
+class Fled(Event):
+    who: str
+    frm: tuple[int, int]
+
+
+@dataclass(frozen=True)
 class BattleEnded(Event):
     reason: str  # side_out, round_cap
     winner: str | None  # winning team, or None for a draw

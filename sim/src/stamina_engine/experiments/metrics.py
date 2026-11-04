@@ -123,6 +123,12 @@ def fight_row(result: BattleResult, trial: int, seed: int) -> Row:
         row[f"dead:{team}"] = sum(
             1 for c in state.combatants if c.team == team and c.status is Status.DEAD
         )
+        row[f"fled:{team}"] = sum(
+            1 for c in state.combatants if c.team == team and c.status is Status.FLED
+        )
+        row[f"surrendered:{team}"] = sum(
+            1 for c in state.combatants if c.team == team and c.status is Status.SURRENDERED
+        )
     return row
 
 

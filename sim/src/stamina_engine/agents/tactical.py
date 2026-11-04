@@ -38,10 +38,12 @@ from stamina_engine.agents.decisions import (
     Avoid,
     AvoidOA,
     BlocksRequest,
+    CombatantView,
     Commitment,
     DiveRequest,
     Draw,
     EndTurn,
+    Flee,
     Move,
     MoveAnswer,
     MoveOptions,
@@ -50,6 +52,7 @@ from stamina_engine.agents.decisions import (
     OffTurnMove,
     Pass,
     Shoot,
+    Surrender,
     TakeOA,
     TurnAnswer,
     TurnCommand,
@@ -66,7 +69,7 @@ from stamina_engine.agents.grid_view import (
 from stamina_engine.agents.scripted import CommitPolicy, avoid_worth_it, largest_oa
 from stamina_engine.core.errors import ConfigError
 from stamina_engine.grid.battlefield import Cell
-from stamina_engine.grid.geometry import distance
+from stamina_engine.grid.geometry import distance, reach_cells
 from stamina_engine.grid.los import Cover
 from stamina_engine.rules.exchange import Blocks
 from stamina_engine.rules.pricing import Pricing
@@ -79,7 +82,7 @@ cites = (
     "Review F6",
 )
 
-TARGET_MODES = frozenset({"lowest_stamina", "nearest", "first"})
+TARGET_MODES = frozenset({"lowest_stamina", "nearest", "first", "focus"})
 
 
 @dataclass
@@ -91,6 +94,8 @@ class TacticalAgent:
     retreat_engaged: int = 2
     low_stamina: Fraction = Fraction(1, 3)
     reach_spacing: bool = True
+    flee_below: Fraction = Fraction(0)  # at or below this fraction of max HP, head for an exit
+    surrender_below: Fraction = Fraction(0)  # ...and surrender when engaged (0: never)
     _pending: int = field(default=0, init=False)
     _plan: tuple[int, str] = field(default=(-1, ""), init=False)  # (round, stage) this turn
 
@@ -111,7 +116,51 @@ class TacticalAgent:
             return min(enemies, key=lambda v: distance(me.pos, v.pos, self.rules.grid)).id  # type: ignore[arg-type]
         if self.target_mode == "first":
             return enemies[0].id
+        if self.target_mode == "focus":
+            return min(enemies, key=lambda v: (-self._allies_on(board, v), v.stamina, v.hp)).id
         return min(enemies, key=lambda v: (v.stamina, v.hp)).id
+
+    def _allies_on(self, board: Board, enemy: CombatantView) -> int:
+        """How many of my allies threaten this enemy's square (focus fire)."""
+        if enemy.pos is None:
+            return 0
+        me = board.me
+        count = 0
+        for v in board.obs.others:
+            if v.team != me.team or v.status != "active" or v.pos is None:
+                continue
+            for w in (v.gear.weapon, v.gear.off_hand_weapon):
+                if (
+                    w is not None
+                    and not w.ranged
+                    and enemy.pos in reach_cells(board.field, v.pos, w.reach, self.rules.grid)
+                ):
+                    count += 1
+                    break
+        return count
+
+    def _leaving(self, board: Board, request: TurnCommand) -> TurnAnswer | None:
+        """Surrender or flee when hurt past the profile's thresholds (never by default)."""
+        me = board.me
+        assert me.pos is not None
+        top = max(1, me.profile.hp_max)
+        hurt = bool(self.surrender_below) and me.hp <= self.surrender_below * top
+        if hurt and request.can_surrender and board.engagers(me.pos) > 0:
+            return Surrender()
+        if self.flee_below and me.hp <= self.flee_below * top:
+            if request.can_flee:
+                return Flee()
+            exits = board.field.exits()
+            if exits and request.moves is not None:
+                route = board.route(request.moves, list(exits), request.moves.max_squares)
+                if route is not None and int(route.total) <= me.stamina:
+                    return Move(route.path)
+                here = me.pos
+                nearest = min(exits, key=lambda e: distance(here, e, self.rules.grid))
+                step = self._approach(board, nearest, request.moves)
+                if step is not None:
+                    return step
+        return None
 
     def _steps_with(self, obs: Observation, target: str, spend: int) -> int:
         """The commitment if `spend` stamina goes on movement first."""
@@ -128,6 +177,9 @@ class TacticalAgent:
         me = obs.me
         assert me.trackers is not None and me.pos is not None
         stage = self._plan[1] if self._plan[0] == obs.round else ""
+        leaving = self._leaving(board, request)
+        if leaving is not None:
+            return leaving
         if is_shooter(me):
             return self._archer_turn(board, request, stage)
         if me.trackers.actions_this_turn > 0:

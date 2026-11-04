@@ -12,12 +12,14 @@ from stamina_engine.engine.events import (
     Drew,
     DyingRolled,
     Event,
+    Fled,
     Indebted,
     Injured,
     Moved,
     Placed,
     Recovered,
     Spent,
+    Surrendered,
     TurnEnded,
     TurnStarted,
 )
@@ -148,6 +150,25 @@ class StateOps:
             raise RulesError(f"{c.id} is {c.status.value} and can't draw")
         c.loadout = loadout
         self._emit(Drew(c.id, loadout, cost))
+
+    # --- leaving the fight ---------------------------------------------------------
+
+    def surrender(self, c: CombatantState) -> None:
+        if not c.active:
+            raise RulesError(f"{c.id} is {c.status.value} and can't surrender")
+        c.out = "surrendered"
+        self._emit(Surrendered(c.id))
+
+    def flee(self, c: CombatantState) -> None:
+        """Leave the map from an exit square."""
+        if not c.active:
+            raise RulesError(f"{c.id} is {c.status.value} and can't flee")
+        if self.field is None or c.pos is None or not self.field.is_exit(c.pos):
+            raise RulesError(f"{c.id} isn't on an exit square")
+        frm = c.pos
+        c.out = "fled"
+        c.pos = None
+        self._emit(Fled(c.id, frm))
 
     # --- positions -----------------------------------------------------------------
 

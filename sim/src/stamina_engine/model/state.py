@@ -14,6 +14,8 @@ class Status(Enum):
     ACTIVE = "active"
     INCAPACITATED = "incapacitated"  # 0 HP or below, alive
     DEAD = "dead"
+    FLED = "fled"  # left the map through an exit
+    SURRENDERED = "surrendered"
 
 
 @dataclass
@@ -33,6 +35,7 @@ class CombatantState:
     free_move_left: int = 0  # free squares left this turn
     banked: int = 0  # squares bought this turn and not yet used (on-turn purchases)
     debt: int = 0  # avoidance paid without stamina, owed from the next recovery (F14 variant)
+    out: str | None = None  # "fled" or "surrendered": out of the fight without going down
     used_weapon: bool = False  # used a weapon this turn: drawing on your turn now costs
     bow_hands: bool = (
         False  # shot a bow this turn: no normal weapon into those hands until your next turn
@@ -44,6 +47,8 @@ class CombatantState:
 
     @property
     def status(self) -> Status:
+        if self.out is not None:
+            return Status(self.out)
         if self.dying.dead:
             return Status.DEAD
         if self.dying.hp <= 0:

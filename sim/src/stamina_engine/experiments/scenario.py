@@ -36,7 +36,7 @@ from pathlib import Path
 from typing import Any
 
 from stamina_engine.core.errors import ConfigError
-from stamina_engine.grid.battlefield import Battlefield, Cell, load_map, parse_map
+from stamina_engine.grid.battlefield import DEFAULT_LEGEND, Battlefield, Cell, load_map, parse_map
 from stamina_engine.model.build import Build, load_build
 from stamina_engine.rules.plugins import PluginInfo, load_plugin
 from stamina_engine.rules.ruleset import RuleSet, load_ruleset, preset
@@ -257,6 +257,10 @@ def load_scenario(path: str | Path) -> Scenario:
     return scenario_from_toml(text, p.parent)
 
 
+def _key(k: str) -> str:
+    return k if k.replace("_", "").replace("-", "").isalnum() else json.dumps(k)
+
+
 def _toml(value: object) -> str:
     if isinstance(value, bool):
         return "true" if value else "false"
@@ -265,7 +269,7 @@ def _toml(value: object) -> str:
     if isinstance(value, str):
         return json.dumps(value)
     if isinstance(value, Mapping):
-        return "{ " + ", ".join(f"{k} = {_toml(v)}" for k, v in value.items()) + " }"
+        return "{ " + ", ".join(f"{_key(str(k))} = {_toml(v)}" for k, v in value.items()) + " }"
     if isinstance(value, list | tuple):
         return "[" + ", ".join(_toml(v) for v in value) + "]"
     raise ConfigError(f"can't write {value!r} to TOML")
@@ -289,7 +293,8 @@ def scenario_to_toml(s: Scenario) -> str:
         lines.append(f"map_name = {_toml(s.battlefield.name)}")
         lines.append('map_text = """\n' + "\n".join(s.battlefield.rows) + '\n"""')
         lines.append(
-            "legend = " + _toml({ch: t for ch, t in s.battlefield.legend if ch not in ".#=o"})
+            "legend = "
+            + _toml({ch: t for ch, t in s.battlefield.legend if ch not in DEFAULT_LEGEND})
         )
     lines.append("")
     rules = tomllib.loads(s.rules.to_toml())["ruleset"]

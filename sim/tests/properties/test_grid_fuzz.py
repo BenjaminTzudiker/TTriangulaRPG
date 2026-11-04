@@ -92,7 +92,10 @@ class RandomAgent:
             Blocks(p, g)
             for p in range(4)
             for g in range(4)
-            if pricing.blocks(p, g, prior_perfect=request.prior_perfect).total <= request.stamina
+            if pricing.blocks(
+                p, g, prior_perfect=request.prior_perfect, ranged=request.ranged
+            ).total
+            <= request.stamina
         ]
         assert block_options  # the engine's count is checked elsewhere
         return self.rng.choice(options)

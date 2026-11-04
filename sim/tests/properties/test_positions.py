@@ -90,11 +90,13 @@ def test_validate_catches_shared_squares() -> None:
         ops.validate()
 
 
-def duel_on(field: Battlefield, a: tuple[int, int], b: tuple[int, int]) -> Battle:
+def duel_on(
+    field: Battlefield, a: tuple[int, int], b: tuple[int, int], spec: str = "alpha"
+) -> Battle:
     profile = derive(load_build("l1_sample"), RULES)
     dice = Streams(5)
     entrants = [
-        Entrant(cid, cid, profile, make_agent("alpha", RULES, dice.dice(f"agent:{cid}")), "", pos)
+        Entrant(cid, cid, profile, make_agent(spec, RULES, dice.dice(f"agent:{cid}")), "", pos)
         for cid, pos in (("a", a), ("b", b))
     ]
     return Battle(RULES, entrants, dice, seed=5, round_cap=3, check=True, field=field)
@@ -102,14 +104,16 @@ def duel_on(field: Battlefield, a: tuple[int, int], b: tuple[int, int]) -> Battl
 
 def test_battle_on_a_map_places_everyone_and_respects_reach() -> None:
     field = parse_map("\n".join(["........"] * 3))
-    far = duel_on(field, (0, 1), (7, 1)).run()
+    far = duel_on(field, (0, 1), (7, 1), "never").run()
     assert isinstance(far.log[1], MapLoaded) and far.log[1].width == 8
     assert [e.pos for e in far.log if isinstance(e, Placed)] == [(0, 1), (7, 1)]
-    # Nobody can reach anybody and nobody moves yet: no attacks, a draw at the round cap.
+    # Agents that won't attack don't approach: no movement, no attacks, a draw.
     assert far.reason == "round_cap"
-    assert not any(type(e).__name__ == "AttackDeclared" for e in far.log)
-    near = duel_on(field, (3, 1), (4, 1)).run()
-    assert any(type(e).__name__ == "AttackDeclared" for e in near.log)
+    assert not any(type(e).__name__ in ("AttackDeclared", "Moved") for e in far.log)
+    # Scripted attackers close with free movement (6 squares) and fight.
+    closing = duel_on(field, (0, 1), (7, 1)).run()
+    assert any(type(e).__name__ == "Moved" for e in closing.log)
+    assert any(type(e).__name__ == "AttackDeclared" for e in closing.log)
 
 
 def test_battle_needs_squares_and_a_map_together() -> None:

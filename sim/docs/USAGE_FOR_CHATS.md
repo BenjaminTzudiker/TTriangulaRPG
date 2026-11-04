@@ -2,7 +2,7 @@
 
 For claude.ai chats in the "Tactical fantasy TTRPG" project. Claude Code keeps this file current.
 
-**Status:** milestones M0 and M1 are done (tags `m0`, `m1`). M2 (grid and positioning), M3 (ranged), M4 (equipment and NPC profiles) and M5 (abilities and load) are built and in review as stacked pull requests on `m2-grid`, `m3-ranged`, `m4-equipment` and `m5-content`: maps and movement, opportunity attacks, ranged attacks, cover and diving, drawing weapons, equipment variant tables, NPC profiles, fleeing and surrendering, the full phase suite, class cores and candidate abilities with strain, playing a side yourself, and the load report.
+**Status:** milestones M0–M5 are done (tags `m0`–`m5`): the turn engine, maps and movement, opportunity attacks, ranged attacks, cover and diving, drawing weapons, equipment variant tables, NPC profiles, fleeing and surrendering, the full phase suite, class cores and candidate abilities with strain, playing a side yourself, and the load report. M5's gate still needs one session played by a person.
 
 ## Reading the code
 

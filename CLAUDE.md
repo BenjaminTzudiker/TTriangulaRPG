@@ -66,7 +66,7 @@ uv run se load <scenario.toml>            # decision load per round (or --sessio
 
 ## Working on milestones
 
-Work one milestone at a time (M0–M5 in `sim/docs/ENGINE_PLAN.md`). Plan first, then build. A milestone is done only when its "Done when" gate passes. M0 and M1 are done (tags `m0`, `m1`). M2–M5 are built and in review as stacked pull requests (`m2-grid` ← `m3-ranged` ← `m4-equipment` ← `m5-content`); each gets its tag when it merges. M5's gate still needs one human session, played by the designer.
+Work one milestone at a time (M0–M5 in `sim/docs/ENGINE_PLAN.md`). Plan first, then build. A milestone is done only when its "Done when" gate passes. M0–M5 are merged and tagged (`m0`–`m5`). M5's gate still needs one human session, played by the designer (`se play`, then `se load --session`). The optional M6 (search auditor, replay viewer) is built only if agent quality or playtest review calls for it.
 
 When a result looks like a design finding (a rule behaving differently than the packet intends), write it up in `sim/reports/` with the RuleSet digest, the assumption switches used, trial counts and confidence intervals, and stop to flag it. Don't fix the rules to make the numbers look better.
 

@@ -107,7 +107,7 @@ def _max_steps(pricing: Pricing, view: CombatantView, stamina: int) -> int:
     if weapon is None or weapon.ranged:
         return 0
     trackers = view.trackers if view.trackers is not None else Trackers()
-    return pricing.max_steps(weapon.base, max(stamina, 0), trackers)
+    return pricing.max_steps(weapon.base, max(stamina, 0), trackers, light=weapon.light)
 
 
 @dataclass
@@ -188,12 +188,14 @@ class LookAhead:
             else:
                 e = self.estimator.estimate(me, target, k, self.samples, target.stamina, w)
                 inj, cost, pk = e.injury, e.cost, e.p_down
-                own = self.pricing.melee_attack(my_weapon.base, k).total
+                own = self.pricing.melee_attack(my_weapon.base, k, light=my_weapon.light).total
             my_left = min(me.max_stamina, me.stamina - own + self.recovery(me))
             reply_weapon = target.gear.weapon
             opp_k = 0
             if reply_weapon is not None and not reply_weapon.ranged:
-                opp_k = self.pricing.max_steps(reply_weapon.base, math.floor(target.stamina - cost))
+                opp_k = self.pricing.max_steps(
+                    reply_weapon.base, math.floor(target.stamina - cost), light=reply_weapon.light
+                )
             exp_inj_me: Number = zero
             if opp_k > 0:
                 worst: Number = zero

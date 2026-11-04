@@ -9,6 +9,7 @@ from stamina_engine.analysis import dist
 from stamina_engine.core.mathx import round_half_even, round_half_up
 from stamina_engine.model.build import Attributes, Build, Loadout, load_build
 from stamina_engine.model.derive import WeaponProfile, derive
+from stamina_engine.model.equipment import EquipmentTable
 from stamina_engine.rules.block_solver import cheapest_zero_injury
 from stamina_engine.rules.pricing import Pricing
 from stamina_engine.rules.ruleset import RuleSet
@@ -38,8 +39,10 @@ class Rounding(Enum):
         return str(exact.quantize(Decimal(1).scaleb(-places), rounding=mode))
 
 
-def _weapon(build: str, rules: RuleSet) -> tuple[WeaponProfile, int, int]:
-    lo = derive(load_build(build), rules).main
+def _weapon(
+    build: str, rules: RuleSet, table: EquipmentTable | None = None
+) -> tuple[WeaponProfile, int, int]:
+    lo = derive(load_build(build), rules, table).main
     assert lo.weapon is not None
     return lo.weapon, lo.melee_defense, lo.armor
 
@@ -66,7 +69,7 @@ class Table1:
 TABLE1_DEFENDERS = ((2, 0), (2, 2), (3, 2), (4, 2), (4, 3), (5, 2))
 
 
-def table1(rules: RuleSet, rounding: Rounding) -> Table1:
+def table1(rules: RuleSet, rounding: Rounding, table: EquipmentTable | None = None) -> Table1:
     """Stamina to fully block a longsword attack at its mean roll (no crit) vs attack cost.
 
     L1 rows: the sample fighter's longsword against each defense. L30 and L99 rows: the
@@ -82,13 +85,13 @@ def table1(rules: RuleSet, rounding: Rounding) -> Table1:
             costs.append(choice.cost if choice else None)
         return Table1Row(label, md, armor, per_step, tuple(costs))
 
-    l1, _, _ = _weapon("l1_sample", rules)
+    l1, _, _ = _weapon("l1_sample", rules, table)
     rows = [row(f"MD {md}, armor {a}", l1, md, a, 5) for md, a in TABLE1_DEFENDERS]
     for build, level, ks in (("l30_sample", "L30 sample", 5), ("l99_sample", "L99", 7)):
-        w, md, a = _weapon(build, rules)
+        w, md, a = _weapon(build, rules, table)
         label = f"MD {md}, armor {a} ({level}, {_num(mean_per_step(w, rules))}/step)"
         rows.append(row(label, w, md, a, ks))
-    costs = tuple(pricing.melee_attack(l1.base, k).total for k in range(1, 6))
+    costs = tuple(pricing.melee_attack(l1.base, k, light=l1.light).total for k in range(1, 6))
     return Table1(costs, tuple(rows))
 
 
@@ -110,7 +113,7 @@ TABLE8_WEAPONS = (
 )
 
 
-def table8(rules: RuleSet) -> tuple[Table8Row, ...]:
+def table8(rules: RuleSet, table: EquipmentTable | None = None) -> tuple[Table8Row, ...]:
     """Mean damage per stamina by commitment for STR 2, AGI 1, FIN 1."""
     pricing = Pricing(rules)
     rows = []
@@ -122,10 +125,12 @@ def table8(rules: RuleSet) -> tuple[Table8Row, ...]:
             (("m", Loadout(weapon=weapon, grip=grip)),),
             ("fighter",),
         )
-        w = derive(build, rules).main.weapon
+        w = derive(build, rules, table).main.weapon
         assert w is not None
         per_step = mean_per_step(w, rules)
-        ratios = tuple(per_step * k / pricing.melee_attack(w.base, k).total for k in range(1, 6))
+        ratios = tuple(
+            per_step * k / pricing.melee_attack(w.base, k, light=w.light).total for k in range(1, 6)
+        )
         rows.append(Table8Row(f"{label} {w.damage} (base {w.base})", w.base, per_step, ratios))
     return tuple(rows)
 

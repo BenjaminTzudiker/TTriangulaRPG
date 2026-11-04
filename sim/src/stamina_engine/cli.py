@@ -63,13 +63,24 @@ def table(
         Rounding, typer.Option(help="half-even reproduces the review's printed tables.")
     ] = Rounding.HALF_UP,
     plugin: PluginOption = None,
+    equipment: Annotated[
+        str, typer.Option(help="Equipment table: v0_9, or a variant in data/equipment.")
+    ] = "v0_9",
 ) -> None:
     """Print one of the review's exact static tables."""
+    from stamina_engine.model.equipment import load_table
+
     rules, infos = _setup(ruleset, plugin)
+    try:
+        gear = load_table(equipment)
+    except ConfigError as exc:
+        raise typer.BadParameter(str(exc)) from exc
+    if equipment != "v0_9":
+        typer.echo(f"Equipment: {equipment}")
     if number == 1:
-        typer.echo(render_table1(table1(rules, rounding), rounding))
+        typer.echo(render_table1(table1(rules, rounding, gear), rounding))
     elif number == 8:
-        typer.echo(render_table8(table8(rules), rounding))
+        typer.echo(render_table8(table8(rules, gear), rounding))
     elif number == 5:
         from stamina_engine.analysis.ranged import render_table5
 

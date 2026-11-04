@@ -9,6 +9,7 @@ import hashlib
 from collections.abc import Sequence
 from concurrent.futures import ProcessPoolExecutor
 from dataclasses import dataclass, field
+from functools import lru_cache
 
 from stamina_engine.agents.scripted import make_agent
 from stamina_engine.core.rng import DiceProvider, SharedStream, Streams, derive_seed
@@ -16,6 +17,7 @@ from stamina_engine.engine.battle import Battle, BattleResult, Entrant
 from stamina_engine.experiments.metrics import Row, attack_rows, decision_rows, fight_row
 from stamina_engine.experiments.scenario import Scenario
 from stamina_engine.model.derive import CombatProfile, derive
+from stamina_engine.model.equipment import EquipmentTable, load_table
 from stamina_engine.provenance import Provenance, collect
 from stamina_engine.rules.plugins import load_plugin
 
@@ -26,13 +28,19 @@ def trial_seed(master_seed: int, cell: str, trial: int) -> int:
     return derive_seed(master_seed, f"{cell}:{trial}")
 
 
+@lru_cache(maxsize=32)
+def _table(name: str) -> EquipmentTable:
+    return load_table(name)
+
+
 def battle_for(scenario: Scenario, seed: int, check: bool = False) -> Battle:
     dice: DiceProvider = SharedStream(seed) if scenario.dice == "lockstep" else Streams(seed)
     profiles: dict[str, CombatProfile] = {}
     entrants = []
+    table = _table(scenario.equipment)
     for c in scenario.combatants:
         if c.build.name not in profiles:
-            profiles[c.build.name] = derive(c.build, scenario.rules)
+            profiles[c.build.name] = derive(c.build, scenario.rules, table)
         agent = make_agent(
             dict(c.agent) if not isinstance(c.agent, str) else c.agent,
             scenario.rules,

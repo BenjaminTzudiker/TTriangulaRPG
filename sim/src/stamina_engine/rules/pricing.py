@@ -130,21 +130,32 @@ class Pricing:
 
     # --- on-turn actions -------------------------------------------------------------
 
-    def melee_step(self, base: int, prior_actions: int) -> int:
-        """Weapon base + the on-turn surcharge."""
-        return base + self.rules.surcharge.surcharge(prior_actions)
+    def melee_step(self, base: int, prior_actions: int, light: bool = False) -> int:
+        """Weapon base + the on-turn surcharge (less light weapons' discount, a variant)."""
+        s = self.rules.surcharge
+        extra = s.surcharge(prior_actions)
+        if light:
+            extra = max(0, extra - s.light_discount())
+        return base + extra
 
     def melee_attack(
-        self, base: int, steps: int, trackers: Trackers = FRESH, stamina: int | None = None
+        self,
+        base: int,
+        steps: int,
+        trackers: Trackers = FRESH,
+        stamina: int | None = None,
+        light: bool = False,
     ) -> Quote:
         """k attack steps, declared and paid together. Raises if stamina is given and short."""
         prior = trackers.actions_this_turn
-        parts = tuple(self.melee_step(base, prior + i) for i in range(steps))
+        parts = tuple(self.melee_step(base, prior + i, light) for i in range(steps))
         return _ensure(Quote(parts, Track.ON_TURN), stamina)
 
-    def max_steps(self, base: int, stamina: int, trackers: Trackers = FRESH) -> int:
+    def max_steps(
+        self, base: int, stamina: int, trackers: Trackers = FRESH, light: bool = False
+    ) -> int:
         k = 0
-        while self.melee_attack(base, k + 1, trackers).total <= stamina:
+        while self.melee_attack(base, k + 1, trackers, light=light).total <= stamina:
             k += 1
         return k
 

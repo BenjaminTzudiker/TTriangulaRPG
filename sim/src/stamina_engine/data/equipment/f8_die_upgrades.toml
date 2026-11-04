@@ -1,0 +1,16 @@
+# Review F8 option 1: replace Strength multipliers with die upgrades (the review's greataxe
+# 2d6 + STR + FIN; the greatsword loses its multiplier the same way). Base costs and the
+# other weapons are unchanged. Reading pending the designer.
+[table]
+weapons = "v0_9"
+armor = "armor"
+
+[weapons.greatsword]
+base = 3
+reach = 1
+grips.two = "1d12 + STR + FIN"
+
+[weapons.greataxe]
+base = 3
+reach = 1
+grips.two = "2d6 + STR + FIN"

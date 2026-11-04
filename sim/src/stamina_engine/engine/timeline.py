@@ -128,7 +128,7 @@ def targets(b: Battle, c: CombatantState) -> tuple[str, ...]:
     weapon = c.gear.weapon
     if weapon is None or weapon.ranged:
         return ()
-    if b.pricing.melee_attack(weapon.base, 1, c.trackers).total > c.stamina:
+    if b.pricing.melee_attack(weapon.base, 1, c.trackers, light=weapon.light).total > c.stamina:
         return ()
     return tuple(
         o.id for o in b.state.enemies_of(c) if o.active and b.arena.in_reach(b.state, c, o, weapon)

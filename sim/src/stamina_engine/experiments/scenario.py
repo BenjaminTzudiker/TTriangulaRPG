@@ -4,6 +4,7 @@
 [scenario]
 name = "l1-duel"
 ruleset = { base = "v0.9" }          # or "v0.9", or { file = "mine.toml" }, plus overrides
+equipment = "v0_9"                   # or a variant table in data/equipment
 round_cap = 30
 trials = 2000
 seed = 1
@@ -70,6 +71,7 @@ class Scenario:
     plugin_paths: tuple[str, ...] = ()
     source: str = field(default="", compare=False)  # the TOML it came from, for the record
     battlefield: Battlefield | None = None
+    equipment: str = "v0_9"  # the weapon, armor and shield table (data/equipment variants)
 
     def __post_init__(self) -> None:
         if self.arena not in ARENAS:
@@ -225,7 +227,7 @@ def scenario_from_toml(text: str, base_dir: Path = Path(".")) -> Scenario:
                     cells[i],
                 )
             )
-    known = {"name", "round_cap", "trials", "seed", "dice", "arena"}
+    known = {"name", "round_cap", "trials", "seed", "dice", "arena", "equipment"}
     unknown = set(table) - known
     if unknown:
         raise ConfigError(f"unknown scenario fields {sorted(unknown)}")
@@ -242,6 +244,7 @@ def scenario_from_toml(text: str, base_dir: Path = Path(".")) -> Scenario:
         plugin_paths=plugin_paths,
         source=text,
         battlefield=battlefield,
+        equipment=str(table.get("equipment", "v0_9")),
     )
 
 
@@ -280,6 +283,7 @@ def scenario_to_toml(s: Scenario) -> str:
         f"dice = {_toml(s.dice)}",
         f"arena = {_toml(s.arena)}",
         f"plugins = {_toml(list(s.plugin_paths))}",
+        f"equipment = {_toml(s.equipment)}",
     ]
     if s.battlefield is not None:
         lines.append(f"map_name = {_toml(s.battlefield.name)}")

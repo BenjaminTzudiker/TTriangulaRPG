@@ -42,6 +42,7 @@ class SuiteRow:
     agents: Mapping[str, AgentSpec] | None = None
     builds: Mapping[str, str] | None = None  # combatant id -> library build
     side: str = ""  # the team whose result the row reports
+    equipment: str | None = None  # an equipment table instead of the scenario's
 
 
 def _one_v_three(group: str, scenario: str) -> list[SuiteRow]:
@@ -160,6 +161,8 @@ def build_scenario(row: SuiteRow) -> Scenario:
     s = s.with_rules(ruleset_from_spec(row.ruleset, SCENARIOS))
     if row.agents:
         s = s.with_agents(row.agents)
+    if row.equipment is not None:
+        s = replace(s, equipment=row.equipment)
     if row.builds:
         s = replace(
             s,

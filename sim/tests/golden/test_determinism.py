@@ -50,15 +50,15 @@ SWARM = [("d", "red", "l1_heavy", "fixed:2")] + [
 DEEP = [("a", "red", "l30_sample", "lookahead"), ("b", "blue", "l30_duelist", "reserve:5")]
 
 PINNED = [
-    ("v0.9", DUEL, 7, False, "eb6ba0c6114284e632535d42c2dd4ecbd126456d2dadec3d0ff40e6dba12641c"),
+    ("v0.9", DUEL, 7, False, "4a47547d4d64140906101e65e6341e1ca176086e54c64247b038de247b4ea639"),
     (
         "review-candidate",
         SWARM,
         3,
         False,
-        "03ae220c3e3dd45e906cff981567b77abf7161da53368166705f095978f9779a",
+        "a42f6939fbbdbbd1be6c6478c777d442be63bdab199158825a0d80b6b54fe503",
     ),
-    ("v0.9", DEEP, 5, True, "bc64c5fa3f067d3fc0a5b15e847a3f7b247d97a37788f378421b372770e4ae6c"),
+    ("v0.9", DEEP, 5, True, "f9990b1be24f8acb00812569f7d46a2dcfb29cf127541cb9c613136a385acc3f"),
 ]
 
 
@@ -71,16 +71,16 @@ def test_pinned_log_hashes(
 
 
 GRID_PINNED = [
-    ("archer_wall.toml", 2, "0f1cbcf44bcd30bd8ee63259477730c4097ba8725f6556c8f57b7f77ce2e2529"),
+    ("archer_wall.toml", 2, "4bbf0cce25edbc914d0d2196408fead826490fc39432f178d0d7d69d935564ee"),
     (
         "one_v_three_corridor.toml",
         0,
-        "05eaa848c93ddc163e9da39ee039a9afa99ff95727add836bddba195c3d6f1f5",
+        "dfebda4a2e46941713ace7373993cd3143a89d7863e1631becf5def17e154beb",
     ),
     (
         "reach_chokepoint.toml",
         3,
-        "0a245f1ccdf140cc018ee44682f98db9fd6bbd9a7d6ce9bcd6bb859f8ce30a64",
+        "0be9c82541d8822a814b2b2661ff67932bb9561919bedc51d40ea8763363bb84",
     ),
 ]
 

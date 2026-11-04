@@ -1,0 +1,7 @@
+# Review F8 option 3: a step's Strength term adds at most the weapon's largest die size
+# (so a greataxe's 3 x STR is capped at 6). Everything else as v0_9.
+[table]
+weapons = "v0_9"
+
+[rules]
+str_cap = "die"

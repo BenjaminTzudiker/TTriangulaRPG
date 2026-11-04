@@ -499,7 +499,12 @@ class TacticalAgent:
             for e in foes:
                 weapon = e.gear.weapon
                 assert weapon is not None
-                k = min(2, Pricing(self.rules).max_steps(weapon.base, max(0, e.stamina)))
+                k = min(
+                    2,
+                    Pricing(self.rules).max_steps(
+                        weapon.base, max(0, e.stamina), light=weapon.light
+                    ),
+                )
                 if k == 0:
                     continue
                 est = exact_estimate(

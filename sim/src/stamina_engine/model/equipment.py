@@ -99,6 +99,8 @@ class Shield:
     name: str
     melee: int
     ranged: int
+    strength_requirement: int = 0  # Review F4 option 1's variant; -1 AGI and FIN per point below
+    penalty_per_point: int = 1
 
 
 @dataclass(frozen=True)
@@ -108,6 +110,7 @@ class EquipmentTable:
     armor: tuple[Armor, ...]
     shields: tuple[Shield, ...]
     step_floor: int
+    str_cap: str = "none"  # Review F8 option 3: "die" caps a step's STR term at its die size
 
     def weapon(self, name: str) -> Weapon:
         return _find(self.weapons, name, "weapon")
@@ -144,14 +147,65 @@ def _weapon(name: str, data: dict[str, Any]) -> Weapon:
     )
 
 
+def library_tables() -> list[str]:
+    from importlib.resources import files
+
+    folder = files("stamina_engine.data").joinpath("equipment")
+    names = {"v0_9"}
+    names |= {p.name.removesuffix(".toml") for p in folder.iterdir() if p.name.endswith(".toml")}
+    return sorted(names)
+
+
 def load_table(weapons: str = "v0_9", armor: str = "armor") -> EquipmentTable:
-    """Load a weapon table from data/weapons/<weapons>.toml and armor and shields."""
-    w = load_toml("weapons", f"{weapons}.toml")
-    a = load_toml(f"{armor}.toml")
+    """An equipment table by name. "v0_9" is the packet's (data/weapons/v0_9.toml with
+    data/armor.toml). A variant is data/equipment/<name>.toml: it names its base tables and
+    replaces or adds weapons, armor and shields entry by entry, and may set rules."""
+    from importlib.resources import files
+
+    overlay: dict[str, Any] = {}
+    variant = files("stamina_engine.data").joinpath("equipment", f"{weapons}.toml")
+    if weapons != "v0_9" and variant.is_file():
+        overlay = load_toml("equipment", f"{weapons}.toml")
+        table = overlay.get("table", {})
+        base = load_table(str(table.get("weapons", "v0_9")), str(table.get("armor", armor)))
+        name = weapons
+    else:
+        if not files("stamina_engine.data").joinpath("weapons", f"{weapons}.toml").is_file():
+            raise ConfigError(f"no equipment table {weapons!r}; known: {library_tables()}")
+        w = load_toml("weapons", f"{weapons}.toml")
+        a = load_toml(f"{armor}.toml")
+        base = EquipmentTable(
+            name=weapons,
+            weapons=tuple(_weapon(n, d) for n, d in w["weapons"].items()),
+            armor=tuple(Armor(name=n, **d) for n, d in a["armor"].items()),
+            shields=tuple(Shield(name=n, **d) for n, d in a["shields"].items()),
+            step_floor=int(w.get("rules", {}).get("step_floor", 0)),
+        )
+        if not overlay:
+            return base
+        name = weapons
+
+    def merge[T: (Weapon, Armor, Shield)](items: tuple[T, ...], new: dict[str, T]) -> tuple[T, ...]:
+        kept = [new.pop(i.name, i) for i in items]
+        return tuple(kept + list(new.values()))
+
+    rules = overlay.get("rules", {})
+    unknown = set(rules) - {"step_floor", "str_cap"}
+    if unknown:
+        raise ConfigError(f"equipment {weapons}: unknown rules {sorted(unknown)}")
+    if rules.get("str_cap", "none") not in ("none", "die"):
+        raise ConfigError(f"equipment {weapons}: str_cap is none or die")
     return EquipmentTable(
-        name=weapons,
-        weapons=tuple(_weapon(n, d) for n, d in w["weapons"].items()),
-        armor=tuple(Armor(name=n, **d) for n, d in a["armor"].items()),
-        shields=tuple(Shield(name=n, **d) for n, d in a["shields"].items()),
-        step_floor=int(w.get("rules", {}).get("step_floor", 0)),
+        name=name,
+        weapons=merge(
+            base.weapons, {n: _weapon(n, d) for n, d in overlay.get("weapons", {}).items()}
+        ),
+        armor=merge(
+            base.armor, {n: Armor(name=n, **d) for n, d in overlay.get("armor", {}).items()}
+        ),
+        shields=merge(
+            base.shields, {n: Shield(name=n, **d) for n, d in overlay.get("shields", {}).items()}
+        ),
+        step_floor=int(rules.get("step_floor", base.step_floor)),
+        str_cap=str(rules.get("str_cap", base.str_cap)),
     )

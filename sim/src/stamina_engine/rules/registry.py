@@ -98,6 +98,24 @@ def to_dict(component: Component) -> dict[str, Scalar]:
     return {"kind": component.variant, **params(component)}
 
 
+def defaults(cls: type[Component]) -> dict[str, Scalar | None]:
+    """Each parameter's default, in field order (None for a parameter without one)."""
+    out: dict[str, Scalar | None] = {}
+    for f in dataclasses.fields(cls):  # type: ignore[arg-type]
+        out[f.name] = None if f.default is dataclasses.MISSING else f.default
+    return out
+
+
+def non_default(component: Component) -> dict[str, Scalar]:
+    """The parameters not at their default, in field order: what the RuleSet digest hashes."""
+    base = defaults(type(component))
+    return {
+        name: value
+        for name, value in params(component).items()
+        if not (type(value) is type(base[name]) and value == base[name])
+    }
+
+
 def _check_types(cls: type[Component], values: Mapping[str, object]) -> None:
     hints = typing.get_type_hints(cls)
     names = {f.name for f in dataclasses.fields(cls)}  # type: ignore[arg-type]

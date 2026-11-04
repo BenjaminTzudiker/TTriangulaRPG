@@ -1,0 +1,121 @@
+{
+  "blocks/perfect_slope": {
+    "first": 1,
+    "graze_cost": 1,
+    "graze_leak": 1,
+    "ranged_flat": 0,
+    "reset": "per_attack",
+    "slope_den": 1,
+    "slope_num": 1
+  },
+  "crit/double_once": {
+    "aim_dice_can_crit": true,
+    "armor_ignore_per_die": 1,
+    "max_widen": 3
+  },
+  "crit/none": {
+    "aim_dice_can_crit": true,
+    "armor_ignore_per_die": 1,
+    "max_widen": 3
+  },
+  "crit/per_die_bonus": {
+    "aim_dice_can_crit": true,
+    "armor_ignore_per_die": 1,
+    "bonus": 2,
+    "max_widen": 3
+  },
+  "defenses/v0_9": {
+    "agility_split": false,
+    "base": 1,
+    "proficient_weapon": 1,
+    "ranged_mode": "v0_9",
+    "second_weapon_bonus": 1,
+    "two_hander_bonus": 0
+  },
+  "dying/system_shock": {
+    "bleed_below": 10,
+    "death_hp": -10,
+    "death_shock": 10,
+    "roll_count": 2,
+    "roll_size": 12,
+    "stabilize_at": 15
+  },
+  "grid/v0_9": {
+    "bodies": "passable",
+    "corners": "no_squeeze",
+    "creature_cover": "half",
+    "metric": "chebyshev",
+    "occupancy": "allies_only",
+    "reach_needs_line": true
+  },
+  "information/v0_9": {
+    "builds": "known",
+    "stamina": "public"
+  },
+  "movement/v0_9": {
+    "extra_cap": "none",
+    "extra_cost": 1,
+    "extra_squares": "agility",
+    "free_base": 5,
+    "leftover": "turn",
+    "purchase_base_squares": 1
+  },
+  "off_turn/escalation": {
+    "enabled": true,
+    "movement_base": 1,
+    "order": "ascending_initiative",
+    "purchase_cap": 0,
+    "repeat_until_all_pass": true,
+    "slope": 1
+  },
+  "opportunity/v0_9": {
+    "avoid_cost_each": 1,
+    "avoid_debt": false,
+    "avoid_price": "flat",
+    "avoid_track": "none",
+    "cap_base": 1,
+    "cap_per_odd_finesse": 1,
+    "cap_rule": "flat",
+    "enabled": true,
+    "per_square_cap": false,
+    "point_blank_avoidable": false,
+    "timing": "on_leave"
+  },
+  "ranged/v0_9": {
+    "aim_cost_base": 1,
+    "aim_die": 6,
+    "aim_mode": "damage",
+    "bands": "v0_9",
+    "dive": "half_is_half",
+    "draw_between_turns": 1,
+    "half_cover": 2,
+    "point_blank_order": "dive_oas_first",
+    "three_quarter_cover": 5
+  },
+  "resources/v0_9": {
+    "ability_digits": "027",
+    "attribute_max": 6,
+    "expertise_base": 4,
+    "expertise_digits": "1469",
+    "floor_hp_term": true,
+    "hp_base": 6,
+    "recover_while_incapacitated": false,
+    "recovery_base": 4,
+    "recovery_level_div": 10,
+    "stamina_base": 6,
+    "stamina_level_div": 5,
+    "start_stamina": "max",
+    "start_strain": 0,
+    "strain_base": 6,
+    "strain_level_div": 5
+  },
+  "surcharge/linear": {
+    "light_exempt": 0,
+    "slope": 1
+  },
+  "turn_order/v0_9": {
+    "dice_count": 2,
+    "dice_size": 12,
+    "tiebreak": "reroll"
+  }
+}

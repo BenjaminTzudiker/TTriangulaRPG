@@ -28,7 +28,7 @@ from stamina_engine.rules.components.resources import ResourceRule, V09Resources
 from stamina_engine.rules.components.surcharge import LinearSurcharge, SurchargeRule
 from stamina_engine.rules.components.turn_order import TurnOrderRule, V09Initiative
 from stamina_engine.rules.components.wounds import NoWounds, WoundRule
-from stamina_engine.rules.registry import KINDS, Component, Scalar, from_dict, to_dict
+from stamina_engine.rules.registry import KINDS, Component, Scalar, from_dict, non_default, to_dict
 
 
 @dataclass(frozen=True)
@@ -89,9 +89,21 @@ class RuleSet:
         return "\n".join(lines) + "\n"
 
     def digest(self) -> str:
-        """SHA-256 of the canonical TOML of every component (the name is excluded)."""
-        body = self.to_toml().split("\n", 2)[2]
-        return hashlib.sha256(body.encode()).hexdigest()
+        """SHA-256 of each component's variant and its parameters that aren't at their
+        default; the name is excluded.
+
+        Leaving defaults out means a new switch whose default keeps the current rule leaves
+        every existing digest unchanged, the baseline's included. In exchange, a released
+        default never changes (tests/golden/test_component_defaults.py pins them): to change
+        a rule, set the new value where it applies, in a preset for the baseline, and the
+        digest changes with it. to_toml() still writes every parameter.
+        """
+        lines: list[str] = []
+        for kind, component in self.components().items():
+            lines.append(f"[ruleset.{kind}]")
+            lines.append(f"kind = {_toml_value(component.variant)}")
+            lines.extend(f"{k} = {_toml_value(v)}" for k, v in non_default(component).items())
+        return hashlib.sha256(("\n".join(lines) + "\n").encode()).hexdigest()
 
     def short_digest(self) -> str:
         return self.digest()[:12]

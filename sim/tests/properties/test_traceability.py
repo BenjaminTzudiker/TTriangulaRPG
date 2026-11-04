@@ -15,7 +15,9 @@ REVIEW = (REPO / "design" / "Review_Playtest_Packet_v0.9.md").read_text()
 
 HEADINGS = {m.group(1).strip() for m in re.finditer(r"^#+\s+(.+)$", PACKET, re.M)}
 LEDGER_IDS = set(re.findall(r"^### ([A-Z]{2}-\d+)", LEDGER, re.M))
-REVIEW_IDS = set(re.findall(r"^### (F\d+)\.", REVIEW, re.M))
+REVIEW_IDS = set(re.findall(r"^### (F\d+)\.", REVIEW, re.M)) | set(
+    re.findall(r"^## (Addendum(?: \d+)?)\b", REVIEW, re.M)
+)
 
 
 def check_cites(owner: str, cites: tuple[str, ...]) -> list[str]:

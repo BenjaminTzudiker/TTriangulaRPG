@@ -1,0 +1,5 @@
+# Review: make_fighter(1, 'greatsword').
+level = 1
+attributes = { STR = 2, AGI = 1, FIN = 1 }
+cores = ["fighter"]
+loadouts.main = { weapon = "greatsword", grip = "two", armor = "medium" }

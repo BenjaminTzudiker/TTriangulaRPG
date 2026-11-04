@@ -1,0 +1,6 @@
+# Review: archer (Table 5, Table 6). Longbow, with a quick-drawn shortsword for melee defense.
+level = 1
+attributes = { STR = 1, AGI = 1, FIN = 2 }
+cores = ["fighter"]
+loadouts.bow = { weapon = "longbow", grip = "two", armor = "light" }
+loadouts.blade = { weapon = "shortsword", grip = "one", armor = "light" }

@@ -1,0 +1,5 @@
+# Review: make_fighter(30, 'heavy'). STR 3 meets heavy armor's requirement.
+level = 30
+attributes = { STR = 3, AGI = 3, FIN = 2, CUN = 1 }
+cores = ["fighter"]
+loadouts.main = { weapon = "longsword", grip = "one", off_hand = "shield", armor = "heavy" }

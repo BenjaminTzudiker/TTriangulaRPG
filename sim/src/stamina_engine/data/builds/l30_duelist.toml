@@ -1,0 +1,5 @@
+# Review: make_fighter(30, 'duelist'). The two-handed longsword's max(STR, AGI) takes AGI.
+level = 30
+attributes = { AGI = 4, FIN = 3 }
+cores = ["fighter"]
+loadouts.main = { weapon = "longsword", grip = "two", armor = "none" }

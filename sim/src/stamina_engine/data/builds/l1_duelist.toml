@@ -1,0 +1,5 @@
+# Review: unarmored two-hander duelist. make_fighter(1, 'duelist').
+level = 1
+attributes = { STR = 1, AGI = 2, FIN = 1 }
+cores = ["fighter"]
+loadouts.main = { weapon = "longsword", grip = "two", armor = "none" }

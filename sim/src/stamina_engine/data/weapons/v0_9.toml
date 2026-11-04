@@ -1,0 +1,52 @@
+# Packet: Weapon Table (v0.9). Numbers placeholder; the list is incomplete.
+# Draft weapons (polearm, axe, rapier) are left out until they have base costs.
+# "(X or Y)" terms are written max(X, Y): the wielder always takes the higher value, and
+# the engine records which attribute it chose (Assumptions register).
+
+[rules]
+step_floor = 0  # each step's roll floors at 0 (Assumptions register, pending designer)
+
+[weapons.dagger]
+base = 1
+reach = 1
+properties = ["quick-draw"]
+grips.one = "1d4 + max(AGI, FIN)"
+
+[weapons.shortsword]
+base = 1
+reach = 1
+properties = ["quick-draw"]
+grips.one = "1d6 + max(AGI, FIN)"
+
+[weapons.longsword]
+base = 2
+reach = 1
+grips.two = "1d10 + max(STR, AGI) + FIN"
+grips.one = "1d8 + STR + FIN"
+
+[weapons.spear]
+base = 2
+reach = 2  # 1 extra square
+grips.one = "1d8 + STR + FIN"  # hands TODO in the packet; one-handed per the register
+
+[weapons.greatsword]
+base = 3
+reach = 1
+grips.two = "1d12 + 2*STR + FIN"
+
+[weapons.greataxe]
+base = 3
+reach = 1
+grips.two = "2d6 + 3*STR"
+
+[weapons.shortbow]
+base = 3
+ranged = true
+ranges = [6, 12, 18]
+grips.two = "1d6 + FIN"
+
+[weapons.longbow]
+base = 5
+ranged = true
+ranges = [8, 16, 24]
+grips.two = "1d8 + FIN + STR"

@@ -1,0 +1,5 @@
+# Review: make_fighter(30, 'strbrute').
+level = 30
+attributes = { STR = 5, FIN = 1 }
+cores = ["fighter"]
+loadouts.main = { weapon = "longsword", grip = "one", off_hand = "shield", armor = "heavy" }

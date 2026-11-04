@@ -1,0 +1,4 @@
+# Stand-in for an L1 caster with no weapon wielded (MD 1). Spells are TODO.
+level = 1
+attributes = { AGI = 1, FIN = 1, INT = 2 }
+loadouts.main = { armor = "none" }

@@ -81,6 +81,7 @@ stamina_engine/
   rules/
     ruleset.py      RuleSet, presets (v0_9, review_candidate, review_sim), with_(), hash, TOML I/O
     registry.py     component registry: (kind, name) -> class
+    plugins.py      load extra variants from a file outside the package (design-chat experiments)
     components/     crit  surcharge  blocks  defenses  resources  wounds  movement
                     off_turn  opportunity  ranged  turn_order  dying  information  grid
     pricing.py      every stamina quote, used by agents and engine alike
@@ -115,7 +116,8 @@ stamina_engine/
   abilities/    framework, class cores, candidate abilities
   analysis/     exact distributions, exchange tables, r-band checker
   experiments/  scenarios, runner, sweeps, metrics, reports, phase suite
-  cli.py        se table | se run | se sweep | se suite | se play | se replay
+  provenance.py the stamp on every result: RuleSet digest, source hash, git, plugins
+  cli.py        se table | se run | se sweep | se suite | se compare | se play | se replay
 tests/          golden/  parity/  oracle/  properties/  geometry/
 ```
 
@@ -156,9 +158,8 @@ class CritRule(Protocol):
 
 @register("crit", "per_die_bonus")
 @dataclass(frozen=True)
-class PerDieBonus:
+class PerDieBonus:                  # parity only (review-sim)
     bonus: int = 2
-    only_if_through: bool = False   # see Assumptions register
     aim_dice_can_crit: bool = True
     ...
 ```
@@ -169,13 +170,12 @@ In config, a variant is a base plus overrides:
 [ruleset]
 base = "v0.9"
 name = "review-candidate"
-crit = { kind = "per_die_bonus", bonus = 2 }
 surcharge = { kind = "linear", slope = 2 }
 ```
 
 | Component | Variants to implement (v0.9 first) | Findings it serves |
 |---|---|---|
-| `crit` | ×2 after armor once per attack; +N per crit die; ×2 only at 2+ crit dice; none. Switches: per-die armor ignore, aim dice can crit | F2, F14 |
+| `crit` | ×2 after armor once per attack; ×2 only at 2+ crit dice; none; +N per crit die (parity only, see Assumptions register). Switches: per-die armor ignore, aim dice can crit | F2, F14 |
 | `surcharge` | +s per prior action (s = 1, 2); quadratic; light weapons skip the first surcharge point; hard step cap | F1, F8 |
 | `blocks` | Perfect 1, 2, 3…; half slope 1, 1, 2, 2…; flat cost for ranged perfect blocks; graze leak size and whether armor soaks it; block count reset per attacker per round; guard rules (shift or +1 MD after ≤ G actions) | F1, F3, F6, Addendum 2 |
 | `defenses` | MD, RD and Dodge formulas; Dodge folded into RD; shield values; two-hander +1 MD; AGI steps by armor; MD growth with level | F3, F4, F5 |
@@ -192,9 +192,28 @@ surcharge = { kind = "linear", slope = 2 }
 
 Weapon, armor and shield tables are data files, not components, so F8 alternatives (STR multipliers, die upgrades, STR capped at die size) are separate tables a scenario selects.
 
-**Presets:** `v0.9` (as written, plus the review's assumptions for silent rules), `review-candidate` (+2 surcharge, +2 per crit die), and one preset per phase as decisions lock (`phase1`, `phase2`…), so later phases build on what earlier ones settled.
+**Presets:** `v0.9` (as written, plus the review's assumptions for silent rules), `review-candidate` (+2 surcharge, v0.9 crits), and one preset per phase as decisions lock (`phase1`, `phase2`…), so later phases build on what earlier ones settled.
 
-A further `review-sim` preset reproduces the old simulator's quirks for parity runs only: initiative ties go to the first-listed combatant, and duels carry no off-turn costs (see Verification).
+A further `review-sim` preset reproduces the old simulator's quirks for parity runs only: initiative ties go to the first-listed combatant, duels carry no off-turn costs, static tables round the mean roll half to even, and the per-die crit bonus is available for the review's linear-crit runs (see Verification).
+
+### Experiments from design chats
+
+Design chats try rule ideas themselves, so the engine keeps one baseline and makes every other idea cheap to add beside it, never in place of it. `sim/docs/USAGE_FOR_CHATS.md` is the chat-facing version of this.
+
+| Change | How it's tried | What lands in the repo |
+|---|---|---|
+| Numbers, or an existing variant | A RuleSet TOML override (`--ruleset idea.toml`) | Nothing, or the TOML beside a report |
+| A new mechanism that fits a component | A plugin: a file outside the package that registers a variant named `exp_...` (`--plugin idea.py`); taking an existing name is refused | The plugin and TOML beside a report |
+| A procedure or timing change | Engine code on an `exp/<topic>` branch, compared against the commit it started from | A branch or patch; if kept, a PR that adds a component for it |
+
+Variants move from experiment, to candidate (on `main`, in a phase preset), to ruled. Only the designer moves them. A ruled variant becomes the baseline, and the rejected ones are deleted, or kept for parity only if a published result depends on them. Keeping only live candidates on `main` keeps the test matrix and the register small.
+
+**Provenance.** The RuleSet digest identifies the rule configuration, not the code. Every result is therefore also stamped with:
+- a hash of the package's source and data files (`source`), which identifies the implementation even outside git;
+- the git commit and whether the engine's files have uncommitted changes;
+- each plugin file's hash.
+
+`se` prints the stamp after every result, `provenance.collect()` returns it, and the experiment runner (M1) writes it on every result row.
 
 ## Battlefield: grid, reach, sight and pathing
 
@@ -362,7 +381,7 @@ spawn = "1"
 profile = "disciplined_2step"   # one entry per attacker; spawns 1-3
 ```
 
-**Sweeps** take the product of RuleSet overrides, scenarios and agent pairings. Each trial's seed derives from the master seed and the cell, so any single fight can be re-run alone. Trials run across processes; results land in Parquet as three tables (one row per fight, per attack, per decision) with the RuleSet digest and assumption values on every row. Reports print 95% Wilson intervals and reproduce the review's table layouts so old and new numbers sit side by side.
+**Sweeps** take the product of RuleSet overrides, scenarios and agent pairings. Each trial's seed derives from the master seed and the cell, so any single fight can be re-run alone. Trials run across processes; results land in Parquet as three tables (one row per fight, per attack, per decision) with the RuleSet digest, assumption values and provenance stamp on every row. Reports print 95% Wilson intervals and reproduce the review's table layouts so old and new numbers sit side by side.
 
 **Metrics.**
 
@@ -391,28 +410,52 @@ Encounters up to about 6v6 on maps up to 40 × 40 (confirmed).
 
 Where v0.9 is silent or TODO, the engine takes the review's assumption when it had one and otherwise the reading closest to the packet's intent; each is a switch, and every result records which way it was set.
 
-| Unstated or TODO rule | Engine default | Switch |
-|---|---|---|
-| Stamina is public | Public (review assumption) | `information.stamina` |
-| Aim dice can crit | Yes (review assumption) | `crit.aim_dice_can_crit` |
-| Crit doubling happens once per attack | Once (review assumption) | `crit` |
-| Per-die crit bonus when nothing gets past armor | Always added, even when nothing gets past armor (what the review's simulator did) | `crit.only_if_through` |
-| Initiative ties | Reroll the tied creatures (the review's simulator gave ties to the first-listed combatant) | `turn_order.tiebreak` |
-| Order of off-turn movement after a turn | Lowest initiative first; repeat passes until everyone passes | `off_turn.order` |
-| What a dive to half cover gives | Half cover; total cover counts as three-quarters, as written | `ranged.dive` |
-| Diagonal movement and reach | Chebyshev: a diagonal is one square (confirmed for now) | `grid.metric` |
-| Moving through creatures | Through allies, not enemies; never end in an occupied square | `grid.occupancy` |
-| Creatures as cover | Half cover, as in 5e (confirmed) | `grid.creature_cover` |
-| Reach through walls | Needs a clear line from wielder to square | `grid.reach_needs_line` |
-| When an OA lands during a multi-square move | On leaving each square, before entering the next | `opportunity.timing` |
-| Diving out of a point-blank shooter's reach | Dive OAs resolve first, then blocks; point-blank OAs after the shot | `ranged.point_blank_order` |
-| Paying to avoid OAs at 0 stamina | Not allowed (debt as the variant) | `opportunity.avoid_debt` |
-| Max stamina at negative HP | HP term floors at 0 | `resources.max_stamina` |
-| Spear hands | One-handed, so a shield is allowed | weapon table |
-| Where a Rogue's moved turn sits next round | Keeps the new slot | Rogue core parameter |
-| Recovery while incapacitated | None | `resources.recovery` |
+**Status** says who owns each default:
+- *engine convention*: an engine or analysis choice that doesn't change what a rule means.
+- *pending designer*: a plain-text reading or design fork the designer has not ruled on, so the default is provisional.
+- *ruled*: the designer decided.
 
-Two of these can move headline numbers on their own: the per-die crit bonus at zero residual (the review's +2 results assume it always applies, and it decides whether low commitment ever wounds) and off-turn order (it decides who ends adjacent to whom). Both get a sensitivity run in the phase suite until they are decided.
+When a pending row is ruled, or a ruled row changes, the same commit updates the presets that use it and re-runs the parity gate, so a rules change can't leave a stale default behind.
+
+| Unstated or TODO rule | Engine default | Switch | Status |
+|---|---|---|---|
+| Stamina is public | Public (review assumption) | `information.stamina` | pending designer |
+| Aim dice can crit | Yes (review assumption) | `crit.aim_dice_can_crit` | pending designer |
+| Crit doubling happens once per attack | Once (review assumption) | `crit` kind `double_once` | pending designer |
+| Per-die crit bonus (+N per crit die) | Dropped as a design candidate. Kept only as a parity component under `review-sim`, where it is added even when nothing gets past armor, as the review's simulator did | `crit` kind `per_die_bonus` | ruled 2026-11-03 |
+| Initiative ties | Reroll the tied creatures (the review's simulator gave ties to the first-listed combatant) | `turn_order.tiebreak` | pending designer |
+| Order of off-turn movement after a turn | Lowest initiative first; repeat passes until everyone passes | `off_turn.order` | pending designer |
+| What a dive to half cover gives | Half cover; total cover counts as three-quarters, as written | `ranged.dive` | pending designer |
+| Diagonal movement and reach | Chebyshev: a diagonal is one square | `grid.metric` | ruled (confirmed for now) |
+| Moving through creatures | Through allies, not enemies; never end in an occupied square | `grid.occupancy` | pending designer |
+| Creatures as cover | Half cover, as in 5e | `grid.creature_cover` | ruled (confirmed) |
+| Reach through walls | Needs a clear line from wielder to square | `grid.reach_needs_line` | pending designer |
+| When an OA lands during a multi-square move | On leaving each square, before entering the next | `opportunity.timing` | pending designer |
+| Diving out of a point-blank shooter's reach | Dive OAs resolve first, then blocks; point-blank OAs after the shot | `ranged.point_blank_order` | pending designer |
+| Paying to avoid OAs at 0 stamina | Not allowed (debt as the variant) | `opportunity.avoid_debt` | pending designer |
+| Max stamina at negative HP | HP term floors at 0 | `resources.max_stamina` | engine convention |
+| Spear hands | One-handed, so a shield is allowed | weapon table | pending designer |
+| Where a Rogue's moved turn sits next round | Keeps the new slot | Rogue core parameter | pending designer |
+| Recovery while incapacitated | None | `resources.recovery` | pending designer |
+| Mean roll in the static tables (Table 1, `variants.py`, `grid.py`) | Round half up; `review-sim` rounds half to even, as Python's `round()` did, which changes three Table 1 cells and the L30/L99 rows (L99 k7: 80.5 → 80); printed figures likewise (Table 8's 2.125 prints as 2.12) | `se table --rounding` | engine convention |
+| Expertise and AP budgets above level 1 | EP = 4 + levels 1..L ending in 1/4/6/9; AP = levels 0..L ending in 0/2/7 (L1/L30/L99: 5/16/44 EP, 1/10/30 AP). The base of 4, and reading level 0's point as the starting AP, need the designer | `resources.budget` | pending designer |
+| Proficiency list | Builds list proficiencies explicitly; the library's Fighter core grants every v0.9 table weapon | build data | engine convention |
+| "(STR or AGI)", "(AGI or FIN)" damage terms | Always the higher value; the chosen attribute is recorded, not just the value | weapon data | pending designer |
+| Draft weapons with no base cost | Left out until costed | weapon table | pending designer |
+| Armor's Strength penalties "lower the attributes themselves" | Penalized AGI and FIN apply everywhere: defenses, initiative, movement, crit range, OA cap, damage terms | — | pending designer |
+| Negative flat damage (penalized AGI or FIN) | Each step's roll floors at 0 | weapon table `step_floor` | pending designer |
+| A graze that stops less than its share | Still leaks 1 | — | pending designer |
+| What armor soaks | Residual and leaks together, as one amount; the crit effect then applies to what remains | — | pending designer |
+| Second melee weapon for +1 MD | A proficient one-handed melee weapon in the off hand, with no shield; a two-handed grip doesn't count | `defenses` | pending designer |
+| Melee Defense with no melee weapon wielded | Base 1 only; the proficient-weapon and even-Finesse bonuses need a wielded proficient melee weapon; a held shield still counts. Unarmed is no weapon unless a build lists an unarmed proficiency | `defenses` | pending designer |
+| Stamina and strain at the start of a fight | Stamina at maximum, strain 0 | `resources.start` | engine convention |
+| Declaring steps or blocks you can't pay for | Not allowed; stamina never goes below 0 | — | engine convention |
+| Strain overage on an ability that costs no stamina (Fighter core) | The overage is still paid in stamina | — | pending designer |
+| Multi-die steps (greataxe 2d6) | Each die can crit separately; two crit dice ignore 2 armor | — | pending designer |
+| Finesse below 0 and crit range | No widening (odd count of a negative value is 0); the +3 cap can't be passed at FIN ≤ 6 | — | engine convention |
+| Block solver and avoidable incapacitation | Lexicographic: avoid incapacitation first, then minimize w × injury + stamina (the review used a +1000 penalty, identical below 1000) | solver option | engine convention |
+
+Off-turn order can move headline numbers on its own (it decides who ends adjacent to whom), so it gets a sensitivity run in the phase suite until it is decided.
 
 ## Verification
 
@@ -428,7 +471,7 @@ The engine is trusted only once it reproduces every worked example in the packet
 | Two Aimed Longbow Shots | 20 stamina |
 | Off-Turn Escalation | 10 stamina; the OA needs a cap of at least 3 |
 | Avoiding Opportunity Attacks | 2, then 1, then 1 |
-| System Shock | The five-step sequence: −2 HP / 2 Shock through −6 HP / 1 Shock |
+| System Shock | The five-step sequence: −2 HP / 2 Shock through −6 HP / 1 Shock (pure `dying` transitions, in M0) |
 | Sample Character | HP 8, stamina 14, MD 4, RD 3, Dodge 1, movement 6, 2 squares per off-turn purchase, crit 7–8, OA cap 2 |
 
 **2. Parity with the review.** Tables 1 and 8 must match exactly, since they are deterministic. Tables 2–5 and the Addendum grid must fall within the review's numbers at 95% confidence, using the ported scripted policies on a two-square map that reproduces all-adjacent fights. A mismatch is investigated, not assumed to be an engine bug: the old simulator can be wrong too.

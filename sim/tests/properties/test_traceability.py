@@ -9,7 +9,13 @@ from stamina_engine.rules.registry import registered
 
 REPO = Path(__file__).resolve().parents[3]
 SRC = REPO / "sim" / "src" / "stamina_engine"
-PACKET = (REPO / "rules" / "Playtest_Packet_v0.9.md").read_text()
+# The rules are one note per rule (rules/README.md). Every note starts with "# <its name>", so a
+# packet citation can name a note or any heading inside one. README and CHANGELOG are not rules.
+PACKET = "\n".join(
+    p.read_text()
+    for p in sorted((REPO / "rules").rglob("*.md"))
+    if p.name not in ("README.md", "CHANGELOG.md")
+)
 LEDGER = (REPO / "design" / "Rules_Reconciliation_Ledger_v0.8-to-v0.9.md").read_text()
 REVIEW = (REPO / "design" / "Review_Playtest_Packet_v0.9.md").read_text()
 

@@ -1,3 +1,6 @@
+---
+up: "[[Strain]]"
+---
 # Going Over Your Maximum Strain
 
 *Status: Locked*

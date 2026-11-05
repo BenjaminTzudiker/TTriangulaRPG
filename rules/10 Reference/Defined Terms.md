@@ -1,3 +1,8 @@
+---
+up: "[[Playtest Packet]]"
+prev: "[[Quick Reference]]"
+next: "[[Open Questions]]"
+---
 # Defined Terms
 
 | Term | Meaning | Defined in |

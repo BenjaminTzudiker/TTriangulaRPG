@@ -1,3 +1,8 @@
+---
+up: "[[Playtest Packet]]"
+prev: "[[Starting Combat and Turn Structure]]"
+next: "[[Melee Attacks]]"
+---
 # Actions and the On-Turn Surcharge
 
 *Status: Mechanism open*

@@ -1,3 +1,8 @@
+---
+up: "[[Playtest Packet]]"
+prev: "[[Character Advancement]]"
+next: "[[Rest and Healing]]"
+---
 # Skill Checks
 
 *Status: Exploratory; the skill system is TODO*

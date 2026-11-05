@@ -1,3 +1,6 @@
+---
+up: "[[Defenses]]"
+---
 # Dodge Defense
 
 *Status: Exploratory (whether Dodge stays); Locked (formula while it exists)*

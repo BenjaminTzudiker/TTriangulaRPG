@@ -1,3 +1,8 @@
+---
+up: "[[Playtest Packet]]"
+prev: "[[Critical Hits]]"
+next: "[[Movement]]"
+---
 # Ranged Attacks
 
 *Status: Numbers placeholder*

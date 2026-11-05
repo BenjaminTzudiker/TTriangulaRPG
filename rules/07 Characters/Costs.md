@@ -1,3 +1,8 @@
+---
+up: "[[Playtest Packet]]"
+prev: "[[Currencies]]"
+next: "[[Class Trees]]"
+---
 # Costs
 
 *Status: Numbers placeholder (Expertise, AP); Exploratory (Skill Point costs)*

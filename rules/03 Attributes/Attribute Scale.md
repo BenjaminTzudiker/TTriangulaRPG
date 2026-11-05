@@ -1,3 +1,8 @@
+---
+up: "[[Playtest Packet]]"
+prev: "[[Attributes]]"
+next: "[[Odd and Even Values]]"
+---
 # Attribute Scale
 
 *Status: Numbers placeholder (ranges); the descriptions are a draft*

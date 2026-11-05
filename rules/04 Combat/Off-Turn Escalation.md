@@ -1,3 +1,6 @@
+---
+up: "[[Movement]]"
+---
 # Off-Turn Escalation
 
 *Status: Mechanism open*

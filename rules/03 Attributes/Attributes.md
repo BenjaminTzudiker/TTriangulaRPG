@@ -1,3 +1,8 @@
+---
+up: "[[Playtest Packet]]"
+prev: "[[Strain]]"
+next: "[[Attribute Scale]]"
+---
 # Attributes
 
 There are six attributes:

@@ -1,3 +1,8 @@
+---
+up: "[[Playtest Packet]]"
+prev: "[[Intelligence]]"
+next: "[[Cunning]]"
+---
 # Will
 
 *Status: TODO*

@@ -1,3 +1,8 @@
+---
+up: "[[Playtest Packet]]"
+prev: "[[Dying and Death]]"
+next: "[[Drawing Weapons]]"
+---
 # Weapons
 
 *Status: Numbers placeholder; the list is incomplete*

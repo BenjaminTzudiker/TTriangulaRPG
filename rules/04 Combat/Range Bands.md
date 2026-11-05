@@ -1,3 +1,6 @@
+---
+up: "[[Ranged Attacks]]"
+---
 # Range Bands
 
 *Status: Numbers placeholder*

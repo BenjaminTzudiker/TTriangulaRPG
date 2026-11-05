@@ -1,3 +1,8 @@
+---
+up: "[[Playtest Packet]]"
+prev: "[[Melee Attacks]]"
+next: "[[Blocking]]"
+---
 # Defenses
 
 *Status: Locked (structure); Numbers placeholder (values)*

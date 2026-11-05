@@ -1,3 +1,6 @@
+---
+up: "[[Ranged Attacks]]"
+---
 # Cover
 
 *Status: Numbers placeholder*

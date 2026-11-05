@@ -1,3 +1,8 @@
+---
+up: "[[Playtest Packet]]"
+prev: "[[Cunning]]"
+next: "[[Actions and the On-Turn Surcharge]]"
+---
 # Starting Combat and Turn Structure
 
 *Status: Exploratory*

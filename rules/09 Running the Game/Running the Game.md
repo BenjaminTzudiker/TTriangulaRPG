@@ -1,3 +1,8 @@
+---
+up: "[[Playtest Packet]]"
+prev: "[[Rest and Healing]]"
+next: "[[Quick Reference]]"
+---
 # Running the Game
 
 *Status: Locked (principles)*

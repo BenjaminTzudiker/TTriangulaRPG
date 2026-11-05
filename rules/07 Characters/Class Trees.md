@@ -1,3 +1,8 @@
+---
+up: "[[Playtest Packet]]"
+prev: "[[Costs]]"
+next: "[[Character Advancement]]"
+---
 # Class Trees
 
 *Status: Locked (structure: core ability first, refunds, the martial/caster principle); Mechanism open (tier and core-ability costs)*

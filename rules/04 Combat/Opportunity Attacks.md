@@ -1,3 +1,8 @@
+---
+up: "[[Playtest Packet]]"
+prev: "[[Movement]]"
+next: "[[Conditions and Control Effects]]"
+---
 # Opportunity Attacks
 
 *Status: Locked (triggers); Mechanism open (avoidance and cap)*

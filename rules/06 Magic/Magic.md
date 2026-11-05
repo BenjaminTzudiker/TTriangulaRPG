@@ -1,3 +1,8 @@
+---
+up: "[[Playtest Packet]]"
+prev: "[[Shields]]"
+next: "[[Character Creation]]"
+---
 # Magic
 
 *Status: Locked (access goal); Numbers placeholder (casting requirements); TODO (everything else)*

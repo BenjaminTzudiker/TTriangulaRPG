@@ -1,3 +1,8 @@
+---
+up: "[[Playtest Packet]]"
+prev: "[[Blocking]]"
+next: "[[Ranged Attacks]]"
+---
 # Critical Hits
 
 *Status: Locked*

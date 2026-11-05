@@ -1,3 +1,8 @@
+---
+up: "[[Playtest Packet]]"
+prev: "[[Strength]]"
+next: "[[Finesse]]"
+---
 # Agility
 
 *Status: Numbers placeholder*

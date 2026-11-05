@@ -1,3 +1,8 @@
+---
+up: "[[Playtest Packet]]"
+prev: "[[Character Creation]]"
+next: "[[Costs]]"
+---
 # Currencies
 
 *Status: Locked (structure)*

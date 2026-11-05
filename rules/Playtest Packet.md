@@ -1,3 +1,6 @@
+---
+next: "[[What This Game Is Trying To Do]]"
+---
 # Playtest Packet
 
 Consolidated Prototype · Version 0.9 · Changes since this version: [[CHANGELOG]]
@@ -22,6 +25,8 @@ Some rules carry two markers, one for each part (for example, "Locked (timing); 
 ## Contents
 
 The order below is the reading order. Indented notes are embedded in the note above them.
+
+To read it all in one scroll, open [[Full Packet]]. To go note by note, use the **prev** and **next** links in each note's properties.
 
 ### Introduction
 

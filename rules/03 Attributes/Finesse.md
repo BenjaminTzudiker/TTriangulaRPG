@@ -1,3 +1,8 @@
+---
+up: "[[Playtest Packet]]"
+prev: "[[Agility]]"
+next: "[[Intelligence]]"
+---
 # Finesse
 
 *Status: Numbers placeholder*

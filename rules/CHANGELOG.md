@@ -37,6 +37,8 @@ A commit that only fixes typos can skip the entry by putting `[no changelog]` in
 
 - [[Quick Reference]]: each section now names the rules it restates, and [[Rest and Healing]] and [[Character Advancement]] link the rules they repeat. `rules/README.md` gains a "Changing a rule" checklist. No rule changes. Why: a rule change could leave a restated copy stale, with nothing pointing from the rule to its copies. Source: design chat, 2026-11-04.
 
+- [[Full Packet]]: new generated note that embeds every note in reading order, and each note gains generated `up`/`prev`/`next` properties along the same order. Both come from the Contents of [[Playtest Packet]] via `tools/check_rules.py --nav`. No rule changes. Why: to read the notes in sequence without hand-kept links. Source: design chat, 2026-11-05.
+
 ## 0.9
 
 Changes from v0.8. Moved here from the packet's former "What changed from v0.8" section; it predates the headings above.

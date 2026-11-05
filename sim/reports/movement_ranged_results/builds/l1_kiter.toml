@@ -1,0 +1,9 @@
+# Movement + ranged experiments: a skirmisher built to kite. Agility 5 (free movement 8, 4 squares
+# per purchase), Finesse 3, light armor, longbow with a quick-drawn shortsword. Over the level-1
+# budget on purpose.
+level = 1
+attributes = { STR = 1, AGI = 5, FIN = 3 }
+cores = ["fighter"]
+budget = "ignore"
+loadouts.bow = { weapon = "longbow", grip = "two", armor = "light" }
+loadouts.blade = { weapon = "shortsword", grip = "one", armor = "light" }

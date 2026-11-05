@@ -1,0 +1,7 @@
+# Movement + ranged experiments: a slow, powerful heavy. Agility 0 (free movement 5, 1 square per
+# purchase), Strength 4 (HP 10), heavy armor 3, greataxe. Over the level-1 budget on purpose.
+level = 1
+attributes = { STR = 4, AGI = 0, FIN = 1 }
+cores = ["fighter"]
+budget = "ignore"
+loadouts.main = { weapon = "greataxe", grip = "two", armor = "heavy" }

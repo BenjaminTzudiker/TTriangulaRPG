@@ -1,0 +1,6 @@
+# The brute in light armor (1), to see whether a kiter can wear down an unarmored slow enemy.
+level = 1
+attributes = { STR = 4, AGI = 0, FIN = 1 }
+cores = ["fighter"]
+budget = "ignore"
+loadouts.main = { weapon = "greataxe", grip = "two", armor = "light" }

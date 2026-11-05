@@ -1,0 +1,7 @@
+# The brute with Agility 2 (free movement 6, 2 squares per purchase), to separate the kiter's
+# speed edge from everything else.
+level = 1
+attributes = { STR = 4, AGI = 2, FIN = 1 }
+cores = ["fighter"]
+budget = "ignore"
+loadouts.main = { weapon = "greataxe", grip = "two", armor = "heavy" }

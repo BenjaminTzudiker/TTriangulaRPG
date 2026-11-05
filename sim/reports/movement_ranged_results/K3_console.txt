@@ -1,0 +1,8 @@
+RuleSet v0.9 3bf6fc070dbf
+Code git b1d826c (b1d826c18c4a, uncommitted changes); source dbf0c5340bf5; stamina-engine unknown
+
+## K3. The room: three squares of floor behind the kiter
+  v0.9                                         [3bf6fc070dbf] brutes 100.0% kiter 0.0%           | draws 0.0% | rounds 1.42 | contact_round: 1.00 | no_contact: 0.0% [0.0, 1.3] | shots_per_fight: 0.58 | injury_by:kiter: 3.32 | injury_by:brutes: 26.85 | melee_hits_on:kiter: 1.89 | spent:brutes:extra_move: 14.28 | spent:kiter:extra_move: 0.0 | spent:kiter:shot: 6.1 | down:brutes: 0.237
+  capped at Movement                           [f7fd70927981] brutes 88.3% kiter 11.7%           | draws 0.0% | rounds 2.94 | contact_round: 1.00 | no_contact: 0.0% [0.0, 1.3] | shots_per_fight: 2.00 | injury_by:kiter: 15.33 | injury_by:brutes: 55.76 | melee_hits_on:kiter: 1.05 | spent:brutes:extra_move: 1.02 | spent:kiter:extra_move: 0.0 | spent:kiter:shot: 17.0 | down:brutes: 0.697
+  one square, escalating                       [db6edbbd9a74] brutes 88.3% kiter 11.7%           | draws 0.0% | rounds 2.96 | contact_round: 1.00 | no_contact: 0.0% [0.0, 1.3] | shots_per_fight: 2.00 | injury_by:kiter: 15.33 | injury_by:brutes: 53.1 | melee_hits_on:kiter: 1.03 | spent:brutes:extra_move: 1.5 | spent:kiter:extra_move: 0.01 | spent:kiter:shot: 17.0 | down:brutes: 0.697
+  none                                         [8da823bc5604] brutes 88.0% kiter 12.0%           | draws 0.0% | rounds 4.43 | contact_round: 1.00 | no_contact: 0.0% [0.0, 1.3] | shots_per_fight: 2.55 | injury_by:kiter: 15.35 | injury_by:brutes: 38.26 | melee_hits_on:kiter: 1.08 | spent:brutes:extra_move: 0.0 | spent:kiter:extra_move: 0.0 | spent:kiter:shot: 19.81 | down:brutes: 0.703

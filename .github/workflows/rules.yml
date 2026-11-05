@@ -1,0 +1,34 @@
+# Checks for the rules notes (rules/): links resolve, the index reaches every note, and every
+# change to the rules comes with a CHANGELOG entry. Layout and entry format: rules/README.md and
+# the top of rules/CHANGELOG.md. A commit message containing [no changelog] skips the entry check.
+name: rules
+
+on:
+  push:
+    paths: ["rules/**", "tools/check_rules.py", ".github/workflows/rules.yml"]
+  pull_request:
+    paths: ["rules/**", "tools/check_rules.py", ".github/workflows/rules.yml"]
+
+jobs:
+  rules:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Notes link up and the index reaches every note
+        run: python3 tools/check_rules.py
+      - name: Rules changes come with a changelog entry
+        env:
+          EVENT: ${{ github.event_name }}
+          BEFORE: ${{ github.event.before }}
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          if [ "$EVENT" = pull_request ]; then
+            base=$(git merge-base "origin/$BASE_REF" HEAD)
+          elif [ -n "$BEFORE" ] && git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
+            base="$BEFORE"   # everything in this push
+          else
+            base=$(git merge-base origin/main HEAD)   # a new branch, or a force push
+          fi
+          python3 tools/check_rules.py --changelog "$base"

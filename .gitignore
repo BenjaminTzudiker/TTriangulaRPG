@@ -219,3 +219,8 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 .DS_Store
+
+# Obsidian (the vault is the repo root): per-device state stays out of git
+.obsidian/workspace*.json
+.obsidian/cache
+.trash/

@@ -4,7 +4,9 @@ A tactical fantasy TTRPG built on a regenerating stamina system, plus a Python r
 
 ## Where things are
 
-- `rules/Playtest_Packet_v0.9.md` is the rules text. It is authoritative for what the engine implements.
+- `rules/` is the rules text, one Obsidian note per rule. It is authoritative for what the engine implements.
+  - `rules/Playtest Packet.md` is the index and reading order; `rules/README.md` describes the layout and formatting.
+  - `rules/CHANGELOG.md` records every rules change. Its Unreleased section is what has changed since the last packet version.
 - `design/` holds the supporting documents:
   - `Review_Playtest_Packet_v0.9.md`: the findings (F1–F14) the engine exists to test.
   - `Fix_Order_and_Dependencies.md`: the order those findings get fixed (Phases 0–8).
@@ -24,7 +26,7 @@ A tactical fantasy TTRPG built on a regenerating stamina system, plus a Python r
 3. **All state changes go through `StateOps`.** No other code writes battle state.
 4. **Variants are RuleSet components selected in config.** No `if ruleset.name == ...` or similar branching in procedures.
 5. **The engine never decides for a creature.** Every choice is a typed decision request answered by an agent.
-6. **Cite the rule.** Each rule component and procedure declares `cites = ("Packet: <section>", "Ledger <ID>")`.
+6. **Cite the rule.** Each rule component and procedure declares `cites = ("Packet: <section>", "Ledger <ID>")`. `<section>` is a rules note's name or a heading inside one.
 7. **Deterministic.** Same seed and config, same event log. Never use the global `random` module in engine code; use the seeded streams from `core/`.
 
 ## Conventions
@@ -56,6 +58,13 @@ uv run se play <scenario.toml> --as ID --log session.jsonl  # play one side your
 uv run se load <scenario.toml>            # decision load per round (or --session logs)
 ```
 
+Run from the repo root:
+
+```bash
+python3 tools/check_rules.py                      # rules notes: links resolve, titles match, index reaches every note
+python3 tools/check_rules.py --compile packet.md  # the whole packet as one Markdown file (don't commit it)
+```
+
 ## Git workflow
 
 - Start every session with `git pull`. Design chats in the claude.ai project may push to this repo too.
@@ -63,6 +72,11 @@ uv run se load <scenario.toml>            # decision load per round (or --sessio
 - Small, safe changes (scenarios, maps, builds, reports, bug fixes that keep tests green) can go straight to `main`. Changes to engine procedures or rule components go on a branch with a pull request.
 - Experiments from design chats live on `exp/<topic>` branches or as plugin files beside a report, never in the baseline. Promote one to a real component (with tests and citations) only when the designer asks; delete rejected variants unless a published result needs them for parity.
 - Rules or design doc changes come from the designer. Update `rules/` in the same commit as the engine changes that implement a rules change.
+- **Every commit that changes `rules/` adds a line to `rules/CHANGELOG.md` under Unreleased, in the same commit**, in the format at the top of that file. This includes the designer's own edits you commit for them.
+  - If a change alters what a rule means, it goes under Rules, never Clarified.
+  - If you don't know why a change was made, write *Why: not recorded.* and ask the designer; never invent a reason.
+  - The `rules` workflow fails any push that changes `rules/` without touching the changelog. `[no changelog]` in a commit message skips it, for typo-only fixes.
+- Rename or move a rules note only with every link and engine `cites` string that names it updated. `python3 tools/check_rules.py` and `uv run pytest tests/properties/test_traceability.py` catch misses.
 - Keep `sim/docs/USAGE_FOR_CHATS.md` current whenever commands or install steps change.
 - Tag each finished milestone (`m0`, `m1`…) so results can name the code that produced them.
 

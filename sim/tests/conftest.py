@@ -56,7 +56,7 @@ except ModuleNotFoundError:
 
 ORACLE_PATH = Path(__file__).parent / "oracle" / "sim.py"
 REPO_ROOT = Path(__file__).resolve().parents[2]
-PACKET_PATH = REPO_ROOT / "rules" / "Playtest_Packet_v0.9.md"
+RULES_DIR = REPO_ROOT / "rules"  # the rules text, one note per rule (rules/README.md)
 
 _oracle_module: types.ModuleType | None = None
 

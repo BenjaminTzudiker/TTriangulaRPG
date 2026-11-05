@@ -1,3 +1,6 @@
+---
+up: "[[Class Trees]]"
+---
 # Candidate Abilities
 
 *Status: Exploratory; not yet assigned to trees*

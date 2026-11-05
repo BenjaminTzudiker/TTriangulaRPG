@@ -1,3 +1,8 @@
+---
+up: "[[Playtest Packet]]"
+prev: "[[Defined Terms]]"
+next: "[[Not in This Version]]"
+---
 # Open Questions
 
 **Combat**

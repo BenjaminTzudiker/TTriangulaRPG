@@ -1,3 +1,6 @@
+---
+up: "[[Class Trees]]"
+---
 # Core Abilities
 
 *Status: Numbers placeholder (Fighter, Rogue, Barbarian); Exploratory (Monk)*

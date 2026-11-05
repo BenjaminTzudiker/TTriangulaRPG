@@ -1,3 +1,8 @@
+---
+up: "[[Playtest Packet]]"
+prev: "[[Running the Game]]"
+next: "[[Defined Terms]]"
+---
 # Quick Reference
 
 ## Attack Sequence

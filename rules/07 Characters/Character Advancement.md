@@ -1,3 +1,8 @@
+---
+up: "[[Playtest Packet]]"
+prev: "[[Class Trees]]"
+next: "[[Skill Checks]]"
+---
 # Character Advancement
 
 *Status: Numbers placeholder*

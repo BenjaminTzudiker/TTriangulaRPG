@@ -1,3 +1,8 @@
+---
+up: "[[Playtest Packet]]"
+prev: "[[Armor]]"
+next: "[[Magic]]"
+---
 # Shields
 
 *Status: Locked*

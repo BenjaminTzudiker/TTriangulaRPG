@@ -1,3 +1,7 @@
+---
+up: "[[Playtest Packet]]"
+prev: "[[Open Questions]]"
+---
 # Not in This Version
 
 These ideas are deliberately left out of the current rules. They're strong candidates to come back, so don't build around their absence.

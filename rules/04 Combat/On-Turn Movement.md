@@ -1,3 +1,6 @@
+---
+up: "[[Movement]]"
+---
 # On-Turn Movement
 
 *Status: Locked (free base movement); Numbers placeholder (distances)*

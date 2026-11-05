@@ -1,3 +1,8 @@
+---
+up: "[[Playtest Packet]]"
+prev: "[[Skill Checks]]"
+next: "[[Running the Game]]"
+---
 # Rest and Healing
 
 *Status: Mechanism open (rest); Locked (no HP-restoring magic, for now)*

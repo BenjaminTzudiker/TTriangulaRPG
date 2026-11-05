@@ -1,3 +1,8 @@
+---
+up: "[[Playtest Packet]]"
+prev: "[[Odd and Even Values]]"
+next: "[[Agility]]"
+---
 # Strength
 
 *Status: Exploratory*

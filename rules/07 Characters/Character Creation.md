@@ -1,3 +1,8 @@
+---
+up: "[[Playtest Packet]]"
+prev: "[[Magic]]"
+next: "[[Currencies]]"
+---
 # Character Creation
 
 *Status: Numbers placeholder*

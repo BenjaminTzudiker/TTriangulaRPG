@@ -1,3 +1,6 @@
+---
+up: "[[Ranged Attacks]]"
+---
 # Aim
 
 *Status: Exploratory (cost); Numbers placeholder (amount added)*

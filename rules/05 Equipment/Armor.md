@@ -1,3 +1,8 @@
+---
+up: "[[Playtest Packet]]"
+prev: "[[Drawing Weapons]]"
+next: "[[Shields]]"
+---
 # Armor
 
 *Status: Locked (values; applies after blocks); Numbers placeholder (Agility steps); Exploratory (Strength requirements)*

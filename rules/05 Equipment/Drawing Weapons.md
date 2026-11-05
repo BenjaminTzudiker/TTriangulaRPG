@@ -1,3 +1,8 @@
+---
+up: "[[Playtest Packet]]"
+prev: "[[Weapons]]"
+next: "[[Armor]]"
+---
 # Drawing Weapons
 
 *Status: Exploratory*

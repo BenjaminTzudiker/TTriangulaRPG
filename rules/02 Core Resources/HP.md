@@ -1,3 +1,8 @@
+---
+up: "[[Playtest Packet]]"
+prev: "[[Core Concepts]]"
+next: "[[Stamina]]"
+---
 # HP
 
 *Status: Numbers placeholder*

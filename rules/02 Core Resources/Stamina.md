@@ -1,3 +1,8 @@
+---
+up: "[[Playtest Packet]]"
+prev: "[[HP]]"
+next: "[[Strain]]"
+---
 # Stamina
 
 *Status: Numbers placeholder (maximum); Locked (recovery timing); Numbers placeholder (recovery amount)*

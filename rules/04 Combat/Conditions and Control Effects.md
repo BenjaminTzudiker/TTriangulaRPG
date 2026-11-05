@@ -1,3 +1,8 @@
+---
+up: "[[Playtest Packet]]"
+prev: "[[Opportunity Attacks]]"
+next: "[[Dying and Death]]"
+---
 # Conditions and Control Effects
 
 *Status: Locked (principle); TODO (mechanics)*

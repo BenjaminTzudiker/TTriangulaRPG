@@ -1,3 +1,8 @@
+---
+up: "[[Playtest Packet]]"
+prev: "[[Will]]"
+next: "[[Starting Combat and Turn Structure]]"
+---
 # Cunning
 
 *Status: Exploratory*

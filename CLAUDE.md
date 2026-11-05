@@ -68,6 +68,7 @@ Run from the repo root:
 ```bash
 python3 tools/check_rules.py                      # rules notes: links resolve, titles match, index reaches every note
 python3 tools/check_rules.py --compile packet.md  # the whole packet as one Markdown file (gitignored)
+python3 tools/check_rules.py --nav                # regenerate prev/next/up and Full Packet from the index
 ```
 
 ## Git workflow
@@ -81,6 +82,7 @@ python3 tools/check_rules.py --compile packet.md  # the whole packet as one Mark
   - If a change alters what a rule means, it goes under Rules, never Clarified.
   - If you don't know why a change was made, write *Why: not recorded.* and ask the designer; never invent a reason.
   - The `rules` workflow fails any push that changes `rules/` without touching the changelog. `[no changelog]` in a commit message skips it, for typo-only fixes.
+- After adding, removing or reordering notes in the index, run `python3 tools/check_rules.py --nav` to regenerate the reading-order links.
 - Rename or move a rules note only with every link and engine `cites` string that names it updated. `python3 tools/check_rules.py` and `uv run pytest tests/properties/test_traceability.py` catch misses.
 - Keep `sim/docs/USAGE_FOR_CHATS.md` current whenever commands or install steps change.
 - Tag each finished milestone (`m0`, `m1`…) so results can name the code that produced them.

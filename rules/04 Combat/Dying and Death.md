@@ -1,3 +1,8 @@
+---
+up: "[[Playtest Packet]]"
+prev: "[[Conditions and Control Effects]]"
+next: "[[Weapons]]"
+---
 # Dying and Death
 
 *Status: Numbers placeholder*

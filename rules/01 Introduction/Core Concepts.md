@@ -1,3 +1,8 @@
+---
+up: "[[Playtest Packet]]"
+prev: "[[What This Game Is Trying To Do]]"
+next: "[[HP]]"
+---
 # Core Concepts
 
 ## Shared Resources

@@ -1,3 +1,8 @@
+---
+up: "[[Playtest Packet]]"
+prev: "[[Playtest Packet]]"
+next: "[[Core Concepts]]"
+---
 # What This Game Is Trying To Do
 
 Stamina isn't a resource you spend to enhance your defense, it *is* your defense. The game is about managing the ebb and flow of stamina, because when you run out you can no longer do things and you might just straight up die.

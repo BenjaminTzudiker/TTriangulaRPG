@@ -1,3 +1,8 @@
+---
+up: "[[Playtest Packet]]"
+prev: "[[Stamina]]"
+next: "[[Attributes]]"
+---
 # Strain
 
 *Status: Numbers placeholder (maximum); Mechanism open (recovery)*

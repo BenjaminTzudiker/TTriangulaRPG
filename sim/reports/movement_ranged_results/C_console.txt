@@ -18,3 +18,5 @@
   l30_sample, v0.9, graze cost 1                 [3bf6fc070dbf] A 44.7% B 44.0%            fm 65.0%  draws 11.3%  rounds 13.583 wasted/fight 0.18 (5.3%  of fights) OA taken 0.0 avoided 0.0
   l30_sample, v0.9, graze cost 2                 [018337d87d3d] A 49.3% B 50.7%            fm 84.3%  draws 0.0%   rounds 4.833  wasted/fight 0.0 (0.0%  of fights) OA taken 0.0 avoided 0.0
   l30_sample, +2 surcharge, graze cost 1         [d99bdcba96f4] A 11.7% B 8.3%             fm 60.0%  draws 80.0%  rounds 27.567 wasted/fight 1.0 (100.0 of fights) OA taken 0.0 avoided 0.0
+  l30_sample, +2 surcharge, graze cost 2         [3731943d0d6d] A 34.7% B 34.3%            fm 59.9%  draws 31.0%  rounds 18.740 wasted/fight 1.0 (100.0 of fights) OA taken 0.0 avoided 0.0
+challenges done

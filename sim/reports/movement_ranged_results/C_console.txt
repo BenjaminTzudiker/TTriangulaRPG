@@ -1,0 +1,20 @@
+## C1. Does the HP-stamina link bind? Wasted recovery in duels (adjacent, 7 apart), L1 and L30
+  l1_sample: 1 apart                             [3bf6fc070dbf] A 53.0% B 46.3%            fm 66.8%  draws 0.7%   rounds 6.180  wasted/fight 0.0 (0.0%  of fights) OA taken 0.0 avoided 0.0
+  l1_sample: 7 apart                             [3bf6fc070dbf] A 43.7% B 55.0%            fm 70.6%  draws 1.3%   rounds 6.277  wasted/fight 0.0 (0.0%  of fights) OA taken 0.0 avoided 0.0
+  l30_sample: 1 apart                            [3bf6fc070dbf] A 44.7% B 44.0%            fm 65.0%  draws 11.3%  rounds 13.583 wasted/fight 0.18 (5.3%  of fights) OA taken 0.0 avoided 0.0
+  l30_sample: 7 apart                            [3bf6fc070dbf] A 40.3% B 47.7%            fm 67.4%  draws 12.0%  rounds 13.390 wasted/fight 0.2 (4.3%  of fights) OA taken 0.0 avoided 0.0
+## C2. OAs off vs on: do they change behaviour when unpaid? Screen (archer behind fighter vs two fighters) and 3v3
+  screen gap 1, OAs as written                   [3bf6fc070dbf] enemies 84.7% party 14.3%  fm 61.6%  draws 1.0%   rounds 4.547  wasted/fight 0.01 (0.3%  of fights) OA taken 0.03 avoided 0.32
+  3v3 open, OAs as written                       [3bf6fc070dbf] A 51.0% B 48.0%            fm 59.9%  draws 1.0%   rounds 5.467  wasted/fight 0.63 (3.3%  of fights) OA taken 0.16 avoided 3.49
+  1v3 corridor (tactical D), OAs as written      [3bf6fc070dbf] attackers 97.0% defender 0.0% fm 67.0%  draws 3.0%   rounds 3.370  wasted/fight 17.4 (51.7% of fights) OA taken 0.0 avoided 0.81
+  screen gap 1, OAs disabled                     [7e32cdccb255] enemies 87.3% party 11.3%  fm 58.8%  draws 1.3%   rounds 4.430  wasted/fight 0.0 (0.0%  of fights) OA taken 0.0 avoided 0.0
+  3v3 open, OAs disabled                         [7e32cdccb255] A 52.0% B 47.7%            fm 61.5%  draws 0.3%   rounds 5.603  wasted/fight 1.05 (3.3%  of fights) OA taken 0.0 avoided 0.0
+  1v3 corridor (tactical D), OAs disabled        [7e32cdccb255] attackers 97.3% defender 0.0% fm 67.1%  draws 2.7%   rounds 3.720  wasted/fight 19.84 (57.0% of fights) OA taken 0.0 avoided 0.0
+## C3. Pricier grazes, armor intact: graze_cost 2; adjacent duels at L1 and L30 under v0.9 and +2
+  l1_sample, v0.9, graze cost 1                  [3bf6fc070dbf] A 53.0% B 46.3%            fm 66.8%  draws 0.7%   rounds 6.180  wasted/fight 0.0 (0.0%  of fights) OA taken 0.0 avoided 0.0
+  l1_sample, v0.9, graze cost 2                  [018337d87d3d] A 51.7% B 48.3%            fm 88.0%  draws 0.0%   rounds 2.717  wasted/fight 0.0 (0.0%  of fights) OA taken 0.0 avoided 0.0
+  l1_sample, +2 surcharge, graze cost 1          [d99bdcba96f4] A 41.7% B 37.7%            fm 57.6%  draws 20.7%  rounds 15.683 wasted/fight 0.0 (0.0%  of fights) OA taken 0.0 avoided 0.0
+  l1_sample, +2 surcharge, graze cost 2          [3731943d0d6d] A 48.0% B 52.0%            fm 65.0%  draws 0.0%   rounds 6.160  wasted/fight 0.0 (0.0%  of fights) OA taken 0.0 avoided 0.0
+  l30_sample, v0.9, graze cost 1                 [3bf6fc070dbf] A 44.7% B 44.0%            fm 65.0%  draws 11.3%  rounds 13.583 wasted/fight 0.18 (5.3%  of fights) OA taken 0.0 avoided 0.0
+  l30_sample, v0.9, graze cost 2                 [018337d87d3d] A 49.3% B 50.7%            fm 84.3%  draws 0.0%   rounds 4.833  wasted/fight 0.0 (0.0%  of fights) OA taken 0.0 avoided 0.0
+  l30_sample, +2 surcharge, graze cost 1         [d99bdcba96f4] A 11.7% B 8.3%             fm 60.0%  draws 80.0%  rounds 27.567 wasted/fight 1.0 (100.0 of fights) OA taken 0.0 avoided 0.0

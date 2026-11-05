@@ -1,0 +1,25 @@
+## O1 L1 v0.9
+  L1 v0.9: 1 apart                   [3bf6fc070dbf] fm 66.8% [61.2, 71.9]     draws 0.7%   rounds mean 6.180 [5.437, 6.923 deaths 0.080 unt 62.1%
+  L1 v0.9: 7 apart                   [3bf6fc070dbf] fm 70.6% [65.2, 75.5]     draws 1.3%   rounds mean 6.277 [5.498, 7.055 deaths 0.060 unt 61.5%
+  L1 v0.9: 11 apart                  [3bf6fc070dbf] fm 52.9% [47.2, 58.5]     draws 2.3%   rounds mean 8.123 [7.274, 8.973 deaths 0.187 unt 87.4%
+## O1 L1 review-candidate (+2 surcharge)
+  L1 review-candidate (+2 surcharge): 1 apart [d99bdcba96f4] fm 57.6% [51.2, 63.7]     draws 20.7%  rounds mean 15.683 [14.507, 16. deaths 0.063 unt 78.6%
+  L1 review-candidate (+2 surcharge): 7 apart [d99bdcba96f4] fm 62.7% [56.4, 68.5]     draws 19.7%  rounds mean 14.813 [13.645, 15. deaths 0.053 unt 83.0%
+  L1 review-candidate (+2 surcharge): 11 apart [d99bdcba96f4] fm 50.4% [44.1, 56.7]     draws 21.3%  rounds mean 15.907 [14.710, 17. deaths 0.083 unt 75.4%
+## O1 L1 v0.9, start at half stamina
+  L1 v0.9, start at half stamina: 1 apart [855eb3f26294] fm 67.9% [62.4, 73.0]     draws 2.3%   rounds mean 10.070 [9.207, 10.9 deaths 0.073 unt 77.8%
+  L1 v0.9, start at half stamina: 7 apart [855eb3f26294] fm 70.3% [64.8, 75.2]     draws 2.3%   rounds mean 8.823 [7.997, 9.650 deaths 0.100 unt 84.0%
+  L1 v0.9, start at half stamina: 11 apart [855eb3f26294] fm 55.3% [49.5, 60.8]     draws 1.7%   rounds mean 10.263 [9.427, 11.0 deaths 0.083 unt 77.3%
+## O1 L1 +2 surcharge and half start
+  L1 +2 surcharge and half start: 1 apart [91896702055c] fm 56.0% [49.6, 62.2]     draws 22.0%  rounds mean 17.250 [16.130, 18. deaths 0.040 unt 72.6%
+  L1 +2 surcharge and half start: 7 apart [91896702055c] fm 63.5% [57.3, 69.3]     draws 18.7%  rounds mean 16.160 [15.035, 17. deaths 0.060 unt 79.1%
+  L1 +2 surcharge and half start: 11 apart [91896702055c] fm 51.5% [45.1, 58.0]     draws 24.3%  rounds mean 17.743 [16.625, 18. deaths 0.057 unt 74.4%
+## O1 L30 v0.9
+  L30 v0.9: 1 apart                  [3bf6fc070dbf] fm 65.0% [59.1, 70.5]     draws 11.3%  rounds mean 13.583 [12.541, 14. deaths 0.020 unt 56.4%
+  L30 v0.9: 7 apart                  [3bf6fc070dbf] fm 67.4% [61.6, 72.8]     draws 12.0%  rounds mean 13.390 [12.288, 14. deaths 0.000 unt 57.6%
+  L30 v0.9: 11 apart                 [3bf6fc070dbf] fm 58.7% [52.7, 64.4]     draws 9.7%   rounds mean 12.300 [11.228, 13. deaths 0.013 unt 52.4%
+## O1 L30 review-candidate (+2 surcharge)
+  L30 review-candidate (+2 surcharge): 1 apart [d99bdcba96f4] fm 60.0% [47.4, 71.4]     draws 80.0%  rounds mean 27.567 [26.911, 28. deaths 0.000 unt 88.3%
+  L30 review-candidate (+2 surcharge): 7 apart [d99bdcba96f4] fm 59.6% [45.3, 72.4]     draws 84.3%  rounds mean 28.113 [27.492, 28. deaths 0.000 unt 76.6%
+  L30 review-candidate (+2 surcharge): 11 apart [d99bdcba96f4] fm 58.1% [45.7, 69.5]     draws 79.3%  rounds mean 27.250 [26.508, 27. deaths 0.000 unt 90.3%
+## O1 L30 v0.9, start at half stamina

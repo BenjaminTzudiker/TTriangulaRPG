@@ -2,11 +2,15 @@
 
 ## Attack Sequence
 
+*Restates [[Attack Procedure]], [[Ranged Attacks]], [[Blocking]], [[Armor]] and [[Critical Hits]].*
+
 **Melee:** Declare target → declare steps and pay → roll → blocks → armor → double if critical → lose HP
 
 **Ranged:** Declare target → pay shot → buy aim → roll → dive for cover → blocks → armor → double if critical → lose HP
 
 ## Stamina Costs
+
+*Restates [[Melee Attacks]], [[Actions and the On-Turn Surcharge]], [[Ranged Attacks]], [[Aim]], [[On-Turn Movement]], [[Off-Turn Movement]], [[Off-Turn Escalation]], [[Opportunity Attacks]], [[Blocking]], [[Drawing Weapons]] and [[Going Over Your Maximum Strain]].*
 
 | What | Cost | Escalates on |
 |---|---|---|
@@ -24,6 +28,8 @@
 
 ## Triangular Numbers
 
+*Restates [[Blocking]] and [[Costs]].*
+
 The running totals for perfect blocks, attribute costs and skill ranks.
 
 | N | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
@@ -31,6 +37,8 @@ The running totals for perfect blocks, attribute costs and skill ranks.
 | Total | 1 | 3 | 6 | 10 | 15 | 21 | 28 | 36 | 45 | 55 |
 
 ## Attribute Bonus Table
+
+*Restates [[Odd and Even Values]], [[Agility]], [[Finesse]], [[Cunning]] and [[Armor]].*
 
 | Value | Odd-value bonuses | Even-value bonuses (normal / medium armor / heavy armor) |
 |---:|---:|---|
@@ -53,6 +61,8 @@ The running totals for perfect blocks, attribute costs and skill ranks.
 
 ## Critical Range Table
 
+*Restates [[Critical Hits]] and [[Finesse]].*
+
 | Die | Finesse 0 | Finesse 1–2 | Finesse 3–4 | Finesse 5–6 |
 |---|---|---|---|---|
 | d4 | 4 | 3–4 | 2–4 | Always |
@@ -62,6 +72,8 @@ The running totals for perfect blocks, attribute costs and skill ranks.
 | d12 | 12 | 11–12 | 10–12 | 9–12 |
 
 ## Sample Character
+
+*Restates [[Character Creation]], [[Costs]], [[HP]], [[Stamina]], [[Strain]], [[Defenses]], [[Dodge Defense]], [[On-Turn Movement]], [[Off-Turn Movement]], [[Starting Combat and Turn Structure]], [[Critical Hits]], [[Opportunity Attacks]], [[Weapons]], [[Armor]], [[Shields]] and [[Core Abilities]].*
 
 *Illustrative only*
 

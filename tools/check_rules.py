@@ -19,6 +19,7 @@ INDEX = "Playtest Packet"
 CHANGELOG = "CHANGELOG"
 META = {"README", CHANGELOG}  # notes about the rules, not rule notes
 SKIP_MARK = "[no changelog]"
+RESTATES = {"Quick Reference"}  # notes that only repeat rules: each ## section names its sources
 
 # [[Note]], [[Note#Heading]], [[Note|alias]], [[#Heading]], ![[Note]]; "\|" inside tables.
 LINK = re.compile(r"(!?)\[\[([^\]#|\\]*)(?:#([^\]|\\]+))?(?:\\?\|([^\]]*))?\]\]")
@@ -75,6 +76,12 @@ def check() -> list[str]:
                 problems.append(f"{name}: link to missing note [[{target}]]")
             elif heading and heading not in heads[note]:
                 problems.append(f"{name}: link to missing heading [[{target}#{heading}]]")
+
+    for name in RESTATES & set(texts):
+        for section in re.split(r"^## ", texts[name], flags=re.M)[1:]:
+            title = section.split("\n", 1)[0].strip()
+            if not re.search(r"^\*Restates .*\[\[", section, re.M):
+                problems.append(f"{name}: section {title!r} has no '*Restates [[...]]*' line")
 
     if INDEX not in texts:
         return problems + [f"no index note {INDEX}.md"]

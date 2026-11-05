@@ -19,6 +19,6 @@ Each level grants a benefit based on its last digit:
 | 8 | +1 maximum stamina, +1 maximum strain, +1 Skill Point |
 | 9 | Expertise Point |
 
-The stamina and strain lines are what the round(Level / 5) and round(Level / 10) formulas produce.
+The stamina and strain lines are what the round(Level / 5) and round(Level / 10) formulas produce (see [[Stamina]] and [[Strain]]).
 
 "Tier" may still be used as a loose name for a band of levels. But tiers in a class tree come only from tier abilities.

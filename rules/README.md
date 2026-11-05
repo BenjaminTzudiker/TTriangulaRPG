@@ -18,6 +18,26 @@ The rules text, one note per rule. Start at [[Playtest Packet]]: it lists every 
 - References to other rules are links: `(see [[Cover]])`, or `[[Opportunity Attacks#Making Opportunity Attacks|Making Opportunity Attacks]]` for a heading inside a note. Inside a table, leave out the `|…` part.
 - Bold is for emphasis, not for references.
 
+## Changing a rule
+
+Rules interact, and several notes repeat other notes' rules. Before reasoning about a change or proposing one, read the whole packet, not just the note in question:
+
+```bash
+python3 tools/check_rules.py --compile packet.md   # about 8,500 words; packet.md is gitignored
+```
+
+When the change is made, in the same commit:
+
+1. Edit the rule's own note.
+2. Update every restatement. Search `rules/` for links to the note (`[[Aim`) and for the rule's own terms and numbers (`aim step`, `1d6 + Finesse`), because links alone miss some. Restatements live in:
+   - [[Quick Reference]], whose sections each name what they restate on their *Restates* line, including [[Quick Reference#Sample Character|Sample Character]];
+   - [[Defined Terms]];
+   - notes that state the same rule from both sides: the attribute notes and the [[Defenses]] tables; [[Stamina]], [[Strain]], [[Rest and Healing]] and [[Character Advancement]].
+3. Add the [[CHANGELOG]] line.
+4. Run `python3 tools/check_rules.py`. If the engine implements the rule, its change goes in the same commit (see `CLAUDE.md`).
+
+A new Quick Reference section needs its own *Restates* line; the checker fails without one.
+
 ## Adding, renaming or removing a note
 
 - List it in [[Playtest Packet]] at its place in the reading order. The checker fails on notes the index doesn't reach.

@@ -29,6 +29,11 @@ A tactical fantasy TTRPG built on a regenerating stamina system, plus a Python r
 6. **Cite the rule.** Each rule component and procedure declares `cites = ("Packet: <section>", "Ledger <ID>")`. `<section>` is a rules note's name or a heading inside one.
 7. **Deterministic.** Same seed and config, same event log. Never use the global `random` module in engine code; use the seeded streams from `core/`.
 
+## Working on the rules
+
+- Before reasoning about a rule or changing one, compile the packet (`python3 tools/check_rules.py --compile packet.md` from the repo root) and read all of it. Rules interact, and one note is never the whole picture.
+- A rules change updates every restatement of the rule in the same commit, as "Changing a rule" in `rules/README.md` describes.
+
 ## Conventions
 
 - Python 3.12, `src/` layout under `sim/`, frozen dataclasses for rules and profiles.
@@ -62,7 +67,7 @@ Run from the repo root:
 
 ```bash
 python3 tools/check_rules.py                      # rules notes: links resolve, titles match, index reaches every note
-python3 tools/check_rules.py --compile packet.md  # the whole packet as one Markdown file (don't commit it)
+python3 tools/check_rules.py --compile packet.md  # the whole packet as one Markdown file (gitignored)
 ```
 
 ## Git workflow

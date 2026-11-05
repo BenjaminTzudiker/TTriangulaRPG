@@ -224,3 +224,6 @@ __marimo__/
 .obsidian/workspace*.json
 .obsidian/cache
 .trash/
+
+# The compiled packet (tools/check_rules.py --compile packet.md): the notes are the source
+/packet.md

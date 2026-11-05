@@ -18,6 +18,17 @@ What it does:
 - **Holding.** With `hold = true` it never moves on its turn: it attacks a target in reach
   (its target policy's choice if reachable, else the first) or ends the turn. For terrain
   experiments: a defender that keeps its square.
+- **Patience.** With `chase_spend = n` it buys movement to reach an attack square only when
+  that costs at most n stamina (purchases plus avoidance); otherwise it approaches with free
+  movement. Default −1: as written in v1, it pays whatever leaves it one attack step.
+- **Kiting (shooters).** With `kite = "distance"` a shooter, after its shot (or instead of a
+  shot that would leave it below `shot_reserve`), moves to the square farthest from the
+  nearest melee enemy, buying movement and avoidance up to `kite_spend` stamina, when that
+  gains distance; with `kite_gap = n` it instead takes the cheapest square at least n away
+  (then the one that uses the least room), so it conserves stamina and floor. A kiter caught
+  with its blade out runs first and never trades blows by choice. It also never buys a shot
+  that is a certain miss (too few affordable aims for the band). Default `off`: v1's
+  step-away with free movement only.
 - **Off-turn windows.** It retreats when at least `retreat_engaged` enemies could engage it,
   or when it is engaged at all with stamina below `low_stamina` of its maximum: to the
   affordable square with the fewest engagers, if that is strictly fewer and costs at most
@@ -94,6 +105,7 @@ cites = (
 
 TARGET_MODES = frozenset({"lowest_stamina", "nearest", "first", "focus"})
 OFF_TURN_MODES = frozenset({"retreat", "pin", "retreat_pin"})
+KITE_MODES = frozenset({"off", "distance"})
 
 
 @dataclass
@@ -111,6 +123,11 @@ class TacticalAgent:
     off_turn: str = "retreat"  # or "pin" / "retreat_pin": close off-turn (movement experiments)
     pin_budget: Fraction = Fraction(1, 2)
     hold: bool = False  # never move on its turn: attack what it can reach, else end the turn
+    kite: str = "off"  # "distance": a shooter runs from melee enemies after its shot
+    kite_spend: int = 0  # stamina the run may cost (purchases and avoidance) on top of free squares
+    kite_gap: int = 0  # hold this distance from the nearest melee enemy instead of maximising it
+    shot_reserve: int = 0  # a shooter skips its shot if it would leave less than this
+    chase_spend: int = -1  # most stamina spent on movement to reach an attack square; -1: any
     _pending: int = field(default=0, init=False)
     _plan: tuple[int, str] = field(default=(-1, ""), init=False)  # (round, stage) this turn
 
@@ -119,6 +136,8 @@ class TacticalAgent:
             raise ConfigError(f"tactical target must be one of {sorted(TARGET_MODES)}")
         if self.off_turn not in OFF_TURN_MODES:
             raise ConfigError(f"tactical off_turn must be one of {sorted(OFF_TURN_MODES)}")
+        if self.kite not in KITE_MODES:
+            raise ConfigError(f"tactical kite must be one of {sorted(KITE_MODES)}")
         self.pricing = Pricing(self.rules)
 
     # --- helpers ---------------------------------------------------------------------
@@ -242,33 +261,56 @@ class TacticalAgent:
         bow = ranged_loadout(me)
         weapon = me.gear.weapon
         holding_bow = weapon is not None and weapon.ranged
-        if stage == "shot":
+        if stage in ("shot", "held"):
             if request.moves is not None:
                 self._plan = (obs.round, "done")
-                step = self._kite(board, request.moves, None)
+                step = (
+                    self._run(board, request.moves)
+                    if self.kite == "distance"
+                    else self._kite(board, request.moves, None)
+                )
                 if step is not None:
                     return step
             return EndTurn()
         if stage == "done":
             return EndTurn()
+        exposed = board.engagers(me.pos) > 0 or bool(board.threatening(me.pos))
         if not holding_bow:
             free_bow = [d for d in request.draws if d.loadout == bow and d.quote.total == 0]
             bow_weapon = me.profile.loadout(bow).weapon if bow is not None else None
             shot_base = bow_weapon.base if bow_weapon is not None else 0
+            if self.kite == "distance":
+                # A kiter caught with its blade out runs first, then readies the bow if it can
+                # still afford a shot and its reserve; it never trades blows by choice.
+                if stage == "" and exposed and request.moves is not None:
+                    self._plan = (obs.round, "ran")
+                    step = self._run(board, request.moves)
+                    if step is not None:
+                        return step
+                if free_bow and me.stamina >= shot_base + self.shot_reserve and not exposed:
+                    return Draw(free_bow[0].loadout)
+                return EndTurn()
             if free_bow and me.stamina >= shot_base:
                 return Draw(free_bow[0].loadout)
             if request.targets and me.trackers is not None and not me.trackers.actions_this_turn:
                 return self._attack(obs, request.targets[0], request)  # fight with the blade
             return EndTurn()
-        shots = request.shots
-        exposed = board.engagers(me.pos) > 0 or bool(board.threatening(me.pos))
+        shots = tuple(t for t in request.shots if self._shot_feasible(board, t))
         if stage == "" and request.moves is not None and exposed:
             self._plan = (obs.round, "kited")
-            step = self._kite(board, request.moves, self._target_of(board, shots))
+            step = (
+                self._run(board, request.moves)
+                if self.kite == "distance"
+                else self._kite(board, request.moves, self._target_of(board, shots))
+            )
             if step is not None:
                 return step
         tid = self._target_of(board, shots)
         if tid is None:
+            if self.kite == "distance" and request.shots and stage == "":
+                # In range but not affordable with the reserve: hold the shot and run.
+                self._plan = (obs.round, "held")
+                return self._archer_turn(board, request, "held")
             if stage == "" and request.moves is not None:
                 self._plan = (obs.round, "kited")
                 enemy = self._target(board)
@@ -279,6 +321,20 @@ class TacticalAgent:
             return EndTurn()
         self._plan = (obs.round, "shot")
         return Shoot(tid)
+
+    def _shot_feasible(self, board: Board, target: str) -> bool:
+        """A shot the engine offers can still be a certain miss: at medium and long range the
+        band's minimum aims must be bought too, and a kiter keeps its reserve."""
+        me = board.me
+        weapon = me.gear.weapon
+        there = board.obs.view(target).pos
+        if weapon is None or not weapon.ranged or me.pos is None or there is None:
+            return True
+        band = self.rules.ranged.band(distance(me.pos, there, self.rules.grid), weapon.ranges)
+        required = {"medium": 1, "long": 2}.get(band, 0)
+        done = me.trackers.actions_this_turn if me.trackers is not None else 0
+        aims = sum(1 + done + i for i in range(required))
+        return me.stamina - weapon.base - aims >= self.shot_reserve
 
     def _target_of(self, board: Board, shots: tuple[str, ...]) -> str | None:
         if not shots:
@@ -324,6 +380,43 @@ class TacticalAgent:
                 best = (key, route.path)
         return Move(best[1]) if best is not None else None
 
+    def _run(self, board: Board, moves: MoveOptions) -> Move | None:
+        """Kiting: the square that is farthest from the nearest melee enemy, using free movement
+        and at most `kite_spend` stamina of purchases and avoidance; only if that gains
+        distance. Ties go to the cheapest route, then the shortest."""
+        me = board.me
+        assert me.pos is not None
+        chasers = [
+            e
+            for e in board.enemies()
+            if e.pos is not None and e.gear.weapon is not None and not e.gear.weapon.ranged
+        ] or list(board.enemies())
+        if not chasers:
+            return None
+
+        def nearest(cell: Cell) -> int:
+            return min(distance(cell, e.pos, self.rules.grid) for e in chasers)  # type: ignore[arg-type]
+
+        now = nearest(me.pos)
+        budget = min(self.kite_spend, me.stamina)
+        best: tuple[tuple[int, Fraction | int, int], tuple[Cell, ...]] | None = None
+        for c, route in board.routes(moves, moves.max_squares).items():
+            if route.total > budget or not route.path:
+                continue
+            d = nearest(c)
+            if d <= now:
+                continue
+            # With a gap to hold, any square at or past it is as good as any other: take the
+            # cheapest, then the one that keeps the most room (least distance moved). Short of
+            # the gap, closer to it is better.
+            rank = max(0, self.kite_gap - d) if self.kite_gap > 0 else -d
+            key = (rank, route.total, len(route.path))
+            if best is None or key < best[0]:
+                best = (key, route.path)
+        if best is not None and self.kite_gap > 0 and now >= self.kite_gap and best[0][0] != 0:
+            return None  # already holding the gap and nothing reachable keeps it: stay put
+        return Move(best[1]) if best is not None else None
+
     def _attack_in_place(self, request: TurnCommand) -> TurnAnswer:
         obs = request.observation
         assert obs.me.trackers is not None
@@ -359,6 +452,8 @@ class TacticalAgent:
                 price = moves.price_by_length[len(route.path)]
                 if self._steps_with(board.obs, tid, int(price) + int(route.exposure)) <= 0:
                     continue
+                if 0 <= self.chase_spend < price + route.exposure:
+                    continue  # a patient chaser: not worth that much to reach it this turn
                 key = (board.engagers(s, moved=True), route.exposure + price, len(route.path))
                 if best is None or key < best[0]:
                     best = (key, s, route.path)
@@ -562,6 +657,8 @@ class TacticalAgent:
         reply = self._reply_cost(obs) if obs.field is not None else None
         best = (Fraction(-(10**9)), 0)
         for k, quote in enumerate(request.quotes):
+            if k > request.required and me.stamina - quote.total < self.shot_reserve:
+                break  # a kiter keeps its reserve for the run
             value = Fraction(-quote.total)
             if reply is not None:
                 value -= reply(me.stamina - quote.total)

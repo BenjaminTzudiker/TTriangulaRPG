@@ -55,6 +55,7 @@
   "movement/v0_9": {
     "extra_cap": "none",
     "extra_cost": 1,
+    "extra_is_action": false,
     "extra_mode": "flat",
     "extra_slope": 1,
     "extra_squares": "agility",

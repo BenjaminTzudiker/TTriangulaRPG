@@ -1,6 +1,7 @@
-"""Movement experiment switches (design/… movement exploration): extra on-turn movement
-modes (flat as written, escalating, none) and the off-turn window that restarts after each
-move (the designer's "declare, tiebreak on initiative, respond" scheme)."""
+"""Movement experiment switches (reports/movement_exploration.md and its second pass): extra
+on-turn movement modes (flat as written, escalating, none, as an action) and the off-turn
+window that restarts after each move (the designer's "declare, tiebreak on initiative,
+respond" scheme)."""
 
 from dataclasses import dataclass, field
 
@@ -28,6 +29,30 @@ from stamina_engine.rules.ruleset import preset
 from tests.golden.test_off_turn_battles import run
 
 RULES = preset("v0.9")
+
+
+def test_extra_movement_as_an_action_makes_the_strike_after_a_dash_dearer() -> None:
+    """movement.extra_is_action (experiment variant, pending designer): a purchase costs its
+    base plus the on-turn surcharge and advances it, so one purchase then a 3-step base-2
+    strike costs 1 + 4 + 5 + 6 instead of 1 + 2 + 3 + 4. The preset digest is untouched."""
+    action = RULES.override({"movement": {"extra_is_action": True}})
+    assert action.digest() != RULES.digest()
+    assert preset("v0.9").digest() == RULES.digest()
+    p = Pricing(action)
+    t = Trackers()
+    first = p.extra_movement(t)
+    t = first.after(t)
+    second = p.extra_movement(t)
+    t = second.after(t)
+    assert (first.total, second.total) == (1, 2)
+    assert (t.extra_purchases, t.actions_this_turn) == (2, 2)
+    assert p.melee_attack(2, 3, t).parts == (4, 5, 6)
+    # as written, the same two purchases cost 1 each and leave the strike at 2, 3, 4
+    t0 = Trackers()
+    q = Pricing(RULES).extra_movement(t0)
+    t0 = q.after(q.after(t0))
+    assert (t0.extra_purchases, t0.actions_this_turn) == (2, 0)
+    assert Pricing(RULES).melee_attack(2, 3, t0).parts == (2, 3, 4)
 
 
 def test_extra_movement_modes_price_the_same_squares_differently() -> None:

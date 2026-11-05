@@ -50,6 +50,7 @@ class Track(Enum):
     ON_TURN = "on_turn"  # the on-turn surcharge (actions)
     OFF_TURN = "off_turn"  # the off-turn escalation track
     EXTRA_MOVE = "extra_move"  # extra on-turn movement bought this turn (never escalates)
+    EXTRA_MOVE_ACTION = "extra_move_action"  # the same, counted as an action too (a variant)
 
 
 @dataclass(frozen=True)
@@ -86,6 +87,12 @@ class Quote:
             return replace(trackers, off_turn_costs=trackers.off_turn_costs + n)
         if self.track is Track.EXTRA_MOVE:
             return replace(trackers, extra_purchases=trackers.extra_purchases + n)
+        if self.track is Track.EXTRA_MOVE_ACTION:
+            return replace(
+                trackers,
+                extra_purchases=trackers.extra_purchases + n,
+                actions_this_turn=trackers.actions_this_turn + n,
+            )
         return trackers
 
 
@@ -177,8 +184,13 @@ class Pricing:
 
     def extra_movement(self, trackers: Trackers = FRESH) -> Quote:
         """Flat as written (v0.9); not an action and not an off-turn cost. Its track counts
-        purchases, for the capped and escalating variants (movement.extra_cap, extra_mode)."""
+        purchases, for the capped and escalating variants (movement.extra_cap, extra_mode).
+        Under movement.extra_is_action a purchase is an action: it also pays the on-turn
+        surcharge and advances it."""
         cost = self.rules.movement.extra_movement_cost(trackers.extra_purchases)
+        if self.rules.movement.extra_counts_as_action():
+            cost += self.rules.surcharge.surcharge(trackers.actions_this_turn)
+            return Quote((cost,), Track.EXTRA_MOVE_ACTION)
         return Quote((cost,), Track.EXTRA_MOVE)
 
     def extra_purchase_squares(self, trackers: Trackers, movement: int, per_purchase: int) -> int:

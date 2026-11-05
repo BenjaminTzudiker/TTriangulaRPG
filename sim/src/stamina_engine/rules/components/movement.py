@@ -54,6 +54,12 @@ class MovementRule(Component):
         """False removes extra on-turn movement altogether."""
         raise NotImplementedError
 
+    def extra_counts_as_action(self) -> bool:
+        """True prices each extra purchase as an action (base + the on-turn surcharge) and
+        makes it advance the surcharge, so a dash makes the strike after it dearer. The
+        packet says it isn't an action (ruling 2026-11-01); this is an experiment variant."""
+        raise NotImplementedError
+
     def keeps_leftover(self) -> bool:
         raise NotImplementedError
 
@@ -71,6 +77,7 @@ class V09Movement(MovementRule):
     leftover: str = "turn"
     extra_mode: str = "flat"
     extra_slope: int = 1
+    extra_is_action: bool = False
 
     def free_movement(self, agility: int) -> int:
         return self.free_base + odd_count(agility)
@@ -93,6 +100,9 @@ class V09Movement(MovementRule):
 
     def extra_allowed(self) -> bool:
         return self.extra_mode != "none"
+
+    def extra_counts_as_action(self) -> bool:
+        return self.extra_is_action
 
     def keeps_leftover(self) -> bool:
         return self.leftover == "turn"

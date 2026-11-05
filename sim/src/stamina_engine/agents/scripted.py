@@ -440,6 +440,11 @@ TACTICAL_FIELDS = {
     "off_turn",
     "pin_budget",
     "hold",
+    "kite",
+    "kite_spend",
+    "kite_gap",
+    "shot_reserve",
+    "chase_spend",
 }
 
 
@@ -451,7 +456,9 @@ def make_agent(
     target = "first" | "lowest_stamina" (tactical: or "nearest"), w = "3",
     estimator = "exact" | "sampled", avoid = "worth_it" | "always" | "never",
     oa = "max" | "never", abilities = "none" | "use"}; tactical also takes
-    retreat_engaged = 2, low_stamina = "1/3", reach_spacing = true."""
+    retreat_engaged = 2, low_stamina = "1/3", reach_spacing = true, off_turn = "retreat",
+    pin_budget = "1/2", hold = false, kite = "off", kite_spend = 0, kite_gap = 0, shot_reserve = 0,
+    chase_spend = -1."""
     from stamina_engine.agents.tactical import TacticalAgent
 
     if spec == "tactical":
@@ -529,6 +536,11 @@ def make_agent(
             str(table.get("off_turn", "retreat")),
             Fraction(str(table.get("pin_budget", "1/2"))),
             bool(table.get("hold", False)),
+            str(table.get("kite", "off")),
+            int(str(table.get("kite_spend", 0))),
+            int(str(table.get("kite_gap", 0))),
+            int(str(table.get("shot_reserve", 0))),
+            int(str(table.get("chase_spend", -1))),
         )
     if target not in TARGETS:
         raise ConfigError(f"unknown target policy {target!r}; known: {sorted(TARGETS)}")

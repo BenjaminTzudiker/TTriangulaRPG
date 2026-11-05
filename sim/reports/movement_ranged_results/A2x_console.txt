@@ -1,0 +1,11 @@
+## A2x. Archer vs unshielded two-hander at 16 / 20 / 24 squares
+  v0.9, two-hander: 16 apart                   [3bf6fc070dbf] archer 51.3% fighter 48.7%   fm 100.0  draws 0.0%   rounds 1.003 contact 1.0 move-spend archer:0.0 fighter:2.43 shots 0.52
+  v0.9, two-hander: 20 apart                   [3bf6fc070dbf] archer 52.0% fighter 48.0%   fm 98.0%  draws 0.0%   rounds 1.107 contact 1.0 move-spend archer:0.0 fighter:3.5 shots 0.58
+  v0.9, two-hander: 24 apart                   [3bf6fc070dbf] archer 60.3% fighter 39.7%   fm 95.3%  draws 0.0%   rounds 1.103 contact 1.0 move-spend archer:0.0 fighter:3.99 shots 0.64
+  one square, flat, two-hander: 16 apart       [ef5c0f656642] archer 55.3% fighter 44.7%   fm 96.0%  draws 0.0%   rounds 1.030 contact 1.0 move-spend archer:0.0 fighter:4.38 shots 0.54
+  one square, flat, two-hander: 20 apart       [ef5c0f656642] archer 100.0% fighter 0.0%   fm 50.0%  draws 0.0%   rounds 1.060 contact 1.0 move-spend archer:0.0 fighter:0.0 shots 1.06
+  one square, flat, two-hander: 24 apart       [ef5c0f656642] archer 100.0% fighter 0.0%   fm 55.7%  draws 0.0%   rounds 1.090 contact 1.0 move-spend archer:0.0 fighter:0.0 shots 1.09
+  capped at Movement, two-hander: 16 apart     [f7fd70927981] archer 99.3% fighter 0.7%    fm 52.0%  draws 0.0%   rounds 1.013 contact 1.0 move-spend archer:0.0 fighter:0.02 shots 1.0
+  capped at Movement, two-hander: 20 apart     [f7fd70927981] archer 100.0% fighter 0.0%   fm 50.0%  draws 0.0%   rounds 1.060 contact 1.0 move-spend archer:0.0 fighter:0.0 shots 1.06
+  capped at Movement, two-hander: 24 apart     [f7fd70927981] archer 100.0% fighter 0.0%   fm 55.7%  draws 0.0%   rounds 1.090 contact 1.0 move-spend archer:0.0 fighter:0.0 shots 1.09
+space2 done

@@ -1,0 +1,48 @@
+## D2. Duels at open-country distances; dash-anything approachers
+  v0.9: 11 apart                               [3bf6fc070dbf] A 50.7% B 47.0%              fm 52.9%  draws 2.3%   rounds 8.123 contact 1.0 move-spend A:0.99 B:1.01 shots 0.0
+  v0.9: 15 apart                               [3bf6fc070dbf] A 53.0% B 43.7%              fm 44.8%  draws 3.3%   rounds 8.927 contact 1.0 move-spend A:1.99 B:2.01 shots 0.0
+  v0.9: 19 apart                               [3bf6fc070dbf] A 45.0% B 53.3%              fm 32.5%  draws 1.7%   rounds 8.400 contact 1.0 move-spend A:3.44 B:2.56 shots 0.0
+  v0.9: 23 apart                               [3bf6fc070dbf] A 47.0% B 51.0%              fm 21.1%  draws 2.0%   rounds 7.777 contact 1.0 move-spend A:3.68 B:4.32 shots 0.0
+  v0.9: 27 apart                               [3bf6fc070dbf] A 52.3% B 46.0%              fm 5.4%   draws 1.7%   rounds 4.043 contact 1.0 move-spend A:4.77 B:5.23 shots 0.0
+  v0.9: 31 apart                               [3bf6fc070dbf] A 51.0% B 49.0%              fm 5.0%   draws 0.0%   rounds 2.763 contact 1.0 move-spend A:5.92 B:6.08 shots 0.0
+  one square, flat: 11 apart                   [ef5c0f656642] A 50.7% B 46.7%              fm 42.8%  draws 2.7%   rounds 8.607 contact 1.0 move-spend A:1.99 B:2.01 shots 0.0
+  one square, flat: 15 apart                   [ef5c0f656642] A 48.7% B 49.0%              fm 20.5%  draws 2.3%   rounds 6.877 contact 1.0 move-spend A:3.97 B:4.03 shots 0.0
+  one square, flat: 19 apart                   [ef5c0f656642] A 41.7% B 57.0%              fm 4.7%   draws 1.3%   rounds 3.003 contact 1.0 move-spend A:6.88 B:5.12 shots 0.0
+  one square, flat: 23 apart                   [ef5c0f656642] A 44.3% B 54.7%              fm 93.3%  draws 1.0%   rounds 4.930 contact 1.0 move-spend A:5.4 B:4.6 shots 0.0
+  one square, flat: 27 apart                   [ef5c0f656642] A 53.0% B 44.3%              fm 19.5%  draws 2.7%   rounds 7.340 contact 2.0 move-spend A:3.81 B:4.19 shots 0.0
+  one square, flat: 31 apart                   [ef5c0f656642] A 51.0% B 49.0%              fm 5.0%   draws 0.0%   rounds 3.763 contact 2.0 move-spend A:5.92 B:6.08 shots 0.0
+  capped at Movement: 11 apart                 [f7fd70927981] A 50.7% B 47.0%              fm 52.9%  draws 2.3%   rounds 8.123 contact 1.0 move-spend A:0.99 B:1.01 shots 0.0
+  capped at Movement: 15 apart                 [f7fd70927981] A 52.3% B 44.7%              fm 37.8%  draws 3.0%   rounds 8.203 contact 1.0 move-spend A:0.5 B:0.5 shots 0.0
+  capped at Movement: 19 apart                 [f7fd70927981] A 47.3% B 49.7%              fm 46.7%  draws 3.0%   rounds 9.263 contact 1.0 move-spend A:1.28 B:1.72 shots 0.0
+  capped at Movement: 23 apart                 [f7fd70927981] A 46.3% B 50.0%              fm 55.7%  draws 3.7%   rounds 9.013 contact 2.0 move-spend A:0.92 B:1.08 shots 0.0
+  capped at Movement: 27 apart                 [f7fd70927981] A 50.7% B 44.0%              fm 31.7%  draws 5.3%   rounds 9.320 contact 2.0 move-spend A:0.52 B:0.48 shots 0.0
+  capped at Movement: 31 apart                 [f7fd70927981] A 44.0% B 52.3%              fm 45.0%  draws 3.7%   rounds 10.42 contact 2.0 move-spend A:1.52 B:1.48 shots 0.0
+## D2d. The same, disciplined approachers (spend at most 6 on the close)
+  v0.9, disciplined: 11 apart                  [3bf6fc070dbf] A 50.7% B 47.0%              fm 52.9%  draws 2.3%   rounds 8.123 contact 1.0 move-spend A:0.99 B:1.01 shots 0.0
+  v0.9, disciplined: 15 apart                  [3bf6fc070dbf] A 53.0% B 43.7%              fm 44.8%  draws 3.3%   rounds 8.927 contact 1.0 move-spend A:1.99 B:2.01 shots 0.0
+  v0.9, disciplined: 19 apart                  [3bf6fc070dbf] A 45.0% B 53.3%              fm 32.5%  draws 1.7%   rounds 8.400 contact 1.0 move-spend A:3.44 B:2.56 shots 0.0
+  v0.9, disciplined: 23 apart                  [3bf6fc070dbf] A 48.7% B 50.0%              fm 60.8%  draws 1.3%   rounds 9.000 contact 1.0 move-spend A:2.7 B:2.3 shots 0.0
+  v0.9, disciplined: 27 apart                  [3bf6fc070dbf] A 51.3% B 45.3%              fm 39.0%  draws 3.3%   rounds 9.953 contact 2.0 move-spend A:1.91 B:2.09 shots 0.0
+  one square, flat, disciplined: 11 apart      [ef5c0f656642] A 50.7% B 46.7%              fm 42.8%  draws 2.7%   rounds 8.607 contact 1.0 move-spend A:1.99 B:2.01 shots 0.0
+  one square, flat, disciplined: 15 apart      [ef5c0f656642] A 55.0% B 41.0%              fm 42.7%  draws 4.0%   rounds 9.030 contact 1.0 move-spend A:1.01 B:0.99 shots 0.0
+  one square, flat, disciplined: 19 apart      [ef5c0f656642] A 51.3% B 45.3%              fm 69.7%  draws 3.3%   rounds 9.407 contact 1.0 move-spend A:2.56 B:3.44 shots 0.0
+  one square, flat, disciplined: 23 apart      [ef5c0f656642] A 46.3% B 48.0%              fm 43.8%  draws 5.7%   rounds 10.55 contact 2.0 move-spend A:1.84 B:2.16 shots 0.0
+  one square, flat, disciplined: 27 apart      [ef5c0f656642] A 47.7% B 46.3%              fm 38.7%  draws 6.0%   rounds 9.863 contact 2.0 move-spend A:1.05 B:0.95 shots 0.0
+  capped at Movement, disciplined: 11 apart    [f7fd70927981] A 50.7% B 47.0%              fm 52.9%  draws 2.3%   rounds 8.123 contact 1.0 move-spend A:0.99 B:1.01 shots 0.0
+  capped at Movement, disciplined: 15 apart    [f7fd70927981] A 52.3% B 44.7%              fm 37.8%  draws 3.0%   rounds 8.203 contact 1.0 move-spend A:0.5 B:0.5 shots 0.0
+  capped at Movement, disciplined: 19 apart    [f7fd70927981] A 47.3% B 49.7%              fm 46.7%  draws 3.0%   rounds 9.263 contact 1.0 move-spend A:1.28 B:1.72 shots 0.0
+  capped at Movement, disciplined: 23 apart    [f7fd70927981] A 46.3% B 50.0%              fm 55.7%  draws 3.7%   rounds 9.013 contact 2.0 move-spend A:0.92 B:1.08 shots 0.0
+  capped at Movement, disciplined: 27 apart    [f7fd70927981] A 50.7% B 44.0%              fm 31.7%  draws 5.3%   rounds 9.320 contact 2.0 move-spend A:0.52 B:0.48 shots 0.0
+## A2. Archer vs fighter at 16 / 20 / 24 squares (longbow medium, medium, long)
+  v0.9: 16 apart                               [3bf6fc070dbf] archer 15.7% fighter 84.3%   fm 64.3%  draws 0.0%   rounds 2.347 contact 1.0 move-spend archer:0.0 fighter:2.7 shots 0.95
+  v0.9: 20 apart                               [3bf6fc070dbf] archer 5.7% fighter 94.3%    fm 53.7%  draws 0.0%   rounds 2.827 contact 1.0 move-spend archer:0.0 fighter:4.32 shots 1.0
+  v0.9: 24 apart                               [3bf6fc070dbf] archer 6.3% fighter 93.7%    fm 49.3%  draws 0.0%   rounds 2.867 contact 1.0 move-spend archer:0.0 fighter:4.65 shots 1.13
+  one square, flat: 16 apart                   [ef5c0f656642] archer 16.7% fighter 83.3%   fm 62.7%  draws 0.0%   rounds 2.593 contact 1.0 move-spend archer:0.0 fighter:4.62 shots 0.98
+  one square, flat: 20 apart                   [ef5c0f656642] archer 29.0% fighter 71.0%   fm 29.7%  draws 0.0%   rounds 4.060 contact 1.0 move-spend archer:0.0 fighter:0.26 shots 1.87
+  one square, flat: 24 apart                   [ef5c0f656642] archer 9.3% fighter 90.7%    fm 46.3%  draws 0.0%   rounds 4.663 contact 1.0 move-spend archer:0.0 fighter:1.27 shots 1.99
+  capped at Movement: 16 apart                 [f7fd70927981] archer 37.7% fighter 62.3%   fm 41.7%  draws 0.0%   rounds 3.633 contact 1.0 move-spend archer:0.0 fighter:0.65 shots 1.65
+  capped at Movement: 20 apart                 [f7fd70927981] archer 29.0% fighter 71.0%   fm 29.7%  draws 0.0%   rounds 4.043 contact 1.0 move-spend archer:0.0 fighter:0.08 shots 1.87
+  capped at Movement: 24 apart                 [f7fd70927981] archer 9.3% fighter 90.7%    fm 46.3%  draws 0.0%   rounds 4.423 contact 1.0 move-spend archer:0.0 fighter:1.2 shots 1.98
+## K4. The kiter vs two brutes, long field, one square flat
+  one square, flat                             [ef5c0f656642] brutes 100.0% kiter 0.0%     fm 45.7%  draws 0.0%   rounds 1.967 contact 1.0 move-spend brutes:12.07 kiter:1.23 shots 0.55
+space done

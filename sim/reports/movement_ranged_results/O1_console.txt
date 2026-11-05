@@ -23,3 +23,11 @@
   L30 review-candidate (+2 surcharge): 7 apart [d99bdcba96f4] fm 59.6% [45.3, 72.4]     draws 84.3%  rounds mean 28.113 [27.492, 28. deaths 0.000 unt 76.6%
   L30 review-candidate (+2 surcharge): 11 apart [d99bdcba96f4] fm 58.1% [45.7, 69.5]     draws 79.3%  rounds mean 27.250 [26.508, 27. deaths 0.000 unt 90.3%
 ## O1 L30 v0.9, start at half stamina
+  L30 v0.9, start at half stamina: 1 apart [855eb3f26294] fm 61.8% [55.5, 67.7]     draws 20.7%  rounds mean 17.770 [16.730, 18. deaths 0.027 unt 85.7%
+  L30 v0.9, start at half stamina: 7 apart [855eb3f26294] fm 65.6% [59.2, 71.5]     draws 24.3%  rounds mean 18.917 [17.880, 19. deaths 0.007 unt 85.5%
+  L30 v0.9, start at half stamina: 11 apart [855eb3f26294] fm 58.2% [51.7, 64.5]     draws 25.0%  rounds mean 19.193 [18.171, 20. deaths 0.017 unt 86.2%
+## O1 L30 +2 surcharge and half start
+  L30 +2 surcharge and half start: 1 apart [91896702055c] fm 56.1% [44.1, 67.4]     draws 78.0%  rounds mean 27.753 [27.144, 28. deaths 0.000 unt 89.4%
+  L30 +2 surcharge and half start: 7 apart [91896702055c] fm 60.7% [47.6, 72.4]     draws 81.3%  rounds mean 27.820 [27.194, 28. deaths 0.000 unt 82.1%
+  L30 +2 surcharge and half start: 11 apart [91896702055c] fm 61.5% [48.0, 73.5]     draws 82.7%  rounds mean 28.197 [27.628, 28. deaths 0.000 unt 71.2%
+opening done

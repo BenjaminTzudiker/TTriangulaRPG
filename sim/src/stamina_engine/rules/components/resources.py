@@ -25,7 +25,9 @@ class ResourceRule(Component):
         "Ledger CP-4",
         "Ledger CP-5",
     )
-    allowed = {"start_stamina": frozenset({"max"})}
+    # Stamina at the start of a fight: full (as written), or half your maximum, round half up
+    # (an experiment on the opening exchange: a smaller first strike into a smaller defense).
+    allowed = {"start_stamina": frozenset({"max", "half"})}
 
     def hp_max(self, strength: int) -> int:
         raise NotImplementedError
@@ -46,6 +48,10 @@ class ResourceRule(Component):
         raise NotImplementedError
 
     def recovers_while_incapacitated(self) -> bool:
+        raise NotImplementedError
+
+    def starting_stamina(self, stamina_max: int) -> int:
+        """Stamina a creature begins the fight with."""
         raise NotImplementedError
 
 
@@ -72,6 +78,11 @@ class V09Resources(ResourceRule):
 
     def hp_max(self, strength: int) -> int:
         return self.hp_base + strength
+
+    def starting_stamina(self, stamina_max: int) -> int:
+        if self.start_stamina == "half":
+            return (stamina_max + 1) // 2
+        return stamina_max
 
     def max_stamina(self, hp: int, level: int) -> int:
         hp_term = max(hp, 0) if self.floor_hp_term else hp

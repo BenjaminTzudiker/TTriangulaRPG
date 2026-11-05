@@ -224,7 +224,7 @@ def derive(build: Build, rules: RuleSet, table: EquipmentTable | None = None) ->
         stamina_max=stamina_max,
         recovery=res.recovery(build.level),
         strain_max=res.strain_max(build.level),
-        start_stamina=stamina_max,
+        start_stamina=res.starting_stamina(stamina_max),
         start_strain=0,
         loadouts=tuple(
             _loadout_profile(n, lo, build, proficient, rules, table) for n, lo in build.loadouts

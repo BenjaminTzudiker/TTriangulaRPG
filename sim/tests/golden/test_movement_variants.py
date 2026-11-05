@@ -31,6 +31,16 @@ from tests.golden.test_off_turn_battles import run
 RULES = preset("v0.9")
 
 
+def test_half_starting_stamina_is_half_the_maximum_round_half_up() -> None:
+    """resources.start_stamina = half (opening-exchange experiment, pending designer)."""
+    half = RULES.override({"resources": {"start_stamina": "half"}})
+    assert half.digest() != RULES.digest()
+    for build, expect_max, expect_start in (("l1_sample", 14, 7), ("l30_sample", 21, 11)):
+        p = derive(load_build(build), half)
+        assert (p.stamina_max, p.start_stamina) == (expect_max, expect_start)
+        assert derive(load_build(build), RULES).start_stamina == expect_max
+
+
 def test_extra_movement_as_an_action_makes_the_strike_after_a_dash_dearer() -> None:
     """movement.extra_is_action (experiment variant, pending designer): a purchase costs its
     base plus the on-turn surcharge and advances it, so one purchase then a 3-step base-2

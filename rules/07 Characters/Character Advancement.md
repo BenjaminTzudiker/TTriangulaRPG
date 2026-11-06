@@ -26,4 +26,6 @@ Each level grants a benefit based on its last digit:
 
 The stamina and strain lines are what the round(Level / 5) and round(Level / 10) formulas produce (see [[Stamina]] and [[Strain]]).
 
+Even Intelligence values add Ability Points at some levels ending in 0 (see [[Intelligence]]).
+
 "Tier" may still be used as a loose name for a band of levels. But tiers in a class tree come only from tier abilities.

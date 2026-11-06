@@ -20,4 +20,4 @@ Off-turn movement and opportunity attacks compete for the same stamina.
 > 3. make an opportunity attack with a dagger, base 1 (3);
 > 4. move 1 square (4).
 >
-> That's **10 stamina**. The 3-stamina opportunity attack needs an opportunity attack cap of at least 3, such as Finesse 3.
+> That's **10 stamina**.

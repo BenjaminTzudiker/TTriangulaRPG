@@ -12,7 +12,7 @@ Each class is a tree of purchasable features.
 **Core ability.** You open a tree by buying its core ability.
 - It grants the tree's signature ability, and may grant proficiencies.
 - It's the prerequisite for the tree's Tier 1 features.
-- Each core ability you already own makes other core abilities cost 1 AP more. Opening a new tree is worth more than going deeper in one, so it costs more.
+- Each core ability you already own makes other core abilities cost 1 AP more. Opening a new tree is worth more than going deeper in one, so it costs more. Odd Intelligence values reduce this (see [[Intelligence]]).
 
 **Tier abilities.** To reach Tier N of a tree (N above 1), buy that tree's **Tier N ability** for 1 AP.
 - It's mostly an opportunity cost, but it carries a minor benefit that fits the tree's theme.

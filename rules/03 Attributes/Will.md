@@ -5,8 +5,9 @@ next: "[[Cunning]]"
 ---
 # Will
 
-*Status: TODO*
+*Status: Exploratory*
 
 Will is determination, discipline, resolve and spiritual force.
 
-Combat benefits: **TODO**.
+- **Dying roll:** System Shock's dying roll adds your Will (see [[Dying and Death]]).
+- Other combat benefits: **TODO**.

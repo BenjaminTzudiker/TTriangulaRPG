@@ -27,7 +27,30 @@ A commit that only fixes typos can skip the entry by putting `[no changelog]` in
 
 ## Unreleased
 
+## 0.9.1 (2026-11-06)
+
+### Rules
+
+- [[Opportunity Attacks]]: removed the opportunity attack cap (1 stamina, +1 per odd Finesse) and the optional per-square cap; the off-turn escalation is now the only limit on an opportunity attack. [[Finesse]] loses its odd-value cap bonus. Restated in [[Off-Turn Escalation]]'s example, [[Defined Terms]] and [[Quick Reference]] (Stamina Costs, Attribute Bonus Table, Sample Character). Why: no sign it was solving a real problem, or that it was the best solution if one exists; may return later. In the engine, turning opportunity attacks off entirely changed no measured outcome (`claude/Movement_Ranged_Exploration.md` §6b, check C2). Source: design chat, 2026-11-05/06. *Engine:* not implemented; the `v0.9` preset still applies the cap.
+- [[On-Turn Movement]]: each extra on-turn movement purchase moves 1 square, not 1 + odd Agility; the cost stays 1 stamina, flat. [[Agility]]'s odd values no longer add to it (they still add free movement and off-turn squares). Restated in [[Quick Reference]]. Why: uncapped purchases at up to 4 squares a stamina let a melee fighter cross 30+ squares in one turn and made chases unwinnable by speed. The designer wants a melee fighter who starts far away to arrive low on stamina, not to be kited for several turns (Review F10; `claude/Movement_Ranged_Exploration.md` §2c, §3). Source: design chat, 2026-11-05/06. *Engine:* `movement.extra_squares = "one"`; not in the `v0.9` preset.
+- [[Starting Combat and Turn Structure]]: initiative is 2d12 + Cunning (every point), not 2d12 + 1 per odd Agility + 1 per odd Cunning. [[Agility]] loses its initiative bonus; [[Cunning]] gives +1 per point. Restated in [[Quick Reference]]. Why: Agility was overloaded (initiative, movement and defense); a placeholder until initiative gets a fuller design (see [[Not in This Version]]). Source: design chat, 2026-11-05/06. *Engine:* not implemented.
+- [[Strength]]: +2 maximum HP per even value and +1 nightly HP recovery per odd value, replacing +1 HP per point. [[HP]]: maximum HP = 6 + 2 per even Strength value; recovery 1 + 1 per odd Strength value per night. Restated in [[Rest and Healing]] and [[Quick Reference]] (Attribute Bonus Table, Sample Character: HP 8 unchanged, now recovering 2 per night). Why: the designer's proposal, so high-Strength characters keep taking hits day after day and a 5 or 6 feels like embodying the stat. +1 HP per point was flagged as suspect, and in-fight HP proved worth little against stamina (`claude/Strength_Value_Experiment.md`). Known costs: recovery's value depends on fights per rest, and the Strength 0 character heals slowest (see [[Open Questions]]). Source: design chat, 2026-11-05/06. *Engine:* not implemented (HP recovery is outside a single fight; the HP formula isn't).
+- [[Dying and Death]]: the System Shock dying roll is 2d12 + Will, not 2d12 + Strength. [[Will]] gains it as its first combat benefit. Why: proposed in the chat (refusing to die fits Will, and Strength already covers the body through HP); the designer agreed. Source: design chat, 2026-11-05/06. *Engine:* not implemented.
+- [[Intelligence]]: odd values reduce the rising cost of core abilities (one owned core per odd value isn't counted); even values grant extra Ability Points at levels 10/40/70 (Intelligence 2), 20/50/80 (4) and 30/60/90 (6), applying retroactively. Restated in [[Costs]], [[Class Trees]], [[Character Advancement]] and [[Quick Reference]]. Why: Intelligence had no bonuses. The level schedule keeps the AP from being a level-1 auto-pick while making Intelligence a flagship over a career; the odd-value discount was the designer's favorite of the odd-value candidates. Source: design chat, 2026-11-05/06. *Engine:* not implemented (character-building budgets only).
+
+### Status
+
+- [[Will]]: TODO → Exploratory. [[Intelligence]]: TODO → Exploratory. [[Opportunity Attacks]]: "Mechanism open (avoidance and cap)" → "Mechanism open (avoidance)". [[Strength]]: Exploratory, now noting that the even/odd split is the designer's proposal. Why: they follow from the changes above. Source: design chat, 2026-11-05/06.
+
+### Clarified
+
+- [[Strain]]: states that no attribute changes maximum strain or strain recovery; both depend only on level. This was already the rule. Why: the designer decided strain stays level-only, because choosing strain capacity isn't a fun choice. Source: design chat, 2026-11-05/06.
+
 ### Editorial
+
+- [[Magic]]: added a "Direction Being Explored" section, marked not yet rules: spell schools as tracks within a caster tree (ranks with AP, extra spells with SP), a casting stat per tree, and riders that scale with a fitting stat of their own. Why: to record the current thinking where the Magic note only said TODO. Source: design chat, 2026-11-05/06.
+- [[Not in This Version]]: added a Strength requirement for shields, and initiative you have agency over (bidding). [[Open Questions]]: updated the attribute questions for the changes above. Why: the designer deferred both ideas rather than adopting them. Source: design chat, 2026-11-05/06.
+- [[Playtest Packet]]: version line 0.9 → 0.9.1. Why: cutting 0.9.1. Source: design chat, 2026-11-05/06.
 
 - [[Playtest Packet]]: split the v0.9 packet into one note per rule, with the old single file replaced by the index. No rule changes. Why: the single file had become unwieldy to edit and navigate. Source: design chat, 2026-11-04.
   - Every section is a note; a subsection got its own note only where it carries its own status marker, and its parent embeds it. The layout is described in `rules/README.md`.

@@ -7,7 +7,7 @@ next: "[[Actions and the On-Turn Surcharge]]"
 
 *Status: Exploratory*
 
-1. **Roll initiative:** **2d12** (placeholder) + 1 per odd Agility value + 1 per odd Cunning value. There's no tiebreaker for now.
+1. **Roll initiative:** **2d12 + Cunning** (both placeholders). There's no tiebreaker for now.
 2. **Take turns in initiative order.** On your turn:
    - Move and take actions in any order. Your movement can be split up around your actions.
    - End your turn.

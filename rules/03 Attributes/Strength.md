@@ -5,10 +5,16 @@ next: "[[Agility]]"
 ---
 # Strength
 
-*Status: Exploratory*
+*Status: Exploratory (the even/odd split is the designer's proposal)*
 
 Strength is physical power.
-- **+1 HP** per point. This also raises your maximum stamina through HP.
-  - This is flagged as suspect, because it scales poorly at higher levels.
+
+**Even values (2, 4, 6):**
+- +2 maximum HP (see [[HP]]). This also raises your maximum stamina through HP.
+
+**Odd values (1, 3, 5):**
+- +1 HP recovered per night of rest (see [[Rest and Healing]]).
+
+**Every point:**
 - Adds to damage on weapons that use it.
 - Reduces armor penalties (see [[Armor]]).

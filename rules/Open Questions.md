@@ -14,8 +14,8 @@ next: "[[Not in This Version]]"
 - The TODO details marked through this packet.
 
 **Attributes**
-- Combat benefits for Intelligence, Will and (beyond initiative) Cunning.
-- Strength's +1 HP, which scales poorly at high levels.
+- More combat benefits for Will (beyond the dying roll) and Cunning (beyond initiative). Intelligence's current bonuses act only at character building; its in-play role is expected to come from abilities and spells.
+- Strength's nightly HP recovery: its value depends on how many fights fall between rests, and the Strength 0 character heals slowest.
 
 **Effects**
 - Conditions: will there be universal conditions like "paralyzed", or will each ability say what it does?

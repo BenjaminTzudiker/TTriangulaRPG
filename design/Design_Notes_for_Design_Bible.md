@@ -1,5 +1,5 @@
 > **⚠ STATUS: WORKING NOTES — NOT A FINISHED DESIGN BIBLE.**
-> This is raw source material for a future design bible. It was updated on 2026-11-01 for the designer's nine rounds of rulings on the reconciliation ledger.
+> This is raw source material for a future design bible. It was updated on 2026-11-01 for the designer's nine rounds of rulings on the reconciliation ledger. Entries citing [C:2026-11-05] were added from the attribute design chat of that date.
 > - **What the rules currently are:** the ledger is authoritative. These notes record *why*.
 > - **Pillars:** the wordings in §2 are draft condensations, not adopted text.
 > - **UNCERTAIN:** unconfirmed.
@@ -19,6 +19,7 @@
 *Citations:*
 - *[p.N] is a transcript page, ±1.*
 - *[R1:A3] is your ruling round 1, item A3. All rulings are dated 2026-11-01 and logged verbatim in the ledger's Part G. Round 2's unnumbered items are cited as [R2].*
+- *[C:2026-11-05] is a design chat on that date (the attribute chat). Quotes are your messages in it.*
 - *Where a principle evolved, the final form comes first and the history follows.*
 
 ---
@@ -212,6 +213,12 @@ Earlier form of the same goal:
 - **STATED**
 - *Current state:* the lingering and permanent injury rules are **SHELVED** (ledger H-3) [R2]. Today, lasting harm means slow HP recovery (1 HP per night) and no HP-restoring magic.
 
+**Consequences should feel weighty but cost little in practice.**
+- *Rule:* Prefer penalties that read as a real setback in the fiction but stay mechanically mild: once per fight rather than once per round, and never a death spiral.
+- *Source:* "damage reducing max stamina was chosen because it *feels* like a real negative but isn't actually very *punishing* in practice." On max stamina tracking current HP: "the sort of meaningful but non-crippling (because it's a once-per-fight nerf rather than once-per-round or worse) that I'd want to have to make injury meaningful without death spirals." [C:2026-11-05]
+- **STATED**
+- *Calibration:* in an even level-1 duel, each missing HP costs about 5 points of win rate through the stamina it removes (extrapolated from `sim/reports/str_value.md`). You accepted that: "A duel against an equal opponent sounds like the worst case scenario for minor penalties, so it should usually be less impactful. I think I'm fine with it being moderately punishing in that case when moderately injured." [C:2026-11-05]
+
 **No HP-restoring magic (for now).**
 - *Rule:*
   - HP comes back only through rest.
@@ -244,6 +251,11 @@ Earlier form of the same goal:
 - *Current state:*
   - Control effects are TBD, and the extended-contest model is shelved [R2].
   - It's also open whether there will be universal conditions like "paralyzed", or whether each spell or ability explains what it does [R1:A16].
+
+**Attribute-based control resistance must not reproduce 5e's saving-throw spread.**
+- *Rule:* If an attribute helps resist control, it must not scale the way a defense value does. Repeated stamina spends multiply a defense value, so a high-attribute character would shrug everything off while a low one couldn't afford to resist. No single attribute should become the only answer to a whole category of control, the way the shield is to arrows today.
+- *Source:* "I'm still a bit nervous about the 5e saving throw issue making stat-specific control mechanics really punishing because of how they'd scale if using something similar to melee defense… it's hard to not have repeated stamina expenditures multiply the numbers and make balance really unwieldy." And: "A bit nervous about having Will be 'the extended contest ability' - worried that'd make it like the mandatory shields of the current ranged attack implementation." [C:2026-11-05]
+- **STATED** (the concern; the mechanism is open)
 
 **Players need enough information to decide; telegraph lethal threats.**
 - *Source:* "Games that have very tight mechanical systems like this seem like they only work if the players have enough information to make informed decisions… not being told… that an enemy is actually a badass capable of punching through their entire stamina bar in one hit sounds like it'd really suck." [p.231]. You later noted it's GM-dependent and "the numbers hide how deadly things are" [p.1286].
@@ -292,6 +304,16 @@ Earlier form of the same goal:
 - **STATED**
 - *Evolution:* you originally put "strongest man alive" and "pinnacle" at 9 [p.743, p.1429]. With the +10 cap on skill checks, you toned 8 down, put that level at 9, and moved the pinnacle to 10 [R7:AT-5].
 
+**A high attribute should feel like embodying it.**
+- *Rule:* Grounded, but felt. A 5 or 6 should give a reward the player notices, not only a bigger number.
+- *Source:* "This isn't a superhero game, but a 5 or 6 should *feel* like you're embodying that stat. Getting to recover 4 hp after a long hard day seems like it'd feel like a satisfying reward for playing the big guy." [C:2026-11-05]
+- **STATED**
+
+**Recovery is tuned to tone, not realism.**
+- *Rule:* About 3–4 nights from incapacitated to full health, and about a week back from the brink of death, fits the game's tone. Healing speed can differ a lot between bodies.
+- *Source:* "I can kinda see someone robust and healthy bouncing back from the same injurious event 4x faster than someone frail and unhealthy. I could even see it being more than 4x in the real world." On those recovery times: "it sounds like it'd probably be ok for the tone of this game? It's not meant to be *realistic* exactly." [C:2026-11-05]
+- **UNCERTAIN** (a lean)
+
 **Don't add a new spatial concept just to refine one rule.**
 - *Source:* "I'm worried that tracking facing… won't be worth introducing a new concept just to refine the opportunity attack rules, since nowhere else does any concept of facing come up." [p.1349]
 - **STATED**
@@ -317,6 +339,12 @@ Earlier form of the same goal:
   3. [p.1277] Extended to abilities: "to prevent the 'it's optimal to take the party buff ability but that's just a boring passive that doesn't enhance the experience of playing my character' issue when different arenas of play are impacted by abilities bought with the same character building resources". And to stat rewards: "I want to be careful treating the more roleplay-y arena of play skill points as a valid reward for spending mechanically heavy combat-y arena of play expertise points".
   4. [p.1409] Fictional justification: "A +3 int character from skill points is just as smart as a +3 int character from expertise points, but the latter knows how to apply that intelligence to stressful situations like combat".
 
+**Crossing arenas, including time scales, is a red flag, not a ban.**
+- *Rule:* An arena can be a kind of play (combat, exploration, social) or a time scale (one fight vs the campaign: rest, travel, downtime). A bonus bought in one arena that pays off in another needs a strong reason. Such crossings usually end with the value depending on something the player doesn't control: how often a situation comes up, or how the GM paces rests.
+- *Source:* "There's nothing *inherently* wrong with crossing arenas of play, but it seems to usually lead to problems like this in some form, and I consider it a big red flag in a design. It's why I separated AP and EP from SP as early as I did in the design process (Starsector not doing this for in-combat and campaign map bonuses in its skill system is one of the few design qualms I have with it)." [C:2026-11-05]
+- **STATED**
+- *Applied:* Strength's odd values as +1 nightly HP recovery. HP is combat-relevant, but recovery's value depends on how many fights fall between rests.
+
 **Related principles:**
 
 **No auto-pick or mandatory attributes; don't hang core resources on one stat.**
@@ -324,9 +352,24 @@ Earlier form of the same goal:
 - **STATED**
 - *Note:* Max stamina ended up including STR via HP [p.1469, R3:11]. That's a deliberate small exception you accepted. You've since flagged STR's +1 HP as "suspect since this scales poorly at higher levels with the rest of the rules" [R1:A15].
 
+**Overlapping sources must differ by when they work.**
+- *Rule:* When two attributes feed the same thing, each needs a condition the other lacks. Otherwise the attribute with more bundled benefits wins.
+- *Source:* "AGI also gives dodge and works when disarmed while FIN works fine when wearing armor. AGI gives movement alongside initiative while CUN will get some other undecided bonus to go alongside initiative." [C:2026-11-05]
+- **STATED** (as the reasoning behind the current overlaps)
+
+**Odd values give useful but optional bonuses; the most appealing bonuses go on even values.**
+- *Rule:* A value-1 bonus costs 1 Expertise, so it must be worth having but never mandatory for anyone optimizing. Strong effects such as defense value go on even values.
+- *Source:* "the odd values were given useful but not mandatory things - the really appealing options like defense number bonuses were intentionally put on even values. I'm not opposed to a lot of characters eventually buying level 1 in a range of stats, but it shouldn't be completely mandatory for anyone even thinking about optimizing at all." [C:2026-11-05]
+- **STATED**
+
 **Dumping should gain little, and being average should be cheap.**
 - *Source:* "'dumping' intelligence should get them very little. If they want to play an average intelligence fighter, ideally it would be pretty cheap… so that it's very easy to not dump a stat unless you actively want to." [p.1434]
 - **STATED**
+
+**Many characters taking a point or two in most attributes is a healthy sign, not a failure.**
+- *Rule:* It's what the principle above produces. The failure is skipping a point being crippling.
+- *Source:* "is it really bad if most characters eventually want to take a point or two in most abilities? Not doing so shouldn't be crippling so we don't discourage oddball roleplaying too much, but if that's eventually good enough a good portion of the time, then that seems like it's maybe a sign of a well balanced and interesting array of choices?" [C:2026-11-05]
+- **UNCERTAIN** (you asked it as a question)
 
 **Don't force a roleplay identity on a build.**
 - *Source:* "want to play a blaster? I guess you need to be book smart" (as a worry) [p.122]. Magic should be optional for anyone, and mental stats shouldn't be dump stats for non-casters [p.124].
@@ -368,10 +411,32 @@ Earlier form of the same goal:
 - *Source:* [p.1178]. "abilities will let each stat play a capable offensive and/or defensive role depending on character build, but the basic stat bonuses will lean in those directions" [p.1192].
 - **STATED**
 
+**A stat's value from abilities counts only if anyone can reasonably take those abilities.**
+- *Rule:* Builds may want some attributes more than others, but every attribute should give *some* benefit. "Used by abilities" counts as a core feature of an attribute only when those abilities are open to any build, not locked in one class tree.
+- *Source:* "it's fine (maybe desirable) for some builds to want some stats more than others, but ideally there'd at least be *some* benefit to a stat. In order for me to feel comfortable counting 'used in abilities' as a proper core feature of a stat I'd want anyone to at least have the reasonable option of taking those abilities (even if many don't)." [C:2026-11-05]
+- **STATED**
+
+**Choices that aren't fun to make shouldn't be build choices.**
+- *Rule:* Strain capacity is level-only. That's not because choosing it would be too strong; it's because the choice isn't fun.
+- *Source:* "I think that strain will probably be solely level dependent. Not necessarily because it's too powerful to be given as a choice, but because that sort of choice is not very fun." [C:2026-11-05]
+- **STATED**
+
 ### 3.5 Balance and GM
 
 **Balance must hold up across GM pacing, rest frequency and fight length.**
 - *Source:* "this DM's style of running a game is making my character randomly weaker or stronger, which isn't something I can really plan around… I do want the game balance to be resilient to a range of combat lengths" [p.1097]. The 5e adventuring-day problem [p.441]. Rest frequency skewing classes [p.472].
+- **STATED**
+
+**A long-term resource is acceptable when the player can cash it in within any one fight.**
+- *Rule:* Prefer long-term resources whose worth falls to zero under sparse pacing rather than becoming a trap. The player can always spend them inside a single fight.
+- *Contrast:* 5e's short-rest resources quietly become long-rest resources when there's one encounter a day. High HP recovery doesn't break that way: with one fight a day, the player spends it by accepting more wounds, knowing they'll heal tonight.
+- *Limit:* This removes the trap, not the variance. With long gaps between fights everyone heals fully anyway, and the bonus is worth nothing.
+- *Source:* "the player can to some extent still get value out of high recovery by taking more damage in a once-a-day fight at no penalty, while short rest resources just unavoidably become long rest resources if there's only one encounter per day." [C:2026-11-05]
+- **STATED**
+
+**No mechanic should push the group or GM to adjust pacing to keep one player on an equal footing.**
+- *Rule:* If one character's rest or recovery needs set the party's downtime (the slowest healer decides when everyone moves on), the table feels pressure to change its pacing so as not to be "mean" to that player. Treat that as a design failure, whichever character it falls on.
+- *Source:* "I don't like it when a mechanic kinda pushes a group or GM to adjust things like pacing to 'put everyone on a fair equal footing' because they don't want to be 'mean' to a player." [C:2026-11-05] It generalizes strain's intent that one class's rest needs shouldn't hold the party hostage [p.553, p.1041].
 - **STATED**
 
 **Imperfect, uneven scaling is fine, even good, if it means fewer special rules.**

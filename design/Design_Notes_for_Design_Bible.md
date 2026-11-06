@@ -411,6 +411,18 @@ Earlier form of the same goal:
 - *Source:* [p.1178]. "abilities will let each stat play a capable offensive and/or defensive role depending on character build, but the basic stat bonuses will lean in those directions" [p.1192].
 - **STATED**
 
+**Trees grant access; attributes set how much you get from each.**
+- *Rule:* Attributes form a layer running on top of the class trees but not parallel to them. Your attribute spread decides how much you get out of each tree you open, and which parts of each tree are worth buying. A tree doesn't dictate one stat. Players mostly follow the parts of a tree they have the stats for, take the occasional off-stat ability that's especially strong or fitting, and plan their attributes to match.
+- *Source:* "I really like attributes as a layer running on top of but not fully parallel to the trees - how you invest in attributes determines how much you can get out of each multi-tree and how valuable each part of the tree is. That kind of layering sounds like it's the sort of thing that adds depth to a character creation system." And from 5e: "Knowing which spells work well for multiclassing w/ lower casting stats and which are worse unless you invest in the stat was one thing I remember liking in 5e." [C:2026-11-05]
+- **STATED**
+- *Related:* rushing the main stat is the failure, not maxing it. "I'm not immediately bothered by an optimal wizard eventually wanting 6 INT, though if an optimal wizard always rushed 6 INT before going into other stats then that would be a problem." [C:2026-11-05]
+
+**Spells and abilities: the core from the casting stat, riders from the ability's own stat.**
+- *Rule:* A spell's core effect scales with the casting stat of the tree it's cast from. A secondary effect (the rider) is a fixed property of the spell and scales with the stat that fits its fiction. A spell shared between trees then suits some trees better than others with no special rule: a Cunning bard gets the most from a Cunning-rider enchantment without investing in another attribute. The core must stay worth taking at a low rider stat, and the rider must still make that stat worth having.
+- *Source:* "Maybe an enchantment wizard spell gets to target extra people based off of your cunning and an abjuration ability gives a temp hp equivalent that increases with your will. If these are properties of the spell across trees then it could naturally make certain spells fit more easily into certain trees. A bard whose main stat is cunning wouldn't need to invest in another attribute to get the most out of the spell. This would require some attention to make the spell not useless for the enchantment wizard at a lower cunning while still making cunning useful." [C:2026-11-05] The core/rider split is Claude's framing of this.
+- **ENDORSED**
+- *Note:* some martial abilities may key only off mental stats. The pattern is a default, not a requirement.
+
 **A stat's value from abilities counts only if anyone can reasonably take those abilities.**
 - *Rule:* Builds may want some attributes more than others, but every attribute should give *some* benefit. "Used by abilities" counts as a core feature of an attribute only when those abilities are open to any build, not locked in one class tree.
 - *Source:* "it's fine (maybe desirable) for some builds to want some stats more than others, but ideally there'd at least be *some* benefit to a stat. In order for me to feel comfortable counting 'used in abilities' as a proper core feature of a stat I'd want anyone to at least have the reasonable option of taking those abilities (even if many don't)." [C:2026-11-05]

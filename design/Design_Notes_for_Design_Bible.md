@@ -314,6 +314,11 @@ Earlier form of the same goal:
 - *Source:* "I can kinda see someone robust and healthy bouncing back from the same injurious event 4x faster than someone frail and unhealthy. I could even see it being more than 4x in the real world." On those recovery times: "it sounds like it'd probably be ok for the tone of this game? It's not meant to be *realistic* exactly." [C:2026-11-05]
 - **UNCERTAIN** (a lean)
 
+**Mechanical incentives should point the same way as the fiction.**
+- *Rule:* When a mechanical tie doesn't make narrative sense (a stat keyed to a spell, an ability or a resource it has no business with), players who optimize get pulled toward builds that don't make sense either, and players who build for the fiction pay for it. So every such tie must be narratable, not just defensible on balance. This generalizes "each tree's resources should key off a fitting stat" above, and is how P3 and P4 meet in character building.
+- *Source:* "I'd do my best to keep things making narrative sense (this seems quite important actually, since if it isn't then it'd push players away from builds that make narrative sense), and as a result I'm guessing most (maybe all) spellcasting will key off of mental stats." [C:2026-11-05] You noted the bible entry would be a generalized version; this is a draft of it.
+- **STATED** (the reason); **UNCERTAIN** (the general wording)
+
 **Don't add a new spatial concept just to refine one rule.**
 - *Source:* "I'm worried that tracking facing… won't be worth introducing a new concept just to refine the opportunity attack rules, since nowhere else does any concept of facing come up." [p.1349]
 - **STATED**
@@ -356,6 +361,11 @@ Earlier form of the same goal:
 - *Rule:* When two attributes feed the same thing, each needs a condition the other lacks. Otherwise the attribute with more bundled benefits wins.
 - *Source:* "AGI also gives dodge and works when disarmed while FIN works fine when wearing armor. AGI gives movement alongside initiative while CUN will get some other undecided bonus to go alongside initiative." [C:2026-11-05]
 - **STATED** (as the reasoning behind the current overlaps)
+
+**Base attribute bonuses are simple, passive and quick to apply.**
+- *Rule:* What an attribute gives on its own should be a straightforward, non-active improvement that takes little table time and no arbitration. That usually means a number, a number-like change (a wider crit range on a die), or a simple grant (an AP). Effects that are specific, situational or active belong in abilities, even when they're keyed to an attribute.
+- *Source:* "The base stat numbers should be, well... often numbers or other number-like modifications (like crit range on dice)/very straightforward and 'simple' improvements (like granting AP)." On rephrasing it: "simple/straightforward non-active abilities that don't require much game time or arbitration." [C:2026-11-05] Applied: a quick-draw item, adjusting a committed attack, and knowing an enemy's stats were each judged "more like an ability than a feature of a base stat".
+- **STATED**
 
 **Odd values give useful but optional bonuses; the most appealing bonuses go on even values.**
 - *Rule:* A value-1 bonus costs 1 Expertise, so it must be worth having but never mandatory for anyone optimizing. Strong effects such as defense value go on even values.
@@ -500,6 +510,11 @@ Earlier form of the same goal:
 
 **Defenses should draw on several sources, not one stat.**
 - *Source:* "vs normal attacks, where multiple stats contribute and archetypes with low raw defense numbers can wear armor or cast defensive spells" [p.1949]. [p.1979]
+- **STATED**
+
+**Hidden modifiers to the other side's resolution carry a communication cost.**
+- *Rule:* A bonus that lives on your character sheet but changes how the *opponent's* numbers resolve (armor penetration, say) must be announced every attack, or remembered for each creature after the first. Prefer bonuses that change your own side of the resolution (your costs, your options, your dice), or that show up openly in the roll.
+- *Source:* On per-attribute armor penetration: "I'm worried this'll be a bit too much book keeping since armor penetration that comes solely from a stat sheet (as opposed to open dice rolls) needs to be communicated each attack (or communicated once per character and remembered for each relevant character after the first attack)." On an information effect: "again has a higher communication cost." [C:2026-11-05]
 - **STATED**
 
 **Resolve every offensive step before any defensive step.**

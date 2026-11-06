@@ -11,6 +11,8 @@ Strain is longer-term exertion that doesn't recover during combat. It's the shar
 
 **Maximum Strain = 6 + round(Level / 5)**
 
+No attribute changes your maximum strain or your strain recovery. Both depend only on level.
+
 **Recovery:** **4 + round(Level / 10)** strain per night of rest.
 - **Alternative under consideration:** recover 1 strain per 6 hours of rest, with no strain-recovery bonus at levels ending in 5.
 

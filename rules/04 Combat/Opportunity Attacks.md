@@ -5,7 +5,7 @@ next: "[[Conditions and Control Effects]]"
 ---
 # Opportunity Attacks
 
-*Status: Locked (triggers); Mechanism open (avoidance and cap)*
+*Status: Locked (triggers); Mechanism open (avoidance)*
 
 Slipping past an engaged enemy should cost something, without making the battlefield sticky. There are no facing rules.
 
@@ -38,19 +38,4 @@ To deny an enemy its opportunity attack for one square you leave, pay **1 stamin
 **Cost:** an opportunity attack is a normal attack, but its steps go on your **off-turn escalation**, not your on-turn surcharge.
 - So you can get efficient damage in even after attacking on your own turn.
 - But it makes your later opportunity attacks and off-turn movement more expensive until your next turn.
-
-**Cap:** you can spend at most **1 stamina** on a single opportunity attack. That counts the weapon's base cost and the escalation together.
-- **+1 per odd Finesse value** (up to +3 at Finesse 5–6). Some abilities raise it too.
-- At the default cap, you can only make an opportunity attack with a base-1 weapon, and only if you haven't already made one or moved off-turn since your last turn began.
-- A higher cap lets you:
-  - take extra steps;
-  - use bigger weapons;
-  - make several opportunity attacks;
-  - mix opportunity attacks with off-turn movement.
-
-> [!note] Optional rule (Mechanism open)
-> Your cap against a creature is (1 + your Finesse bonus) for **each** square it leaves within your reach, instead of just once.
->
-> Example: with no Finesse, a creature that leaves three squares you threaten could be attacked for up to 3 stamina. An enemy that exposes itself for long enough can be punished harder, even by someone without Finesse.
->
-> **TODO:** when exactly you make the attack during a multi-square move.
+- There's no separate cap on what you spend. The off-turn escalation is the limit.

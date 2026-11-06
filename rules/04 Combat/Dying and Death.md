@@ -14,7 +14,7 @@ next: "[[Weapons]]"
 **Below 0 HP,** you enter **System Shock**.
 - **Starting Shock:** equal to your negative HP. At −2 HP you have 2 Shock.
 - **More damage:** taking damage while in System Shock lowers your HP as normal and raises your Shock by the same amount.
-- **Dying roll:** at the start of each of your turns, roll **2d12 + Strength**.
+- **Dying roll:** at the start of each of your turns, roll **2d12 + Will**.
 
   | Roll | Result |
   |---|---|

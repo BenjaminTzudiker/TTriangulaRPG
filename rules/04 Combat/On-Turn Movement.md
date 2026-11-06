@@ -9,5 +9,5 @@ up: "[[Movement]]"
   - You can split it up around your actions.
   - Moving doesn't penalize your aim.
 - **Extra movement:** **1 stamina** per purchase, every time.
-  - Each purchase moves 1 square, +1 per odd Agility value (up to 4).
+  - Each purchase moves **1 square**. Agility doesn't change this.
   - It isn't an action, and it doesn't touch the off-turn escalation.

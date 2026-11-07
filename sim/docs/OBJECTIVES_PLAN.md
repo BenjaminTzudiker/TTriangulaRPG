@@ -95,7 +95,7 @@ Recommended first wave: 1, 2, 3 and 12. They need only zones, exits, clocks and 
 
 ## Next step
 
-A detailed implementation plan for O1, written once the designer has seen the questions above. Later phases will be gated on:
+The detailed implementation plan for O1 is in [OBJECTIVES_O1_PLAN.md](OBJECTIVES_O1_PLAN.md). Later phases will be gated on:
 - unchanged event-log hashes for every existing scenario;
 - golden tests for each objective type;
 - a kill-first against objective-first differential that shows a measurable difference.

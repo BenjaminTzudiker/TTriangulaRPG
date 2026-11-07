@@ -585,6 +585,8 @@ Six milestones, each ending at a gate of known numbers, so the engine is useful 
 
 Phase 4 work can start as soon as M2 lands, in parallel with Phase 1–2 decisions, as the fix-order doc allows. An optional M6 adds the search auditor and an HTML replay viewer, built only if agent quality or playtest review calls for them.
 
+**Proposed, not adopted: M7 Objectives.** Scenario objectives beyond downing every opponent (reach, escape, hold, morale break, then objects, carrying, escort and secondary objectives), as scenario configuration with unstated rules readings as named switches. Brainstorm, phases O1–O5 and the questions for the designer are in [OBJECTIVES_PLAN.md](OBJECTIVES_PLAN.md).
+
 ## Risks
 
 The biggest risk is that agent behavior, not the rules, drives the conclusions; the plan answers it by reporting every headline result across at least two agent families and auditing with search.

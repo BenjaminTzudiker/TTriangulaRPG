@@ -9,9 +9,9 @@ next: "[[Defined Terms]]"
 
 *Restates [[Attack Procedure]], [[Ranged Attacks]], [[Blocking]], [[Armor]] and [[Critical Hits]].*
 
-**Melee:** Declare target → declare steps and pay → roll → blocks → armor → double if critical → lose HP
+**Melee:** Declare target → declare steps and pay → roll → blocks → armor → +1 per critical die if any damage is left → lose HP
 
-**Ranged:** Declare target → pay shot → buy aim → roll → dive for cover → blocks → armor → double if critical → lose HP
+**Ranged:** Declare target → pay shot → buy aim → roll → dive for cover → blocks → armor → +1 per critical die if any damage is left → lose HP
 
 ## Stamina Costs
 
@@ -91,8 +91,8 @@ A level-1 **Fighter**, using the starting 5 Expertise and 1 Ability Point.
 | | |
 |---|---|
 | **Attributes** | STR 2 (cost 3), AGI 1 (1), FIN 1 (1), INT 0, WIL 0, CUN 0 |
-| **HP** | 8; recovers 2 per night (odd STR) |
-| **Stamina** | Maximum 14; recovers 4 per turn |
+| **HP** | 10; recovers 2 per night (odd STR) |
+| **Stamina** | Maximum 16; recovers 4 per turn |
 | **Strain** | Maximum 6 |
 | **Gear** | Longsword (one-handed), shield, medium armor (2). STR 2 meets medium armor's requirement. |
 | **Melee Defense** | 4: base 1 + proficient weapon 1 + shield 2 |

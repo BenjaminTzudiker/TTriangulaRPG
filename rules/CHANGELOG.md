@@ -27,6 +27,17 @@ A commit that only fixes typos can skip the entry by putting `[no changelog]` in
 
 ## Unreleased
 
+## 0.9.2 (2026-11-08)
+
+### Rules
+
+- [[Critical Hits]]: if any damage gets past blocks and armor, each critical die adds +1, replacing "if any die is critical, double the damage left after armor". Each critical die still ignores 1 armor. The TODO on doubling once per attack goes with the doubling, and the melee example gains a critical-die case. Restated in [[Attack Procedure]] (step 7), [[Defined Terms]] and [[Quick Reference]] (Attack Sequence). Why: doubling was the game's main luck multiplier (Review F2, P2) and made the opener's all-in the right bet: under optimal play, ×2 openers end 33% of level-1 duels on the first attack, while linear-crit openers decline the gamble (`claude/Exchange_Escalation_and_Guards.md` §3.1). +1 rather than +2 because +2 carries most of the remaining all-in risk (same doc, §3.5). "Only if something gets past" keeps a full block a full answer: a +2 bonus added regardless wounded a defender who blocked everything in 44% of 2-step attacks in the review's oracle simulator (`claude/Crit_Rule_Alternatives.md` §1). Source: design chat, 2026-11-06/08. *Engine:* not implemented; the `v0.9` preset doubles (`crit/double_once`), and the registered `crit/per_die_bonus` adds its bonus even when nothing gets past armor, so it isn't this rule.
+- [[HP]]: maximum HP = 8 + 2 per even Strength value, up from 6 + 2 (8, 8, 10, 10, 12, 12, 14 for Strength 0–6). [[Strength]]'s wording is unchanged. Restated in [[Quick Reference]] (Sample Character: HP 8 → 10, maximum stamina 14 → 16). Why: HP is the main lever on how often a fresh defender can't survive an opener's maximum all-in (P2). In the duel solver at Melee Defense 4 with +1 per critical die, sample HP 10 puts the sample mirror at 0.9% (`claude/Exchange_Escalation_and_Guards.md` §2.4). In engine party days, base 8 with the new crit cut "someone dies" in a fresh two-bandit fight from 34% to 24% (`claude/Party_Day_Study.md`). Base 8 is the designer's starting point "for now". Known costs: the two-hander mirror still fails that guard at sample HP 10 (7.8%; 0.4% at base 10). Maximum stamina rises with HP, so attacks grow too, and focus-fire drops don't fall (61% → 70% in that fight). Source: design chat, 2026-11-08. *Engine:* not implemented; the `v0.9` preset still uses HP = 6 + Strength (v0.9).
+
+### Editorial
+
+- [[Playtest Packet]]: version line 0.9.1 → 0.9.2. Why: cutting 0.9.2. Source: design chat, 2026-11-08.
+
 ## 0.9.1 (2026-11-06)
 
 ### Rules

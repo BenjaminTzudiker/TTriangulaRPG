@@ -14,7 +14,7 @@ next: "[[Open Questions]]"
 | Off-turn escalation | +1 per earlier off-turn cost (off-turn movement, opportunity attack steps) since your turn began. | [[Off-Turn Escalation]] |
 | Perfect block | Subtract your defense; costs 1, 2, 3… within one attack. | [[Blocking]] |
 | Grazing block | Subtract your defense; costs 1; 1 damage leaks through. | [[Blocking]] |
-| Critical die | A die rolling within its critical range; ignores 1 armor; any critical doubles damage after armor. | [[Critical Hits]] |
+| Critical die | A die rolling within its critical range; ignores 1 armor; adds 1 damage if any gets past blocks and armor. | [[Critical Hits]] |
 | Threatened square | A square within an enemy's melee reach. | [[Opportunity Attacks]] |
 | Off-turn movement | Movement bought after any creature's turn, or when targeted by a ranged attack. | [[Off-Turn Movement]] |
 | Cover | Half +2, three-quarters +5, to the defense used against a ranged attack. | [[Cover]] |

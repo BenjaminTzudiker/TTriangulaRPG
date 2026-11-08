@@ -65,6 +65,7 @@ def battle_for(
         round_cap=scenario.round_cap,
         check=check,
         field=scenario.battlefield,
+        objectives=scenario.objectives,
     )
 
 

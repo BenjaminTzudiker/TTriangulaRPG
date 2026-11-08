@@ -1,0 +1,58 @@
+# Objectives O1, Reach: the party must get 2 of 3 into the back row (Z) by the end of
+# round 8, through a wall with two one-square gaps that three NPCs start behind. Tests
+# opportunity attacks and reach at a line (Review F9) and cheap movement (Review F10).
+[scenario]
+name = "breakthrough-3v3"
+ruleset = "v0.9"
+map = "breakthrough"
+round_cap = 20
+trials = 300
+seed = 20261108
+
+[[combatant]]
+id = "fighter"
+team = "party"
+build = "l1_sample"
+spawn = "A"
+agent = { kind = "tactical", commit = "chipkill", objective = "first" }
+
+[[combatant]]
+id = "duelist"
+team = "party"
+build = "l1_duelist"
+spawn = "A"
+agent = { kind = "tactical", commit = "chipkill", objective = "first" }
+
+[[combatant]]
+id = "archer"
+team = "party"
+build = "l1_archer"
+spawn = "A"
+agent = { kind = "tactical", commit = "chipkill", objective = "first" }
+
+[[combatant]]
+id = "npc"
+team = "npcs"
+build = "l1_sample"
+count = 2
+spawn = ["D", "D"]
+agent = { kind = "npc", profile = "disciplined_2step", objective = "first" }
+
+[[combatant]]
+id = "npc_archer"
+team = "npcs"
+build = "l1_archer"
+spawn = "D"
+agent = { kind = "npc", profile = "disciplined_2step", objective = "first" }
+
+[[zone]]
+id = "back_row"
+marker = "Z"
+
+[[objective]]
+id = "break_through"
+kind = "reach"
+team = "party"
+zone = "back_row"
+count = 2
+deadline = 8

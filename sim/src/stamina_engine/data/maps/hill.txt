@@ -1,0 +1,12 @@
+; The hill: an open field with a 3x3 zone (H) in the middle. The party (P) starts on the
+; left and the NPCs (N) on the right, each 5 squares from the zone.
+###############
+#.............#
+#.............#
+#P...........N#
+#.....HHH.....#
+#P....HHH....N#
+#.....HHH.....#
+#P...........N#
+#.............#
+###############

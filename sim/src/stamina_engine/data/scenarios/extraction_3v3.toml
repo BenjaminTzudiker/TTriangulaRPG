@@ -1,0 +1,54 @@
+# Objectives O1, Escape: the party (fighter, duelist, archer) must get 2 of 3 off the map
+# through the right-hand exits by the end of round 10, while three NPCs (two fighters and an
+# archer) flanking the way out try to stop them. Tests retreat economics (Review Addendum 2)
+# in a team fight. Agents pursue or deny the objective (objective = "first").
+[scenario]
+name = "extraction-3v3"
+ruleset = "v0.9"
+map = "extraction"
+round_cap = 20
+trials = 300
+seed = 20261108
+
+[[combatant]]
+id = "fighter"
+team = "party"
+build = "l1_sample"
+spawn = "P"
+agent = { kind = "tactical", commit = "chipkill", objective = "first" }
+
+[[combatant]]
+id = "duelist"
+team = "party"
+build = "l1_duelist"
+spawn = "P"
+agent = { kind = "tactical", commit = "chipkill", objective = "first" }
+
+[[combatant]]
+id = "archer"
+team = "party"
+build = "l1_archer"
+spawn = "P"
+agent = { kind = "tactical", commit = "chipkill", objective = "first" }
+
+[[combatant]]
+id = "npc"
+team = "npcs"
+build = "l1_sample"
+count = 2
+spawn = ["N", "N"]
+agent = { kind = "npc", profile = "disciplined_2step", objective = "first" }
+
+[[combatant]]
+id = "npc_archer"
+team = "npcs"
+build = "l1_archer"
+spawn = "N"
+agent = { kind = "npc", profile = "disciplined_2step", objective = "first" }
+
+[[objective]]
+id = "get_out"
+kind = "escape"
+team = "party"
+count = 2
+deadline = 10

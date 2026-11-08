@@ -99,7 +99,7 @@ class Battle:
             self.ops.listeners.append(self.ledger.observe)
 
     def observe(self, who: str) -> Observation:
-        return observe(self.state, self.rules, who, self.ledger, self.field)
+        return observe(self.state, self.rules, who, self.ledger, self.field, self.objectives)
 
     def run(self) -> BattleResult:
         from stamina_engine.engine.timeline import run_battle

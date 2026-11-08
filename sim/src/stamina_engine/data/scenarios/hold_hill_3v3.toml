@@ -1,0 +1,59 @@
+# Objectives O1, Hold: the party must hold the hill (H) uncontested for 2 rounds in a row by
+# the end of round 10; three NPCs try to stop them. Both sides start 5 squares from it.
+[scenario]
+name = "hold-hill-3v3"
+ruleset = "v0.9"
+map = "hill"
+round_cap = 20
+trials = 300
+seed = 20261108
+
+[[combatant]]
+id = "fighter"
+team = "party"
+build = "l1_sample"
+spawn = "P"
+agent = { kind = "tactical", commit = "chipkill", objective = "first" }
+
+[[combatant]]
+id = "duelist"
+team = "party"
+build = "l1_duelist"
+spawn = "P"
+agent = { kind = "tactical", commit = "chipkill", objective = "first" }
+
+[[combatant]]
+id = "archer"
+team = "party"
+build = "l1_archer"
+spawn = "P"
+agent = { kind = "tactical", commit = "chipkill", objective = "first" }
+
+[[combatant]]
+id = "npc"
+team = "npcs"
+build = "l1_sample"
+count = 2
+spawn = ["N", "N"]
+agent = { kind = "npc", profile = "disciplined_2step", objective = "first" }
+
+[[combatant]]
+id = "npc_archer"
+team = "npcs"
+build = "l1_archer"
+spawn = "N"
+agent = { kind = "npc", profile = "disciplined_2step", objective = "first" }
+
+[[zone]]
+id = "hill"
+marker = "H"
+
+[[objective]]
+id = "take_hill"
+kind = "hold"
+team = "party"
+zone = "hill"
+control = "uncontested"
+score = "consecutive"
+rounds = 2
+deadline = 10

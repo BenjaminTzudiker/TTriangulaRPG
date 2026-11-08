@@ -15,6 +15,7 @@ from stamina_engine.engine.events import (
     Dived,
     Drew,
     Moved,
+    ObjectiveResolved,
     OpportunityAvoided,
     OpportunityDeclared,
     OpportunityProvoked,
@@ -118,6 +119,12 @@ def fight_row(result: BattleResult, trial: int, seed: int) -> Row:
         "draws": draws,
         "log_sha256": result.log_sha256(),
     }
+    if result.objective is not None:  # scenarios with an objective only (O1)
+        row["objective"] = result.objective  # done, failed, or open (the fight ended first)
+        row["objective_round"] = next(
+            (e.round for e in result.log if isinstance(e, ObjectiveResolved)), None
+        )
+        row["ending"] = result.reason.split(":")[0]
     for team in teams:
         row[f"win:{team}"] = result.winner == team
         for category in CATEGORIES:
@@ -211,6 +218,8 @@ class Summary:
     contact_round: Interval | None = None  # among fights with any attack
     oa_taken: Interval | None = None  # per fight
     off_turn_squares: Interval | None = None  # per fight, all teams
+    objective: Interval | None = None  # scenarios with an objective: share of fights it's done
+    endings: dict[str, Interval] | None = None  # how fights ended: objective, side_out...
 
     def lines(self) -> list[str]:
         out = [f"Trials: {self.trials}"]
@@ -230,6 +239,10 @@ class Summary:
             out.append(f"Opportunity attacks per fight: {self.oa_taken}")
         if self.off_turn_squares is not None:
             out.append(f"Squares moved off-turn per fight: {self.off_turn_squares}")
+        if self.objective is not None:
+            out.append(f"Objective done: {self.objective.pct()}")
+        if self.endings:
+            out += [f"Ended by {how}: {iv.pct()}" for how, iv in self.endings.items()]
         return out
 
 
@@ -256,6 +269,8 @@ def summarize(fights: Sequence[Row]) -> Summary:
             [float(f["contact_round"]) for f in fights if f.get("contact_round") is not None]
         ),
         oa_taken=_mean_or_none([float(f.get("oa_taken", 0)) for f in fights]),
+        objective=_objective(fights),
+        endings=_endings(fights),
         off_turn_squares=_mean_or_none(
             [
                 float(sum(v for k, v in f.items() if k.startswith("moved:") and k.endswith(":off")))
@@ -263,6 +278,22 @@ def summarize(fights: Sequence[Row]) -> Summary:
             ]
         ),
     )
+
+
+ENDINGS = ("objective", "objective_failed", "side_out", "round_cap")
+
+
+def _objective(fights: Sequence[Row]) -> Interval | None:
+    if not fights or "objective" not in fights[0]:
+        return None
+    return wilson(sum(1 for f in fights if f["objective"] == "done"), len(fights))
+
+
+def _endings(fights: Sequence[Row]) -> dict[str, Interval] | None:
+    if not fights or "ending" not in fights[0]:
+        return None
+    n = len(fights)
+    return {how: wilson(sum(1 for f in fights if f["ending"] == how), n) for how in ENDINGS}
 
 
 def _mean_or_none(values: list[float]) -> Interval | None:

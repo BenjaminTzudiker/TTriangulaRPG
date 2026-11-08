@@ -1,0 +1,13 @@
+; Breakthrough: a wall line with two one-square gaps, at (3, 5) and (11, 5). The attackers
+; (A) start above it; the defenders (D) start behind the gaps; the zone (Z) is the back row.
+###############
+#.....A.A.A...#
+#.............#
+#.............#
+#.............#
+###.#######.###
+#..D.......D..#
+#.............#
+#......D......#
+#ZZZZZZZZZZZZZ#
+###############

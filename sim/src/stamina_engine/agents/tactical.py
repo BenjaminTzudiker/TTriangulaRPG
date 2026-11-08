@@ -69,6 +69,13 @@ from stamina_engine.agents.grid_view import (
     ranged_loadout,
     shot_value,
 )
+from stamina_engine.agents.objective_play import (
+    Goal,
+    closer_free,
+    denier_order,
+    goal,
+    in_goal,
+)
 from stamina_engine.agents.scripted import CommitPolicy, avoid_worth_it, largest_oa
 from stamina_engine.core.errors import ConfigError
 from stamina_engine.grid.battlefield import Cell
@@ -100,6 +107,7 @@ class TacticalAgent:
     flee_below: Fraction = Fraction(0)  # at or below this fraction of max HP, head for an exit
     surrender_below: Fraction = Fraction(0)  # ...and surrender when engaged (0: never)
     abilities: AbilityPolicy | None = None  # None: pass every ability window
+    objective: str = "kill"  # or "first" (agents/objective_play.py)
     _pending: int = field(default=0, init=False)
     _plan: tuple[int, str] = field(default=(-1, ""), init=False)  # (round, stage) this turn
 
@@ -114,6 +122,9 @@ class TacticalAgent:
         enemies = board.enemies()
         if not enemies:
             return None
+        g = goal(board.obs) if self.objective == "first" else None
+        if g is not None and not g.pursue:  # a denier: the pursuer closest to its goal
+            return denier_order(board.obs, self.rules, g, tuple(v.id for v in enemies))[0]
         me = board.me
         assert me.pos is not None
         if self.target_mode == "nearest":
@@ -188,12 +199,17 @@ class TacticalAgent:
         leaving = self._leaving(board, request)
         if leaving is not None:
             return leaving
+        g = goal(obs) if self.objective == "first" else None
+        if g is not None and g.pursue and g.counts:
+            return self._pursue(board, request, g, stage)
         if is_shooter(me):
             return self._archer_turn(board, request, stage)
         if me.trackers.actions_this_turn > 0:
             if stage != "after" and request.moves is not None:
                 self._plan = (obs.round, "after")
-                step = self._after_attack(board, request.moves)
+                step = self._contest(board, request.moves, g) or self._after_attack(
+                    board, request.moves
+                )
                 if step is not None:
                     return step
             return EndTurn()
@@ -211,7 +227,68 @@ class TacticalAgent:
             return self._attack(obs, tid, request)
         if request.targets:  # the chosen target is out of reach but another isn't
             return self._attack(obs, request.targets[0], request)
+        if stage != "after" and request.moves is not None:
+            self._plan = (obs.round, "after")
+            step = self._contest(board, request.moves, g)
+            if step is not None:
+                return step
         return EndTurn()
+
+    # --- objectives (agents/objective_play.py) -------------------------------------------
+
+    def _pursue(self, board: Board, request: TurnCommand, g: Goal, stage: str) -> TurnAnswer:
+        """Head for the goal (buying movement up to half its stamina), flee from an exit when
+        escaping, hold the zone once in it, and attack or shoot only what is in reach."""
+        obs, me = board.obs, board.me
+        assert me.trackers is not None
+        if g.view.kind == "escape" and request.can_flee:
+            return Flee()
+        if me.trackers.actions_this_turn > 0 or stage == "shot":
+            return EndTurn()
+        holding = g.view.kind == "hold" and in_goal(obs, g)
+        if stage == "" and request.moves is not None and not holding:
+            self._plan = (obs.round, "moved")
+            step = self._toward(board, request.moves, g)
+            if step is not None:
+                return step
+        if request.shots:
+            tid = self._target_of(board, request.shots)
+            if tid is not None:
+                self._plan = (obs.round, "shot")
+                return Shoot(tid)
+        if request.targets:
+            pick = self._target(board)
+            tid = pick if pick in request.targets else request.targets[0]
+            return self._attack(obs, tid, request)
+        return EndTurn()
+
+    def _toward(self, board: Board, moves: MoveOptions, g: Goal) -> Move | None:
+        me = board.me
+        goals = [c for c in g.cells if c in moves.destinations]
+        route = board.route(moves, goals, moves.max_squares) if goals else None
+        if route is not None and route.path and route.total <= Fraction(me.stamina, 2):
+            return Move(route.path)
+        cell = closer_free(board.obs, self.rules, moves, g.cells)
+        if cell is None:
+            return None
+        free = (me.free_move_left or 0) + (me.banked or 0)
+        route = board.route(moves, [cell], free)
+        return Move(route.path) if route is not None and route.path else None
+
+    def _contest(self, board: Board, moves: MoveOptions, g: Goal | None) -> Move | None:
+        """A denier in a contested hold steps into the zone when free movement gets it there
+        without provoking anyone."""
+        if g is None or g.pursue or g.view.kind != "hold" or g.view.control == "present":
+            return None
+        if in_goal(board.obs, g):
+            return None
+        me = board.me
+        free = (me.free_move_left or 0) + (me.banked or 0)
+        goals = [c for c in g.cells if moves.destinations.get(c, free + 1) <= free]
+        route = board.route(moves, goals, free) if goals else None
+        if route is None or not route.path or route.exposure:
+            return None
+        return Move(route.path)
 
     # --- shooters ----------------------------------------------------------------------
 
@@ -450,12 +527,15 @@ class TacticalAgent:
         moves = request.moves
         if moves is None:
             return blade if blade is not None else Pass()
+        g = goal(obs) if self.objective == "first" else None
+        hold = g is not None and g.pursue and g.counts and g.view.kind == "hold"
+        keep = g.cells if g is not None and hold and in_goal(obs, g) else None
         budget = Fraction(me.stamina, 2)
         best: tuple[tuple[int, Fraction | int, int], tuple[Cell, ...]] | None = None
         routes = board.routes(moves, moves.max_squares)
         for c in sorted(moves.destinations):
             route = routes.get(c)
-            if route is None or route.total > budget:
+            if route is None or route.total > budget or (keep is not None and c not in keep):
                 continue
             e = board.engagers(c, moved=True)
             if e >= engaged:

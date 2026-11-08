@@ -1,0 +1,13 @@
+; Extraction: the party (P) starts on the left and must leave through the exits (>) on the
+; right edge, 16 squares away; the NPCs (N) start on the top and bottom edges, flanking the
+; way out.
+##################
+#.......N........#
+#................>
+#................>
+#P...............>
+#P...............>
+#P...............>
+#................#
+#.......N.....N..#
+##################

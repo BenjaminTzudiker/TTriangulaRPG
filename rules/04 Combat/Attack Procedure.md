@@ -20,5 +20,5 @@ All offensive steps come before any defensive step.
 **Resolution**
 
 6. Armor reduces what's left. Each critical die ignores 1 armor.
-7. If any die was critical, double the remaining damage.
+7. If any damage is left, add 1 for each critical die.
 8. The defender loses that much HP.

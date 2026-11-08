@@ -45,6 +45,10 @@ deadline = 8                         # the round by whose end it must be done (h
                                      # reach, escape: defaults to round_cap)
 ```
 
+How to set an objective scenario up so it measures something (movement arithmetic, terrain,
+deadlines, hold readings, a balanced straight fight first): "Setting up an objective scenario
+that tells you something" in sim/docs/USAGE_FOR_CHATS.md.
+
 `map_text` (a multi-line TOML string) gives the map inline instead of `map`; scenario_to_toml
 writes it that way, so a written scenario doesn't depend on files.
 """

@@ -75,6 +75,46 @@ Every objective has a `deadline` round. The fight ends when the objective is don
 
 Agents ignore objectives unless their spec says `objective = "first"` (the default `"kill"` is today's behaviour and the control). `se suite objectives` runs the five objective scenarios (`extraction_3v3`, `breakthrough_3v3`, `hold_hill_3v3`, `hold_hill_final_3v3`, `hold_the_door_1v3`) under both agent families, pursuers in `kill` and in `first`, and reports the paired first − kill difference: if it is near zero, the objective adds nothing a straight fight doesn't already decide. The readings the packet doesn't give are in the Assumptions register; the plan is `sim/docs/OBJECTIVES_PLAN.md`.
 
+#### Setting up an objective scenario that tells you something
+
+The engine measures whatever fight you give it. An objective only produces an insight if the scenario makes the objective hard in the way your question is about. If you put an escape on open ground with the exits in reach, you've measured a footrace. Work through these before trusting a number:
+
+1. **Start from the question, then choose the objective.** Name the rule or finding you're probing, and pick the objective and terrain that put pressure on it. For example:
+   - opportunity attacks and reach (F9): a breakthrough through a gap a defender can stand in;
+   - focus fire (F6): a lone defender holding a corridor;
+   - retreat economics (Review Addendum 2): an escape that has to break contact, with pursuers able to reach the route;
+   - stamina banking: a hold scored only at the deadline (`score = "final"`).
+2. **Use the current movement rules.** The `v0.9` preset predates packet v0.9.1, so its extra on-turn purchase moves 1 + odd Agility squares. The packet now moves 1 square per purchase. For current movement, use `ruleset = { base = "v0.9", movement = { extra_squares = "one" } }`. Some other v0.9.1 changes (for example the removed opportunity-attack cap) aren't in the engine yet; `rules/CHANGELOG.md` says which with an *Engine:* note. Movement decides most objective fights, so this matters more here than anywhere else.
+3. **Do the movement arithmetic.** Under current rules a creature covers its free Movement (5, +1 per odd Agility) plus 1 square per stamina it spends, all on its own turn. It can also move off-turn, at escalating prices. With `se map show <map>`, measure each pursuer's distance to the goal and each denier's distance to the intercept squares.
+   - If a pursuer can reach the goal on its first turn before any denier can engage it, the fight is a race decided by initiative.
+   - That is a fine thing to measure on purpose, but not by accident.
+   - To get a contest, put the deniers between the pursuers and the goal, give the route a chokepoint, or start the goal further away.
+4. **Give terrain a job.** Corridors, gaps in a wall, low walls and pillars make position matter. Open ground makes most objectives a matter of speed and numbers.
+   - Spread the deniers so that every route passes through someone's reach.
+   - Give the deniers a reason to choose between positions, such as two gaps and three defenders.
+5. **Set the deadline from the movement arithmetic.** Make it long enough that the objective takes several turns, and short enough that turtling fails. A reach or escape deadline defaults to the round cap.
+6. **Choose the hold readings deliberately.**
+   - `present` lets a single body hold against any number of enemies.
+   - `uncontested` lets one enemy deny the hold by standing in the zone.
+   - `majority` rewards numbers.
+   - `consecutive` punishes losing the zone even once; `final` lets a side fight elsewhere and arrive late.
+   These change the answer, so say which you used.
+7. **Balance the straight fight first.** Run the scenario with the pursuers in `kill` mode. If one side wins the straight fight almost every time, the objective has little room to matter. In the hill scenario, the party loses the straight fight 96% of the time, and 85–97% of its hold fights end with one side wiped out. Adjust the sides or the map until the straight fight is roughly even, or until its imbalance is the thing you're studying.
+8. **Read how fights ended, not just who won.**
+   - Mostly `side_out`: the objective isn't deciding the encounter.
+   - Mostly round 1: a race.
+   - Mostly `objective_failed` well before the deadline: the pursuers are being wiped out, not outplayed on the objective.
+   Then `se trace` a few trials of each kind of ending before you believe the pattern.
+9. **Run both agent families, and know their limits.**
+   - Scripted pursuers move with free movement only and never buy squares.
+   - Tactical pursuers buy up to half their stamina.
+   - Deniers of either family attack the pursuer nearest its goal; they don't body-block gaps.
+   A result that holds for only one family, or that a blocking denier would plausibly overturn, is about the agents, not the rules.
+10. **Compare rules on the same seeds.**
+    - `se compare` (or suite rows that share a scenario) gives paired differences.
+    - `first − kill` tells you whether the objective matters at all.
+    - Comparing RuleSet variants with the pursuers in `first` tells you how a rule changes the objective.
+
 ### Abilities, people and load (M5)
 
 A build's cores bring their abilities (`cores = ["barbarian"]` gives it `barbarian_core`), and `abilities = ["heavy_swing"]` adds candidate abilities (`heavy_swing`, `riposte`, `tactical_withdrawal`; Feint waits for contests). The library has the sample fighter's stats with each core (`l1_sample` is the Fighter, `l1_barbarian`, `l1_monk`, `l1_rogue`) and with each candidate alone (`l1_heavy_swing`, `l1_withdrawal`, `l1_riposte`). How each one reads where the packet is silent is in the Assumptions register; `src/stamina_engine/abilities/cores.py` shows how one is written. Strain starts at 0 every fight, so a fight's results are the best case for a day of several.

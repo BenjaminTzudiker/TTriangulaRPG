@@ -22,7 +22,12 @@ def test_every_library_scenario_runs(path: Path) -> None:
         pytest.skip("a sweep, not a scenario")
     s = load_scenario(path)
     result = run_trial(s, 0, check=True)
-    assert result.reason in ("side_out", "round_cap")
+    endings = ("side_out", "round_cap")
+    if s.objectives:
+        endings += tuple(
+            f"{how}:{o.id}" for o in s.objectives for how in ("objective", "objective_failed")
+        )
+    assert result.reason in endings
 
 
 def test_positioning_metrics_from_the_avoidance_example() -> None:

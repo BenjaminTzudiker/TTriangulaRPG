@@ -58,6 +58,7 @@ uv run se suite positioning --workers 8   # M2 grid scenarios across agent famil
 uv run se suite ranged --workers 8        # M3 archers on three maps, Table 5, F3 options
 uv run se suite phase --workers 8         # M4 the full phase suite in the review's layouts
 uv run se suite cores --workers 8         # M5 class cores and candidate abilities, off and on
+uv run se suite objectives --workers 8    # O1 objective scenarios, pursuers kill v first
 uv run se trace <scenario.toml> --trial N # one fight, with the board at each turn
 uv run se play <scenario.toml> --as ID --log session.jsonl  # play one side yourself, timed
 uv run se load <scenario.toml>            # decision load per round (or --session logs)

@@ -488,7 +488,8 @@ def make_agent(
     "never", "tactical", or a table {kind = "scripted" | "tactical", commit = "...",
     target = "first" | "lowest_stamina" (tactical: or "nearest"), w = "3",
     estimator = "exact" | "sampled", avoid = "worth_it" | "always" | "never",
-    oa = "max" | "never", abilities = "none" | "use"}; tactical also takes
+    oa = "max" | "never", abilities = "none" | "use", objective = "kill" | "first"}; tactical
+    also takes
     retreat_engaged = 2, low_stamina = "1/3", reach_spacing = true."""
     from stamina_engine.agents.tactical import TacticalAgent
 

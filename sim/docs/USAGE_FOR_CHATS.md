@@ -52,6 +52,7 @@ se suite ranged --workers 8 --out reports/m3_ranged.md # archers on three maps, 
 se suite phase --workers 8 --out reports/phase_suite.md # all eight phase-suite items, review layouts
 se table 8 --equipment f8_die_upgrades                 # an exact table with a variant equipment table
 se suite cores --workers 8 --out reports/cores_suite.md # each core and candidate ability, off and on
+se suite objectives --workers 8 --out reports/objectives_o1_suite.md # O1: objective scenarios, kill v first
 se play src/stamina_engine/data/scenarios/l1_duel_open.toml --as A --log session.jsonl
 se load src/stamina_engine/data/scenarios/one_v_three_open.toml --trials 200
 se load --session session.jsonl                        # a person's decisions, with seconds
@@ -62,6 +63,17 @@ se load --session session.jsonl                        # a person's decisions, w
 A scenario's `equipment = "f4_shield_1"` swaps the weapon, armor and shield table for a variant in `src/stamina_engine/data/equipment/` (each overlays the packet's table entry by entry; copy one to try your own). The shipped variants are Review F8's (die upgrades, Strength capped at die size) and F4's (a +1/+2 shield, a shield with a Strength requirement); F8's light-weapon discount and F4's two-hander bonus are RuleSet switches (`surcharge.light_exempt`, `defenses.two_hander_bonus`, `defenses.agility_split`).
 
 NPC profiles (`src/stamina_engine/data/profiles/`) configure the tactical agent the way a stat block would: `agent = { kind = "npc", profile = "disciplined_2step" }` commits 2 steps, 3 against a target below half stamina, and focuses fire. `cautious` flees through an exit square (`>` on a map) at half HP and surrenders at a quarter. Fleeing and surrendering aren't in the packet; they're engine end states pending the designer (Assumptions register).
+
+### Objectives (O1)
+
+A scenario on a map can give one side an objective other than downing every opponent, with `[[zone]]` and `[[objective]]` tables (format at the top of `src/stamina_engine/experiments/scenario.py`):
+- `reach`: get `count` creatures into a zone;
+- `escape`: get `count` creatures off the map through exits (`>`);
+- `hold`: control a zone, by a `control` reading (`present`, `uncontested`, `majority`) and a `score` reading (`consecutive`, `cumulative`, `final`) that the scenario must state.
+
+Every objective has a `deadline` round. The fight ends when the objective is done (its side wins, reason `objective:<id>`), fails (the other side wins, `objective_failed:<id>`), or one side is out first (`side_out`). `se run` then also prints the objective's success rate and how fights ended. A zone can be a map letter that no combatant uses (`marker = "H"`), a list of squares or a rectangle.
+
+Agents ignore objectives unless their spec says `objective = "first"` (the default `"kill"` is today's behaviour and the control). `se suite objectives` runs the five objective scenarios (`extraction_3v3`, `breakthrough_3v3`, `hold_hill_3v3`, `hold_hill_final_3v3`, `hold_the_door_1v3`) under both agent families, pursuers in `kill` and in `first`, and reports the paired first − kill difference: if it is near zero, the objective adds nothing a straight fight doesn't already decide. The readings the packet doesn't give are in the Assumptions register; the plan is `sim/docs/OBJECTIVES_PLAN.md`.
 
 ### Abilities, people and load (M5)
 

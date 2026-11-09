@@ -78,36 +78,36 @@ def test_pinned_log_hashes(
 
 
 GRID_PINNED = [
-    ("archer_wall.toml", 2, "84ff86cacaf6871b8c35ff907d5a7b3ce25e866f5ad372dac5930109c485617e"),
+    ("archer_wall.toml", 2, "69bf122ee889e2fe9e24979220b51929ecb7f57c17b16f78764a8c3b567c7193"),
     (
         "one_v_three_corridor.toml",
         0,
-        "e49db71fd42201bea7fa85b154b13bd90d075d5d17bc2f0c2099552bcfb2db05",
+        "03da000a4b05eac635407bc66f5198cdee4e44099411ae10d56b488844047134",
     ),
     (
         "reach_chokepoint.toml",
         3,
-        "a81b71accf352bdf75a0cc9d20d83bb6a1a4d45b7ee3dece97de3f60823079ad",
+        "940b7052bce33c53c2e0bae318f798ed5500ea565b4e58c329841c14138aa828",
     ),
     (
         "extraction_3v3.toml",  # objectives (O1)
         0,
-        "1e300c59be0dc27512ee2d9518779b761183246f146eee47bfa3647e6f13b2db",
+        "b7684caf9c375325ef5338a63e34ace83adf43a077da0c9ae1368c1c516bb98f",
     ),
     (
         "breakthrough_3v3.toml",  # objectives (O1)
         0,
-        "3be2654b72c628da50d8f45ffa3e9b7c44ad65f8b20902e8e5764c1777fad19c",
+        "6b839410ec590a971c36a00c94f4e4584fa74b2cfb93977a62b6764ac70275c5",
     ),
     (
         "hold_hill_3v3.toml",  # objectives (O1)
         0,
-        "e85479c696d3f9e85b377726d2fc9e7e157bd2d7cd834c377067bd31a289e3b7",
+        "9af112a316e16357242f4d47a584e7f914d634485becb36af90fd6be00da384d",
     ),
     (
         "hold_the_door_1v3.toml",  # objectives (O1)
         0,
-        "01a5c252da21353d9605d45533bf036cd2c70c8a708b4417eb7d2036f24e27e4",
+        "cb67118d1a6e40a5ca1796ae331c6fc26f3b7dece63cd994e7814469a34fda1d",
     ),
 ]
 
@@ -115,7 +115,7 @@ GRID_PINNED = [
 @pytest.mark.parametrize(("scenario", "trial", "expected"), GRID_PINNED)
 def test_pinned_grid_log_hashes(scenario: str, trial: int, expected: str) -> None:
     """Grid battles (tactical and scripted agents, OAs and off-turn windows), under each
-    scenario's own ruleset: the baseline (v0.9.2) since it moved there."""
+    scenario's own ruleset: the baseline (now v0.9.3)."""
     from pathlib import Path
 
     from stamina_engine.experiments.runner import run_trial

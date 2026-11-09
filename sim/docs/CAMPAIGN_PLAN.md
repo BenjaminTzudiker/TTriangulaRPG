@@ -78,6 +78,8 @@ Every campaign report repeats these three points.
 
 ### First: a preset for the current packet
 
+**Done (2026-11-08, PR #13 and the `v0.9.3` follow-up):** every rule in the table below except nightly HP recovery is a switch, and the `v0.9.3` preset selects them all. It is the engine's baseline (`rules.ruleset.BASELINE`). Nightly recovery arrives with the `rest` component (C3). The table records the state before that work.
+
 The engine still runs v0.9 rules where a campaign needs current ones (Packet v0.9.1–v0.9.3, all marked *Engine: not implemented* in the changelog):
 
 | Rule | Engine today | Packet now |
@@ -264,7 +266,7 @@ Single-fight numbers don't show what they leave out, so part of the fix is docum
 
 ## Phases
 
-- **C0: the current packet as a preset.** The components and `v0.9.3` preset above, on a branch with a pull request. Done when the packet's worked examples for the changed rules pass, and earlier presets' logs are unchanged.
+- **C0: the current packet as a preset (done 2026-11-08).** The components and `v0.9.3` preset above, on a branch with a pull request. Done when the packet's worked examples for the changed rules pass, and earlier presets' logs are unchanged.
 - **C1: encounter calibration.** `se calibrate`, the drop-source and warning-turn metrics (they're fight metrics, so they don't need carry-over), and `analysis/` ports of the study's two calculators. The study's encounters become engine scenarios. Done when the study's fresh-encounter table is reproduced within its intervals under its RuleSets, and the same table is reported under `v0.9.3`. Questions 0 (fresh part) and 9.
 - **C2: a party that protects itself.** The line-holding and bodyguard policies (shared with Objectives screening), NPC targeting as a sweep axis, and the protection check on a defensible-gap map. Question 10. This is also the study's own next test, so it's useful before any campaign exists.
 - **C3: carry-over, fixed pacing and after-fight stabilization.** `CarryState`, the `rest` component, after-fight stabilization and the `Stabilize` request, surrender endings, `experiments/campaign.py`, pacing (with `day_ends_on_drop`) and encounter data, campaign and per-fight-index metrics with the attrition gate, `se campaign <campaign.toml>`, the one-fight parity test, and the chats' guide above. First report: questions 0, 1, 3, 4 and 8 under the three profiles, with the study's day numbers reproduced as a cross-check. The code can be built beside C1 and C2, but its results wait for them: before calibration and protection, the attrition gate will mostly fail.

@@ -14,7 +14,7 @@ from stamina_engine.experiments.scenario import load_scenario, scenario_from_tom
 from stamina_engine.experiments.stats import paired_difference, wilson
 from stamina_engine.experiments.sweep import compare, load_sweep, run_sweep
 from stamina_engine.provenance import PACKAGE_DIR
-from stamina_engine.rules.ruleset import review_candidate, v0_9, v0_9_2
+from stamina_engine.rules.ruleset import review_candidate, v0_9, v0_9_3
 
 SCENARIOS = PACKAGE_DIR / "data" / "scenarios"
 DUEL = SCENARIOS / "l1_duel.toml"
@@ -25,7 +25,7 @@ def test_scenario_loading() -> None:
     s = load_scenario(SWARM)
     assert [c.id for c in s.combatants] == ["D", "A0", "A1", "A2"]
     assert {c.team for c in s.combatants} == {"defender", "attackers"}
-    assert s.round_cap == 20 and s.rules == v0_9_2()
+    assert s.round_cap == 20 and s.rules == v0_9_3()
     swapped = s.with_agents({"A": "alpha"})
     assert [c.agent for c in swapped.combatants][1:] == ["alpha"] * 3
 
@@ -142,7 +142,7 @@ def test_sweep_cells_share_seeds(tmp_path: Path) -> None:
     paths = write_results(results, tmp_path)
     fights = pq.read_table(tmp_path / "fights.parquet")
     assert fights.num_rows == 32
-    assert set(fights.column("ruleset").to_pylist()) == {"v0.9.2", "surcharge+2"}
+    assert set(fights.column("ruleset").to_pylist()) == {"v0.9.3", "surcharge+2"}
     runs = pq.read_table(tmp_path / "runs.parquet").to_pylist()
     assert all(r["source_sha256"] and r["ruleset_toml"] for r in runs)
     assert len(paths) == 4

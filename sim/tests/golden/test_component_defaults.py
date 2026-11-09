@@ -25,6 +25,7 @@ PRESET_DIGESTS = {
     "v0.9": "3bf6fc070dbf",
     "v0.9.1": "af236ed0cda0",
     "v0.9.2": "8dd5547b5abe",
+    "v0.9.3": "8dd5547b5abe",  # 0.9.3 changes nothing inside a fight
     "review-candidate": "d99bdcba96f4",
     "review-sim": "4179c8ac37bc",
 }

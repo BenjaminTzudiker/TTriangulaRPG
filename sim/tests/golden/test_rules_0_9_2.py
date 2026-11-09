@@ -149,6 +149,15 @@ def test_intelligence_core_costs_and_bonus_ability_points() -> None:
     assert ability_cost(cores, v0_9(), intelligence=3) == 6
 
 
+def test_v0_9_3_plays_fights_as_v0_9_2() -> None:
+    """Packet 0.9.3 changed only what happens after a fight, so its preset differs from 0.9.2
+    only in name."""
+    from stamina_engine.rules.ruleset import v0_9_3
+
+    assert v0_9_3().components() == v0_9_2().components()
+    assert v0_9_3().digest() == v0_9_2().digest() and v0_9_3().name == "v0.9.3"
+
+
 def test_presets_differ_where_intended() -> None:
     base, one, two = v0_9(), v0_9_1(), v0_9_2()
     kinds = ("opportunity", "movement", "turn_order", "resources", "dying")

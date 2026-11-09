@@ -199,6 +199,14 @@ def v0_9_2() -> RuleSet:
     )
 
 
+def v0_9_3() -> RuleSet:
+    """Packet 0.9.3: the same fight rules as 0.9.2. Its changes are all after a fight
+    (healing below 0 HP, dying rolls once a fight ends), which the engine doesn't play yet,
+    so this preset has 0.9.2's components and digest. The campaign layer's rest rules will
+    extend it (sim/docs/CAMPAIGN_PLAN.md)."""
+    return v0_9_2().with_(name="v0.9.3")
+
+
 def review_candidate() -> RuleSet:
     """The review's candidate: +2 surcharge per prior action, v0.9 crits."""
     return v0_9().with_(name="review-candidate", surcharge=LinearSurcharge(slope=2))
@@ -221,15 +229,15 @@ def review_sim() -> RuleSet:
     )
 
 
-BASELINE = "v0.9.2"
-"""The preset the engine's scenarios, suites and defaults use: the current packet's fight
-rules (0.9.3 changed only what happens after a fight). Moving
-the baseline to a new packet version is this one line (and the pinned hashes it moves)."""
+BASELINE = "v0.9.3"
+"""The preset the engine's scenarios, suites and defaults use: the current packet. Moving the
+baseline to a new packet version is this one line (and the pinned hashes it moves)."""
 
 PRESETS: dict[str, Callable[[], RuleSet]] = {
     "v0.9": v0_9,
     "v0.9.1": v0_9_1,
     "v0.9.2": v0_9_2,
+    "v0.9.3": v0_9_3,
     "review-candidate": review_candidate,
     "review-sim": review_sim,
 }

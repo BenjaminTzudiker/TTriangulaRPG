@@ -8,6 +8,7 @@ better than `kill`, the objective adds nothing a straight fight doesn't already 
 (OBJECTIVES_PLAN.md).
 """
 
+import tomllib
 from collections.abc import Mapping, Sequence
 
 from stamina_engine.experiments.metrics import ENDINGS, Row
@@ -55,10 +56,18 @@ def _agents(scenario: str, family: str, mode: str) -> Mapping[str, AgentSpec]:
     return out
 
 
+def scenario_ruleset(scenario: str) -> str | Mapping[str, object]:
+    """The RuleSet spec the scenario file names (a SuiteRow would otherwise run v0.9)."""
+    table = tomllib.loads((SCENARIOS / scenario).read_text()).get("scenario", {})
+    spec = table.get("ruleset", "v0.9")
+    return spec if isinstance(spec, str) else dict(spec)
+
+
 def rows() -> list[SuiteRow]:
     out = []
     for group, scenario in SCENARIO_FILES:
         team = load_scenario(SCENARIOS / scenario).objectives[0].team
+        rules = scenario_ruleset(scenario)
         for family in ("scripted", "tactical"):
             for mode in MODES:
                 out.append(
@@ -66,6 +75,7 @@ def rows() -> list[SuiteRow]:
                         group,
                         f"{family}, pursuers {mode}",
                         scenario,
+                        rules,
                         agents=_agents(scenario, family, mode),
                         side=team,
                     )
@@ -126,7 +136,8 @@ def render(results: Sequence[tuple[SuiteRow, RunResult]], stamp: str, trials: in
         by_group.setdefault(row.group, []).append((row, run_))
     for group, items in by_group.items():
         rules = items[0][1].scenario.rules
-        where = f"Scenario `{items[0][0].scenario}`, RuleSet `{rules.name}` digest `{rules.digest()[:12]}`."
+        digest = rules.digest()[:12]
+        where = f"Scenario `{items[0][0].scenario}`, RuleSet `{rules.name}` digest `{digest}`."
         lines += ["", f"## {group}", "", where, "", HEADER]
         lines.append("|---" * 8 + "|")
         for row, run_ in items:

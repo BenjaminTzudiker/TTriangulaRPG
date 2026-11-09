@@ -285,3 +285,11 @@ def test_escape_defaults_count_and_deadline() -> None:
 def test_bad_objective_configs_are_refused(extra: str) -> None:
     with pytest.raises(ConfigError):
         scenario_from_toml(BASE + "\n" + extra + "\n")
+
+
+def test_the_objectives_suite_runs_each_scenarios_own_ruleset() -> None:
+    from stamina_engine.experiments.objectives_suite import rows
+    from stamina_engine.experiments.positioning import build_scenario
+
+    for row in rows():
+        assert build_scenario(row).rules == load_scenario(SCENARIOS / row.scenario).rules

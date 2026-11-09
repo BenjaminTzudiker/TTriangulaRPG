@@ -69,8 +69,8 @@ Every campaign report repeats these three points.
 |---|---|---|
 | Stamina between fights | Back to maximum before every fight, given the HP the creature carries in. Stamina recovers in well under a minute | ruled 2026-11-08 |
 | Rest | A rest is one night. Each night: HP and strain recover by Packet: Rest and Healing | ruled 2026-11-08 |
-| Recovery from negative HP | The same nightly amount, from wherever HP is. From −5 at STR 0 (6 HP, 1 a night), that's 11 nights to full | ruled 2026-11-08 |
-| Fit to fight | HP 1 or more. At 0 HP or below a creature is incapacitated: stamina 0, no actions, no movement. It sits out every fight until it heals | ruled 2026-11-08 |
+| Recovery from negative HP | The same nightly amount, from wherever HP is. From −5 at STR 0 (8 HP since v0.9.2, 1 a night), that's 13 nights to full | ruled 2026-11-08; Packet: HP (v0.9.3) |
+| Fit to fight | HP 1 or more. At 0 HP or below a creature is incapacitated: stamina 0, no actions, no movement. It sits out every fight until it heals | ruled 2026-11-08; Packet: Dying and Death (v0.9.3) |
 | A death | The party continues a person short | ruled 2026-11-08 |
 | Strain's 1-per-6-hours alternative | Not built until rests have a length in hours; with "a rest is a night", it needs a night's length | pending designer |
 
@@ -78,7 +78,7 @@ Two future ideas from the rulings belong elsewhere. **Fights that continue with 
 
 ### After a fight: stabilization (ruled 2026-11-08)
 
-When a fight ends, PCs still in System Shock aren't left to the dice alone:
+Packet v0.9.3 says that when a fight ends, turns continue in initiative order until no one is in System Shock, and that allies can help in a way still marked TODO. The help below is the engine's stand-in for that TODO, an Assumptions row ruled 2026-11-08 for the simulation only:
 
 1. **Rounds continue** until no party member is in System Shock (each one is stabilized or dead). No one else acts and nothing else happens.
 2. **Each dying creature still makes its normal dying roll** at the start of its turn (Packet: Dying and Death): it can get better or worse.
@@ -93,6 +93,19 @@ When a fight ends, PCs still in System Shock aren't left to the dice alone:
 5. **Choosing whom to help is a decision.** A new `Stabilize` request goes to each helper every round: which dying ally to help, or none. It goes through the broker like every other request, and every agent family answers it. The default policy helps the ally with the highest Shock (the closest to dying), ties to the lowest HP. It matters only when there are fewer helpers than dying allies. A later policy could choose exactly: the dying track is a small Markov chain, so the engine can compute which assignment saves the most expected lives.
 
 Golden tests: the packet's System Shock example continued after a fight with zero, one and two helpers; one helper and two dying allies; a death on the normal roll before any assist.
+
+### Surrender (ruled 2026-11-08)
+
+Surrender is already in the engine (Assumptions row "Surrender (M4)"). Any active creature on a map may surrender on its own turn, and is then out of the fight. The tactical agent surrenders when engaged with HP at or below its `surrender_below` fraction, which is 0 (never) unless a profile sets it; only the `cautious` NPC profile does.
+
+- **PCs fight to the death by default.** In C1 their agents never surrender. `surrender_below` for PCs is a sweep axis, not a default.
+- **A surrender counts only when the whole party is out.** The party loses a fight when every PC has surrendered, is down or is dead. If anyone surrendered, the campaign ends marked **surrendered** rather than **wiped**: an ending with an asterisk, reported apart from wipes. What happens to a surrendered party afterwards is the GM's business, so the campaign stops there.
+- **A PC who surrendered while the rest of the party won** rejoins with the HP they had (engine convention).
+- **Warning turns.** Surrender happens on your own turn, so it only helps a PC who survives to their turn *and* can see the danger. That's worth measuring in its own right, because the packet wants named characters to "have to be pressured before they take a fatal hit" and threats to be telegraphed.
+  - For each PC who goes down, the engine records whether they had a **warning turn**: a turn of their own in that fight, before going down, at which their chance of going down before their next turn was already high.
+  - That chance comes from the exact strike calculator, against the enemies able to reach them. The threshold is a report parameter.
+  - The report gives the share of PCs who go down with no warning turn, and the turns of warning the rest had.
+  - It's a fight metric, so single-fight suites can report it too.
 
 ### Scenario format
 
@@ -128,7 +141,7 @@ An encounter scenario fills its PC spawns from the party's fit members in order;
 
 ### Metrics
 
-- **Campaign row:** fights fought and won, days and nights elapsed, deaths and who, nights each PC spent unfit or below full HP, strain overage paid in stamina, how it ended (length reached, fight lost).
+- **Campaign row:** fights fought and won, days and nights elapsed, deaths and who, nights each PC spent unfit or below full HP, strain overage paid in stamina, how it ended (length reached, wiped, surrendered).
 - **Fight rows gain** campaign id, fight index, day index, fight-of-day index, and each PC's entry HP and strain, plus after-fight stabilization (rolls, assists, saved, died). Everything the fight metrics already report then splits by entry state for free.
 - **Reports:** win, down and death rates by fight index and by fight-of-day index (attrition curves); survival curve over the campaign; the paired build comparison per pacing profile with Wilson or paired intervals. Each is stamped with the RuleSet digest, the `rest` readings and the pacing profile's hash, and carries the "What the simulation is not" caveats.
 
@@ -196,7 +209,7 @@ Single-fight numbers don't show what they leave out, so part of the fix is docum
 - **C1: carry-over, fixed pacing and after-fight stabilization (the chat's proposal, generalized).** `CarryState`, the `rest` component, after-fight stabilization and the `Stabilize` request, `experiments/campaign.py`, pacing and encounter data, campaign and per-fight-index metrics, `se campaign <campaign.toml>`, the one-fight parity test, and the chats' guide above. Myopic agents only. First report: questions 1, 2, 3, 4 and 8 under the three profiles.
 - **C2: calibration and encounter tags.** `se calibrate` runs each encounter scenario fresh and at reduced entry HP and writes its cost tags; encounter tables reference tags. Question 9.
 - **C3: campaign-aware agents.** `Outlook` in observations, HP and strain prices in the block solver, estimates and ability policies; the three spending styles; the λ sweep and tuned-agent report. Questions 5 and 6.
-- **C4: retreat and morale across fights.** Fleeing and surrender carry over (a PC who escapes keeps their HP; what happens to one who surrenders needs a ruling), and NPC morale is swept for what it costs the PCs. Better after Objectives O1 (Escape) and O3 (morale). Question 7.
+- **C4: retreat and morale across fights.** PCs fleeing a fight they're losing, and keeping their HP for the next one; NPC morale swept for what it costs the PCs. PC surrender is already settled (above) and ships with C1. Better after Objectives O1 (Escape) and O3 (morale). Question 7.
 - **C5 (optional):** backward-induction prices; an exact stabilization policy; `se play --campaign` so the designer can play a party through a short campaign.
 
 C1 doesn't depend on the Objectives work and can run beside it.
@@ -222,11 +235,12 @@ Ruled 2026-11-08, for the simulation:
 5. A rest is a night.
 6. A dead character's party continues a person short.
 7. Pacing is given; parties don't choose to rest.
+8. PCs fight to the death by default. A surrender ends the campaign only when the whole party has surrendered or is down or dead, and is reported apart from a wipe.
+
+Rulings 2 and 3, and the turns that continue after a fight for System Shock, are in packet v0.9.3. The after-fight help in ruling 4 is a simulation stand-in; the packet marks how allies help as TODO.
 
 Still open:
-- Should rulings 2, 3 and 4 go into the packet? Rulings 2 and 3 read as clarifications of Rest and Healing and Dying and Death. Ruling 4 is a stand-in for the Medicine rule, which is still TODO. Until the designer says so they live only in the Assumptions register.
 - Strain's 1-per-6-hours alternative needs a night's length in hours before it can be compared.
-- What happens to a PC who surrenders, for C4.
 
 ## Next step
 

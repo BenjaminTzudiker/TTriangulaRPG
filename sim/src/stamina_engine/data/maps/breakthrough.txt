@@ -1,13 +1,20 @@
-; Breakthrough: a wall line with two one-square gaps, at (3, 5) and (11, 5). The attackers
-; (A) start above it; the defenders (D) start behind the gaps; the zone (Z) is the back row.
+; Breakthrough: a wall line (row 8) with two one-square gaps, at (3, 8) and (11, 8); two
+; defenders (D) start standing in the gaps, the third behind the centre. The attackers (A)
+; start 13 rows above the zone (Z, row 14): more than one turn's movement (6 free + 1 a
+; stamina, v0.9.1), so the defenders always get a turn.
 ###############
 #.....A.A.A...#
 #.............#
 #.............#
 #.............#
-###.#######.###
-#..D.......D..#
+#.............#
+#.............#
+#.............#
+###D#######D###
+#.............#
 #.............#
 #......D......#
+#.............#
+#.............#
 #ZZZZZZZZZZZZZ#
 ###############

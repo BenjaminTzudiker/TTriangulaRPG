@@ -1,9 +1,12 @@
-# Objectives O1, Reach: the party must get 2 of 3 into the back row (Z) by the end of
-# round 8, through a wall with two one-square gaps that three NPCs start behind. Tests
-# opportunity attacks and reach at a line (Review F9) and cheap movement (Review F10).
+# Objectives O1, Reach: the party must get 2 of 3 into the back row (Z) by the end of round 8.
+# The only ways through the wall are two one-square gaps, each with an NPC standing in it;
+# the zone is beyond one turn's movement (Review F9 at a line).
+# The sides are mirrored (sample fighter, duelist, archer each) so the straight fight is close
+# to even; the party is tactical chip-kill, the NPCs use the disciplined_2step profile.
+# Set up by the checklist in sim/docs/USAGE_FOR_CHATS.md.
 [scenario]
 name = "breakthrough-3v3"
-ruleset = "v0.9"
+ruleset = { base = "v0.9", movement = { extra_squares = "one" } }  # v0.9.1 movement: 1 square a purchase
 map = "breakthrough"
 round_cap = 20
 trials = 300
@@ -31,11 +34,17 @@ spawn = "A"
 agent = { kind = "tactical", commit = "chipkill", objective = "first" }
 
 [[combatant]]
-id = "npc"
+id = "npc_fighter"
 team = "npcs"
 build = "l1_sample"
-count = 2
-spawn = ["D", "D"]
+spawn = "D"
+agent = { kind = "npc", profile = "disciplined_2step", objective = "first" }
+
+[[combatant]]
+id = "npc_duelist"
+team = "npcs"
+build = "l1_duelist"
+spawn = "D"
 agent = { kind = "npc", profile = "disciplined_2step", objective = "first" }
 
 [[combatant]]

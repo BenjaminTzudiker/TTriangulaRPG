@@ -1,9 +1,11 @@
 # Objectives O1, Hold the door: the lone defender must still be standing in the corridor
 # at the end of round 4; three attackers (who can't contest a "present" hold, only end it by
-# downing the defender) try to stop it. Tests focus fire (Review F6) and the chokepoint.
+# downing the defender) try to stop it. Tests focus fire (Review F6) and the chokepoint. The
+# straight fight is meant to be lopsided: whether the corridor lets one creature last is the
+# question.
 [scenario]
 name = "hold-the-door-1v3"
-ruleset = "v0.9"
+ruleset = { base = "v0.9", movement = { extra_squares = "one" } }  # v0.9.1 movement: 1 square a purchase
 map = "corridor"
 round_cap = 20
 trials = 500

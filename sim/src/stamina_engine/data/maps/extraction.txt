@@ -1,13 +1,15 @@
-; Extraction: the party (P) starts on the left and must leave through the exits (>) on the
-; right edge, 16 squares away; the NPCs (N) start on the top and bottom edges, flanking the
-; way out.
-##################
-#.......N........#
-#................>
-#................>
-#P...............>
-#P...............>
-#P...............>
-#................#
-#.......N.....N..#
-##################
+; Extraction: break contact and get out. The party (P) starts engaged with two NPC fighters
+; (N) on its west side, the NPC archer behind them. The exits (>) are on the east edge, 24
+; squares away: two turns even buying 7 squares a turn (v0.9.1 movement). A low wall (=)
+; across the field has one gap, at (13, 4), so the party has to funnel through it with the
+; chasers behind.
+##############################
+#............=...............#
+#............=...............>
+#............=...............>
+#...NP.......................>
+#...NP.......=...............>
+#.N..P.......=...............>
+#............=...............#
+#............=...............#
+##############################

@@ -25,10 +25,10 @@ cites = (
 )
 
 SCENARIO_FILES = (
-    ("Escape: extraction, 2 of 3 out by round 10", "extraction_3v3.toml"),
-    ("Reach: breakthrough, 2 of 3 to the back row by round 8", "breakthrough_3v3.toml"),
-    ("Hold: the hill, uncontested 2 rounds running by round 10", "hold_hill_3v3.toml"),
-    ("Hold: the hill, uncontested at the end of round 6", "hold_hill_final_3v3.toml"),
+    ("Escape: break contact, 2 of 3 out through one gap by round 6", "extraction_3v3.toml"),
+    ("Reach: 2 of 3 through two held gaps to the back row by round 8", "breakthrough_3v3.toml"),
+    ("Hold: the walled hill, uncontested 2 rounds running by round 10", "hold_hill_3v3.toml"),
+    ("Hold: the walled hill, uncontested at the end of round 6", "hold_hill_final_3v3.toml"),
     ("Hold the door: 1v3, still in the corridor at the end of round 4", "hold_the_door_1v3.toml"),
 )
 MODES = ("kill", "first")

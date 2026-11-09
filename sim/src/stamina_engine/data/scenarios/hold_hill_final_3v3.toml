@@ -1,8 +1,12 @@
 # Objectives O1, Hold scored only at the deadline (Lancer's Holdout): the party must control
-# the hill (H), uncontested, at the end of round 6. Same sides and map as hold_hill_3v3.
+# the walled hill (H), uncontested, at the end of round 6. Same sides and map as
+# hold_hill_3v3: a side may fight elsewhere and arrive late.
+# The sides are mirrored (sample fighter, duelist, archer each) so the straight fight is close
+# to even; the party is tactical chip-kill, the NPCs use the disciplined_2step profile.
+# Set up by the checklist in sim/docs/USAGE_FOR_CHATS.md.
 [scenario]
 name = "hold-hill-final-3v3"
-ruleset = "v0.9"
+ruleset = { base = "v0.9", movement = { extra_squares = "one" } }  # v0.9.1 movement: 1 square a purchase
 map = "hill"
 round_cap = 20
 trials = 300
@@ -30,11 +34,17 @@ spawn = "P"
 agent = { kind = "tactical", commit = "chipkill", objective = "first" }
 
 [[combatant]]
-id = "npc"
+id = "npc_fighter"
 team = "npcs"
 build = "l1_sample"
-count = 2
-spawn = ["N", "N"]
+spawn = "N"
+agent = { kind = "npc", profile = "disciplined_2step", objective = "first" }
+
+[[combatant]]
+id = "npc_duelist"
+team = "npcs"
+build = "l1_duelist"
+spawn = "N"
 agent = { kind = "npc", profile = "disciplined_2step", objective = "first" }
 
 [[combatant]]

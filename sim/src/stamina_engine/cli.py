@@ -34,7 +34,7 @@ from stamina_engine.experiments.sweep import load_sweep, run_sweep
 from stamina_engine.grid.battlefield import library_maps, load_map
 from stamina_engine.provenance import collect
 from stamina_engine.rules.plugins import PluginInfo, load_plugin
-from stamina_engine.rules.ruleset import RuleSet, load_ruleset
+from stamina_engine.rules.ruleset import BASELINE, RuleSet, load_ruleset
 
 SUITES = ("parity", "positioning", "ranged", "phase", "cores", "objectives")
 
@@ -162,7 +162,7 @@ def suite(args: argparse.Namespace) -> int:
         return _parity(args.scale, args.workers, args.out)
     from stamina_engine.rules.ruleset import preset
 
-    rules = preset("v0.9")
+    rules = preset(BASELINE)
     stamp = collect(rules).text()  # before running: the code that runs
     trials, workers = args.trials, args.workers
     if args.name == "positioning":
@@ -334,8 +334,9 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("number", type=int, choices=(1, 5, 8), help="Review table number: 1, 5 or 8.")
     p.add_argument(
         "--ruleset",
-        default="v0.9",
-        help="A preset name (v0.9, review-candidate, review-sim) or a .toml file.",
+        default=BASELINE,
+        help="A preset name (v0.9, v0.9.1, v0.9.2, review-candidate, review-sim) or a .toml "
+        "file.",
     )
     p.add_argument(
         "--rounding",

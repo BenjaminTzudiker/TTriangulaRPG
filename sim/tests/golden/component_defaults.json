@@ -24,6 +24,12 @@
     "bonus": 2,
     "max_widen": 3
   },
+  "crit/per_die_if_through": {
+    "aim_dice_can_crit": true,
+    "armor_ignore_per_die": 1,
+    "bonus": 1,
+    "max_widen": 3
+  },
   "defenses/v0_9": {
     "agility_split": false,
     "base": 1,
@@ -36,6 +42,7 @@
     "bleed_below": 10,
     "death_hp": -10,
     "death_shock": 10,
+    "roll_attribute": "strength",
     "roll_count": 2,
     "roll_size": 12,
     "stabilize_at": 15
@@ -95,10 +102,14 @@
   "resources/v0_9": {
     "ability_digits": "027",
     "attribute_max": 6,
+    "bonus_ap": "none",
+    "core_discount": "none",
     "expertise_base": 4,
     "expertise_digits": "1469",
     "floor_hp_term": true,
     "hp_base": 6,
+    "hp_per_even": 2,
+    "hp_strength": "every_point",
     "recover_while_incapacitated": false,
     "recovery_base": 4,
     "recovery_level_div": 10,
@@ -114,6 +125,7 @@
     "slope": 1
   },
   "turn_order/v0_9": {
+    "bonus": "odd_agility_cunning",
     "dice_count": 2,
     "dice_size": 12,
     "tiebreak": "reroll"

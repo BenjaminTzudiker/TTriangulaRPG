@@ -92,7 +92,9 @@ def take_turn(b: Battle, c: CombatantState) -> None:
         b.ops.start_turn(c)
         dying_dice = b.rules.dying.roll_dice()
         if c.dying.in_shock and dying_dice is not None:
-            total = sum(roll(dying_dice, b.dice.dice("dying"))) + c.gear.attributes.STR
+            attrs = c.gear.attributes
+            bonus = b.rules.dying.roll_bonus(attrs.STR, attrs.WIL)
+            total = sum(roll(dying_dice, b.dice.dice("dying"))) + bonus
             b.ops.dying_roll(c, total)
         if c.active:
             command_loop(b, c)

@@ -67,7 +67,7 @@ class LoadoutProfile:
     movement: int
     squares_per_purchase: int  # off-turn
     initiative_bonus: int
-    oa_cap: int  # with the main weapon (the cap can depend on the weapon: F9 option 1)
+    oa_cap: int | None  # with the main weapon (F9 option 1 ties it to the weapon); None: no cap
     extra_squares_per_purchase: int = 0  # extra on-turn movement
 
 

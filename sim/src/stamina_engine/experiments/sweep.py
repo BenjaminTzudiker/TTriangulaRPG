@@ -9,12 +9,12 @@ scenarios = ["duel.toml"]        # relative to this file
 trials = 500                     # optional; overrides each scenario's
 
 [[ruleset]]                      # optional; default: each scenario's own
-label = "v0.9"
-spec = "v0.9"                    # a preset, a .toml file, or a table like a scenario's ruleset
+label = "v0.9.2"
+spec = "v0.9.2"                  # a preset, a .toml file, or a table like a scenario's ruleset
 
 [[ruleset]]
 label = "steep"
-spec = { base = "v0.9", surcharge = { slope = 2 } }
+spec = { base = "v0.9.2", surcharge = { slope = 2 } }
 
 [[agents]]                       # optional; agent spec by combatant id
 label = "chip"
@@ -40,7 +40,7 @@ from stamina_engine.experiments.scenario import (
     ruleset_from_spec,
 )
 from stamina_engine.experiments.stats import Interval, mean_interval, paired_difference, wilson
-from stamina_engine.rules.ruleset import RuleSet
+from stamina_engine.rules.ruleset import BASELINE, RuleSet
 
 
 @dataclass(frozen=True)
@@ -59,7 +59,7 @@ def load_sweep(path: str | Path) -> tuple[str, list[Cell]]:
         raise ConfigError("a sweep needs at least one scenario")
     trials = head.get("trials")
     rulesets: list[tuple[str, RuleSet | None]] = [
-        (str(r.get("label", f"ruleset{i}")), ruleset_from_spec(r.get("spec", "v0.9"), p.parent))
+        (str(r.get("label", f"ruleset{i}")), ruleset_from_spec(r.get("spec", BASELINE), p.parent))
         for i, r in enumerate(data.get("ruleset", []))
     ] or [("own", None)]
     agent_sets: list[tuple[str, Mapping[str, AgentSpec] | None]] = [

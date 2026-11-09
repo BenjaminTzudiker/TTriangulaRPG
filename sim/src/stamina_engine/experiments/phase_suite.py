@@ -36,7 +36,7 @@ from stamina_engine.experiments.ranged_suite import ROWS as RANGED_ROWS
 from stamina_engine.experiments.runner import RunResult
 from stamina_engine.experiments.stats import wilson
 from stamina_engine.model.equipment import load_table
-from stamina_engine.rules.ruleset import preset
+from stamina_engine.rules.ruleset import BASELINE, preset
 
 cites = (
     "Packet: Combat",
@@ -65,11 +65,11 @@ TABLE7_PAIRS = (
 )
 TABLE7_POLICIES = (("alpha", "alpha"), ("chip-kill", "chipkill"), ("2-step", "fixed:2"))
 TABLE7_VARIANTS: tuple[tuple[str, object, str | None], ...] = (
-    ("as written", "v0.9", None),
-    ("F4 option 1: shield +1 Melee / +2 Ranged", "v0.9", "f4_shield_1"),
+    ("as written", BASELINE, None),
+    ("F4 option 1: shield +1 Melee / +2 Ranged", BASELINE, "f4_shield_1"),
     (
         "F4 option 2: two-handers +1 Melee, Agility split",
-        {"base": "v0.9", "defenses": {"two_hander_bonus": 1, "agility_split": True}},
+        {"base": BASELINE, "defenses": {"two_hander_bonus": 1, "agility_split": True}},
         None,
     ),
 )
@@ -254,7 +254,7 @@ def table7(results: dict[tuple[str, str], RunResult]) -> str:
 
 
 def exact_tables() -> str:
-    rules = preset("v0.9")
+    rules = preset(BASELINE)
     parts = [
         "### Table 1 (attack against full-block cost by k, exact; packet rounding)",
         render_table1(table1(rules, Rounding.HALF_UP), Rounding.HALF_UP),

@@ -16,6 +16,7 @@ from stamina_engine.experiments.positioning import SCENARIOS, SuiteRow, run_rows
 from stamina_engine.experiments.runner import RunResult
 from stamina_engine.experiments.scenario import AgentSpec, load_scenario
 from stamina_engine.experiments.stats import mean_interval, paired_difference, wilson
+from stamina_engine.rules.ruleset import BASELINE
 
 cites = (
     "Packet: Running the Game",
@@ -57,9 +58,9 @@ def _agents(scenario: str, family: str, mode: str) -> Mapping[str, AgentSpec]:
 
 
 def scenario_ruleset(scenario: str) -> str | Mapping[str, object]:
-    """The RuleSet spec the scenario file names (a SuiteRow would otherwise run v0.9)."""
+    """The RuleSet spec the scenario file names (the baseline if it names none)."""
     table = tomllib.loads((SCENARIOS / scenario).read_text()).get("scenario", {})
-    spec = table.get("ruleset", "v0.9")
+    spec = table.get("ruleset", BASELINE)
     return spec if isinstance(spec, str) else dict(spec)
 
 

@@ -153,7 +153,7 @@ The listed and random-legality agent needs no changes: O1 adds no new answer typ
 | `hold_hill_3v3` | `hill` (a central `H` zone ringed by low walls open on four sides) | Attackers must hold `uncontested`, `consecutive`, 2 rounds, deadline 10. A copy uses `final` at round 6 | Banking stamina against spending it; F6 focus fire on whoever stands in the zone |
 | `hold_the_door_1v3` | `corridor` (existing), with the corridor mouth as the zone | The lone defender must hold `present` and `final` at round 4 | F6 and F9: whether a chokepoint ever lets one creature hold |
 
-Builds come from the existing library. The 3v3 sides are mirrored (sample fighter, duelist and archer each; the party is tactical, the NPCs use `disciplined_2step`), so the straight fight is close to even. Every scenario uses v0.9.1 movement (`movement.extra_squares = "one"`). They were rebuilt on 2026-11-08 by the setup checklist in `USAGE_FOR_CHATS.md`; the first versions put goals within one turn's reach on open ground.
+Builds come from the existing library. The 3v3 sides are mirrored (sample fighter, duelist and archer each; the party is tactical, the NPCs use `disciplined_2step`), so the straight fight is close to even. Every scenario uses the baseline, `v0.9.2` (until 2026-11-08 they used v0.9 with v0.9.1 movement, `movement.extra_squares = "one"`, which is what the O1 report ran). They were rebuilt on 2026-11-08 by the setup checklist in `USAGE_FOR_CHATS.md`; the first versions put goals within one turn's reach on open ground.
 
 ## Assumptions register (new and updated rows in `sim/docs/ENGINE_PLAN.md`)
 

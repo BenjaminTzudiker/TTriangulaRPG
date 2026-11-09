@@ -121,6 +121,6 @@ def test_f3_option_2_flat_ranged_blocks() -> None:
 
 
 def test_se_table_5() -> None:
-    out = invoke(["table", "5"])
+    out = invoke(["table", "5", "--ruleset", "v0.9"])  # the review's rules
     assert out.exit_code == 0, out.output
     assert "Shortbow, 0 aim (3 st)" in out.output and "✗" not in out.output

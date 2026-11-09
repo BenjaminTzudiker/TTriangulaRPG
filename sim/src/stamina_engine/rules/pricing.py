@@ -336,21 +336,22 @@ class Pricing:
         base: int,
         steps: int,
         trackers: Trackers,
-        cap: int,
+        cap: int | None,
         stamina: int | None = None,
     ) -> Quote:
         """Steps go on the off-turn track. The whole attack (base and escalation together)
-        must fit the cap."""
+        must fit the cap; with no cap (None, from 0.9.1) only the stamina limits it."""
         ot = self.rules.off_turn
         earlier = trackers.off_turn_costs
         parts = tuple(ot.cost(base, earlier + i) for i in range(steps))
         quote = Quote(parts, Track.OFF_TURN)
-        if quote.total > cap:
+        if cap is not None and quote.total > cap:
             raise Unaffordable(f"opportunity attack costs {quote.total}, cap is {cap}")
         return _ensure(quote, stamina)
 
-    def oa_cap(self, finesse: int, weapon_base: int) -> int:
-        """The most stamina one opportunity attack may cost (before the per-square rule)."""
+    def oa_cap(self, finesse: int, weapon_base: int) -> int | None:
+        """The most stamina one opportunity attack may cost (before the per-square rule), or
+        None for no cap."""
         return self.rules.opportunity.cap(finesse, weapon_base)
 
     def avoid_opportunity(
@@ -358,7 +359,7 @@ class Pricing:
         enemies: int,
         stamina: int | None = None,
         *,
-        caps: Sequence[int] | None = None,
+        caps: Sequence[int | None] | None = None,
         trackers: Trackers = FRESH,
         on_turn: bool = True,
     ) -> Quote:

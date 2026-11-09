@@ -32,6 +32,7 @@ from stamina_engine.experiments.positioning import (
 )
 from stamina_engine.experiments.runner import RunResult
 from stamina_engine.experiments.stats import paired_difference
+from stamina_engine.rules.ruleset import BASELINE
 
 cites = (
     "Packet: Core Abilities",
@@ -79,7 +80,7 @@ def rows() -> list[SuiteRow]:
                     DUELS,
                     f"{label}, {mode}",
                     "duel_open.toml",
-                    "v0.9",
+                    BASELINE,
                     {"A": {**DUELIST, "abilities": uses}, "B": dict(DUELIST)},
                     {"A": build, "B": opponent},
                     side="A",
@@ -93,7 +94,7 @@ def rows() -> list[SuiteRow]:
                     MATRIX,
                     f"{a_label} v {b_label}",
                     "duel_open.toml",
-                    "v0.9",
+                    BASELINE,
                     {"A": use, "B": use},
                     {"A": a_build, "B": b_build},
                     side="A",
@@ -107,7 +108,7 @@ def rows() -> list[SuiteRow]:
                         _ovt_group(family),
                         f"{label}, {mode}",
                         "one_v_three_open.toml",
-                        "v0.9",
+                        BASELINE,
                         {"D": {**defender, "abilities": uses}},
                         {"D": build},
                         side="defender",

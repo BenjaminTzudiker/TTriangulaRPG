@@ -153,6 +153,31 @@ def test_system_shock_across_turns() -> None:
     assert len(turns) == 2  # x still gets turns, for the dying roll
 
 
+def test_dying_roll_adds_will_from_0_9_1() -> None:
+    """Packet: Dying and Death (0.9.1): the dying roll is 2d12 + Will, not + Strength."""
+    from dataclasses import replace
+
+    from stamina_engine.rules.ruleset import v0_9_2
+
+    rules = v0_9_2()
+    sample = load_build("l1_sample")
+    willful = replace(sample, attributes=replace(sample.attributes, WIL=3), budget="ignore")
+    p, x = derive(sample, rules), derive(willful, rules)
+    big = Script(turns=[[("x", 2)]])
+    battle = Battle(
+        rules,
+        [Entrant("x", "a", x, Script()), Entrant("y", "a", p, Script()), Entrant("z", "b", p, big)],
+        Dice(initiative=[12, 12, 6, 6, 1, 1], attack_z=[5, 5], dying=[1, 1]),
+        seed=0,
+        round_cap=2,
+        check=True,
+    )
+    result = battle.run()
+    # z hits x for 16, less armor 2: HP 10 - 14 = -4, 4 Shock. 1 + 1 + WIL 3 < 10 + 4.
+    rolls = of(result.log, DyingRolled)
+    assert [(e.who, e.total, e.shock_after) for e in rolls] == [("x", 1 + 1 + 3, 5)]
+
+
 def initiative(rules: RuleSet, faces: list[int], agi: tuple[int, int] = (0, 0)) -> InitiativeRolled:
     ps = [
         derive(Build(f"b{i}", 99, Attributes(AGI=a), (("m", Loadout()),)), rules)

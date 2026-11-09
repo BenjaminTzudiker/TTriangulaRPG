@@ -407,7 +407,7 @@ class HumanAgent:
     def take_oa(self, request: TakeOA) -> OATake:
         lines = [
             f"{request.target} leaves {request.leaving} {self._context(request.context)}: "
-            f"opportunity attack? (cap {request.cap})"
+            f"opportunity attack? ({'no cap' if request.cap is None else f'cap {request.cap}'})"
         ]
         for o in request.options:
             prices = ", ".join(f"{k}: {q.total}" for k, q in enumerate(o.quotes, 1))

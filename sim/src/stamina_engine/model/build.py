@@ -95,9 +95,11 @@ def expertise_cost(attributes: Attributes) -> int:
     return sum(tri(v) for v in attributes.as_dict().values())
 
 
-def ability_cost(cores: tuple[str, ...]) -> int:
-    """A core ability costs 1, +1 per core ability already owned."""
-    return tri(len(cores))
+def ability_cost(cores: tuple[str, ...], rules: RuleSet, intelligence: int = 0) -> int:
+    """Each core ability costs 1, +1 per core ability already owned (less Intelligence's
+    discount from 0.9.1; Packet: Costs, Intelligence)."""
+    res = rules.resources
+    return sum(res.core_cost(owned, intelligence) for owned in range(len(cores)))
 
 
 def validate(build: Build, rules: RuleSet, table: EquipmentTable) -> None:
@@ -112,7 +114,9 @@ def validate(build: Build, rules: RuleSet, table: EquipmentTable) -> None:
         spent, budget = expertise_cost(build.attributes), res.expertise_budget(build.level)
         if spent > budget:
             raise BudgetError(f"{build.name}: {spent} Expertise spent, {budget} available")
-        spent, budget = ability_cost(build.cores), res.ability_budget(build.level)
+        intelligence = build.attributes.INT
+        spent = ability_cost(build.cores, rules, intelligence)
+        budget = res.ability_budget(build.level, intelligence)
         if spent > budget:
             raise BudgetError(f"{build.name}: {spent} AP spent, {budget} available")
     if len(set(build.cores)) != len(build.cores):

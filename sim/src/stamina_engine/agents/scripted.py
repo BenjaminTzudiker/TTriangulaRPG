@@ -12,7 +12,7 @@ fields: avoid = "worth_it" (pay off an enemy whose OA would cost more than the p
 
 import math
 from collections.abc import Callable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from fractions import Fraction
 from typing import TYPE_CHECKING, Protocol
 
@@ -273,7 +273,7 @@ def avoid_choice(request: AvoidOA, rules: RuleSet, w: Fraction, mode: str) -> Av
     board = Board(request.observation, rules)
     pricing = Pricing(rules)
     rule = rules.opportunity
-    chosen: list[tuple[Fraction, str, int]] = []
+    chosen: list[tuple[Fraction, str, int | None]] = []
     for enemy, cap in zip(request.enemies, request.caps, strict=True):
         view = request.observation.view(enemy)
         if not board.oa_options(view, request.leaving):
@@ -302,6 +302,20 @@ def largest_oa(request: TakeOA) -> OATake:
     """The most steps any weapon allows (the main weapon on ties)."""
     best = max(request.options, key=lambda o: len(o.quotes))
     return OATake(best.weapon, len(best.quotes))
+
+
+def sized_oa(request: TakeOA, commit: CommitPolicy) -> OATake:
+    """Under a cap, the largest OA it allows (as through M5). With no cap (from 0.9.1), the
+    steps the agent's commitment policy would put into an attack on its own turn, as far as
+    its stamina goes, so an engine agent doesn't sink its whole pool into one OA
+    (Assumptions register: engine agents and uncapped opportunity attacks)."""
+    if request.cap is not None:
+        return largest_oa(request)
+    obs = request.observation
+    me = replace(obs.me, trackers=Trackers())  # as at the start of its own turn
+    wanted = commit.steps(me, obs.view(request.target))
+    best = max(request.options, key=lambda o: len(o.quotes))
+    return OATake(best.weapon, min(wanted, len(best.quotes)))
 
 
 def approach(obs: Observation, rules: RuleSet, moves: MoveOptions, target: str) -> Move | None:
@@ -430,7 +444,7 @@ class ScriptedAgent:
     def take_oa(self, request: TakeOA) -> OATake:
         if self.abilities is None and is_riposte(request.context):
             return OATake()
-        return largest_oa(request) if self.oa_mode == "max" else OATake()
+        return sized_oa(request, self.commit) if self.oa_mode == "max" else OATake()
 
     def aim(self, request: AimRequest) -> int:
         """Its aims if it can afford them; else as many as it can (a miss if too few)."""

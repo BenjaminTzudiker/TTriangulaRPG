@@ -5,7 +5,7 @@
 # question.
 [scenario]
 name = "hold-the-door-1v3"
-ruleset = { base = "v0.9", movement = { extra_squares = "one" } }  # v0.9.1 movement: 1 square a purchase
+ruleset = "v0.9.2"
 map = "corridor"
 round_cap = 20
 trials = 500

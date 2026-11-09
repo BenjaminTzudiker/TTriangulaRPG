@@ -59,6 +59,13 @@ PINNED = [
         "90c8828f7fc08410b073e066f788c0bd61f9fcb283ee621451044f8d22986c78",
     ),
     ("v0.9", DEEP, 5, True, "aa4749bea977a475fa04adc12de64c33e8b8c47b4909c2a1b9758e6898c4b3a3"),
+    (
+        "v0.9.2",
+        DUEL,
+        7,
+        False,
+        "b3664cfa1ffacf3b14b86a2f780caa27b5aff49d870f385186ea6c823f1e8a6f",
+    ),
 ]
 
 
@@ -71,43 +78,44 @@ def test_pinned_log_hashes(
 
 
 GRID_PINNED = [
-    ("archer_wall.toml", 2, "73657905ee2fa8220f25634927c37f103c5b42efe8bed07bf7b5ee32e4c23e86"),
+    ("archer_wall.toml", 2, "84ff86cacaf6871b8c35ff907d5a7b3ce25e866f5ad372dac5930109c485617e"),
     (
         "one_v_three_corridor.toml",
         0,
-        "3b934a47f499afb3a8f1980fd786b5c8541860ce2b4b0a981db21e2c0a84624f",
+        "e49db71fd42201bea7fa85b154b13bd90d075d5d17bc2f0c2099552bcfb2db05",
     ),
     (
         "reach_chokepoint.toml",
         3,
-        "46424a70978ac29b27a2becdeeb7adb71bce1fe7c9b469d9fe4dae0569de9b7f",
+        "a81b71accf352bdf75a0cc9d20d83bb6a1a4d45b7ee3dece97de3f60823079ad",
     ),
     (
         "extraction_3v3.toml",  # objectives (O1)
         0,
-        "1b02e57bb4607628e756e5db13a7adfd11c69b2b6dcb846c2117bf2fd58869a0",
+        "1e300c59be0dc27512ee2d9518779b761183246f146eee47bfa3647e6f13b2db",
     ),
     (
         "breakthrough_3v3.toml",  # objectives (O1)
         0,
-        "a58a643db4257afc5fe06d380b2ad96f41aed39f2d11a0208d9aa4e8cd68597c",
+        "3be2654b72c628da50d8f45ffa3e9b7c44ad65f8b20902e8e5764c1777fad19c",
     ),
     (
         "hold_hill_3v3.toml",  # objectives (O1)
         0,
-        "f09d2c15617b5f64ed988f45ca9bdb2198ba95f15035f8cb329b69304bb88dca",
+        "e85479c696d3f9e85b377726d2fc9e7e157bd2d7cd834c377067bd31a289e3b7",
     ),
     (
         "hold_the_door_1v3.toml",  # objectives (O1)
         0,
-        "e94adfe46e168121fcd70c7c46abea6afd84b6792ed0ab397d5d0116ce5395b9",
+        "01a5c252da21353d9605d45533bf036cd2c70c8a708b4417eb7d2036f24e27e4",
     ),
 ]
 
 
 @pytest.mark.parametrize(("scenario", "trial", "expected"), GRID_PINNED)
 def test_pinned_grid_log_hashes(scenario: str, trial: int, expected: str) -> None:
-    """Two grid battles (tactical and scripted agents, OAs and off-turn windows)."""
+    """Grid battles (tactical and scripted agents, OAs and off-turn windows), under each
+    scenario's own ruleset: the baseline (v0.9.2) since it moved there."""
     from pathlib import Path
 
     from stamina_engine.experiments.runner import run_trial

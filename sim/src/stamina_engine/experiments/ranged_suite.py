@@ -25,7 +25,7 @@ from stamina_engine.experiments.runner import RunResult
 from stamina_engine.experiments.scenario import ruleset_from_spec
 from stamina_engine.model.build import load_build
 from stamina_engine.model.derive import derive
-from stamina_engine.rules.ruleset import RuleSet
+from stamina_engine.rules.ruleset import BASELINE, RuleSet
 
 cites = ("Packet: Ranged Attacks", "Packet: Cover", "Review F3", "Review F10")
 
@@ -39,17 +39,17 @@ MAPS = (
 )
 
 F3_VARIANTS: tuple[tuple[str, object], ...] = (
-    ("v0.9", "v0.9"),
+    (BASELINE, BASELINE),
     (
         "F3 option 1: Dodge folded into RD",
-        {"base": "v0.9", "defenses": {"ranged_mode": "dodge_folded"}},
+        {"base": BASELINE, "defenses": {"ranged_mode": "dodge_folded"}},
     ),
     (
         "F3 option 2: ranged perfect blocks cost a flat 2",
-        {"base": "v0.9", "blocks": {"ranged_flat": 2}},
+        {"base": BASELINE, "blocks": {"ranged_flat": 2}},
     ),
-    ("F3 option 3: aim as precision", {"base": "v0.9", "ranged": {"aim_mode": "precision"}}),
-    ("F11 (b): range bands as -1d6 / -2d6", {"base": "v0.9", "ranged": {"bands": "minus_d6"}}),
+    ("F3 option 3: aim as precision", {"base": BASELINE, "ranged": {"aim_mode": "precision"}}),
+    ("F11 (b): range bands as -1d6 / -2d6", {"base": BASELINE, "ranged": {"bands": "minus_d6"}}),
 )
 
 ROWS: list[SuiteRow] = [

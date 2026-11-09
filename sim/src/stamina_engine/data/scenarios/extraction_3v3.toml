@@ -6,7 +6,7 @@
 # Set up by the checklist in sim/docs/USAGE_FOR_CHATS.md.
 [scenario]
 name = "extraction-3v3"
-ruleset = { base = "v0.9", movement = { extra_squares = "one" } }  # v0.9.1 movement: 1 square a purchase
+ruleset = "v0.9.2"
 map = "extraction"
 round_cap = 20
 trials = 300

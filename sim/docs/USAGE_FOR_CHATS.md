@@ -2,7 +2,18 @@
 
 For claude.ai chats in the "Tactical fantasy TTRPG" project. Claude Code keeps this file current.
 
-**Status:** milestones M0–M5 are done (tags `m0`–`m5`): the turn engine, maps and movement, opportunity attacks, ranged attacks, cover and diving, drawing weapons, equipment variant tables, NPC profiles, fleeing and surrendering, the full phase suite, class cores and candidate abilities with strain, playing a side yourself, and the load report. M5's gate still needs one session played by a person.
+**Status:** milestones M0–M5 are done (tags `m0`–`m5`): the turn engine, maps and movement, opportunity attacks, ranged attacks, cover and diving, drawing weapons, equipment variant tables, NPC profiles, fleeing and surrendering, the full phase suite, class cores and candidate abilities with strain, playing a side yourself, and the load report. M5's gate still needs one session played by a person. Packet versions 0.9.1 and 0.9.2 are the presets `v0.9.1` and `v0.9.2` (below).
+
+## Packet versions
+
+Each packet version that changes a fight is a preset. `v0.9.2` holds the current packet's fight rules (the packet is at 0.9.3, whose changes are all after a fight); `v0.9` stays the v0.9 packet, so earlier results still reproduce, and `review-sim` (parity) and `review-candidate` are built on it. **`v0.9.2` is the baseline** (ruled 2026-11-08): the library's scenarios and the milestone suites name it, and it's what a scenario without a ruleset, a sweep without rulesets and `se table` use. Name `v0.9` to reproduce the review or an earlier result: `se table 5 --ruleset v0.9`, or `se compare scenario.toml --a v0.9 --b v0.9.2`. Reports in `sim/reports/` written before the move ran under `v0.9`; their stamps say so. Packet 0.9.3 changes nothing inside a fight (healing and dying rolls after one), so there's no `v0.9.3` preset yet.
+
+| Preset | Rules (see `rules/CHANGELOG.md`) |
+|---|---|
+| `v0.9.1` | No opportunity-attack cap (`opportunity.cap_rule = "none"`); extra on-turn movement 1 square a purchase (`movement.extra_squares = "one"`); initiative 2d12 + Cunning (`turn_order.bonus = "cunning"`); maximum HP 6 + 2 per even Strength (`resources.hp_strength = "per_even"`); the dying roll adds Will (`dying.roll_attribute = "will"`); Intelligence's core-ability discount and bonus AP in build budgets (`resources.core_discount`, `resources.bonus_ap`) |
+| `v0.9.2` | 0.9.1, with +1 per critical die only if damage gets past blocks and armor (`crit` kind `per_die_if_through`) and maximum HP 8 + 2 per even Strength (`resources.hp_base = 8`) |
+
+Nightly HP recovery isn't modeled, since the engine plays single fights. Without a cap, engine agents size an opportunity attack by their commitment policy rather than spending everything (Assumptions register).
 
 ## Reading the code
 
@@ -34,11 +45,12 @@ In a claude.ai chat, attach the repo first if the clone is refused. To reproduce
 Run from `sim/`. With uv (`uv sync` once, then prefix commands with `uv run`), after `pip install -e .`, or with nothing installed as `python3 -m stamina_engine` in place of `se` (with `PYTHONPATH=src`):
 
 ```bash
-se table 1                                             # review Table 1, exact, packet rounding (half up)
+se table 1                                             # Table 1's layout under the baseline, packet rounding
+se table 1 --ruleset v0.9                             # review Table 1 under the review's rules
 se table 1 --ruleset review-sim --rounding half-even   # reproduces the review's printed Table 1
-se table 8 --rounding half-even                        # review Table 8
+se table 8 --ruleset v0.9 --rounding half-even         # review Table 8
 se run src/stamina_engine/data/scenarios/l1_duel.toml --trials 2000 --workers 4
-se compare src/stamina_engine/data/scenarios/one_v_three.toml --a v0.9 --b review-candidate
+se compare src/stamina_engine/data/scenarios/one_v_three.toml --a v0.9 --b v0.9.2
 se sweep src/stamina_engine/data/scenarios/surcharge_sweep.toml --out results/surcharge
 se suite parity --workers 8 --out reports/m1_parity.md # every published review fight, in lockstep
 se map list                                            # library maps
@@ -46,7 +58,7 @@ se map show corridor                                   # a map with coordinates 
 se run src/stamina_engine/data/scenarios/one_v_three_corridor.toml --trials 500 --workers 4
 se trace src/stamina_engine/data/scenarios/one_v_three_corridor.toml --trial 0
 se suite positioning --workers 8 --out reports/m2_positioning.md
-se table 5                                             # review Table 5, exactly, beside the review's figures
+se table 5 --ruleset v0.9                             # review Table 5, exactly, beside the review's figures
 se table 5 --ruleset my_f3_idea.toml                   # the same single shots under your variant
 se suite ranged --workers 8 --out reports/m3_ranged.md # archers on three maps, F3 options
 se suite phase --workers 8 --out reports/phase_suite.md # all eight phase-suite items, review layouts
@@ -84,7 +96,7 @@ The engine measures whatever fight you give it. An objective only produces an in
    - focus fire (F6): a lone defender holding a corridor;
    - retreat economics (Review Addendum 2): an escape that has to break contact, with pursuers able to reach the route;
    - stamina banking: a hold scored only at the deadline (`score = "final"`).
-2. **Use the current movement rules.** The `v0.9` preset predates packet v0.9.1, so its extra on-turn purchase moves 1 + odd Agility squares. The packet now moves 1 square per purchase. For current movement, use `ruleset = { base = "v0.9", movement = { extra_squares = "one" } }`. Some other v0.9.1 changes (for example the removed opportunity-attack cap) aren't in the engine yet; `rules/CHANGELOG.md` says which with an *Engine:* note. Movement decides most objective fights, so this matters more here than anywhere else.
+2. **Use the current rules.** Name the baseline, `ruleset = "v0.9.2"` (or leave the ruleset out). The `v0.9` preset predates packet 0.9.1, so its extra on-turn purchase moves 1 + odd Agility squares instead of 1 square, and it keeps the opportunity-attack cap. Movement decides most objective fights, so this matters more here than anywhere else.
 3. **Do the movement arithmetic.** Under current rules a creature covers its free Movement (5, +1 per odd Agility) plus 1 square per stamina it spends, all on its own turn. It can also move off-turn, at escalating prices. With `se map show <map>`, measure each pursuer's distance to the goal and each denier's distance to the intercept squares.
    - If a pursuer can reach the goal on its first turn before any denier can engage it, the fight is a race decided by initiative.
    - That is a fine thing to measure on purpose, but not by accident.
@@ -151,13 +163,13 @@ Report positional results for both families: agent behavior can drive a result a
 
 ```toml
 [ruleset]
-base = "v0.9"
-opportunity = { cap_rule = "weapon_base" }       # F9 option 1: cap = weapon base + odd FIN
-# opportunity = { avoid_price = "attacker_cap" } # F9 option 2
+base = "v0.9.2"
+opportunity = { cap_rule = "weapon_base" }       # F9 option 1: bring back a cap of weapon base + odd FIN
+# opportunity = { avoid_price = "attacker_cap" } # F9 option 2 (needs a cap: base = "v0.9", or option 1)
 # opportunity = { avoid_track = "off_turn" }     # F9 option 3 (or "off_turn_only")
-# opportunity = { per_square_cap = true }        # the packet's optional rule
+# opportunity = { per_square_cap = true }        # v0.9's optional rule (needs a cap)
 # opportunity = { avoid_debt = true }            # F14: avoidance paid from the next recovery
-# movement = { extra_squares = "one" }           # F10 option 1
+# movement = { extra_squares = "agility" }       # v0.9's 1 + odd AGI squares a purchase (F10 option 1 is now the rule)
 # movement = { extra_cap = "free_movement" }     # F10 option 2
 # off_turn = { order = "descending_initiative" } # F14: who moves first after a turn
 # defenses = { ranged_mode = "dodge_folded" }    # F3 option 1: RD gains even Agility
@@ -184,7 +196,7 @@ print("\n".join(summarize(run_scenario(s, trials=500).fights).lines()))
 The core pieces for single exchanges:
 
 ```python
-from stamina_engine.rules.ruleset import preset, load_ruleset   # presets: "v0.9", "review-candidate", "review-sim"
+from stamina_engine.rules.ruleset import preset, load_ruleset   # presets: "v0.9", "v0.9.1", "v0.9.2", "review-candidate", "review-sim"
 from stamina_engine.model.build import load_build        # library builds in src/stamina_engine/data/builds
 from stamina_engine.model.derive import derive           # Build x RuleSet -> CombatProfile
 from stamina_engine.rules.pricing import Pricing, Trackers
@@ -192,13 +204,13 @@ from stamina_engine.rules.block_solver import best_block, cheapest_zero_injury
 from stamina_engine.analysis import dist                 # exact (total, crit dice) distributions
 from stamina_engine.provenance import collect            # the stamp to quote with results
 
-rules = preset("v0.9")
+rules = preset("v0.9.2")                                # the baseline
 fighter = derive(load_build("l1_sample"), rules)
 Pricing(rules).melee_attack(base=2, steps=3).total      # 9
 print(collect(rules).text())
 ```
 
-`review-sim` reproduces the review's simulator, quirks included; use `v0.9` (or your variant) for design questions. `uv run pytest` takes under a minute; `uv run pytest -m slow` adds the full-count oracle parity runs.
+`review-sim` reproduces the review's simulator, quirks included; use `v0.9.2`, the current fight rules (or your variant on it), for design questions. `uv run pytest` takes under a minute; `uv run pytest -m slow` adds the full-count oracle parity runs.
 
 ## Trying a rule change
 
@@ -209,7 +221,7 @@ Never edit the baseline: not the v0.9 components, not the presets, not `rules/`.
    ```toml
    # steep.toml
    [ruleset]
-   base = "v0.9"
+   base = "v0.9.2"
    name = "steep-surcharge"
    surcharge = { slope = 2 }
    blocks = { slope_num = 1, slope_den = 2 }   # perfect blocks 1, 1, 2, 2, 3...

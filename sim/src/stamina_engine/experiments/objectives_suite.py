@@ -106,7 +106,8 @@ INTRO = (
     "normal for means and the paired difference. How fights ended: the objective was done, "
     "it failed (deadline passed, or too few pursuers left to do it), one side was out "
     "before either, or the round cap. Objective readings (control, scoring, counts, "
-    "deadlines) are stated in each scenario file."
+    "deadlines) are stated in each scenario file. The stamp below is the code; each section "
+    "names the RuleSet its scenario runs."
 )
 
 
@@ -124,7 +125,9 @@ def render(results: Sequence[tuple[SuiteRow, RunResult]], stamp: str, trials: in
     for row, run_ in results:
         by_group.setdefault(row.group, []).append((row, run_))
     for group, items in by_group.items():
-        lines += ["", f"## {group}", "", f"Scenario `{items[0][0].scenario}`.", "", HEADER]
+        rules = items[0][1].scenario.rules
+        where = f"Scenario `{items[0][0].scenario}`, RuleSet `{rules.name}` digest `{rules.digest()[:12]}`."
+        lines += ["", f"## {group}", "", where, "", HEADER]
         lines.append("|---" * 8 + "|")
         for row, run_ in items:
             lines.append(f"| {row.label} | " + " | ".join(_cells(run_.fights, row)) + " |")

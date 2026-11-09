@@ -221,6 +221,10 @@ def review_sim() -> RuleSet:
     )
 
 
+BASELINE = "v0.9.2"
+"""The preset the engine's scenarios, suites and defaults use: the current packet. Moving
+the baseline to a new packet version is this one line (and the pinned hashes it moves)."""
+
 PRESETS: dict[str, Callable[[], RuleSet]] = {
     "v0.9": v0_9,
     "v0.9.1": v0_9_1,

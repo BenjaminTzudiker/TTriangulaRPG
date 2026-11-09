@@ -6,7 +6,7 @@ For claude.ai chats in the "Tactical fantasy TTRPG" project. Claude Code keeps t
 
 ## Packet versions
 
-Each packet version is a preset. `v0.9.2` is the current packet; `v0.9` stays the v0.9 packet, so earlier results still reproduce, and `review-sim` (parity) and `review-candidate` are built on it. **The library's scenarios, suites and `se` defaults still name `v0.9`** until the designer moves the baseline, so for the current rules name the preset: `ruleset = "v0.9.2"` in a scenario, `--ruleset v0.9.2`, or `se compare scenario.toml --a v0.9 --b v0.9.2`.
+Each packet version is a preset. `v0.9.2` is the current packet; `v0.9` stays the v0.9 packet, so earlier results still reproduce, and `review-sim` (parity) and `review-candidate` are built on it. **`v0.9.2` is the baseline** (ruled 2026-11-08): the library's scenarios and the milestone suites name it, and it's what a scenario without a ruleset, a sweep without rulesets and `se table` use. Name `v0.9` to reproduce the review or an earlier result: `se table 5 --ruleset v0.9`, or `se compare scenario.toml --a v0.9 --b v0.9.2`. Reports in `sim/reports/` written before the move ran under `v0.9`; their stamps say so. Packet 0.9.3 changes nothing inside a fight (healing and dying rolls after one), so there's no `v0.9.3` preset yet.
 
 | Preset | Rules (see `rules/CHANGELOG.md`) |
 |---|---|
@@ -45,11 +45,12 @@ In a claude.ai chat, attach the repo first if the clone is refused. To reproduce
 Run from `sim/`. With uv (`uv sync` once, then prefix commands with `uv run`), after `pip install -e .`, or with nothing installed as `python3 -m stamina_engine` in place of `se` (with `PYTHONPATH=src`):
 
 ```bash
-se table 1                                             # review Table 1, exact, packet rounding (half up)
+se table 1                                             # Table 1's layout under the baseline, packet rounding
+se table 1 --ruleset v0.9                             # review Table 1 under the review's rules
 se table 1 --ruleset review-sim --rounding half-even   # reproduces the review's printed Table 1
-se table 8 --rounding half-even                        # review Table 8
+se table 8 --ruleset v0.9 --rounding half-even         # review Table 8
 se run src/stamina_engine/data/scenarios/l1_duel.toml --trials 2000 --workers 4
-se compare src/stamina_engine/data/scenarios/one_v_three.toml --a v0.9 --b review-candidate
+se compare src/stamina_engine/data/scenarios/one_v_three.toml --a v0.9 --b v0.9.2
 se sweep src/stamina_engine/data/scenarios/surcharge_sweep.toml --out results/surcharge
 se suite parity --workers 8 --out reports/m1_parity.md # every published review fight, in lockstep
 se map list                                            # library maps
@@ -57,7 +58,7 @@ se map show corridor                                   # a map with coordinates 
 se run src/stamina_engine/data/scenarios/one_v_three_corridor.toml --trials 500 --workers 4
 se trace src/stamina_engine/data/scenarios/one_v_three_corridor.toml --trial 0
 se suite positioning --workers 8 --out reports/m2_positioning.md
-se table 5                                             # review Table 5, exactly, beside the review's figures
+se table 5 --ruleset v0.9                             # review Table 5, exactly, beside the review's figures
 se table 5 --ruleset my_f3_idea.toml                   # the same single shots under your variant
 se suite ranged --workers 8 --out reports/m3_ranged.md # archers on three maps, F3 options
 se suite phase --workers 8 --out reports/phase_suite.md # all eight phase-suite items, review layouts
@@ -110,13 +111,13 @@ Report positional results for both families: agent behavior can drive a result a
 
 ```toml
 [ruleset]
-base = "v0.9"
-opportunity = { cap_rule = "weapon_base" }       # F9 option 1: cap = weapon base + odd FIN
-# opportunity = { avoid_price = "attacker_cap" } # F9 option 2
+base = "v0.9.2"
+opportunity = { cap_rule = "weapon_base" }       # F9 option 1: bring back a cap of weapon base + odd FIN
+# opportunity = { avoid_price = "attacker_cap" } # F9 option 2 (needs a cap: base = "v0.9", or option 1)
 # opportunity = { avoid_track = "off_turn" }     # F9 option 3 (or "off_turn_only")
-# opportunity = { per_square_cap = true }        # the packet's optional rule
+# opportunity = { per_square_cap = true }        # v0.9's optional rule (needs a cap)
 # opportunity = { avoid_debt = true }            # F14: avoidance paid from the next recovery
-# movement = { extra_squares = "one" }           # F10 option 1
+# movement = { extra_squares = "agility" }       # v0.9's 1 + odd AGI squares a purchase (F10 option 1 is now the rule)
 # movement = { extra_cap = "free_movement" }     # F10 option 2
 # off_turn = { order = "descending_initiative" } # F14: who moves first after a turn
 # defenses = { ranged_mode = "dodge_folded" }    # F3 option 1: RD gains even Agility
@@ -151,7 +152,7 @@ from stamina_engine.rules.block_solver import best_block, cheapest_zero_injury
 from stamina_engine.analysis import dist                 # exact (total, crit dice) distributions
 from stamina_engine.provenance import collect            # the stamp to quote with results
 
-rules = preset("v0.9")
+rules = preset("v0.9.2")                                # the baseline
 fighter = derive(load_build("l1_sample"), rules)
 Pricing(rules).melee_attack(base=2, steps=3).total      # 9
 print(collect(rules).text())
@@ -168,7 +169,7 @@ Never edit the baseline: not the v0.9 components, not the presets, not `rules/`.
    ```toml
    # steep.toml
    [ruleset]
-   base = "v0.9"
+   base = "v0.9.2"
    name = "steep-surcharge"
    surcharge = { slope = 2 }
    blocks = { slope_num = 1, slope_den = 2 }   # perfect blocks 1, 1, 2, 2, 3...

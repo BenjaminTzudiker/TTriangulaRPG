@@ -3,7 +3,8 @@
 ```toml
 [scenario]
 name = "l1-duel"
-ruleset = { base = "v0.9" }          # or "v0.9", or { file = "mine.toml" }, plus overrides
+ruleset = { base = "v0.9.2" }        # or "v0.9.2", or { file = "mine.toml" }, plus overrides;
+                                    # without a ruleset, the baseline (v0.9.2)
 equipment = "v0_9"                   # or a variant table in data/equipment
 round_cap = 30
 trials = 2000
@@ -39,7 +40,7 @@ from stamina_engine.core.errors import ConfigError
 from stamina_engine.grid.battlefield import DEFAULT_LEGEND, Battlefield, Cell, load_map, parse_map
 from stamina_engine.model.build import Build, load_build
 from stamina_engine.rules.plugins import PluginInfo, load_plugin
-from stamina_engine.rules.ruleset import RuleSet, load_ruleset, preset
+from stamina_engine.rules.ruleset import BASELINE, RuleSet, load_ruleset, preset
 
 ARENAS = frozenset({"all_adjacent", "map"})
 DICE_MODES = frozenset({"named", "lockstep"})
@@ -128,7 +129,7 @@ def ruleset_from_spec(spec: object, base_dir: Path) -> RuleSet:
     if "file" in table:
         base = load_ruleset(str(_resolve(base_dir, str(table.pop("file")))))
     else:
-        base = preset(str(table.pop("base", "v0.9")))
+        base = preset(str(table.pop("base", BASELINE)))
     if not table and name is None:
         return base
     return base.override(table, name=str(name) if name is not None else None)
@@ -201,7 +202,7 @@ def scenario_from_toml(text: str, base_dir: Path = Path(".")) -> Scenario:
         raise ConfigError("missing [scenario] table")
     plugin_paths = tuple(str(_resolve(base_dir, p)) for p in table.pop("plugins", []))
     plugins = tuple(load_plugin(p) for p in plugin_paths)  # before the rules name them
-    rules = ruleset_from_spec(table.pop("ruleset", "v0.9"), base_dir)
+    rules = ruleset_from_spec(table.pop("ruleset", BASELINE), base_dir)
     battlefield = _battlefield(table, base_dir)
     table.pop("map_name", None)
     spawns = _Spawns(battlefield)

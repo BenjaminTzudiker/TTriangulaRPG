@@ -8,7 +8,7 @@ from stamina_engine.core.errors import ConfigError
 from stamina_engine.rules.plugins import load_plugin
 from stamina_engine.rules.pricing import Pricing
 from stamina_engine.rules.registry import registered
-from stamina_engine.rules.ruleset import load_ruleset, v0_9
+from stamina_engine.rules.ruleset import load_ruleset, v0_9, v0_9_2
 
 EXAMPLES = Path(__file__).resolve().parents[2] / "examples"
 EXAMPLE = EXAMPLES / "exp_quadratic_surcharge.py"
@@ -44,8 +44,8 @@ def test_example_plugin() -> None:
     rules = load_ruleset(str(EXAMPLES / "exp_quadratic_surcharge.toml"))
     assert rules.name == "exp-quadratic-surcharge"
     assert Pricing(rules).melee_attack(2, 4).parts == (2, 3, 6, 11)
-    assert rules.digest() != v0_9().digest()
-    assert {k for k, c in rules.components().items() if c != v0_9().components()[k]} == {
+    assert rules.digest() != v0_9_2().digest()
+    assert {k for k, c in rules.components().items() if c != v0_9_2().components()[k]} == {
         "surcharge"
     }
 

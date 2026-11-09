@@ -2,7 +2,7 @@
 # windows and opportunity attacks): the phase suite swaps the builds and agents.
 [scenario]
 name = "duel-open"
-ruleset = "v0.9"
+ruleset = "v0.9.2"
 map = "open_12x12"
 round_cap = 30
 trials = 500

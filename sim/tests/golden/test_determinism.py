@@ -78,23 +78,24 @@ def test_pinned_log_hashes(
 
 
 GRID_PINNED = [
-    ("archer_wall.toml", 2, "73657905ee2fa8220f25634927c37f103c5b42efe8bed07bf7b5ee32e4c23e86"),
+    ("archer_wall.toml", 2, "84ff86cacaf6871b8c35ff907d5a7b3ce25e866f5ad372dac5930109c485617e"),
     (
         "one_v_three_corridor.toml",
         0,
-        "3b934a47f499afb3a8f1980fd786b5c8541860ce2b4b0a981db21e2c0a84624f",
+        "e49db71fd42201bea7fa85b154b13bd90d075d5d17bc2f0c2099552bcfb2db05",
     ),
     (
         "reach_chokepoint.toml",
         3,
-        "46424a70978ac29b27a2becdeeb7adb71bce1fe7c9b469d9fe4dae0569de9b7f",
+        "a81b71accf352bdf75a0cc9d20d83bb6a1a4d45b7ee3dece97de3f60823079ad",
     ),
 ]
 
 
 @pytest.mark.parametrize(("scenario", "trial", "expected"), GRID_PINNED)
 def test_pinned_grid_log_hashes(scenario: str, trial: int, expected: str) -> None:
-    """Two grid battles (tactical and scripted agents, OAs and off-turn windows)."""
+    """Grid battles (tactical and scripted agents, OAs and off-turn windows), under each
+    scenario's own ruleset: the baseline (v0.9.2) since it moved there."""
     from pathlib import Path
 
     from stamina_engine.experiments.runner import run_trial

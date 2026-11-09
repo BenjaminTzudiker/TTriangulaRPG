@@ -2,7 +2,7 @@
 # The defender hits the lowest-stamina attacker with 2 steps.
 [scenario]
 name = "one-v-three"
-ruleset = "v0.9"
+ruleset = "v0.9.2"
 round_cap = 20
 trials = 1000
 seed = 20261103

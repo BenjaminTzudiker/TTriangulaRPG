@@ -3,7 +3,7 @@
 # defender's agent is the variable: scripted (as the review) or tactical (moves and retreats).
 [scenario]
 name = "one-v-three-open"
-ruleset = "v0.9.2"
+ruleset = "v0.9.3"
 map = "open_12x12"
 round_cap = 20
 trials = 500

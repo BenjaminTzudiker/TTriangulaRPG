@@ -9,12 +9,12 @@ scenarios = ["duel.toml"]        # relative to this file
 trials = 500                     # optional; overrides each scenario's
 
 [[ruleset]]                      # optional; default: each scenario's own
-label = "v0.9.2"
-spec = "v0.9.2"                  # a preset, a .toml file, or a table like a scenario's ruleset
+label = "v0.9.3"
+spec = "v0.9.3"                  # a preset, a .toml file, or a table like a scenario's ruleset
 
 [[ruleset]]
 label = "steep"
-spec = { base = "v0.9.2", surcharge = { slope = 2 } }
+spec = { base = "v0.9.3", surcharge = { slope = 2 } }
 
 [[agents]]                       # optional; agent spec by combatant id
 label = "chip"

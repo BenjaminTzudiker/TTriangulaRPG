@@ -2,7 +2,18 @@
 
 For claude.ai chats in the "Tactical fantasy TTRPG" project. Claude Code keeps this file current.
 
-**Status:** milestones M0–M5 are done (tags `m0`–`m5`): the turn engine, maps and movement, opportunity attacks, ranged attacks, cover and diving, drawing weapons, equipment variant tables, NPC profiles, fleeing and surrendering, the full phase suite, class cores and candidate abilities with strain, playing a side yourself, and the load report. M5's gate still needs one session played by a person.
+**Status:** milestones M0–M5 are done (tags `m0`–`m5`): the turn engine, maps and movement, opportunity attacks, ranged attacks, cover and diving, drawing weapons, equipment variant tables, NPC profiles, fleeing and surrendering, the full phase suite, class cores and candidate abilities with strain, playing a side yourself, and the load report. M5's gate still needs one session played by a person. Packet versions 0.9.1 and 0.9.2 are the presets `v0.9.1` and `v0.9.2` (below).
+
+## Packet versions
+
+Each packet version is a preset. `v0.9.2` is the current packet; `v0.9` stays the v0.9 packet, so earlier results still reproduce, and `review-sim` (parity) and `review-candidate` are built on it. **The library's scenarios, suites and `se` defaults still name `v0.9`** until the designer moves the baseline, so for the current rules name the preset: `ruleset = "v0.9.2"` in a scenario, `--ruleset v0.9.2`, or `se compare scenario.toml --a v0.9 --b v0.9.2`.
+
+| Preset | Rules (see `rules/CHANGELOG.md`) |
+|---|---|
+| `v0.9.1` | No opportunity-attack cap (`opportunity.cap_rule = "none"`); extra on-turn movement 1 square a purchase (`movement.extra_squares = "one"`); initiative 2d12 + Cunning (`turn_order.bonus = "cunning"`); maximum HP 6 + 2 per even Strength (`resources.hp_strength = "per_even"`); the dying roll adds Will (`dying.roll_attribute = "will"`); Intelligence's core-ability discount and bonus AP in build budgets (`resources.core_discount`, `resources.bonus_ap`) |
+| `v0.9.2` | 0.9.1, with +1 per critical die only if damage gets past blocks and armor (`crit` kind `per_die_if_through`) and maximum HP 8 + 2 per even Strength (`resources.hp_base = 8`) |
+
+Nightly HP recovery isn't modeled, since the engine plays single fights. Without a cap, engine agents size an opportunity attack by their commitment policy rather than spending everything (Assumptions register).
 
 ## Reading the code
 
@@ -132,7 +143,7 @@ print("\n".join(summarize(run_scenario(s, trials=500).fights).lines()))
 The core pieces for single exchanges:
 
 ```python
-from stamina_engine.rules.ruleset import preset, load_ruleset   # presets: "v0.9", "review-candidate", "review-sim"
+from stamina_engine.rules.ruleset import preset, load_ruleset   # presets: "v0.9", "v0.9.1", "v0.9.2", "review-candidate", "review-sim"
 from stamina_engine.model.build import load_build        # library builds in src/stamina_engine/data/builds
 from stamina_engine.model.derive import derive           # Build x RuleSet -> CombatProfile
 from stamina_engine.rules.pricing import Pricing, Trackers
@@ -146,7 +157,7 @@ Pricing(rules).melee_attack(base=2, steps=3).total      # 9
 print(collect(rules).text())
 ```
 
-`review-sim` reproduces the review's simulator, quirks included; use `v0.9` (or your variant) for design questions. `uv run pytest` takes under a minute; `uv run pytest -m slow` adds the full-count oracle parity runs.
+`review-sim` reproduces the review's simulator, quirks included; use `v0.9.2`, the current packet (or your variant on it), for design questions. `uv run pytest` takes under a minute; `uv run pytest -m slow` adds the full-count oracle parity runs.
 
 ## Trying a rule change
 

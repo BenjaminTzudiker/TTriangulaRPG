@@ -177,18 +177,18 @@ surcharge = { kind = "linear", slope = 2 }
 
 | Component | Variants to implement (v0.9 first) | Findings it serves |
 |---|---|---|
-| `crit` | ×2 after armor once per attack; ×2 only at 2+ crit dice; none; +N per crit die (parity only, see Assumptions register). Switches: per-die armor ignore, aim dice can crit | F2, F14 |
+| `crit` | ×2 after armor once per attack (v0.9); +1 per crit die only if damage gets through (`per_die_if_through`, packet 0.9.2); ×2 only at 2+ crit dice; none; +N per crit die even when nothing gets through (parity only, see Assumptions register). Switches: per-die armor ignore, aim dice can crit | F2, F14 |
 | `surcharge` | +s per prior action (s = 1, 2); quadratic; light weapons skip the first surcharge point; hard step cap | F1, F8 |
 | `blocks` | Perfect 1, 2, 3…; half slope 1, 1, 2, 2…; flat cost for ranged perfect blocks; graze leak size and whether armor soaks it; block count reset per attacker per round; guard rules (shift or +1 MD after ≤ G actions) | F1, F3, F6, Addendum 2 |
 | `defenses` | MD, RD and Dodge formulas; Dodge folded into RD; shield values; two-hander +1 MD; AGI steps by armor; MD growth with level | F3, F4, F5 |
-| `resources` | HP formula; max stamina (6 + HP + L/5, 8 + HP/2, 10 + HP − STR, armor or shield float); recovery; strain maximum and both recovery options; level bonus into maximum or recovery | F5, F7 |
+| `resources` | HP formula (6 + STR in v0.9; base + 2 per even STR from 0.9.1: `hp_strength`, `hp_base`); Intelligence's core-ability discount and bonus AP (0.9.1: `core_discount`, `bonus_ap`); max stamina (6 + HP + L/5, 8 + HP/2, 10 + HP − STR, armor or shield float); recovery; strain maximum and both recovery options; level bonus into maximum or recovery | F5, F7 |
 | `wounds` | None; H-1 wound cap applied before any crit effect; H-2 damage lowers max stamina | F1 option 3, F3, F7 |
 | `movement` | Free movement formula; extra movement priced per purchase, per square, or capped at free movement | F10 |
 | `off_turn` | Escalation slope; what counts toward it; window order (ascending initiative, descending, repeat until all pass); purchase cap | F14, MV-4 |
-| `opportunity` | OA cap (1 + odd FIN; weapon base + odd FIN; per-square optional rule); avoidance cost (flat 1, attacker's cap, counts on mover's off-turn track); avoidance at 0 stamina (forbidden or debt); point-blank OAs avoidable; OA timing in multi-square moves | F9, F14 |
+| `opportunity` | OA cap (1 + odd FIN in v0.9; none from 0.9.1; weapon base + odd FIN; per-square optional rule); avoidance cost (flat 1, attacker's cap, counts on mover's off-turn track); avoidance at 0 stamina (forbidden or debt); point-blank OAs avoidable; OA timing in multi-square moves | F9, F14 |
 | `ranged` | Aim as damage (1d6 + FIN) or precision (crit range, armor ignore); range-band penalties (v0.9, flat −1d6 at medium, none); cover values; dive outcomes; point-blank uses MD | F3, F11 |
-| `turn_order` | Initiative dice and bonuses; tiebreak (reroll, higher AGI, shared turn, list order for parity) | F14 |
-| `dying` | System Shock thresholds and roll; stabilization amount | Packet: Dying and Death |
+| `turn_order` | Initiative dice and bonuses (odd AGI + odd CUN in v0.9; + CUN from 0.9.1: `bonus`); tiebreak (reroll, higher AGI, shared turn, list order for parity) | F14 |
+| `dying` | System Shock thresholds and roll (+ STR in v0.9; + WIL from 0.9.1: `roll_attribute`); stabilization amount | Packet: Dying and Death |
 | `information` | Stamina public or hidden; what observers see of blocks and recovery | F6a |
 | `grid` | Diagonal metric; moving through creatures; creatures as cover; reach through walls | Assumptions register |
 
@@ -425,8 +425,8 @@ When a pending row is ruled, or a ruled row changes, the same commit updates the
 |---|---|---|---|
 | Stamina is public | Public (review assumption) | `information.stamina` | pending designer |
 | Aim dice can crit | Yes (review assumption) | `crit.aim_dice_can_crit` | pending designer |
-| Crit doubling happens once per attack | Once (review assumption) | `crit` kind `double_once` | pending designer |
-| Per-die crit bonus (+N per crit die) | Dropped as a design candidate. Kept only as a parity component under `review-sim`, where it is added even when nothing gets past armor, as the review's simulator did | `crit` kind `per_die_bonus` | ruled 2026-11-03 |
+| Crit doubling happens once per attack | Once (review assumption). Packet 0.9.2 drops the doubling, and the TODO with it | `crit` kind `double_once` | pending designer (v0.9 only) |
+| Per-die crit bonus (+N per crit die) | Dropped as a design candidate. Kept only as a parity component under `review-sim`, where it is added even when nothing gets past armor, as the review's simulator did. Packet 0.9.2's +1 per crit die applies only when damage gets through, so it is its own variant, `per_die_if_through` | `crit` kind `per_die_bonus` | ruled 2026-11-03 |
 | Initiative ties | Reroll the tied creatures (the review's simulator gave ties to the first-listed combatant) | `turn_order.tiebreak` | pending designer |
 | Order of off-turn movement after a turn | Lowest initiative first; repeat passes until everyone passes | `off_turn.order` | pending designer |
 | Who and when in an off-turn window | After every turn that is taken, including an incapacitated creature's dying-roll turn (dead creatures take no turn, so there is no window). Every active creature may move, including the one whose turn just ended; only movement (drawing waits for M3). Order is over initiative positions, where ties are already broken; a creature that passed may move in a later pass; a creature with nowhere it can reach and afford isn't asked | `off_turn.order`, `off_turn.repeat_until_all_pass` | pending designer |
@@ -481,7 +481,7 @@ When a pending row is ruled, or a ruled row changes, the same commit updates the
 | Candidate abilities and the AP budget (M5) | A build lists candidate abilities (`abilities = [...]`); they aren't costed yet, so they don't count against the AP budget | build `abilities` | pending designer |
 | Rogue core (M5) | 3 strain, between any two turns (including before the round's first) if it hasn't acted this round: take its turn now. Or, as its turn would begin, wait: it goes after the next creature's turn, and while waiting it chooses again at every later gap and turn start, for free; if it never comes back it goes last. The order turns were actually taken becomes next round's order | — | pending designer |
 | Heavy Swing (M5) | Chosen as you declare a melee attack: +1 stamina on every step, and the attack ignores 2 more armor (before critical dice's own ignore) | — | pending designer |
-| Riposte (M5) | After you make at least one perfect block against a melee attack, once it has resolved: an opportunity attack on the attacker, priced and capped as any OA (works in the all-adjacent arena too) | — | pending designer |
+| Riposte (M5) | After you make at least one perfect block against a melee attack, once it has resolved: an opportunity attack on the attacker, priced and capped as any OA, so uncapped from 0.9.1 (works in the all-adjacent arena too) | — | pending designer |
 | Tactical Withdrawal (M5) | In a melee attack's reactions step: pay 2 stamina (flat, not an off-turn cost) to move up to one off-turn purchase's squares, provoking as any move does; if the attacker no longer reaches you, the attack is avoided (already paid for, no blocks, no damage) | — | pending designer |
 | Control effects (M5 stub) | A progress track per effect on a creature: an effect's source advances it; the creature pushes it back 1 per stamina. What progress does (and when it can be resisted) waits for Phase 7 | — | pending designer |
 | Strain at a fight's start (M5) | 0: every simulated fight is the first of a fresh day (Packet: Strain recovers only overnight), so ability results are the best case for a day of several fights | `CombatProfile.start_strain` (0 for now) | engine convention |
@@ -537,6 +537,11 @@ When a pending row is ruled, or a ruled row changes, the same commit updates the
 | Surrender (M4) | The packet has none. On a map, any active creature may surrender on its own turn: it's out of the fight (takes no turns, can't be attacked, threatens nothing), and its square is a body. A side with no one active left has lost | — | pending designer |
 | Fleeing the map (M4) | Exit squares (`>` in a map) are floor; a creature standing on one may leave on its own turn and is out of the fight. Nobody leaves except through an exit | map legend `>` | pending designer |
 | NPC profiles (M4) | Agent configuration, not rules (the packet leaves NPC aggression profiles out of this version): data files that set the tactical agent's commitment (with a heavier one against a target below a stamina fraction), target choice (`focus` attacks the enemy the most allies already threaten), fall-back, flee and surrender thresholds | agent spec `{kind = "npc", profile = ...}` | engine convention |
+| Packet versions as presets (0.9.1, 0.9.2) | `v0.9.1` and `v0.9.2` select each version's rules; `v0.9` stays the v0.9 packet, and `review-sim` and `review-candidate` stay built on it, so earlier results and the parity gate are unchanged. The library's scenarios, suites and `se` defaults still name `v0.9` until the designer moves the baseline | presets | pending designer (baseline) |
+| Engine agents and uncapped opportunity attacks (0.9.1) | Under a cap, an engine agent takes the largest OA the cap allows, as through M5. With no cap, it takes the steps its commitment policy would put into an attack on its own turn (fixed:2 takes 2, chipkill 2 or all-in for a likely kill), as far as its stamina goes, rather than sinking its whole pool into one OA | agent policy | engine convention |
+| Variant switches that need an OA cap | With no cap (`cap_rule = none`), the per-square cap and avoidance priced at the attacker's cap are refused as configuration errors. `cap_rule = weapon_base` on a 0.9.1 base reintroduces a weapon-based cap, as F9 option 1 | `opportunity.cap_rule` | engine convention |
+| Intelligence's AP rules (0.9.1) | They act only in the build's budget check. Bonus AP count from the build's current Intelligence, which is what "applies retroactively" means for a build made at its level | `resources.core_discount`, `resources.bonus_ap` | engine convention |
+| Nightly HP recovery (0.9.1) | Not modeled: the engine plays single fights, and no rest between fights exists yet | — | engine convention |
 | Sweep and comparison seeds | Trial seeds key on (master seed, scenario and agent pairing, trial), not the RuleSet, so RuleSets are compared on the same dice | — | engine convention |
 
 Off-turn order can move headline numbers on its own (it decides who ends adjacent to whom), so it gets a sensitivity run in the phase suite until it is decided.
@@ -550,13 +555,13 @@ The engine is trusted only once it reproduces every worked example in the packet
 | Packet example | Must reproduce |
 |---|---|
 | Choosing Blocks | 9 damage vs MD 4, armor 2: 1 perfect + 1 graze = 2 stamina, 0 injury |
-| Melee Attack | 2 steps = 5 stamina, 15 damage; block lines 10/7/5/4 stamina give 0/0/1/3 HP |
+| Melee Attack | 2 steps = 5 stamina, 15 damage; block lines 10/7/5/4 stamina give 0/0/1/3 HP. 0.9.2's critical-die case: 16 damage, armor 0; 4 perfect blocks give 0 HP, 2 perfect + 2 grazing give 2 + 1 = 3 HP |
 | Strain | 9 stamina for the spell at strain 10 of 8 |
 | Two Aimed Longbow Shots | 20 stamina |
-| Off-Turn Escalation | 10 stamina; the OA needs a cap of at least 3 |
+| Off-Turn Escalation | 10 stamina; the OA needs a cap of at least 3 in v0.9, and none from 0.9.1 |
 | Avoiding Opportunity Attacks | 2, then 1, then 1 |
 | System Shock | The five-step sequence: −2 HP / 2 Shock through −6 HP / 1 Shock (pure `dying` transitions, in M0) |
-| Sample Character | HP 8, stamina 14, MD 4, RD 3, Dodge 1, movement 6, 2 squares per off-turn purchase, crit 7–8, OA cap 2 |
+| Sample Character | v0.9: HP 8, stamina 14, MD 4, RD 3, Dodge 1, movement 6, 2 squares per off-turn purchase, crit 7–8, OA cap 2. 0.9.2: HP 10, stamina 16, the same defenses and movement, 1 square per extra purchase, initiative + 0, no OA cap |
 
 **2. Parity with the review.** Tables 1 and 8 must match exactly, since they are deterministic. For fights, the engine runs in lockstep with the old simulator (ruled 2026-11-03): the oracle's global `random` is replaced by a seeded stream and the engine draws every die from one shared stream, so both see identical faces, and every fight behind Tables 2–4, 7, 9 and the Addendum grid must come out identical (`se suite parity`, `tests/parity/test_lockstep.py`). The suite's report then sets the engine's figures, at the review's trial counts, beside the review's printed ones; a printed figure outside the engine's interval is investigated, not assumed to be an engine bug: the review's figures are rounded and sampled, and the old simulator can be wrong too. Table 5 (ranged) waits for M3.
 

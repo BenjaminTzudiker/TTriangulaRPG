@@ -232,8 +232,16 @@ def run_battle(b: Battle) -> BattleResult:
         b.ops.emit(RoundStarted(round_))
         with b.context.frame(f"round {round_}"):
             play_round(b)
+        b.end_of_round()
     winner, reason = b.outcome if b.outcome is not None else (None, "round_cap")
     b.ops.emit(BattleEnded(reason, winner, round_))
     return BattleResult(
-        winner, reason, round_, order, b.state, tuple(b.log), tuple(b.broker.records)
+        winner,
+        reason,
+        round_,
+        order,
+        b.state,
+        tuple(b.log),
+        tuple(b.broker.records),
+        b.objective_status(),
     )

@@ -148,12 +148,12 @@ The listed and random-legality agent needs no changes: O1 adds no new answer typ
 
 | Scenario | Map | Setup | Tests |
 |---|---|---|---|
-| `extraction_3v3` | `extraction` (open field, exits on the far edge) | The party must get 2 of 3 out; NPC chasers start close; deadline 10 | Addendum 2 retreat economics in a team fight; F14 |
-| `breakthrough_3v3` | `breakthrough` (a wall line with two gaps, zone behind it) | Attackers need 2 of 3 to reach the zone; defenders start at the gaps; deadline 8 | F9 opportunity attacks and reach at a line; F10 |
-| `hold_hill_3v3` | `hill` (open field, central `H` zone) | Attackers must hold `uncontested`, `consecutive`, 2 rounds, deadline 10. A copy uses `final` | Banking stamina against spending it; F6 focus fire on whoever stands in the zone |
+| `extraction_3v3` | `extraction` (exits 24 squares away, past a low wall with one gap) | The party starts engaged with the NPC melee and must get 2 of 3 out; deadline 6 | Addendum 2 retreat economics in a team fight; F14 |
+| `breakthrough_3v3` | `breakthrough` (a wall line with two gaps, a defender standing in each; the zone is beyond one turn's movement) | Attackers need 2 of 3 to reach the zone; deadline 8 | F9 opportunity attacks and reach at a line |
+| `hold_hill_3v3` | `hill` (a central `H` zone ringed by low walls open on four sides) | Attackers must hold `uncontested`, `consecutive`, 2 rounds, deadline 10. A copy uses `final` at round 6 | Banking stamina against spending it; F6 focus fire on whoever stands in the zone |
 | `hold_the_door_1v3` | `corridor` (existing), with the corridor mouth as the zone | The lone defender must hold `present` and `final` at round 4 | F6 and F9: whether a chokepoint ever lets one creature hold |
 
-Builds come from the existing library (the 3v3 party and NPCs from `party_3v3.toml`).
+Builds come from the existing library. The 3v3 sides are mirrored (sample fighter, duelist and archer each; the party is tactical, the NPCs use `disciplined_2step`), so the straight fight is close to even. Every scenario uses v0.9.1 movement (`movement.extra_squares = "one"`). They were rebuilt on 2026-11-08 by the setup checklist in `USAGE_FOR_CHATS.md`; the first versions put goals within one turn's reach on open ground.
 
 ## Assumptions register (new and updated rows in `sim/docs/ENGINE_PLAN.md`)
 

@@ -66,6 +66,19 @@ class CombatantState:
         return self.profile.loadout(self.loadout)
 
 
+OBJECTIVE_OPEN, OBJECTIVE_DONE, OBJECTIVE_FAILED = "open", "done", "failed"
+
+
+@dataclass
+class ObjectiveState:
+    """A scenario objective's progress (model/objectives.py has the specs)."""
+
+    progress: int = 0  # reach: creatures reached; escape: fled; hold: rounds scored
+    streak: int = 0  # hold: rounds in a row in control, up to the last end of round
+    reached: frozenset[str] = frozenset()  # reach: who has counted
+    status: str = OBJECTIVE_OPEN
+
+
 @dataclass
 class BattleState:
     combatants: tuple[CombatantState, ...]  # in listed order
@@ -76,6 +89,8 @@ class BattleState:
     acted: frozenset[str] = frozenset()  # creatures that have taken their turn this round
     delayed: frozenset[str] = frozenset()  # Rogues waiting to take their turn this round
     version: int = 0
+    # Scenario objectives' progress, by objective id (model/objectives.py); empty without one.
+    objectives: dict[str, ObjectiveState] = field(default_factory=dict)
 
     def get(self, cid: str) -> CombatantState:
         for c in self.combatants:

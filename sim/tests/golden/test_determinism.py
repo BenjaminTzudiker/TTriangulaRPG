@@ -82,6 +82,26 @@ GRID_PINNED = [
         3,
         "46424a70978ac29b27a2becdeeb7adb71bce1fe7c9b469d9fe4dae0569de9b7f",
     ),
+    (
+        "extraction_3v3.toml",  # objectives (O1)
+        0,
+        "1b02e57bb4607628e756e5db13a7adfd11c69b2b6dcb846c2117bf2fd58869a0",
+    ),
+    (
+        "breakthrough_3v3.toml",  # objectives (O1)
+        0,
+        "a58a643db4257afc5fe06d380b2ad96f41aed39f2d11a0208d9aa4e8cd68597c",
+    ),
+    (
+        "hold_hill_3v3.toml",  # objectives (O1)
+        0,
+        "f09d2c15617b5f64ed988f45ca9bdb2198ba95f15035f8cb329b69304bb88dca",
+    ),
+    (
+        "hold_the_door_1v3.toml",  # objectives (O1)
+        0,
+        "e94adfe46e168121fcd70c7c46abea6afd84b6792ed0ab397d5d0116ce5395b9",
+    ),
 ]
 
 

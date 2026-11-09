@@ -1,9 +1,12 @@
 """Build what a creature observes, filtered by the information rule."""
 
-from stamina_engine.agents.decisions import CombatantView, Observation
+from collections.abc import Sequence
+
+from stamina_engine.agents.decisions import CombatantView, ObjectiveView, Observation
 from stamina_engine.core.errors import ConfigError
 from stamina_engine.engine.ledger import PublicLedger
 from stamina_engine.grid.battlefield import Battlefield
+from stamina_engine.model.objectives import ObjectiveSpec
 from stamina_engine.model.state import BattleState, CombatantState
 from stamina_engine.rules.ruleset import RuleSet
 
@@ -37,6 +40,7 @@ def observe(
     who: str,
     ledger: PublicLedger | None = None,
     field: Battlefield | None = None,
+    objectives: Sequence[ObjectiveSpec] = (),
 ) -> Observation:
     """Everything a creature sees. With hidden stamina, others' stamina is the public ledger's
     reconstruction; its own is exact."""
@@ -51,4 +55,25 @@ def observe(
         round=state.round,
         field=field,
         order=state.order,
+        objectives=tuple(_objective(state, o) for o in objectives),
+    )
+
+
+def _objective(state: BattleState, spec: ObjectiveSpec) -> ObjectiveView:
+    o = state.objectives[spec.id]
+    return ObjectiveView(
+        id=spec.id,
+        kind=spec.kind,
+        team=spec.team,
+        who=spec.who,
+        deadline=spec.deadline,
+        cells=spec.zone.cells if spec.zone is not None else (),
+        count=spec.count,
+        control=spec.control,
+        score=spec.score,
+        rounds=spec.rounds,
+        progress=o.progress,
+        streak=o.streak,
+        reached=o.reached,
+        status=o.status,
     )

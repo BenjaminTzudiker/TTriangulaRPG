@@ -1,0 +1,67 @@
+# Objectives O1, Reach: the party must get 2 of 3 into the back row (Z) by the end of round 8.
+# The only ways through the wall are two one-square gaps, each with an NPC standing in it;
+# the zone is beyond one turn's movement (Review F9 at a line).
+# The sides are mirrored (sample fighter, duelist, archer each) so the straight fight is close
+# to even; the party is tactical chip-kill, the NPCs use the disciplined_2step profile.
+# Set up by the checklist in sim/docs/USAGE_FOR_CHATS.md.
+[scenario]
+name = "breakthrough-3v3"
+ruleset = { base = "v0.9", movement = { extra_squares = "one" } }  # v0.9.1 movement: 1 square a purchase
+map = "breakthrough"
+round_cap = 20
+trials = 300
+seed = 20261108
+
+[[combatant]]
+id = "fighter"
+team = "party"
+build = "l1_sample"
+spawn = "A"
+agent = { kind = "tactical", commit = "chipkill", objective = "first" }
+
+[[combatant]]
+id = "duelist"
+team = "party"
+build = "l1_duelist"
+spawn = "A"
+agent = { kind = "tactical", commit = "chipkill", objective = "first" }
+
+[[combatant]]
+id = "archer"
+team = "party"
+build = "l1_archer"
+spawn = "A"
+agent = { kind = "tactical", commit = "chipkill", objective = "first" }
+
+[[combatant]]
+id = "npc_fighter"
+team = "npcs"
+build = "l1_sample"
+spawn = "D"
+agent = { kind = "npc", profile = "disciplined_2step", objective = "first" }
+
+[[combatant]]
+id = "npc_duelist"
+team = "npcs"
+build = "l1_duelist"
+spawn = "D"
+agent = { kind = "npc", profile = "disciplined_2step", objective = "first" }
+
+[[combatant]]
+id = "npc_archer"
+team = "npcs"
+build = "l1_archer"
+spawn = "D"
+agent = { kind = "npc", profile = "disciplined_2step", objective = "first" }
+
+[[zone]]
+id = "back_row"
+marker = "Z"
+
+[[objective]]
+id = "break_through"
+kind = "reach"
+team = "party"
+zone = "back_row"
+count = 2
+deadline = 8

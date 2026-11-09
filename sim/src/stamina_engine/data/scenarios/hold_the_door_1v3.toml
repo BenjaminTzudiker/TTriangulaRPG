@@ -1,0 +1,40 @@
+# Objectives O1, Hold the door: the lone defender must still be standing in the corridor
+# at the end of round 4; three attackers (who can't contest a "present" hold, only end it by
+# downing the defender) try to stop it. Tests focus fire (Review F6) and the chokepoint. The
+# straight fight is meant to be lopsided: whether the corridor lets one creature last is the
+# question.
+[scenario]
+name = "hold-the-door-1v3"
+ruleset = { base = "v0.9", movement = { extra_squares = "one" } }  # v0.9.1 movement: 1 square a purchase
+map = "corridor"
+round_cap = 20
+trials = 500
+seed = 20261108
+
+[[combatant]]
+id = "D"
+team = "defender"
+build = "l1_sample"
+spawn = "D"
+agent = { kind = "tactical", commit = "fixed:2", objective = "first" }
+
+[[combatant]]
+id = "x"
+team = "attackers"
+build = "l1_sample"
+count = 3
+spawn = ["1", "2", "3"]
+agent = { kind = "tactical", commit = "fixed:2", objective = "first" }
+
+[[zone]]
+id = "corridor"
+rect = [8, 4, 14, 4]
+
+[[objective]]
+id = "hold_door"
+kind = "hold"
+team = "defender"
+zone = "corridor"
+control = "present"
+score = "final"
+deadline = 4

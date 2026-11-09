@@ -42,6 +42,7 @@ from stamina_engine.agents.decisions import (
     MoveAnswer,
     MoveOptions,
     OATake,
+    ObjectiveView,
     Observation,
     OffTurnMove,
     Pass,
@@ -179,8 +180,11 @@ class HumanAgent:
                 f"  {letters[v.id]} {v.id} ({v.team}, {v.status}){at}: HP {v.hp}, stamina "
                 f"{est}{v.stamina}/{v.max_stamina}"
             )
+        for o in obs.objectives:
+            lines.append(_objective_line(o))
         if obs.field is not None:
-            marks = {v.pos: letters[v.id] for v in obs.others if v.pos is not None}
+            marks = {c: "*" for o in obs.objectives for c in o.cells}  # zone squares
+            marks.update({v.pos: letters[v.id] for v in obs.others if v.pos is not None})
             if me.pos is not None:
                 marks[me.pos] = "@"
             lines.append(obs.field.render(marks, spawns=False))
@@ -479,3 +483,14 @@ class HumanAgent:
             raise _Invalid
 
         return self._read("\n".join(lines), "ability> ", parse)
+
+
+def _objective_line(o: ObjectiveView) -> str:
+    """One line on the scenario objective; its zone is drawn as * on the board."""
+    if o.kind == "hold":
+        need = "control at the deadline" if o.score == "final" else f"{o.rounds} rounds"
+        how = f"{o.control} control, {o.score}: {need}; scored {o.progress}, streak {o.streak}"
+    else:
+        where = "zone *" if o.kind == "reach" else "an exit"
+        how = f"{o.count} of {', '.join(o.who)} to {where}; {o.progress} so far"
+    return f"  Objective {o.id} ({o.kind}, team {o.team}, by round {o.deadline}, {o.status}): {how}"

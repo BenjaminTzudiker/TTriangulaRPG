@@ -23,6 +23,8 @@ SNAPSHOT = Path(__file__).with_name("component_defaults.json")
 
 PRESET_DIGESTS = {
     "v0.9": "3bf6fc070dbf",
+    "v0.9.1": "af236ed0cda0",
+    "v0.9.2": "8dd5547b5abe",
     "review-candidate": "d99bdcba96f4",
     "review-sim": "4179c8ac37bc",
 }

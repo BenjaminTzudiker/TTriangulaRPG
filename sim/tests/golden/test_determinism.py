@@ -59,6 +59,13 @@ PINNED = [
         "90c8828f7fc08410b073e066f788c0bd61f9fcb283ee621451044f8d22986c78",
     ),
     ("v0.9", DEEP, 5, True, "aa4749bea977a475fa04adc12de64c33e8b8c47b4909c2a1b9758e6898c4b3a3"),
+    (
+        "v0.9.2",
+        DUEL,
+        7,
+        False,
+        "b3664cfa1ffacf3b14b86a2f780caa27b5aff49d870f385186ea6c823f1e8a6f",
+    ),
 ]
 
 

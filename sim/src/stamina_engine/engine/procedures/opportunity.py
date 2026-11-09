@@ -1,17 +1,19 @@
 """Opportunity attacks (Packet: Making Opportunity Attacks).
 
 An opportunity attack is a normal melee attack whose steps go on the attacker's off-turn
-escalation instead of its on-turn surcharge, and whose whole cost must fit its cap. After
-the steps are paid it runs the same steps as any melee attack: roll, reactions, blocks,
-armor and crits, injury.
+escalation instead of its on-turn surcharge, and whose whole cost must fit its cap, if it
+has one. After the steps are paid it runs the same steps as any melee attack: roll,
+reactions, blocks, armor and crits, injury.
 
-The cap is 1 + odd FIN as written (opportunity.cap_rule picks F9's weapon-based cap). Under
+The cap was 1 + odd FIN in v0.9 (opportunity.cap_rule picks F9's weapon-based cap); from
+0.9.1 there is none, and the off-turn escalation is the only limit (cap_rule = none). Under
 the packet's optional per-square rule (opportunity.per_square_cap) the cap is pooled for one
 move: each square the mover leaves within your reach without paying you off adds a cap's
 worth, and an OA can spend what has built up minus what you already spent on that mover
 during the move.
 """
 
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 
 from stamina_engine.agents.decisions import OAOption, TakeOA
@@ -48,12 +50,12 @@ class OAContext:
     accrued: dict[str, int] = field(default_factory=dict)
     spent: dict[str, int] = field(default_factory=dict)
 
-    def left_within(self, enemy: str, cap: int, paid: bool) -> None:
-        if not paid:
+    def left_within(self, enemy: str, cap: int | None, paid: bool) -> None:
+        if not paid and cap is not None:
             self.accrued[enemy] = self.accrued.get(enemy, 0) + cap
 
-    def available(self, enemy: str, cap: int, per_square: bool) -> int:
-        if not per_square:
+    def available(self, enemy: str, cap: int | None, per_square: bool) -> int | None:
+        if not per_square or cap is None:  # the per-square rule needs a cap (config check)
             return cap
         return self.accrued.get(enemy, 0) - self.spent.get(enemy, 0)
 
@@ -82,13 +84,20 @@ def _reaching(b: Battle, attacker: CombatantState, square: Cell) -> list[tuple[s
     ]
 
 
-def reach_cap(b: Battle, attacker: CombatantState, square: Cell) -> int:
+def reach_cap(b: Battle, attacker: CombatantState, square: Cell) -> int | None:
     """The attacker's cap for one OA on a mover leaving `square`: the best of its weapons
     that reach it (the weapon matters only under F9's weapon-based cap)."""
     fin = attacker.gear.attributes.FIN
-    return max(
-        (b.pricing.oa_cap(fin, w.base) for _, w in _reaching(b, attacker, square)), default=0
-    )
+    if b.rules.opportunity.cap(fin) is None:
+        return None
+    caps = [b.pricing.oa_cap(fin, w.base) for _, w in _reaching(b, attacker, square)]
+    return max((c for c in caps if c is not None), default=0)
+
+
+def _largest(caps: Iterable[int | None]) -> int | None:
+    """The biggest cap among the weapons, or None if they have none."""
+    values = list(caps)
+    return None if None in values else max(c for c in values if c is not None)
 
 
 def opportunity_attack(
@@ -123,7 +132,7 @@ def opportunity_attack(
             b.context.path(),
             target.id,
             square,
-            max(caps.values()),
+            _largest(caps.values()),
             tuple(options),
         )
         answer = b.broker.take_oa(request)

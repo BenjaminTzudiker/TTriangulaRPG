@@ -260,7 +260,7 @@ class AvoidOA:
     context: tuple[str, ...]
     leaving: Cell
     enemies: tuple[str, ...]  # threatening enemies, in the order they would be asked
-    caps: tuple[int, ...]  # each enemy's OA cap here (prices avoidance under some variants)
+    caps: tuple[int | None, ...]  # each enemy's OA cap here (None: no cap); prices variants
     on_turn: bool
     trackers: Trackers
     stamina: int
@@ -292,7 +292,7 @@ class TakeOA:
     context: tuple[str, ...]
     target: str
     leaving: Cell
-    cap: int
+    cap: int | None  # None: no cap (0.9.1), only stamina and the off-turn escalation
     options: tuple[OAOption, ...]  # one per ready melee weapon that reaches the square
 
     @property

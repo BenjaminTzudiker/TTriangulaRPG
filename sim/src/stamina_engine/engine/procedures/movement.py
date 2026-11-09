@@ -150,7 +150,7 @@ def avoid(
     mover: CombatantState,
     square: Cell,
     enemies: tuple[str, ...],
-    caps: tuple[int, ...],
+    caps: tuple[int | None, ...],
     on_turn: bool,
 ) -> tuple[str, ...]:
     """Ask the mover which enemies to pay off; charge it. Not asked if it can pay no one."""
@@ -183,7 +183,7 @@ def avoid(
 
 
 def _affordable_subsets(
-    b: Battle, mover: CombatantState, caps: tuple[int, ...], on_turn: bool
+    b: Battle, mover: CombatantState, caps: tuple[int | None, ...], on_turn: bool
 ) -> int:
     """How many subsets of the threatening enemies the mover could pay off (F11). Prices
     don't depend on which enemies, only on their caps, so this checks every subset."""

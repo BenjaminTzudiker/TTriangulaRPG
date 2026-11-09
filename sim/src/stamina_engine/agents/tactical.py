@@ -69,7 +69,7 @@ from stamina_engine.agents.grid_view import (
     ranged_loadout,
     shot_value,
 )
-from stamina_engine.agents.scripted import CommitPolicy, avoid_worth_it, largest_oa
+from stamina_engine.agents.scripted import CommitPolicy, avoid_worth_it, sized_oa
 from stamina_engine.core.errors import ConfigError
 from stamina_engine.grid.battlefield import Cell
 from stamina_engine.grid.geometry import distance, reach_cells
@@ -484,7 +484,7 @@ class TacticalAgent:
     def take_oa(self, request: TakeOA) -> OATake:
         if self.abilities is None and is_riposte(request.context):
             return OATake()
-        return largest_oa(request)
+        return sized_oa(request, self.commit)
 
     def aim(self, request: AimRequest) -> int:
         """The aim count with the best expected value, exactly: w x injury + the stamina the

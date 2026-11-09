@@ -15,7 +15,7 @@ from pathlib import Path
 from stamina_engine.core.errors import ConfigError
 from stamina_engine.rules import components as _components  # noqa: F401  (registers variants)
 from stamina_engine.rules.components.blocks import BlockRule, PerfectSlope
-from stamina_engine.rules.components.crit import CritRule, DoubleOnce
+from stamina_engine.rules.components.crit import CritRule, DoubleOnce, PerDieIfThrough
 from stamina_engine.rules.components.defenses import DefenseRule, V09Defenses
 from stamina_engine.rules.components.dying import DyingRule, NoShock, SystemShock
 from stamina_engine.rules.components.grid import GridRule, V09Grid
@@ -165,6 +165,40 @@ def v0_9() -> RuleSet:
     )
 
 
+def _resources_0_9_1(hp_base: int) -> V09Resources:
+    """0.9.1's HP from even Strength and Intelligence's AP rules, on a base HP."""
+    return V09Resources(
+        hp_base=hp_base,
+        hp_strength="per_even",
+        core_discount="odd_intelligence",
+        bonus_ap="even_intelligence",
+    )
+
+
+def v0_9_1() -> RuleSet:
+    """Packet 0.9.1 (rules/CHANGELOG.md): no opportunity-attack cap; extra on-turn movement
+    1 square a purchase; initiative 2d12 + Cunning; maximum HP 6 + 2 per even Strength; the
+    dying roll adds Will; Intelligence's core-ability discount and bonus Ability Points."""
+    return v0_9().with_(
+        name="v0.9.1",
+        opportunity=V09Opportunity(cap_rule="none"),
+        movement=V09Movement(extra_squares="one"),
+        turn_order=V09Initiative(bonus="cunning"),
+        resources=_resources_0_9_1(hp_base=6),
+        dying=SystemShock(roll_attribute="will"),
+    )
+
+
+def v0_9_2() -> RuleSet:
+    """Packet 0.9.2: 0.9.1, with +1 per critical die only if damage gets past blocks and
+    armor (no doubling), and maximum HP 8 + 2 per even Strength."""
+    return v0_9_1().with_(
+        name="v0.9.2",
+        crit=PerDieIfThrough(),
+        resources=_resources_0_9_1(hp_base=8),
+    )
+
+
 def review_candidate() -> RuleSet:
     """The review's candidate: +2 surcharge per prior action, v0.9 crits."""
     return v0_9().with_(name="review-candidate", surcharge=LinearSurcharge(slope=2))
@@ -189,6 +223,8 @@ def review_sim() -> RuleSet:
 
 PRESETS: dict[str, Callable[[], RuleSet]] = {
     "v0.9": v0_9,
+    "v0.9.1": v0_9_1,
+    "v0.9.2": v0_9_2,
     "review-candidate": review_candidate,
     "review-sim": review_sim,
 }

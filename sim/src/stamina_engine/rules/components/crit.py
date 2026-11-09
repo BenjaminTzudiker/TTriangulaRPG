@@ -57,6 +57,18 @@ class PerDieBonus(CritRule):
         return after_armor + self.bonus * crit_dice if crit_dice > 0 else after_armor
 
 
+@register("crit", "per_die_if_through")
+@dataclass(frozen=True)
+class PerDieIfThrough(CritRule):
+    """0.9.2: if any damage is left after blocks and armor, +bonus (1) per critical die. If
+    blocks and armor stop all of it, critical dice add nothing."""
+
+    bonus: int = 1
+
+    def finalize(self, after_armor: int, crit_dice: int) -> int:
+        return after_armor + self.bonus * crit_dice if after_armor > 0 else after_armor
+
+
 @register("crit", "none")
 @dataclass(frozen=True)
 class NoDoubling(CritRule):

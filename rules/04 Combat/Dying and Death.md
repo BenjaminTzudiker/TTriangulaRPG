@@ -9,7 +9,7 @@ next: "[[Weapons]]"
 
 0 HP is meant to be deadly, dangerous and impactful: clearly worse than being knocked out.
 
-**At 0 HP or below,** you're incapacitated. At exactly 0 HP you're incapacitated but not in System Shock.
+**At 0 HP or below,** you're incapacitated, and you stay that way until rest brings you back to 1 HP or more (see [[Rest and Healing]]). At exactly 0 HP you're incapacitated but not in System Shock.
 
 **Below 0 HP,** you enter **System Shock**.
 - **Starting Shock:** equal to your negative HP. At −2 HP you have 2 Shock.
@@ -27,6 +27,7 @@ next: "[[Weapons]]"
   - Helping someone stabilize uses a **Medicine** roll (**TODO:** specifics).
   - You stay at your negative HP and stay incapacitated, but you stop rolling.
 - **Damaged while stabilized:** you re-enter System Shock, with Shock equal to the damage taken.
+- **When the fight ends:** if anyone is still in System Shock, keep taking turns in initiative order until everyone is stabilized or dead, so the dying rolls continue. Allies who aren't incapacitated can help them stabilize (**TODO:** how).
 
 > [!example] Example: System Shock
 > 1. You're at 3 HP and take 5 damage. You're now at −2 HP with 2 Shock.

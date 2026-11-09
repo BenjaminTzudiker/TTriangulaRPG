@@ -31,6 +31,21 @@ A commit that only fixes typos can skip the entry by putting `[no changelog]` in
 
 - [[CHANGELOG]]: the *Engine:* notes on the 0.9.1 and 0.9.2 entries, "not implemented" → the switches and presets (`v0.9.1`, `v0.9.2`) that implement them. No rule changes. Why: the engine now implements both versions. Source: engine pull request, 2026-11-08.
 
+## 0.9.3 (2026-11-08)
+
+### Rules
+
+- [[HP]]: nightly HP recovery works the same below 0 HP (at −3 HP with Strength 0, a night of rest takes you to −2); the packet didn't say where recovery starts from. Restated in [[Rest and Healing]]. Why: simulating fights in series needs to know how a downed character heals; the designer ruled it recovers like any other wound. Source: designer's answers to the adventuring-day plan's questions (`sim/docs/CAMPAIGN_PLAN.md`), 2026-11-08. *Engine:* not implemented (rest is outside a single fight; planned for the campaign layer, phase C1).
+- [[Dying and Death]]: when a fight ends with anyone still in System Shock, turns continue in initiative order until everyone is stabilized or dead, and allies who aren't incapacitated can help them stabilize (how is **TODO**). Previously the packet didn't say what happens to the dying once a fight is over. Why: the designer's ruling, so a fight's end doesn't freeze or skip the dying rolls. Source: designer's answers to the adventuring-day plan's questions (`sim/docs/CAMPAIGN_PLAN.md`), 2026-11-08. *Engine:* not implemented; the campaign plan uses a stand-in for the help (each active ally gives one extra roll that can only lower Shock), recorded as an engine assumption, not a rule.
+
+### Clarified
+
+- [[Dying and Death]], [[HP]] and [[Rest and Healing]]: you stay incapacitated until rest brings you back to 1 HP or more, so a character at 0 HP or below can't take part in a later fight. This follows from "at 0 HP or below, you're incapacitated". Why: the designer confirmed the reading for simulating fights in series. Source: designer's answers to the adventuring-day plan's questions (`sim/docs/CAMPAIGN_PLAN.md`), 2026-11-08.
+
+### Editorial
+
+- [[Playtest Packet]]: version line 0.9.2 → 0.9.3. Why: cutting 0.9.3. Source: designer's request, 2026-11-08.
+
 ## 0.9.2 (2026-11-08)
 
 ### Rules

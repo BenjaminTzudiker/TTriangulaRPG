@@ -3,7 +3,7 @@ next: "[[What This Game Is Trying To Do]]"
 ---
 # Playtest Packet
 
-Consolidated Prototype · Version 0.9.2 · Changes since this version: [[CHANGELOG]]
+Consolidated Prototype · Version 0.9.3 · Changes since this version: [[CHANGELOG]]
 
 > [!info] Purpose
 > This is the current implementation of the game, written for internal playtesting rather than publication. Treat everything here as the current rules unless it's marked **TODO**.

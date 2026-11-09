@@ -40,7 +40,7 @@ A tactical fantasy TTRPG built on a regenerating stamina system, plus a Python r
 - `mypy --strict` clean, `ruff` clean, `pytest` green before any milestone is called done.
 - Integer arithmetic for all game math. The packet's "round" means round half up.
 - Engine code imports only the standard library (pyarrow only inside `--out`), so chats that can't reach PyPI run it with `PYTHONPATH=src python3 -m stamina_engine`. Tests that need an optional package skip without it.
-- The baseline preset is `BASELINE` in `rules/ruleset.py` (`v0.9.2`, the current packet). Scenarios, suites and defaults use it; tests that reproduce the review name `v0.9`, and the parity suite uses `review-sim`.
+- The baseline preset is `BASELINE` in `rules/ruleset.py` (`v0.9.2`, the current packet's fight rules; 0.9.3 changed only what happens after a fight). Scenarios, suites and defaults use it; tests that reproduce the review name `v0.9`, and the parity suite uses `review-sim`.
 - A released component default never changes: the RuleSet digest leaves defaults out, so changing one would change rules under an unchanged digest. Set a new value in the preset instead; `tests/golden/component_defaults.json` pins them.
 
 ## Commands

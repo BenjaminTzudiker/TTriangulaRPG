@@ -29,6 +29,7 @@ from stamina_engine.agents.decisions import (
     Commitment,
     DiveRequest,
     EndTurn,
+    Flee,
     Move,
     MoveAnswer,
     MoveOptions,
@@ -44,6 +45,14 @@ from stamina_engine.agents.decisions import (
 )
 from stamina_engine.agents.estimates import Estimate, Target, exact_estimate, sampled_estimate
 from stamina_engine.agents.grid_view import Board, attack_squares
+from stamina_engine.agents.objective_play import (
+    Goal,
+    check_mode,
+    closer_free,
+    denier_order,
+    goal,
+    in_goal,
+)
 from stamina_engine.core.dice import DiceSource
 from stamina_engine.core.errors import ConfigError
 from stamina_engine.grid.geometry import distance
@@ -353,6 +362,7 @@ class ScriptedAgent:
     oa_mode: str = "max"
     aims: int = 3  # a shooter's aim steps, as many of these as it can afford
     abilities: AbilityPolicy | None = None  # None: pass every ability window
+    objective: str = "kill"  # or "first" (agents/objective_play.py)
     _pending: int = field(default=0, init=False)
     _shot_round: int = field(default=-1, init=False)
 
@@ -367,12 +377,20 @@ class ScriptedAgent:
                 return use
         if obs.me.trackers.actions_this_turn > 0 or self._shot_round == obs.round:
             return EndTurn()  # one attack per turn
+        g = goal(obs) if self.objective == "first" else None
+        if g is not None and g.pursue and g.counts:
+            return self._pursue(request, g)
         if request.shots:
-            tid = self.target(obs, request.shots)
+            shots = request.shots
+            if g is not None and not g.pursue:
+                shots = tuple(denier_order(obs, self.rules, g, shots))[:1]
+            tid = self.target(obs, shots)
             if tid is not None:
                 self._shot_round = obs.round
                 return Shoot(tid)
         candidates = request.targets or tuple(v.id for v in obs.enemies() if v.status == "active")
+        if g is not None and not g.pursue and candidates:
+            candidates = tuple(denier_order(obs, self.rules, g, candidates))[:1]
         tid = self.target(obs, candidates)
         if tid is None:
             return EndTurn()
@@ -383,6 +401,28 @@ class ScriptedAgent:
             if step is not None:
                 return step
         if steps <= 0 or tid not in request.targets:
+            return EndTurn()
+        self._pending = steps
+        return Attack(tid)
+
+    def _pursue(self, request: TurnCommand, g: Goal) -> TurnAnswer:
+        """Head for the goal with free movement, flee from an exit when escaping, and attack
+        only what is in reach on the way (objective_play.py)."""
+        obs = request.observation
+        if g.view.kind == "escape" and request.can_flee:
+            return Flee()
+        if request.moves is not None and not (g.view.kind == "hold" and in_goal(obs, g)):
+            cell = closer_free(obs, self.rules, request.moves, g.cells)
+            if cell is not None:
+                free = (obs.me.free_move_left or 0) + (obs.me.banked or 0)
+                route = Board(obs, self.rules).route(request.moves, [cell], free)
+                if route is not None and route.path:
+                    return Move(route.path)
+        tid = self.target(obs, request.targets) if request.targets else None
+        if tid is None:
+            return EndTurn()
+        steps = self.commit.steps(obs.me, obs.view(tid))
+        if steps <= 0:
             return EndTurn()
         self._pending = steps
         return Attack(tid)
@@ -440,6 +480,7 @@ SCRIPTED_FIELDS = {
     "oa",
     "aims",
     "abilities",
+    "objective",
 }
 TACTICAL_FIELDS = {
     "retreat_engaged",
@@ -461,7 +502,8 @@ def make_agent(
     "never", "tactical", or a table {kind = "scripted" | "tactical", commit = "...",
     target = "first" | "lowest_stamina" (tactical: or "nearest"), w = "3",
     estimator = "exact" | "sampled", avoid = "worth_it" | "always" | "never",
-    oa = "max" | "never", abilities = "none" | "use"}; tactical also takes
+    oa = "max" | "never", abilities = "none" | "use", objective = "kill" | "first"}; tactical
+    also takes
     retreat_engaged = 2, low_stamina = "1/3", reach_spacing = true."""
     from stamina_engine.agents.tactical import TacticalAgent
 
@@ -491,6 +533,7 @@ def make_agent(
     target = str(table.get("target", "lowest_stamina" if kind == "tactical" else "first"))
     w = Fraction(str(table.get("w", "3")))
     uses = make_policy(str(table.get("abilities", "none")), rules, w)
+    objective = check_mode(str(table.get("objective", "kill")))
     estimator = Estimator(rules, str(table.get("estimator", "exact")), source)
     pricing = Pricing(rules)
     name, _, arg = commit.partition(":")
@@ -537,6 +580,7 @@ def make_agent(
             Fraction(str(table.get("flee_below", "0"))),
             Fraction(str(table.get("surrender_below", "0"))),
             uses,
+            objective,
         )
     if target not in TARGETS:
         raise ConfigError(f"unknown target policy {target!r}; known: {sorted(TARGETS)}")
@@ -549,4 +593,5 @@ def make_agent(
         oa_mode,
         int(str(table.get("aims", 3))),
         uses,
+        objective,
     )

@@ -64,6 +64,7 @@ se suite ranged --workers 8 --out reports/m3_ranged.md # archers on three maps, 
 se suite phase --workers 8 --out reports/phase_suite.md # all eight phase-suite items, review layouts
 se table 8 --equipment f8_die_upgrades                 # an exact table with a variant equipment table
 se suite cores --workers 8 --out reports/cores_suite.md # each core and candidate ability, off and on
+se suite objectives --workers 8 --out reports/objectives_o1_suite.md # O1: objective scenarios, kill v first
 se play src/stamina_engine/data/scenarios/l1_duel_open.toml --as A --log session.jsonl
 se load src/stamina_engine/data/scenarios/one_v_three_open.toml --trials 200
 se load --session session.jsonl                        # a person's decisions, with seconds
@@ -74,6 +75,57 @@ se load --session session.jsonl                        # a person's decisions, w
 A scenario's `equipment = "f4_shield_1"` swaps the weapon, armor and shield table for a variant in `src/stamina_engine/data/equipment/` (each overlays the packet's table entry by entry; copy one to try your own). The shipped variants are Review F8's (die upgrades, Strength capped at die size) and F4's (a +1/+2 shield, a shield with a Strength requirement); F8's light-weapon discount and F4's two-hander bonus are RuleSet switches (`surcharge.light_exempt`, `defenses.two_hander_bonus`, `defenses.agility_split`).
 
 NPC profiles (`src/stamina_engine/data/profiles/`) configure the tactical agent the way a stat block would: `agent = { kind = "npc", profile = "disciplined_2step" }` commits 2 steps, 3 against a target below half stamina, and focuses fire. `cautious` flees through an exit square (`>` on a map) at half HP and surrenders at a quarter. Fleeing and surrendering aren't in the packet; they're engine end states pending the designer (Assumptions register).
+
+### Objectives (O1)
+
+A scenario on a map can give one side an objective other than downing every opponent, with `[[zone]]` and `[[objective]]` tables (format at the top of `src/stamina_engine/experiments/scenario.py`):
+- `reach`: get `count` creatures into a zone;
+- `escape`: get `count` creatures off the map through exits (`>`);
+- `hold`: control a zone, by a `control` reading (`present`, `uncontested`, `majority`) and a `score` reading (`consecutive`, `cumulative`, `final`) that the scenario must state.
+
+Every objective has a `deadline` round. The fight ends when the objective is done (its side wins, reason `objective:<id>`), fails (the other side wins, `objective_failed:<id>`), or one side is out first (`side_out`). `se run` then also prints the objective's success rate and how fights ended. A zone can be a map letter that no combatant uses (`marker = "H"`), a list of squares or a rectangle.
+
+Agents ignore objectives unless their spec says `objective = "first"` (the default `"kill"` is today's behaviour and the control). `se suite objectives` runs the five objective scenarios (`extraction_3v3`, `breakthrough_3v3`, `hold_hill_3v3`, `hold_hill_final_3v3`, `hold_the_door_1v3`) under both agent families, pursuers in `kill` and in `first`, and reports the paired first − kill difference: if it is near zero, the objective adds nothing a straight fight doesn't already decide. The readings the packet doesn't give are in the Assumptions register; the plan is `sim/docs/OBJECTIVES_PLAN.md`.
+
+#### Setting up an objective scenario that tells you something
+
+The engine measures whatever fight you give it. An objective only produces an insight if the scenario makes the objective hard in the way your question is about. If you put an escape on open ground with the exits in reach, you've measured a footrace. Work through these before trusting a number:
+
+1. **Start from the question, then choose the objective.** Name the rule or finding you're probing, and pick the objective and terrain that put pressure on it. For example:
+   - opportunity attacks and reach (F9): a breakthrough through a gap a defender can stand in;
+   - focus fire (F6): a lone defender holding a corridor;
+   - retreat economics (Review Addendum 2): an escape that has to break contact, with pursuers able to reach the route;
+   - stamina banking: a hold scored only at the deadline (`score = "final"`).
+2. **Use the current rules.** Name the baseline, `ruleset = "v0.9.2"` (or leave the ruleset out). The `v0.9` preset predates packet 0.9.1, so its extra on-turn purchase moves 1 + odd Agility squares instead of 1 square, and it keeps the opportunity-attack cap. Movement decides most objective fights, so this matters more here than anywhere else.
+3. **Do the movement arithmetic.** Under current rules a creature covers its free Movement (5, +1 per odd Agility) plus 1 square per stamina it spends, all on its own turn. It can also move off-turn, at escalating prices. With `se map show <map>`, measure each pursuer's distance to the goal and each denier's distance to the intercept squares.
+   - If a pursuer can reach the goal on its first turn before any denier can engage it, the fight is a race decided by initiative.
+   - That is a fine thing to measure on purpose, but not by accident.
+   - To get a contest, put the deniers between the pursuers and the goal, give the route a chokepoint, or start the goal further away.
+4. **Give terrain a job.** Corridors, gaps in a wall, low walls and pillars make position matter. Open ground makes most objectives a matter of speed and numbers.
+   - Spread the deniers so that every route passes through someone's reach.
+   - Give the deniers a reason to choose between positions, such as two gaps and three defenders.
+5. **Set the deadline from the movement arithmetic.** Make it long enough that the objective takes several turns, and short enough that turtling fails. A reach or escape deadline defaults to the round cap.
+6. **Choose the hold readings deliberately.**
+   - `present` lets a single body hold against any number of enemies.
+   - `uncontested` lets one enemy deny the hold by standing in the zone.
+   - `majority` rewards numbers.
+   - `consecutive` punishes losing the zone even once; `final` lets a side fight elsewhere and arrive late.
+   These change the answer, so say which you used.
+7. **Balance the straight fight first.** Run the scenario with the pursuers in `kill` mode. If one side wins the straight fight almost every time, the objective has little room to matter. To measure the straight fight, remove the objective (`dataclasses.replace(scenario, objectives=(), zones=())`), or every pursuer in `kill` mode still loses on the objective's deadline. The first hill scenario had the party losing the straight fight 96% of the time, so almost every hold fight ended with one side wiped out and said nothing about the hold. Adjust the sides or the map until the straight fight is roughly even, or until its imbalance is the thing you're studying. Mirroring the rosters is the quickest fix; the shipped 3v3 objective scenarios do that, and the party wins their straight fights 40–47% of the time.
+8. **Read how fights ended, not just who won.**
+   - Mostly `side_out`: the objective isn't deciding the encounter.
+   - Mostly round 1: a race.
+   - Mostly `objective_failed` well before the deadline: the pursuers are being wiped out, not outplayed on the objective.
+   Then `se trace` a few trials of each kind of ending before you believe the pattern.
+9. **Run both agent families, and know their limits.**
+   - Scripted pursuers move with free movement only and never buy squares.
+   - Tactical pursuers buy up to half their stamina.
+   - Deniers of either family attack the pursuer nearest its goal; they don't body-block gaps.
+   A result that holds for only one family, or that a blocking denier would plausibly overturn, is about the agents, not the rules.
+10. **Compare rules on the same seeds.**
+    - `se compare` (or suite rows that share a scenario) gives paired differences.
+    - `first − kill` tells you whether the objective matters at all.
+    - Comparing RuleSet variants with the pursuers in `first` tells you how a rule changes the objective.
 
 ### Abilities, people and load (M5)
 

@@ -25,6 +25,31 @@ spawn = "A"                          # on a map: a spawn marker, or [x, y]; a co
                                      # takes a list, or a marker that repeats on the map
 ```
 
+Objectives (O1; they need a map and exactly two teams; one per scenario):
+
+```toml
+[[zone]]
+id = "hill"
+marker = "H"                         # every square with this map letter; or cells = [[x, y], ...];
+                                     # or rect = [x0, y0, x1, y1], inclusive
+[[objective]]
+id = "take_hill"
+kind = "hold"                        # reach | escape | hold
+team = "P"                           # the side pursuing it; the other side denies it
+zone = "hill"                        # reach and hold
+who = ["P0", "P1"]                   # optional: only these count (default: the whole team)
+count = 2                            # reach, escape: how many must make it (default: all who count)
+control = "uncontested"              # hold, required: present | uncontested | majority
+score = "consecutive"                # hold, required: consecutive | cumulative | final
+rounds = 2                           # hold with consecutive or cumulative scoring
+deadline = 8                         # the round by whose end it must be done (hold: required;
+                                     # reach, escape: defaults to round_cap)
+```
+
+How to set an objective scenario up so it measures something (movement arithmetic, terrain,
+deadlines, hold readings, a balanced straight fight first): "Setting up an objective scenario
+that tells you something" in sim/docs/USAGE_FOR_CHATS.md.
+
 `map_text` (a multi-line TOML string) gives the map inline instead of `map`; scenario_to_toml
 writes it that way, so a written scenario doesn't depend on files.
 """
@@ -39,6 +64,7 @@ from typing import Any
 from stamina_engine.core.errors import ConfigError
 from stamina_engine.grid.battlefield import DEFAULT_LEGEND, Battlefield, Cell, load_map, parse_map
 from stamina_engine.model.build import Build, load_build
+from stamina_engine.model.objectives import CONTROL, KINDS, SCORE, ObjectiveSpec, Zone
 from stamina_engine.rules.plugins import PluginInfo, load_plugin
 from stamina_engine.rules.ruleset import BASELINE, RuleSet, load_ruleset, preset
 
@@ -73,6 +99,8 @@ class Scenario:
     source: str = field(default="", compare=False)  # the TOML it came from, for the record
     battlefield: Battlefield | None = None
     equipment: str = "v0_9"  # the weapon, armor and shield table (data/equipment variants)
+    zones: tuple[Zone, ...] = ()
+    objectives: tuple[ObjectiveSpec, ...] = ()
 
     def __post_init__(self) -> None:
         if self.arena not in ARENAS:
@@ -98,6 +126,52 @@ class Scenario:
             raise ConfigError(f"duplicate combatant ids in {self.name}")
         if len({c.team for c in self.combatants}) < 2:
             raise ConfigError(f"scenario {self.name} needs at least two teams")
+        self._check_objectives()
+
+    def _check_objectives(self) -> None:
+        if not self.zones and not self.objectives:
+            return
+        where = f"scenario {self.name}"
+        if self.battlefield is None:
+            raise ConfigError(f"{where}: zones and objectives need a map")
+        zone_ids = [z.id for z in self.zones]
+        if len(set(zone_ids)) != len(zone_ids):
+            raise ConfigError(f"{where}: duplicate zone ids")
+        for z in self.zones:
+            if not z.cells:
+                raise ConfigError(f"{where}: zone {z.id} has no squares")
+            for cell in z.cells:
+                if not self.battlefield.in_bounds(cell) or not self.battlefield.walkable(cell):
+                    raise ConfigError(f"{where}: zone {z.id} square {cell} isn't floor")
+        if len(self.objectives) > 1:
+            raise ConfigError(f"{where}: one objective per scenario (O1)")
+        teams = {c.team for c in self.combatants}
+        if self.objectives and len(teams) != 2:
+            raise ConfigError(f"{where}: objectives need exactly two teams")
+        team_of = {c.id: c.team for c in self.combatants}
+        for o in self.objectives:
+            label = f"{where}: objective {o.id}"
+            if o.kind not in KINDS:
+                raise ConfigError(f"{label}: kind must be one of {sorted(KINDS)}")
+            if o.team not in teams:
+                raise ConfigError(f"{label}: no team {o.team!r}")
+            if not o.who or any(team_of.get(w) != o.team for w in o.who):
+                raise ConfigError(f"{label}: who must name members of team {o.team}")
+            if not 1 <= o.deadline <= self.round_cap:
+                raise ConfigError(f"{label}: deadline must be 1..round_cap ({self.round_cap})")
+            if o.kind in ("reach", "hold") and (o.zone is None or o.zone not in self.zones):
+                raise ConfigError(f"{label}: {o.kind} needs one of the scenario's zones")
+            if o.kind == "escape" and not self.battlefield.exits():
+                raise ConfigError(f"{label}: escape needs an exit (>) on the map")
+            if o.kind == "hold":
+                if o.control not in CONTROL:
+                    raise ConfigError(f"{label}: control must be one of {sorted(CONTROL)}")
+                if o.score not in SCORE:
+                    raise ConfigError(f"{label}: score must be one of {sorted(SCORE)}")
+                if o.score != "final" and not 1 <= o.rounds <= o.deadline:
+                    raise ConfigError(f"{label}: rounds must be 1..deadline")
+            elif not 1 <= o.count <= len(o.who):
+                raise ConfigError(f"{label}: count must be 1..{len(o.who)}")
 
     def with_rules(self, rules: RuleSet) -> "Scenario":
         return replace(self, rules=rules)
@@ -232,11 +306,16 @@ def scenario_from_toml(text: str, base_dir: Path = Path(".")) -> Scenario:
     unknown = set(table) - known
     if unknown:
         raise ConfigError(f"unknown scenario fields {sorted(unknown)}")
+    round_cap = int(table.get("round_cap", 30))
+    zones = tuple(_zone(dict(z), battlefield) for z in data.get("zone", []))
+    objectives = tuple(
+        _objective(dict(o), zones, combatants, round_cap) for o in data.get("objective", [])
+    )
     return Scenario(
         name=str(table.get("name", "scenario")),
         rules=rules,
         combatants=tuple(combatants),
-        round_cap=int(table.get("round_cap", 30)),
+        round_cap=round_cap,
         trials=int(table.get("trials", 1000)),
         seed=int(table.get("seed", 1)),
         dice=str(table.get("dice", "named")),
@@ -246,6 +325,86 @@ def scenario_from_toml(text: str, base_dir: Path = Path(".")) -> Scenario:
         source=text,
         battlefield=battlefield,
         equipment=str(table.get("equipment", "v0_9")),
+        zones=zones,
+        objectives=objectives,
+    )
+
+
+def _cell(v: object, where: str) -> Cell:
+    if (
+        isinstance(v, list)
+        and len(v) == 2
+        and all(isinstance(n, int) and not isinstance(n, bool) for n in v)
+    ):
+        return (v[0], v[1])
+    raise ConfigError(f"{where}: a square is [x, y], not {v!r}")
+
+
+def _zone(entry: dict[str, Any], field: Battlefield | None) -> Zone:
+    unknown = set(entry) - {"id", "marker", "cells", "rect"}
+    if unknown:
+        raise ConfigError(f"unknown zone fields {sorted(unknown)}")
+    zid = str(entry.get("id", ""))
+    if not zid:
+        raise ConfigError("a zone needs an id")
+    ways = [k for k in ("marker", "cells", "rect") if k in entry]
+    if len(ways) != 1:
+        raise ConfigError(f"zone {zid}: give exactly one of marker, cells or rect")
+    cells: set[Cell] = set()
+    if "marker" in entry:
+        if field is None:
+            raise ConfigError(f"zone {zid}: a marker needs a map")
+        cells = set(field.spawn(str(entry["marker"])))
+    elif "cells" in entry:
+        cells = {_cell(v, f"zone {zid}") for v in entry["cells"]}
+    else:
+        rect = entry["rect"]
+        if not (
+            isinstance(rect, list) and len(rect) == 4 and all(isinstance(n, int) for n in rect)
+        ):
+            raise ConfigError(f"zone {zid}: rect is [x0, y0, x1, y1]")
+        x0, y0, x1, y1 = rect
+        cells = {(x, y) for x in range(x0, x1 + 1) for y in range(y0, y1 + 1)}
+    return Zone(zid, tuple(sorted(cells, key=lambda c: (c[1], c[0]))))
+
+
+def _objective(
+    entry: dict[str, Any],
+    zones: tuple[Zone, ...],
+    combatants: list[CombatantSpec],
+    round_cap: int,
+) -> ObjectiveSpec:
+    fields = {"id", "kind", "team", "zone", "who", "count", "control", "score", "rounds"}
+    unknown = set(entry) - fields - {"deadline"}
+    if unknown:
+        raise ConfigError(f"unknown objective fields {sorted(unknown)}")
+    oid, kind, team = (
+        str(entry.get("id", "")),
+        str(entry.get("kind", "")),
+        str(entry.get("team", "")),
+    )
+    if not oid:
+        raise ConfigError("an objective needs an id")
+    by_id = {z.id: z for z in zones}
+    zone = None
+    if "zone" in entry:
+        zone = by_id.get(str(entry["zone"]))
+        if zone is None:
+            raise ConfigError(f"objective {oid}: no zone {entry['zone']!r}")
+    who = tuple(str(w) for w in entry.get("who", [c.id for c in combatants if c.team == team]))
+    if kind == "hold" and "deadline" not in entry:
+        raise ConfigError(f"objective {oid}: hold needs a deadline")
+    return ObjectiveSpec(
+        id=oid,
+        kind=kind,
+        team=team,
+        who=who,
+        deadline=int(entry.get("deadline", round_cap)),
+        zone=zone,
+        count=int(entry.get("count", len(who))) if kind != "hold" else 0,
+        control=str(entry.get("control", "")),
+        score=str(entry.get("score", "")),
+        rounds=int(entry.get("rounds", 0)),
     )
 
 
@@ -316,4 +475,28 @@ def scenario_to_toml(s: Scenario) -> str:
             lines.append(f"loadout = {_toml(c.loadout)}")
         if c.pos is not None:
             lines.append(f"spawn = {_toml(list(c.pos))}")
+    for z in s.zones:
+        lines += [
+            "",
+            "[[zone]]",
+            f"id = {_toml(z.id)}",
+            f"cells = {_toml([list(c) for c in z.cells])}",
+        ]
+    for o in s.objectives:
+        lines += [
+            "",
+            "[[objective]]",
+            f"id = {_toml(o.id)}",
+            f"kind = {_toml(o.kind)}",
+            f"team = {_toml(o.team)}",
+            f"who = {_toml(list(o.who))}",
+            f"deadline = {o.deadline}",
+        ]
+        if o.zone is not None:
+            lines.append(f"zone = {_toml(o.zone.id)}")
+        if o.kind == "hold":
+            lines += [f"control = {_toml(o.control)}", f"score = {_toml(o.score)}"]
+            lines.append(f"rounds = {o.rounds}")
+        else:
+            lines.append(f"count = {o.count}")
     return "\n".join(lines) + "\n"

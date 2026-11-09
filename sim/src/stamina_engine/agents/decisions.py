@@ -46,12 +46,33 @@ class CombatantView:
 
 
 @dataclass(frozen=True)
+class ObjectiveView:
+    """A scenario objective and its progress: public information (Assumptions register)."""
+
+    id: str
+    kind: str  # reach, escape, hold
+    team: str  # the side pursuing it
+    who: tuple[str, ...]  # the creatures who count
+    deadline: int
+    cells: tuple[Cell, ...]  # its zone's squares (reach, hold); () for escape
+    count: int  # reach, escape: how many must make it
+    control: str  # hold: present, uncontested, majority
+    score: str  # hold: consecutive, cumulative, final
+    rounds: int  # hold: rounds of control needed
+    progress: int
+    streak: int
+    reached: frozenset[str]
+    status: str  # open, done, failed
+
+
+@dataclass(frozen=True)
 class Observation:
     me: CombatantView
     others: tuple[CombatantView, ...]
     round: int
     field: Battlefield | None = None  # the map; None in the all-adjacent arena
     order: tuple[str, ...] = ()  # initiative order
+    objectives: tuple[ObjectiveView, ...] = ()  # the scenario's objectives, if any
 
     def view(self, cid: str) -> CombatantView:
         if cid == self.me.id:

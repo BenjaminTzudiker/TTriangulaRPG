@@ -1,0 +1,14 @@
+; The hill: a 3x3 zone (H) ringed by low walls (=) with openings on every side, so a creature
+; in it can be reached from four directions and the walls give cover from shooters. The
+; party (P) starts on the left, the NPCs (N) on the right, each 5 squares from the zone.
+#################
+#...............#
+#...............#
+#P.....=.=.....N#
+#.....=HHH=.....#
+#P.....HHH.....N#
+#.....=HHH=.....#
+#P.....=.=.....N#
+#...............#
+#...............#
+#################

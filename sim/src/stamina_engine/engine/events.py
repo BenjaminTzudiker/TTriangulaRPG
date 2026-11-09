@@ -262,8 +262,37 @@ class ControlChanged(Event):
 
 
 @dataclass(frozen=True)
+class ObjectiveReached(Event):
+    """A creature counted toward a reach objective (stood in its zone) or an escape (fled)."""
+
+    objective: str
+    who: str
+    progress: int
+    round: int
+
+
+@dataclass(frozen=True)
+class ObjectiveProgress(Event):
+    """A hold objective scored at the end of a round."""
+
+    objective: str
+    controlled: bool
+    progress: int  # rounds scored
+    streak: int  # rounds in a row in control
+    round: int
+
+
+@dataclass(frozen=True)
+class ObjectiveResolved(Event):
+    objective: str
+    status: str  # done or failed
+    team: str  # the team pursuing it
+    round: int
+
+
+@dataclass(frozen=True)
 class BattleEnded(Event):
-    reason: str  # side_out, round_cap
+    reason: str  # side_out, round_cap, objective:<id>, objective_failed:<id>
     winner: str | None  # winning team, or None for a draw
     round: int
 

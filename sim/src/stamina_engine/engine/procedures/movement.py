@@ -117,6 +117,8 @@ def move(
                 break
             b.ops.move_to(mover, nxt, how)
         b.ops.end_move(mover, stopped)
+        if b.objectives:
+            b.check_end()  # reaching a zone can end the fight
         if on_turn and not b.rules.movement.keeps_leftover() and mover.banked:
             b.ops.bank(mover, -mover.banked)
 

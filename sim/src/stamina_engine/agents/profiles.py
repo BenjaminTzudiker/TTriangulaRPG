@@ -5,7 +5,8 @@ behavior, not rules; sweeping them is how a GM's lethality dial (Review F6) is m
 
 A profile is data/profiles/<name>.toml with a [profile] table of tactical agent fields:
 commit, commit_vs_low, low_target, target (focus, lowest_stamina, nearest, first),
-retreat_engaged, low_stamina, flee_below, surrender_below, w, and a description.
+retreat_engaged, low_stamina, flee_below, surrender_below, w, objective (kill or first, see
+agents/objective_play.py), and a description.
 """
 
 import tomllib

@@ -19,6 +19,9 @@ from stamina_engine.engine.events import (
     Indebted,
     Injured,
     Moved,
+    ObjectiveProgress,
+    ObjectiveReached,
+    ObjectiveResolved,
     OrderChanged,
     Placed,
     Recovered,
@@ -30,7 +33,13 @@ from stamina_engine.engine.events import (
 from stamina_engine.grid.battlefield import Battlefield, Cell
 from stamina_engine.grid.geometry import step_allowed
 from stamina_engine.grid.threat import Body, can_pass
-from stamina_engine.model.state import BattleState, CombatantState
+from stamina_engine.model.state import (
+    OBJECTIVE_DONE,
+    OBJECTIVE_FAILED,
+    OBJECTIVE_OPEN,
+    BattleState,
+    CombatantState,
+)
 from stamina_engine.rules.pricing import Quote, Trackers
 from stamina_engine.rules.ruleset import RuleSet
 
@@ -210,6 +219,36 @@ class StateOps:
             del c.control[effect]
         self._emit(ControlChanged(c.id, effect, c.control.get(effect, 0), c.id))
 
+    # --- scenario objectives (O1) -----------------------------------------------------
+
+    def objective_reached(self, oid: str, who: str) -> None:
+        """A creature counts toward a reach or escape objective, once."""
+        o = self.state.objectives[oid]
+        if o.status != OBJECTIVE_OPEN:
+            raise EngineError(f"objective {oid} is already {o.status}")
+        if who in o.reached:
+            raise EngineError(f"{who} already counts toward {oid}")
+        o.reached = o.reached | {who}
+        o.progress = len(o.reached)
+        self._emit(ObjectiveReached(oid, who, o.progress, self.state.round))
+
+    def objective_scored(self, oid: str, controlled: bool) -> None:
+        """A hold objective at the end of a round: a round of control adds to the total and
+        the streak; a round without resets the streak."""
+        o = self.state.objectives[oid]
+        if o.status != OBJECTIVE_OPEN:
+            raise EngineError(f"objective {oid} is already {o.status}")
+        o.progress += int(controlled)
+        o.streak = o.streak + 1 if controlled else 0
+        self._emit(ObjectiveProgress(oid, controlled, o.progress, o.streak, self.state.round))
+
+    def resolve_objective(self, oid: str, done: bool, team: str) -> None:
+        o = self.state.objectives[oid]
+        if o.status != OBJECTIVE_OPEN:
+            raise EngineError(f"objective {oid} is already {o.status}")
+        o.status = OBJECTIVE_DONE if done else OBJECTIVE_FAILED
+        self._emit(ObjectiveResolved(oid, o.status, team, self.state.round))
+
     # --- leaving the fight ---------------------------------------------------------
 
     def surrender(self, c: CombatantState) -> None:
@@ -324,6 +363,11 @@ class StateOps:
                 raise EngineError(f"{c.id}: debt {c.debt} below 0")
             if c.dying.in_shock and c.dying.shock <= 0:
                 raise EngineError(f"{c.id}: in System Shock with {c.dying.shock} Shock")
+        for oid, o in self.state.objectives.items():
+            if o.status not in (OBJECTIVE_OPEN, OBJECTIVE_DONE, OBJECTIVE_FAILED):
+                raise EngineError(f"objective {oid}: unknown status {o.status!r}")
+            if not 0 <= o.streak <= o.progress or o.progress < len(o.reached):
+                raise EngineError(f"objective {oid}: progress {o.progress}, streak {o.streak}")
         if self.field is not None:
             seen: dict[Cell, str] = {}
             for c in self.state.combatants:

@@ -5,7 +5,7 @@ from dataclasses import replace
 
 import pytest
 
-from stamina_engine.agents.decisions import Attack, Move, OATake, Pass, UseAbility
+from stamina_engine.agents.decisions import Attack, BlocksRequest, Move, OATake, Pass, UseAbility
 from stamina_engine.agents.listed import Listed
 from stamina_engine.core.dice import ScriptedDice
 from stamina_engine.core.errors import RulesError
@@ -88,15 +88,32 @@ def test_rogue_waits_and_comes_back_after_a_later_turn() -> None:
 
 def test_heavy_swing_costs_a_step_more_and_pierces_two_armor() -> None:
     a = Listed(turns=[Attack("B")], commit=[2], uses=[UseAbility("heavy_swing")])
+    b = Listed()
     entrants = [
         Entrant("A", "A", with_abilities("l1_sample", "heavy_swing"), a),
-        Entrant("B", "B", derive(load_build("l1_heavy"), RULES), Listed()),
+        Entrant("B", "B", derive(load_build("l1_heavy"), RULES), b),
     ]
     result = battle(entrants, {"initiative": [12, 12, 1, 1], "attack:A": [1, 1], "dying": [6] * 9})
     (paid,) = [e for e in result.log if isinstance(e, Spent) and e.category == "attack"]
     assert paid.parts == (3, 4)  # 2 + 1, 3 + 1
     (hit,) = [e for e in result.log if isinstance(e, AttackResolved)]
     assert hit.armor_applied == 1  # heavy armor 3, less 2
+    # The defender blocks knowing the armor it faces, not its full 3.
+    (asked,) = [r for r in b.requests if isinstance(r, BlocksRequest)]
+    assert asked.armor == 1
+
+
+def test_a_defender_against_heavy_swing_takes_no_unplanned_wound() -> None:
+    """10 damage against Melee Defense 4 in heavy armor: told armor 3, the solver's 1 perfect +
+    1 grazing block (3 left, soaked) would lose 2 HP to Heavy Swing's armor 1. Told the armor
+    it faces, the defender's blocks give the injury it planned."""
+    from stamina_engine.rules.block_solver import best_block
+    from stamina_engine.rules.exchange import resolve
+
+    told_full = best_block(10, 0, 4, 3, 10, 8, RULES)
+    assert told_full.injury == 0 and resolve(10, 0, 4, 1, told_full.blocks, RULES).injury == 2
+    told_faced = best_block(10, 0, 4, 1, 10, 8, RULES)
+    assert resolve(10, 0, 4, 1, told_faced.blocks, RULES).injury == told_faced.injury
 
 
 def test_riposte_after_a_perfect_block() -> None:

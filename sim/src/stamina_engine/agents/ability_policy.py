@@ -102,7 +102,7 @@ class AbilityPolicy:
             int(facts.get("damage", 0)),
             int(facts.get("crit_dice", 0)),
             int(facts.get("defense", me.gear.melee_defense)),
-            me.gear.armor,
+            int(facts.get("armor", me.gear.armor)),
             max(stamina, 0),
             me.hp,
             self.rules,
@@ -110,6 +110,7 @@ class AbilityPolicy:
             0,
             bool(facts.get("ranged", 0)),
             flat,
+            int(facts["limit"]) if "limit" in facts else None,
         )
         return choice.score + (100 * self.w if choice.incapacitated else 0)
 

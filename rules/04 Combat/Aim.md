@@ -8,7 +8,7 @@ up: "[[Ranged Attacks]]"
 - **Free aim die:** every shot comes with **one aim die**, paid for by the shot cost. It isn't an action and doesn't add to the surcharge.
 - **Aim steps:** each adds **1d6** to the shot's total. Finesse doesn't add to aim.
 - **Cost:** each aim step is an **action**, so it costs **1 + actions already taken this turn**. Shots are actions too, and the count carries across shots; it doesn't restart.
-- **Aim limit:** aim makes a shot harder to block, but it never adds to the wound. The HP a shot takes can't exceed the weapon's damage roll: its die plus any Strength it adds. Apply the limit after armor and before the critical bonus, so each critical die still adds +1 on top of it.
+- **Aim limit:** aim makes a shot harder to block, but it never adds to the wound. The HP a shot takes can't exceed the weapon's damage roll: its die plus any Strength it adds. Other bonuses to the total, such as the shortbow's Finesse, count like aim (see [[Weapons#Weapon Properties|Weapon Properties]]). Apply the limit after armor and before the critical bonus, so each critical die still adds +1 on top of it.
 - **Aim dice are never critical** (see [[Critical Hits]]).
 
 > [!example] Example: Two Aimed Longbow Shots

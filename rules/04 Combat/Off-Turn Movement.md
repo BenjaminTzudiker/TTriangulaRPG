@@ -12,7 +12,7 @@ Turns cover a lot of time, and HP is low. Off-turn movement keeps positioning li
 
 **When:**
 - right after **any** creature's turn ends, including your own (you can move then, but not act); or
-- when you're targeted by a ranged attack, once the shooter has bought its aim steps and before it rolls (see [[Cover]]).
+- when you're targeted by a ranged attack (see [[Cover]]).
 
 **Distance:** each purchase moves 1 square, +1 per odd Agility value (up to 4).
 

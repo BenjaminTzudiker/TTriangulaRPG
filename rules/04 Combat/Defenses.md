@@ -29,16 +29,16 @@ Avoiding or disrupting missiles before they strike. You can't plausibly parry an
 | Source | Bonus |
 |---|---|
 | Base (lost if Agility is below 0) | 1 |
-| Moved during the current turn | +1 |
-| Each odd Agility value (fewer in medium or heavy armor; see [[Armor]]) | +1 each |
+| Moved in reaction to this shot (see [[Cover]]) | +1 |
+| Each even Agility value (fewer in medium or heavy armor; see [[Armor]]) | +1 each |
 | Shield | +1 |
 | Abilities | as stated |
 
-- **Moved during the current turn** means you used off-turn movement during this creature's turn. For now, that only happens when you react to a ranged attack (see [[Cover]]). Moving on your own turn, or between turns, doesn't count.
+- **Moved in reaction to this shot** counts only off-turn movement you bought when targeted by this shot. Against a second shot, you have to move again to get it. Moving on your own turn, or between turns, doesn't count.
 - **A second weapon** in your other hand doesn't add to Ranged Defense.
 
 **Cover** adds to whatever defense you use against a ranged attack (see [[Cover]]).
 
-**Point-blank shots:** if the shooter is within your melee reach when you block (after any reaction; see [[Cover]]), use your **Melee Defense** instead. Cover still applies.
+**Point-blank shots:** if the shooter is within your melee reach when you block (after any reaction to the shot; see [[Cover]]), use your **Melee Defense** instead. Cover still applies.
 
 ![[Dodge Defense]]

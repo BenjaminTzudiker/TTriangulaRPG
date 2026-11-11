@@ -14,7 +14,7 @@ All offensive steps come before any defensive step.
 
 **Defense**
 
-4. Reactions, such as diving for cover against a ranged attack. Against a ranged attack, reactions come after the shot and aim are paid for but before the roll (see [[Ranged Attacks#Procedure|Procedure]]).
+4. Reactions, such as diving for cover against a ranged attack.
 5. Declare perfect and grazing blocks.
 
 **Resolution**

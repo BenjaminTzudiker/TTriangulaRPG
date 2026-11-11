@@ -4,7 +4,7 @@
 # turns when the fighter could reach it, and dives for cover. Swap agents to compare.
 [scenario]
 name = "archer-wall"
-ruleset = "v0.9.3"
+ruleset = "v0.10.0"
 map = "archer_wall"
 round_cap = 30
 trials = 500

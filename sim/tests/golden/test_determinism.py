@@ -78,36 +78,36 @@ def test_pinned_log_hashes(
 
 
 GRID_PINNED = [
-    ("archer_wall.toml", 2, "69bf122ee889e2fe9e24979220b51929ecb7f57c17b16f78764a8c3b567c7193"),
+    ("archer_wall.toml", 2, "036a8407b8a1645c0850413c065f246f2fa8cf47348f3db9374abc6129f0b9be"),
     (
         "one_v_three_corridor.toml",
         0,
-        "03da000a4b05eac635407bc66f5198cdee4e44099411ae10d56b488844047134",
+        "52c4dc95c527391173f6e44b3194baa76e9f83abf2a66fdc0061f9b90e3c47f0",
     ),
     (
         "reach_chokepoint.toml",
         3,
-        "940b7052bce33c53c2e0bae318f798ed5500ea565b4e58c329841c14138aa828",
+        "71d2a158d6b67d198297c8bf3eb93fe1455112734c6b0b6fc6f9f31271b5ce7d",
     ),
     (
         "extraction_3v3.toml",  # objectives (O1)
         0,
-        "b7684caf9c375325ef5338a63e34ace83adf43a077da0c9ae1368c1c516bb98f",
+        "e0a5055422d5893f28c2b9d3a7c95aee74f75d48761679661786c7340a079133",
     ),
     (
         "breakthrough_3v3.toml",  # objectives (O1)
         0,
-        "6b839410ec590a971c36a00c94f4e4584fa74b2cfb93977a62b6764ac70275c5",
+        "850c78136cc7df31a288170f5af3d9b74f5e78c0762a2840691607aba032a3d5",
     ),
     (
         "hold_hill_3v3.toml",  # objectives (O1)
         0,
-        "9af112a316e16357242f4d47a584e7f914d634485becb36af90fd6be00da384d",
+        "2dbd56adecf72c28338b6336cc71ff26ed9d8b6aa1a2e54c816aea44543571ab",
     ),
     (
         "hold_the_door_1v3.toml",  # objectives (O1)
         0,
-        "cb67118d1a6e40a5ca1796ae331c6fc26f3b7dece63cd994e7814469a34fda1d",
+        "9c6542f27eba6d5d9a19838f3bde83c6647887708ac8dfd483b74fb29a67f2d7",
     ),
 ]
 
@@ -115,7 +115,7 @@ GRID_PINNED = [
 @pytest.mark.parametrize(("scenario", "trial", "expected"), GRID_PINNED)
 def test_pinned_grid_log_hashes(scenario: str, trial: int, expected: str) -> None:
     """Grid battles (tactical and scripted agents, OAs and off-turn windows), under each
-    scenario's own ruleset: the baseline (now v0.9.3)."""
+    scenario's own ruleset: the baseline (now v0.10.0)."""
     from pathlib import Path
 
     from stamina_engine.experiments.runner import run_trial

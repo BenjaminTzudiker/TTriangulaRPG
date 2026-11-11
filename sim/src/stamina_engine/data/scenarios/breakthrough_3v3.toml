@@ -6,7 +6,7 @@
 # Set up by the checklist in sim/docs/USAGE_FOR_CHATS.md.
 [scenario]
 name = "breakthrough-3v3"
-ruleset = "v0.9.3"
+ruleset = "v0.10.0"
 map = "breakthrough"
 round_cap = 20
 trials = 300

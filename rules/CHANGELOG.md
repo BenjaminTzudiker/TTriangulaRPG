@@ -29,11 +29,11 @@ A commit that only fixes typos can skip the entry by putting `[no changelog]` in
 
 ### Editorial
 
-- [[CHANGELOG]]: the *Engine:* notes on the 0.10.0 entries, "not implemented" → the switches, the `v0.10.0` preset and the `v0_10` equipment table that implement them; the 0.10.0 introduction now names the preset. No rule changes. Why: the engine now implements 0.10.0. Source: engine pull request, 2026-11-11.
+- [[CHANGELOG]]: the *Engine:* notes on the 0.10.0 entries, "not implemented" → the switches, the `v0.10.0` preset and the `v0_10` equipment table that implement them; the 0.10.0 introduction now names the preset, which is the engine's baseline. No rule changes. Why: the engine now implements 0.10.0, and the designer moved the baseline to it. Source: engine pull request and designer's ruling, 2026-11-11.
 
 ## 0.10.0 (2026-11-11)
 
-The ranged package. The engine implements it as the `v0.10.0` preset with the `v0_10` equipment table; the baseline preset stays `v0.9.3`. The further engine work (reaction switches, agents, step-by-step play) is specified in the project doc `claude/Sim_Requirements_Ranged_Package_2026-11-11.md`. The design chat's evidence is in `claude/Ranged_Bow_Placeholders_2026-11-10.md` (addenda 1–6) and the earlier `claude/Ranged_*` docs.
+The ranged package. The engine implements it as the `v0.10.0` preset with the `v0_10` equipment table, and `v0.10.0` is the engine's baseline. The further engine work (reaction switches, agents, step-by-step play) is specified in the project doc `claude/Sim_Requirements_Ranged_Package_2026-11-11.md`. The design chat's evidence is in `claude/Ranged_Bow_Placeholders_2026-11-10.md` (addenda 1–6) and the earlier `claude/Ranged_*` docs.
 
 ### Rules
 

@@ -241,8 +241,15 @@ def _loadout_profile(
     )
 
 
+def equipment_for(rules: RuleSet) -> str:
+    """The packet's equipment table for a RuleSet's range bands: 0.10.0's bows (with band
+    widths, and the +1 / +1 shield) under linear bands, v0.9's (three ranges) otherwise.
+    What a scenario or table uses when it names none."""
+    return "v0_10" if rules.ranged.uses_band_width() else "v0_9"
+
+
 def derive(build: Build, rules: RuleSet, table: EquipmentTable | None = None) -> CombatProfile:
-    table = table or load_table()
+    table = table or load_table(equipment_for(rules))
     validate(build, rules, table)
     res = rules.resources
     proficient = build.proficiencies | core_proficiencies(build.cores)

@@ -3,9 +3,10 @@
 ```toml
 [scenario]
 name = "l1-duel"
-ruleset = { base = "v0.9.3" }        # or "v0.9.3", or { file = "mine.toml" }, plus overrides;
-                                    # without a ruleset, the baseline (v0.9.3)
-equipment = "v0_9"                   # or a variant table in data/equipment
+ruleset = { base = "v0.10.0" }        # or "v0.10.0", or { file = "mine.toml" }, plus overrides;
+                                    # without a ruleset, the baseline (v0.10.0)
+equipment = "v0_10"                  # or a variant table in data/equipment; without it, the
+                                    # RuleSet's own (v0_10 for 0.10.0's bands, else v0_9)
 round_cap = 30
 trials = 2000
 seed = 1
@@ -64,6 +65,7 @@ from typing import Any
 from stamina_engine.core.errors import ConfigError
 from stamina_engine.grid.battlefield import DEFAULT_LEGEND, Battlefield, Cell, load_map, parse_map
 from stamina_engine.model.build import Build, load_build
+from stamina_engine.model.derive import equipment_for
 from stamina_engine.model.objectives import CONTROL, KINDS, SCORE, ObjectiveSpec, Zone
 from stamina_engine.rules.plugins import PluginInfo, load_plugin
 from stamina_engine.rules.ruleset import BASELINE, RuleSet, load_ruleset, preset
@@ -98,7 +100,13 @@ class Scenario:
     plugin_paths: tuple[str, ...] = ()
     source: str = field(default="", compare=False)  # the TOML it came from, for the record
     battlefield: Battlefield | None = None
-    equipment: str = "v0_9"  # the weapon, armor and shield table (data/equipment variants)
+    equipment: str = ""  # the weapon, armor and shield table; "" is the RuleSet's own
+
+    @property
+    def table_name(self) -> str:
+        """The equipment table this scenario plays with."""
+        return self.equipment or equipment_for(self.rules)
+
     zones: tuple[Zone, ...] = ()
     objectives: tuple[ObjectiveSpec, ...] = ()
 
@@ -324,7 +332,7 @@ def scenario_from_toml(text: str, base_dir: Path = Path(".")) -> Scenario:
         plugin_paths=plugin_paths,
         source=text,
         battlefield=battlefield,
-        equipment=str(table.get("equipment", "v0_9")),
+        equipment=str(table.get("equipment", "")),
         zones=zones,
         objectives=objectives,
     )
@@ -447,7 +455,7 @@ def scenario_to_toml(s: Scenario) -> str:
         f"dice = {_toml(s.dice)}",
         f"arena = {_toml(s.arena)}",
         f"plugins = {_toml(list(s.plugin_paths))}",
-        f"equipment = {_toml(s.equipment)}",
+        f"equipment = {_toml(s.table_name)}",
     ]
     if s.battlefield is not None:
         lines.append(f"map_name = {_toml(s.battlefield.name)}")

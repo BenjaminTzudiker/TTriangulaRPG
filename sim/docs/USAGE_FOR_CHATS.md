@@ -6,7 +6,7 @@ For claude.ai chats in the "Tactical fantasy TTRPG" project. Claude Code keeps t
 
 ## Packet versions
 
-Each packet version is a preset. **Packet 0.10.0 (2026-11-11), the ranged package, is the preset `v0.10.0`, but the baseline is still `v0.9.3`** until the designer moves it, so results under `v0.9.3` don't reflect 0.10.0's ranged attacks, cover, Ranged Defense or +1 shields; say so when a result touches them, and name `v0.10.0` for ranged questions. A 0.10.0 scenario also needs `equipment = "v0_10"` (the new bows and the +1 / +1 shield); the engine refuses to mix 0.10.0's rules with v0.9's bows, or the reverse. `v0.9` stays the v0.9 packet, so earlier results still reproduce, and `review-sim` (parity) and `review-candidate` are built on it. **`v0.9.3` is the baseline** (ruled 2026-11-08): the library's scenarios and the milestone suites name it, and it's what a scenario without a ruleset, a sweep without rulesets and `se table` use. Name `v0.9` to reproduce the review or an earlier result: `se table 5 --ruleset v0.9`, or `se compare scenario.toml --a v0.9 --b v0.9.3`. Reports in `sim/reports/` written before the move ran under `v0.9`; their stamps say so.
+Each packet version is a preset. **`v0.10.0` (packet 0.10.0, the ranged package) is the baseline** (ruled 2026-11-11): the library's scenarios and the milestone suites name it, and it's what a scenario without a ruleset, a sweep without rulesets and `se table` use. Its equipment is the `v0_10` table (the new bows and the +1 / +1 shield): a scenario that names no `equipment` gets its RuleSet's own, `v0_10` for 0.10.0's range bands and `v0_9` for earlier presets, and the engine refuses to mix 0.10.0's rules with v0.9's bows, or the reverse. Results from before 2026-11-11 ran under `v0.9.3` (+2 shields, v0.9's ranged rules) or earlier presets. `v0.9` stays the v0.9 packet, so earlier results still reproduce, and `review-sim` (parity) and `review-candidate` are built on it. Name `v0.9` to reproduce the review or an earlier result: `se table 5 --ruleset v0.9`, or `se compare scenario.toml --a v0.9.3 --b v0.10.0`. Every report in `sim/reports/` names the preset it ran under in its stamp.
 
 | Preset | Rules (see `rules/CHANGELOG.md`) |
 |---|---|
@@ -52,7 +52,7 @@ se table 1 --ruleset v0.9                             # review Table 1 under the
 se table 1 --ruleset review-sim --rounding half-even   # reproduces the review's printed Table 1
 se table 8 --ruleset v0.9 --rounding half-even         # review Table 8
 se run src/stamina_engine/data/scenarios/l1_duel.toml --trials 2000 --workers 4
-se compare src/stamina_engine/data/scenarios/one_v_three.toml --a v0.9 --b v0.9.3
+se compare src/stamina_engine/data/scenarios/one_v_three.toml --a v0.9.3 --b v0.10.0
 se sweep src/stamina_engine/data/scenarios/surcharge_sweep.toml --out results/surcharge
 se suite parity --workers 8 --out reports/m1_parity.md # every published review fight, in lockstep
 se map list                                            # library maps
@@ -98,7 +98,7 @@ The engine measures whatever fight you give it. An objective only produces an in
    - focus fire (F6): a lone defender holding a corridor;
    - retreat economics (Review Addendum 2): an escape that has to break contact, with pursuers able to reach the route;
    - stamina banking: a hold scored only at the deadline (`score = "final"`).
-2. **Use the current rules.** Name the baseline, `ruleset = "v0.9.3"` (or leave the ruleset out). The `v0.9` preset predates packet 0.9.1, so its extra on-turn purchase moves 1 + odd Agility squares instead of 1 square, and it keeps the opportunity-attack cap. Movement decides most objective fights, so this matters more here than anywhere else.
+2. **Use the current rules.** Name the baseline, `ruleset = "v0.10.0"` (or leave the ruleset out). The `v0.9` preset predates packet 0.9.1, so its extra on-turn purchase moves 1 + odd Agility squares instead of 1 square, and it keeps the opportunity-attack cap. Movement decides most objective fights, so this matters more here than anywhere else.
 3. **Do the movement arithmetic.** Under current rules a creature covers its free Movement (5, +1 per odd Agility) plus 1 square per stamina it spends, all on its own turn. It can also move off-turn, at escalating prices. With `se map show <map>`, measure each pursuer's distance to the goal and each denier's distance to the intercept squares.
    - If a pursuer can reach the goal on its first turn before any denier can engage it, the fight is a race decided by initiative.
    - That is a fine thing to measure on purpose, but not by accident.
@@ -165,7 +165,7 @@ Report positional results for both families: agent behavior can drive a result a
 
 ```toml
 [ruleset]
-base = "v0.9.3"
+base = "v0.10.0"
 opportunity = { cap_rule = "weapon_base" }       # F9 option 1: bring back a cap of weapon base + odd FIN
 # opportunity = { avoid_price = "attacker_cap" } # F9 option 2 (needs a cap: base = "v0.9", or option 1)
 # opportunity = { avoid_track = "off_turn" }     # F9 option 3 (or "off_turn_only")
@@ -206,13 +206,13 @@ from stamina_engine.rules.block_solver import best_block, cheapest_zero_injury
 from stamina_engine.analysis import dist                 # exact (total, crit dice) distributions
 from stamina_engine.provenance import collect            # the stamp to quote with results
 
-rules = preset("v0.9.3")                                # the baseline
+rules = preset("v0.10.0")                               # the baseline
 fighter = derive(load_build("l1_sample"), rules)
 Pricing(rules).melee_attack(base=2, steps=3).total      # 9
 print(collect(rules).text())
 ```
 
-`review-sim` reproduces the review's simulator, quirks included; use `v0.9.3`, the current packet (or your variant on it), for design questions. `uv run pytest` takes under a minute; `uv run pytest -m slow` adds the full-count oracle parity runs.
+`review-sim` reproduces the review's simulator, quirks included; use `v0.10.0`, the current packet (or your variant on it), for design questions. `uv run pytest` takes under a minute; `uv run pytest -m slow` adds the full-count oracle parity runs.
 
 ## Trying a rule change
 
@@ -223,7 +223,7 @@ Never edit the baseline: not the v0.9 components, not the presets, not `rules/`.
    ```toml
    # steep.toml
    [ruleset]
-   base = "v0.9.3"
+   base = "v0.10.0"
    name = "steep-surcharge"
    surcharge = { slope = 2 }
    blocks = { slope_num = 1, slope_den = 2 }   # perfect blocks 1, 1, 2, 2, 3...

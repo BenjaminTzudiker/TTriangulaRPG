@@ -34,7 +34,7 @@ from stamina_engine.experiments.sweep import load_sweep, run_sweep
 from stamina_engine.grid.battlefield import library_maps, load_map
 from stamina_engine.provenance import collect
 from stamina_engine.rules.plugins import PluginInfo, load_plugin
-from stamina_engine.rules.ruleset import BASELINE, RuleSet, load_ruleset
+from stamina_engine.rules.ruleset import BASELINE, RuleSet, load_ruleset, preset
 
 SUITES = ("parity", "positioning", "ranged", "phase", "cores", "objectives")
 
@@ -94,8 +94,10 @@ def table(args: argparse.Namespace) -> int:
 
     rules, infos = _setup(args.ruleset, args.plugin)
     rounding = Rounding(args.rounding)
-    gear = load_table(args.equipment)
-    if args.equipment != "v0_9":
+    from stamina_engine.model.derive import equipment_for
+
+    gear = load_table(args.equipment or equipment_for(rules))
+    if args.equipment:
         _say(f"Equipment: {args.equipment}")
     if args.number == 1:
         _say(render_table1(table1(rules, rounding, gear), rounding))
@@ -104,8 +106,11 @@ def table(args: argparse.Namespace) -> int:
     else:
         from stamina_engine.analysis.ranged import render_table5
 
+        review = rules.digest() == preset("v0.9").digest()
         _say("Target spends / takes / downed, exactly (review Table 5's static part):")
-        _say(render_table5(rules))
+        if not review:
+            _say("(the review's figures are shown only under its own rules: --ruleset v0.9)")
+        _say(render_table5(rules, against_review=review))
     _say()
     _say(collect(rules, infos).text())
     return 0
@@ -160,7 +165,6 @@ def suite(args: argparse.Namespace) -> int:
     objectives (O1): the objective scenarios, pursuers ignoring or playing the objective."""
     if args.name == "parity":
         return _parity(args.scale, args.workers, args.out)
-    from stamina_engine.rules.ruleset import preset
 
     rules = preset(BASELINE)
     stamp = collect(rules).text()  # before running: the code that runs
@@ -176,7 +180,7 @@ def suite(args: argparse.Namespace) -> int:
         from stamina_engine.experiments.ranged_suite import render as render_ranged
 
         rows = run_rows(RANGED_ROWS, trials, workers)
-        report = render_ranged(rows, stamp, trials, render_table5(rules))
+        report = render_ranged(rows, stamp, trials, render_table5(preset("v0.9")))
     elif args.name == "phase":
         from stamina_engine.experiments import phase_suite
 
@@ -335,8 +339,8 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument(
         "--ruleset",
         default=BASELINE,
-        help="A preset name (v0.9, v0.9.1, v0.9.2, v0.9.3, review-candidate, review-sim) or a "
-        ".toml file.",
+        help="A preset name (v0.9, v0.9.1, v0.9.2, v0.9.3, v0.10.0, review-candidate, "
+        "review-sim) or a .toml file.",
     )
     p.add_argument(
         "--rounding",
@@ -346,7 +350,10 @@ def build_parser() -> argparse.ArgumentParser:
     )
     _plugins(p)
     p.add_argument(
-        "--equipment", default="v0_9", help="Equipment table: v0_9, or a variant in data/equipment."
+        "--equipment",
+        default=None,
+        help="Equipment table: the RuleSet's own by default (v0_10 or v0_9), or a variant in "
+        "data/equipment.",
     )
 
     p = command("run", run)

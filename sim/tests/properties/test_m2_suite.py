@@ -83,7 +83,7 @@ def test_positioning_suite_small() -> None:
     results = run_rows(rows, trials=4)
     report = render(results, "stamp", 4)
     assert "## Reach at a door (F9)" in report
-    assert report.count("| v0.9.3, FIN") == 2
+    assert report.count("| v0.10.0, FIN") == 2
     fin0 = build_scenario(rows[1])
     assert fin0.combatants[0].build.name == "l1_spear_fin0"
 

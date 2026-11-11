@@ -37,7 +37,7 @@ from stamina_engine.experiments.runner import run_trial
 from stamina_engine.experiments.scenario import load_scenario
 from stamina_engine.grid.battlefield import Battlefield, Cell, parse_map
 from stamina_engine.model.build import Build, Loadout, load_build
-from stamina_engine.model.derive import CombatProfile, WeaponProfile, derive
+from stamina_engine.model.derive import CombatProfile, WeaponProfile, derive, equipment_for
 from stamina_engine.model.equipment import load_table
 from stamina_engine.rules.exchange import Blocks, resolve, roll_shot
 from stamina_engine.rules.pricing import FRESH, Pricing
@@ -213,8 +213,11 @@ def test_no_maximum_range() -> None:
 
 
 def test_the_bows_need_their_table() -> None:
+    """Each RuleSet's range bands pick the packet's table by default; mixing them is refused."""
+    assert equipment_for(V10) == "v0_10" and equipment_for(preset("v0.9.3")) == "v0_9"
+    assert derive(load_build("l1_archer"), V10).main.weapon == bow(archer())
     with pytest.raises(ConfigError, match="band width"):
-        derive(load_build("l1_archer"), V10)
+        derive(load_build("l1_archer"), V10, load_table("v0_9"))
     with pytest.raises(ConfigError, match="ranges"):
         derive(load_build("l1_archer"), preset("v0.9.3"), TABLE)
 

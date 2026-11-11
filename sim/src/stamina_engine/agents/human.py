@@ -306,7 +306,9 @@ class HumanAgent:
                     ).total
                 except Unaffordable:
                     break
-                out = resolve(r.damage, r.crit_dice, r.defense, r.armor, Blocks(p, g), self.rules)
+                out = resolve(
+                    r.damage, r.crit_dice, r.defense, r.armor, Blocks(p, g), self.rules, r.limit
+                )
                 points.append((Blocks(p, g), cost, out.injury))
                 if out.injury == 0:
                     break
@@ -327,6 +329,11 @@ class HumanAgent:
             f"{request.attacker}'s {kind} {self._context(request.context)}: {request.damage} "
             f"damage, {request.crit_dice} critical dice; your defense {request.defense}, armor "
             f"{request.armor}, stamina {request.stamina}"
+            + (
+                f"; at most {request.limit} HP before critical bonuses"
+                if request.limit is not None
+                else ""
+            )
             + (" (perfect blocks don't escalate)" if request.flat_perfect else "")
             + ". Blocks worth considering:",
         ]
@@ -430,9 +437,10 @@ class HumanAgent:
     def aim(self, request: AimRequest) -> int:
         prices = ", ".join(f"{k}: {q.total}" for k, q in enumerate(request.quotes))
         text = (
-            f"Shot at {request.target} ({request.band}, cover {request.cover}) "
-            f"{self._context(request.context)}: how many aims? At least {request.required} "
-            f"to hit. Stamina by aims: {prices}."
+            f"Shot at {request.target} ({request.band}, cover {request.cover}"
+            + (f", -{request.penalty} range penalty if it stays" if request.penalty else "")
+            + f") {self._context(request.context)}: how many aims? At least "
+            f"{request.required} to hit. Stamina by aims: {prices}."
         )
 
         def parse(line: str) -> int:
@@ -452,9 +460,35 @@ class HumanAgent:
             f"damage, {request.crit_dice} critical dice. Move (dive for cover, or Tactical "
             "Withdrawal's step), or p to stay.",
         ]
+        if request.defense is not None:
+            lines.append(
+                f"  staying: block {request.damage} against defense {request.defense}"
+                + (f", armor {request.armor}" if request.armor is not None else "")
+                + (
+                    f", at most {request.limit} HP before crits"
+                    if request.limit is not None
+                    else ""
+                )
+            )
         lines += self._moves_line(request.moves)
         if better:
             lines.append("  better cover at: " + " ".join(f"{x},{y}" for x, y in better[:12]))
+        if request.defense_after:
+            changed = sorted(
+                c
+                for c in request.defense_after
+                if (request.damage_after.get(c), request.defense_after[c])
+                != (request.damage, request.defense)
+            )
+            if changed:
+                lines.append(
+                    "  from other squares (block/defense): "
+                    + " ".join(
+                        f"{x},{y}:{request.damage_after.get((x, y), request.damage)}"
+                        f"/{request.defense_after[(x, y)]}"
+                        for x, y in changed[:16]
+                    )
+                )
 
         def parse(line: str) -> MoveAnswer:
             words = line.split() or ["p"]

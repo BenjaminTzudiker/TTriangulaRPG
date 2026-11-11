@@ -16,6 +16,7 @@ class OpportunityRule(Component):
         "Ledger MV-5",
         "Review F9",
         "Review F14",
+        "Packet: Triggers",
     )
     allowed = {
         "timing": frozenset({"on_leave"}),
@@ -27,6 +28,10 @@ class OpportunityRule(Component):
         # Whether avoidance escalates and counts as an off-turn cost (F9 option 3): never,
         # always, or only when paid off-turn.
         "avoid_track": frozenset({"none", "off_turn", "off_turn_only"}),
+        # Which enemies a point-blank shot's OAs come from: those threatening the shooter
+        # once the shot resolves (v0.9's reading), or (0.10.0) only those threatening it both
+        # when the shot is declared and when the attacks happen.
+        "point_blank_eligible": frozenset({"at_resolution", "declared_and_resolution"}),
     }
 
     def cap(self, finesse: int, weapon_base: int = 0) -> int | None:
@@ -57,6 +62,11 @@ class OpportunityRule(Component):
         """Can the shooter pay to avoid the OAs a point-blank shot provokes? (Not for now.)"""
         raise NotImplementedError
 
+    def point_blank_needs_declared(self) -> bool:
+        """Must an enemy have threatened the shooter when the shot was declared to get its
+        point-blank OA?"""
+        raise NotImplementedError
+
 
 @register("opportunity", "v0_9")
 @dataclass(frozen=True)
@@ -75,6 +85,7 @@ class V09Opportunity(OpportunityRule):
     cap_rule: str = "flat"
     avoid_price: str = "flat"
     avoid_track: str = "none"
+    point_blank_eligible: str = "at_resolution"
 
     def __post_init__(self) -> None:
         super().__post_init__()
@@ -114,3 +125,6 @@ class V09Opportunity(OpportunityRule):
 
     def point_blank_avoid(self) -> bool:
         return self.point_blank_avoidable
+
+    def point_blank_needs_declared(self) -> bool:
+        return self.point_blank_eligible == "declared_and_resolution"

@@ -189,7 +189,9 @@ class Board:
             weapon = e.gear.weapon
             if weapon is None or not weapon.ranged or e.pos is None:
                 continue
-            band = self.rules.ranged.band(distance(e.pos, cell, self.rules.grid), weapon.ranges)
+            band = self.rules.ranged.band(
+                distance(e.pos, cell, self.rules.grid), weapon.ranges, weapon.band_width
+            )
             if band == "beyond":
                 continue
             level = self.cover_at(e.pos, cell, (e.id, self.me.id))
@@ -245,12 +247,16 @@ def shot_value(
     hp: int,
     rules: RuleSet,
     w: Fraction,
+    penalty: int = 0,
 ) -> tuple[Fraction, Fraction, Fraction]:
     """(expected injury, expected stamina the target spends, P(down)) for one shot, exactly,
-    against the target's best blocks."""
+    against the target's best blocks. armor is the target's; the weapon's Piercing comes off
+    here. penalty is a known range penalty (linear bands)."""
     from stamina_engine.analysis.ranged import respond, shot
 
-    r = respond(shot(weapon, aims, finesse, band, rules), defense, armor, stamina, hp, rules, w)
+    joint = shot(weapon, aims, finesse, band, rules, penalty)
+    faced = max(0, armor - weapon.piercing)
+    r = respond(joint, defense, faced, stamina, hp, rules, w)
     return r.injury, r.stamina, r.p_down
 
 
@@ -263,11 +269,12 @@ def block_score(
     hp: int,
     rules: RuleSet,
     w: Fraction,
+    limit: int | None = None,
 ) -> Fraction:
     """What blocking a known roll costs: stamina + w x injury, with a big penalty for going
     down (the block solver never takes an avoidable incapacitation)."""
     choice = best_block(
-        damage, crit_dice, defense, armor, max(stamina, 0), hp, rules, w, ranged=True
+        damage, crit_dice, defense, armor, max(stamina, 0), hp, rules, w, ranged=True, limit=limit
     )
     return choice.score + (100 * w if choice.incapacitated else 0)
 

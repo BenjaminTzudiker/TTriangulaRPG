@@ -203,6 +203,18 @@ class ShotMissed(Event):
 
 
 @dataclass(frozen=True)
+class RangePenalized(Event):
+    """Linear range bands: the penalty a shot takes, from where the target is when it
+    blocks (after its reaction, from 0.10.0)."""
+
+    shooter: str
+    target: str
+    distance: int
+    band: str
+    penalty: int
+
+
+@dataclass(frozen=True)
 class Dived(Event):
     """The target dove for cover; cover is what the shot now faces (total counts as 3/4)."""
 

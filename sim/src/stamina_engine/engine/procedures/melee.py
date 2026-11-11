@@ -26,6 +26,7 @@ cites = (
     "Packet: Blocking",
     "Packet: Armor",
     "Packet: Critical Hits",
+    "Packet: Weapon Properties",
     "Ledger CB-1",
     "Ledger CB-2",
     "Ledger CB-3",
@@ -48,8 +49,10 @@ def melee_attack(b: Battle, attacker: CombatantState, target: CombatantState) ->
         attack = roll(b, attacker, weapon, steps)
         if reactions(b, attacker, target, attack, weapon):
             return  # the target got out of reach
-        blocks = declare_blocks(b, attacker, target, attack)
-        outcome = armor_and_crits(b, attacker, target, attack, blocks, pierce=2 * extra)
+        blocks = declare_blocks(b, attacker, target, attack, armor=faced_armor(target, weapon))
+        outcome = armor_and_crits(
+            b, attacker, target, attack, blocks, pierce=2 * extra + weapon.piercing
+        )
         lose_hp(b, target, outcome)
         if blocks.perfect and b.outcome is None:
             riposte(b, target, attacker)
@@ -170,14 +173,18 @@ def declare_blocks(
     defense: int | None = None,
     ranged: bool = False,
     cover: int = 0,
+    armor: int | None = None,
+    limit: int | None = None,
 ) -> Blocks:
     """Step 5: the defender sees the total and the critical dice, then declares blocks.
     An incapacitated defender can't block (Assumptions register). defense defaults to Melee
-    Defense; a ranged attack passes Ranged (or Melee) Defense plus its cover bonus."""
+    Defense; a ranged attack passes Ranged (or Melee) Defense plus its cover bonus, the armor
+    it faces after Piercing, and its aim limit."""
     if not target.active:
         return Blocks()
     gear = target.gear
     defense = gear.melee_defense if defense is None else defense
+    armor = gear.armor if armor is None else armor
     facts: dict[str, int | str] = {
         "attacker": attacker.id,
         "damage": attack.total,
@@ -194,12 +201,13 @@ def declare_blocks(
         attack.total,
         attack.crit_dice,
         defense,
-        gear.armor,
+        armor,
         target.stamina,
         b.rules,
         prior,
         ranged,
         flat,
+        limit,
     )
     request = BlocksRequest(
         target.id,
@@ -209,7 +217,7 @@ def declare_blocks(
         attack.total,
         attack.crit_dice,
         defense,
-        gear.armor,
+        armor,
         target.stamina,
         prior,
         options.affordable,
@@ -217,6 +225,7 @@ def declare_blocks(
         ranged,
         cover,
         flat,
+        limit,
     )
     blocks = b.broker.blocks(request)
     b.ops.emit(BlocksDeclared(target.id, blocks.perfect, blocks.grazing, prior))
@@ -238,12 +247,12 @@ def armor_and_crits(
     defense: int | None = None,
     pierce: int = 0,
 ) -> Outcome:
-    """Steps 6 and 7: armor (less 1 per critical die, less pierce: Heavy Swing), then the
-    crit effect."""
+    """Steps 6-8: armor (less 1 per critical die, less pierce: Heavy Swing or a weapon's
+    Piercing), a shot's aim limit, then the crit effect."""
     gear = target.gear
     defense = gear.melee_defense if defense is None else defense
     armor = max(0, gear.armor - pierce)
-    outcome = resolve(attack.total, attack.crit_dice, defense, armor, blocks, b.rules)
+    outcome = resolve(attack.total, attack.crit_dice, defense, armor, blocks, b.rules, attack.limit)
     b.ops.emit(
         AttackResolved(
             attacker.id,
@@ -257,6 +266,12 @@ def armor_and_crits(
         )
     )
     return outcome
+
+
+def faced_armor(target: CombatantState, weapon: WeaponProfile) -> int:
+    """The armor an attack with weapon faces, after its Piercing (Packet: Weapon
+    Properties); what the defender is told when it blocks. Critical dice come off later."""
+    return max(0, target.gear.armor - weapon.piercing)
 
 
 def lose_hp(b: Battle, target: CombatantState, outcome: Outcome) -> None:

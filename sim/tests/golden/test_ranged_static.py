@@ -7,7 +7,7 @@ from fractions import Fraction
 
 import pytest
 
-from stamina_engine.analysis.ranged import bows, check_table5, shot
+from stamina_engine.analysis.ranged import bows, check_table5, shot, totals
 from stamina_engine.cli import invoke
 from stamina_engine.core.dice import ScriptedDice
 from stamina_engine.model.build import load_build
@@ -69,7 +69,7 @@ def enumerate_shot(rules: RuleSet, aims: int, band: str) -> dict[tuple[int, int]
 def test_exact_shot_matches_the_roller(overrides: dict, aims: int, band: str) -> None:
     rules = V09.override(overrides) if overrides else V09
     name, weapon, fin = bows(rules)[0]
-    assert shot(weapon, aims, fin, band, rules) == enumerate_shot(rules, aims, band)
+    assert totals(shot(weapon, aims, fin, band, rules)) == enumerate_shot(rules, aims, band)
 
 
 def test_range_bands() -> None:

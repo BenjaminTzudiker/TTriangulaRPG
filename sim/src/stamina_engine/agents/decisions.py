@@ -231,7 +231,9 @@ class AbilityRequest:
 @dataclass(frozen=True)
 class AimRequest:
     """After declaring a shot: how many aim steps. quotes[k] is the price of the shot with k
-    aims (from 0); fewer than `required` aims miss at this range."""
+    aims (from 0); fewer than `required` aims miss at this range. penalty is what linear
+    range bands take off the total at the target's square now (its reaction may change
+    it)."""
 
     who: str
     observation: Observation
@@ -241,6 +243,7 @@ class AimRequest:
     cover: int  # the target's cover now (0 none, 1 half, 2 three-quarters)
     required: int
     quotes: tuple[Quote, ...]
+    penalty: int = 0
 
     @property
     def max_aims(self) -> int:
@@ -253,18 +256,29 @@ class AimRequest:
 
 @dataclass(frozen=True)
 class DiveRequest:
-    """A shot at you has been rolled: dive for cover with off-turn movement, or don't.
-    cover_after says the cover the shot would then face from each destination."""
+    """A shot at you has been rolled: react with off-turn movement (dive for cover, close
+    in, back away), or don't. cover_after says the cover the shot would then face from each
+    destination. Where the rules make moving pay for more than cover (0.10.0: range measured
+    after the reaction, Ranged Defense for moving), the engine also says what you'd block
+    from each destination: the total (damage_after) and your defense with cover
+    (defense_after), and the same if you stay (damage, defense). armor is what the shot
+    faces after Piercing, and limit its aim limit. Melee's Tactical Withdrawal uses this
+    request too, with only the moves."""
 
     who: str
     observation: Observation
     context: tuple[str, ...]
     shooter: str
-    damage: int
+    damage: int  # the total to block if it stays
     crit_dice: int
     cover: int  # if it stays
     moves: MoveOptions
     cover_after: Mapping[Cell, int]
+    defense: int | None = None  # if it stays (with cover); None if not given
+    damage_after: Mapping[Cell, int] = field(default_factory=dict)
+    defense_after: Mapping[Cell, int] = field(default_factory=dict)
+    armor: int | None = None
+    limit: int | None = None
 
     @property
     def option_count(self) -> int:
@@ -366,6 +380,7 @@ class BlocksRequest:
     ranged: bool = False  # against a ranged attack (prices perfect blocks: blocks.ranged_flat)
     cover: int = 0  # the cover bonus included in defense
     flat_perfect: bool = False  # perfect blocks don't escalate for this attack (Monk core)
+    limit: int | None = None  # a shot's aim limit: the most HP it can take before crits
 
     @property
     def option_count(self) -> int:

@@ -3,6 +3,7 @@
 from dataclasses import dataclass
 
 from stamina_engine.core.dice import Dice
+from stamina_engine.core.errors import ConfigError
 from stamina_engine.model.build import Attributes, Build, Loadout, core_proficiencies, validate
 from stamina_engine.model.equipment import DamageExpr, EquipmentTable, Weapon, load_table
 from stamina_engine.rules.ruleset import RuleSet
@@ -12,6 +13,8 @@ cites = (
     "Packet: Defenses",
     "Packet: Stamina",
     "Packet: Weapon Table",
+    "Packet: Weapon Properties",
+    "Packet: Range Bands",
     "Ledger EQ-1",
     "Ledger EQ-2",
     "Ledger DF-1",
@@ -26,6 +29,10 @@ class Damage:
     flat: int
     chosen: tuple[str, ...]  # the attribute taken for each term, in order
     step_floor: int = 0
+    # The part of flat that counts toward a shot's damage roll for the aim limit (Packet:
+    # Aim): Strength terms and constants. Other attributes (the shortbow's Finesse) count
+    # like aim.
+    limit_flat: int = 0
 
     @property
     def mean_x2(self) -> int:
@@ -50,6 +57,9 @@ class WeaponProfile:
     crit_widen: int
     ranges: tuple[int, ...] = ()  # short, medium, long (squares), for ranged weapons
     light: bool = False  # tagged light in the table (Review F8 option 2's surcharge discount)
+    band_width: int = 0  # the wielder's band width (linear bands); 0 or less can't shoot
+    piercing: int = 0  # armor the weapon ignores (Piercing N)
+    precise: bool = False  # Precise: the aim limit is at least the wielder's Finesse
 
 
 @dataclass(frozen=True)
@@ -103,6 +113,7 @@ def resolve_damage(
     With str_cap = "die" (Review F8 option 3) a Strength term adds at most the weapon's
     largest die size."""
     flat = expr.flat
+    limit_flat = expr.flat
     chosen: list[str] = []
     cap = max((d.size for d in expr.dice), default=0)
     for term in expr.terms:
@@ -112,7 +123,9 @@ def resolve_damage(
         if str_cap == "die" and best == "STR":
             value = min(value, cap)
         flat += value
-    return Damage(expr.dice, flat, tuple(chosen), step_floor)
+        if best == "STR":
+            limit_flat += value
+    return Damage(expr.dice, flat, tuple(chosen), step_floor, limit_flat)
 
 
 def penalized(attributes: Attributes, strength_requirement: int, per_point: int) -> Attributes:
@@ -138,6 +151,17 @@ def _weapon_profile(
     rules: RuleSet,
     table: EquipmentTable,
 ) -> WeaponProfile:
+    r = rules.ranged
+    if weapon.ranged and r.uses_band_width() and weapon.band_width <= 0:
+        raise ConfigError(
+            f"{weapon.name} has no band width, which {rules.name}'s range bands need; "
+            "use an equipment table with 0.10.0's bows (v0_10)"
+        )
+    if weapon.ranged and not r.uses_band_width() and not weapon.ranges:
+        raise ConfigError(
+            f"{weapon.name} has no short / medium / long ranges, which {rules.name}'s range "
+            "bands need; use an equipment table with v0.9's bows (v0_9)"
+        )
     return WeaponProfile(
         name=weapon.name,
         grip=grip,
@@ -150,6 +174,13 @@ def _weapon_profile(
         crit_widen=rules.crit.widen(attrs.FIN),
         ranges=weapon.ranges,
         light="light" in weapon.properties,
+        band_width=(
+            r.band_width(weapon.band_width, attrs.FIN, attrs.STR, weapon.strength)
+            if weapon.ranged
+            else 0
+        ),
+        piercing=weapon.piercing,
+        precise=weapon.precise,
     )
 
 

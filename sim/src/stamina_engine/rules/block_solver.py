@@ -51,9 +51,10 @@ def best_block(
     prior_perfect: int = 0,
     ranged: bool = False,
     flat: bool = False,
+    limit: int | None = None,
 ) -> BlockChoice:
     """ranged prices perfect blocks as against a ranged attack (blocks.ranged_flat); flat
-    stops their escalation (the Monk core)."""
+    stops their escalation (the Monk core); limit is a shot's aim limit."""
     pricing = Pricing(rules)
     graze = rules.blocks.graze_cost
     needed = _needed(damage, defense)
@@ -64,7 +65,7 @@ def best_block(
         g = 0
         while perfect_cost + g * graze <= stamina:
             blocks = Blocks(p, g)
-            out = resolve(damage, crit_dice, defense, armor, blocks, rules)
+            out = resolve(damage, crit_dice, defense, armor, blocks, rules, limit)
             cost = perfect_cost + g * graze  # == pricing.blocks(p, g, prior_perfect=...).total
             choice = BlockChoice(blocks, cost, out.injury, out.injury >= hp, w * out.injury + cost)
             if best is None or choice.key() < best.key():
@@ -88,18 +89,19 @@ def cheapest_zero_injury(
     stamina: int | None = None,
     prior_perfect: int = 0,
     ranged: bool = False,
+    limit: int | None = None,
 ) -> BlockChoice | None:
     """The cheapest blocks that leave no injury, or None if none exist (within stamina)."""
     pricing = Pricing(rules)
     needed = _needed(damage, defense)
-    limit = needed if needed is not None else 0
+    most = needed if needed is not None else 0
     best: BlockChoice | None = None
-    for p in range(limit + 1):
-        for g in range(limit - p + 1):
+    for p in range(most + 1):
+        for g in range(most - p + 1):
             cost = pricing.blocks(p, g, prior_perfect=prior_perfect, ranged=ranged).total
             if stamina is not None and cost > stamina:
                 continue
-            out = resolve(damage, crit_dice, defense, armor, Blocks(p, g), rules)
+            out = resolve(damage, crit_dice, defense, armor, Blocks(p, g), rules, limit)
             if out.injury == 0 and (best is None or cost < best.cost):
                 best = BlockChoice(Blocks(p, g), cost, 0, False, Fraction(cost))
     return best
@@ -125,6 +127,7 @@ def block_options(
     prior_perfect: int = 0,
     ranged: bool = False,
     flat: bool = False,
+    limit: int | None = None,
 ) -> BlockOptions:
     pricing = Pricing(rules)
     graze = rules.blocks.graze_cost
@@ -136,7 +139,7 @@ def block_options(
         affordable += (stamina - perfect_cost) // graze + 1
         g = 0
         while perfect_cost + g * graze <= stamina:
-            out = resolve(damage, crit_dice, defense, armor, Blocks(p, g), rules)
+            out = resolve(damage, crit_dice, defense, armor, Blocks(p, g), rules, limit)
             points.append((perfect_cost + g * graze, out.injury))
             if needed is not None and p + g >= needed and out.after_armor == 0:
                 break  # the rest of this row costs more for no less injury

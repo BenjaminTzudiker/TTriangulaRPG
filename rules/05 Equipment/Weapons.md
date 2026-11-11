@@ -24,7 +24,7 @@ A weapon card lists its category, base stamina cost (a shot cost, for ranged wea
 | Spear | 2 | 1d8 + STR + FIN | **TODO** | Reach: 1 extra square |
 | Greatsword | 3 | 1d12 + 2×STR + FIN | Two | |
 | Greataxe | 3 | 2d6 + 3×STR | Two | |
-| Shortbow | 2 per shot | 1d4 + FIN | Two | Band width 2; Precise |
+| Shortbow | 3 per shot | 1d4 + FIN | Two | Band width 2; Precise |
 | Longbow | 4 per shot | 1d8 + STR | Two | Band width 3; Strength 1 |
 | Warbow | 6 per shot | 1d10 + STR | Two | Band width 4; Strength 3; Piercing 1 |
 | Superheavy warbow | 8 per shot | 1d12 + STR | Two | Band width 5; Strength 5; Piercing 2. Provisional |

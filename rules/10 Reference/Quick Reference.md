@@ -7,11 +7,11 @@ next: "[[Defined Terms]]"
 
 ## Attack Sequence
 
-*Restates [[Attack Procedure]], [[Ranged Attacks]], [[Blocking]], [[Armor]] and [[Critical Hits]].*
+*Restates [[Attack Procedure]], [[Ranged Attacks]], [[Aim]], [[Range Bands]], [[Cover]], [[Blocking]], [[Armor]], [[Critical Hits]] and [[Opportunity Attacks]].*
 
-**Melee:** Declare target → declare steps and pay → roll → blocks → armor → +1 per critical die if any damage is left → lose HP
+**Melee:** Declare target → declare steps and pay → roll → blocks → armor (less Piercing and critical dice) → +1 per critical die if any damage is left → lose HP
 
-**Ranged:** Declare target → pay shot → buy aim → roll → dive for cover → blocks → armor → +1 per critical die if any damage is left → lose HP
+**Ranged:** Declare target and pay shot (provokes if you're in an enemy's reach) → buy aim → roll → target reacts (dive, close in, back away) → range penalty → blocks → armor (less Piercing and critical dice) → aim limit → +1 per critical die if any damage is left → lose HP → opportunity attacks
 
 ## Stamina Costs
 
@@ -20,7 +20,7 @@ next: "[[Defined Terms]]"
 | What | Cost | Escalates on |
 |---|---|---|
 | Melee attack step | Weapon base + actions this turn | On-turn surcharge (it's an action) |
-| Ranged shot | Weapon base, flat | — |
+| Ranged shot | Shot cost + actions this turn (includes one free aim die) | On-turn surcharge (it's an action) |
 | Aim step | 1 + actions this turn | On-turn surcharge (it's an action) |
 | Extra on-turn movement | 1 per purchase (1 square) | — |
 | Off-turn movement | 1 + earlier off-turn costs | Off-turn escalation |
@@ -59,11 +59,11 @@ The running totals for perfect blocks, attribute costs and skill ranks.
 - **Odd-value bonuses:**
   - Strength: +1 HP recovered per night.
   - Agility: free movement squares, squares per off-turn purchase.
-  - Finesse: critical range.
+  - Finesse: critical range, squares of band width on ranged weapons.
   - Intelligence: core abilities not counted toward the next core's cost.
 - **Even-value bonuses:**
   - Strength: +2 maximum HP each.
-  - Agility: Melee and Dodge Defense. The medium and heavy armor columns apply here.
+  - Agility: Melee, Ranged and Dodge Defense. The medium and heavy armor columns apply here.
   - Finesse: Melee Defense while wielding a proficient melee weapon. Armor doesn't change this.
   - Intelligence: extra Ability Points on a level schedule (see [[Intelligence]]).
 - **Every point:** Cunning adds 1 to initiative; Will adds 1 to the dying roll.
@@ -95,8 +95,8 @@ A level-1 **Fighter**, using the starting 5 Expertise and 1 Ability Point.
 | **Stamina** | Maximum 16; recovers 4 per turn |
 | **Strain** | Maximum 6 |
 | **Gear** | Longsword (one-handed), shield, medium armor (2). STR 2 meets medium armor's requirement. |
-| **Melee Defense** | 4: base 1 + proficient weapon 1 + shield 2 |
-| **Ranged Defense** | 3: base 1 + shield 2 |
+| **Melee Defense** | 3: base 1 + proficient weapon 1 + shield 1 |
+| **Ranged Defense** | 2: base 1 + shield 1; +1 against a shot it moves in reaction to |
 | **Dodge Defense** | 1 |
 | **Movement** | 6 squares; 2 squares per off-turn purchase |
 | **Initiative** | 2d12 (CUN 0) |

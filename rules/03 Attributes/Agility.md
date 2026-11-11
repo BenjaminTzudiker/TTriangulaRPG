@@ -14,7 +14,7 @@ Agility is whole-body movement: balance, speed, evasiveness and cardiovascular e
 - +1 square per off-turn movement purchase.
 
 **Even values (2, 4, 6):**
-- +1 Melee Defense and +1 Dodge Defense.
+- +1 Melee Defense, +1 Ranged Defense and +1 Dodge Defense.
 - Medium and heavy armor reduce this (see [[Armor]]).
 
 **Below 0** (for example, from armor penalties): you lose your base 1 Melee, Ranged and Dodge Defense.

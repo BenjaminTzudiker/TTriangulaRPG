@@ -7,6 +7,6 @@ next: "[[Magic]]"
 
 *Status: Locked*
 
-- A shield gives **+2 Melee Defense and +2 Ranged Defense**.
+- A shield gives **+1 Melee Defense and +1 Ranged Defense**.
 - You only benefit from one shield at a time.
 - You can't cast spells while using a shield.

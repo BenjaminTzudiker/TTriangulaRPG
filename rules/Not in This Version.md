@@ -5,7 +5,8 @@ prev: "[[Open Questions]]"
 # Not in This Version
 
 These ideas are deliberately left out of the current rules. They're strong candidates to come back, so don't build around their absence.
-- **Maximum HP Damage:** only part of an attack's damage could become HP loss; the rest would only cost stamina. This is the leading fix for ranged aim lethality.
+- **Maximum HP Damage:** only part of an attack's damage could become HP loss; the rest would only cost stamina. Ranged attacks now have their own version of this, the aim limit (see [[Aim]]). A general rule stays out until melee shows it needs one.
+- **Split attribute bonuses for ranged:** for example, band width from Finesse 1 and 5 plus Cunning 3, or Ranged Defense from Agility 1 and 5 plus Cunning 3, instead of one attribute's odd values.
 - **Damage reducing maximum stamina:** would let a character be worn out of the fight before reaching 0 HP.
 - **Lingering and permanent injuries.**
 - **Extended contests** for grapples, holds and charms.

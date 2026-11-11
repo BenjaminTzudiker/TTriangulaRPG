@@ -6,7 +6,7 @@ For claude.ai chats in the "Tactical fantasy TTRPG" project. Claude Code keeps t
 
 ## Packet versions
 
-Each packet version is a preset. `v0.9.3` is the current packet; `v0.9` stays the v0.9 packet, so earlier results still reproduce, and `review-sim` (parity) and `review-candidate` are built on it. **`v0.9.3` is the baseline** (ruled 2026-11-08): the library's scenarios and the milestone suites name it, and it's what a scenario without a ruleset, a sweep without rulesets and `se table` use. Name `v0.9` to reproduce the review or an earlier result: `se table 5 --ruleset v0.9`, or `se compare scenario.toml --a v0.9 --b v0.9.3`. Reports in `sim/reports/` written before the move ran under `v0.9`; their stamps say so.
+Each packet version is a preset. **Packet 0.10.0 (2026-11-11) isn't implemented yet.** It changes ranged attacks, cover and Ranged Defense, and drops shields from +2 to +1, so results under `v0.9.3` don't reflect it; say so when a result touches ranged combat or shields. `v0.9.3` is the latest implemented packet; `v0.9` stays the v0.9 packet, so earlier results still reproduce, and `review-sim` (parity) and `review-candidate` are built on it. **`v0.9.3` is the baseline** (ruled 2026-11-08): the library's scenarios and the milestone suites name it, and it's what a scenario without a ruleset, a sweep without rulesets and `se table` use. Name `v0.9` to reproduce the review or an earlier result: `se table 5 --ruleset v0.9`, or `se compare scenario.toml --a v0.9 --b v0.9.3`. Reports in `sim/reports/` written before the move ran under `v0.9`; their stamps say so.
 
 | Preset | Rules (see `rules/CHANGELOG.md`) |
 |---|---|

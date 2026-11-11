@@ -9,14 +9,15 @@ next: "[[Melee Attacks]]"
 
 Doing several things in one turn is possible, but expensive.
 
-An **action** is either:
-- a **melee attack step**, or
+An **action** is one of:
+- a **melee attack step**;
+- a **ranged shot**;
 - an **aim step** on a ranged attack.
 
 Each action costs **+1 stamina for every action you've already taken this turn**. This is the **on-turn surcharge**. It resets at the start of your next turn.
 
 These aren't actions:
-- **The base cost of a ranged shot.** It's flat, with no surcharge.
+- **The free aim die** that comes with every shot (see [[Aim]]).
 - **Extra on-turn movement.** It always costs 1 stamina.
 
 **Spells** each say how they work, including how they interact with the surcharge.

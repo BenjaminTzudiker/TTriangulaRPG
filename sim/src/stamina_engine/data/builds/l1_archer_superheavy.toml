@@ -1,0 +1,8 @@
+# 0.10.0 ranged tests: a superheavy warbow archer at the bow's Strength (5), the solver
+# study's pick. Over the level-1 Expertise budget (17 of 5), as the study's archers were.
+level = 1
+attributes = { STR = 5, AGI = 1, FIN = 1 }
+cores = ["fighter"]
+budget = "ignore"
+loadouts.bow = { weapon = "superheavy_warbow", grip = "two", armor = "light" }
+loadouts.blade = { weapon = "shortsword", grip = "one", armor = "light" }

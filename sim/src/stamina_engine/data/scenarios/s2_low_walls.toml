@@ -1,0 +1,24 @@
+# 0.10.0 ranged tests, S2: S1 with low walls near the fighter's path (cover against closing in), 8 squares
+# apart (the suite also runs a two-hander and the cover-only package). Both
+# tactical, with the agent behaviors for ranged fights on (sim/docs/USAGE_FOR_CHATS.md).
+[scenario]
+name = "s2-low-walls"
+ruleset = "v0.10.0"
+map = "range_walls"
+round_cap = 30
+trials = 500
+seed = 20261111
+
+[[combatant]]
+id = "A"
+team = "archer"
+build = "l1_archer"
+spawn = [4, 5]
+agent = { kind = "tactical", commit = "chipkill", aim = "reaction", reaction = "position", approach_weight = "1", close = "off_turn", buy = "keep_steps" }
+
+[[combatant]]
+id = "F"
+team = "melee"
+build = "l1_sample"
+spawn = [12, 5]
+agent = { kind = "tactical", commit = "chipkill", aim = "reaction", reaction = "position", approach_weight = "1", close = "off_turn", buy = "keep_steps" }

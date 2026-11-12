@@ -12,15 +12,28 @@ from stamina_engine.data import list_names
 from stamina_engine.model.build import Attributes, Build, Loadout, load_build, validate
 from stamina_engine.model.derive import derive
 from stamina_engine.model.equipment import DamageExpr, load_table
-from stamina_engine.rules.ruleset import v0_9
+from stamina_engine.rules.ruleset import preset, v0_9
 
 RULES = v0_9()
 TABLE = load_table()
+# The other library tables a build may need: 0.10.0's bows, and S6's beast hide.
+LATER = ((preset("v0.10.0"), load_table("v0_10")), (preset("v0.10.0"), load_table("s6_beast")))
 
 
 @pytest.mark.parametrize("name", list_names("builds"))
 def test_library_builds_validate(name: str) -> None:
-    validate(load_build(name), RULES, TABLE)
+    """Against v0.9's table, or the first later library table that has its equipment."""
+    build = load_build(name)
+    try:
+        validate(build, RULES, TABLE)
+    except ConfigError as first:
+        for rules, table in LATER:
+            try:
+                validate(build, rules, table)
+                return
+            except ConfigError:
+                continue
+        raise first
 
 
 def test_budgets() -> None:

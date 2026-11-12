@@ -1,0 +1,44 @@
+# 0.10.0 ranged tests, S3: two longbow archers and a sword-and-board fighter against a
+# sword-and-board fighter and a caster near scattered cover: focus fire and covering fire.
+[scenario]
+name = "s3-focus-fire"
+ruleset = "v0.10.0"
+map = "range_party"
+round_cap = 30
+trials = 500
+seed = 20261111
+
+[[combatant]]
+id = "A1"
+team = "archers"
+build = "l1_archer"
+spawn = [3, 4]
+agent = { kind = "tactical", commit = "chipkill", aim = "reaction", reaction = "position", approach_weight = "1", close = "off_turn", buy = "keep_steps" }
+
+[[combatant]]
+id = "A2"
+team = "archers"
+build = "l1_archer"
+spawn = [3, 8]
+agent = { kind = "tactical", commit = "chipkill", aim = "reaction", reaction = "position", approach_weight = "1", close = "off_turn", buy = "keep_steps" }
+
+[[combatant]]
+id = "M"
+team = "archers"
+build = "l1_sample"
+spawn = [6, 6]
+agent = { kind = "tactical", commit = "chipkill", aim = "reaction", reaction = "position", approach_weight = "1", close = "off_turn", buy = "keep_steps" }
+
+[[combatant]]
+id = "F"
+team = "party"
+build = "l1_sample"
+spawn = [14, 6]
+agent = { kind = "tactical", commit = "chipkill", aim = "reaction", reaction = "position", approach_weight = "1", close = "off_turn", buy = "keep_steps" }
+
+[[combatant]]
+id = "C"
+team = "party"
+build = "l1_caster_dagger"
+spawn = [16, 4]
+agent = { kind = "tactical", commit = "chipkill", aim = "reaction", reaction = "position", approach_weight = "1", close = "off_turn", buy = "keep_steps" }

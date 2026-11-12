@@ -1,0 +1,9 @@
+# 0.10.0 ranged tests: a Finesse shortbow archer, the solver study's pick (FIN 3: band width
+# 2 + 2, crits on 2-4 of the d4). Over the level-1 Expertise budget (7 of 5), as the study's
+# archers were, so the bows can be compared at the attributes each wants.
+level = 1
+attributes = { AGI = 1, FIN = 3 }
+cores = ["fighter"]
+budget = "ignore"
+loadouts.bow = { weapon = "shortbow", grip = "two", armor = "light" }
+loadouts.blade = { weapon = "shortsword", grip = "one", armor = "light" }

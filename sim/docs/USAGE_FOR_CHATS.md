@@ -103,6 +103,7 @@ se suite phase --workers 8 --out reports/phase_suite.md # all eight phase-suite 
 se table 8 --equipment f8_die_upgrades                 # an exact table with a variant equipment table
 se suite cores --workers 8 --out reports/cores_suite.md # each core and candidate ability, off and on
 se suite objectives --workers 8 --out reports/objectives_o1_suite.md # O1: objective scenarios, kill v first
+se suite ranged10 --workers 8 --out reports/ranged10_suite.md # 0.10.0 ranged: S1-S6 by bow, package, crit rule
 se play src/stamina_engine/data/scenarios/l1_duel_open.toml --as A --log session.jsonl
 se play src/stamina_engine/data/scenarios/archer_open.toml --as A --step --answers a.jsonl  # one decision at a time
 se load src/stamina_engine/data/scenarios/one_v_three_open.toml --trials 200
@@ -173,6 +174,54 @@ A build's cores bring their abilities (`cores = ["barbarian"]` gives it `barbari
 Engine agents pass every ability window unless their spec says `abilities = "use"`, so results without abilities stay comparable; the heuristics they then follow are documented in `src/stamina_engine/agents/ability_policy.py`. `se suite cores` prices each ability by turning it off and on over the same seeds, in duels and one against three, and plays the four cores against each other.
 
 `se play scenario.toml --as ID` lets you play one combatant at the keyboard; everyone else keeps the scenario's agent, and the dice are trial N's, so the fight is comparable with the engine's. Each prompt lists the options with their prices (`?` shows the answer formats). Every decision is timed, and `--log` writes the session as JSON lines. `se load` reports decision load (Review F11): requests per creature-round by kind, their option counts, how many are non-trivial, how often they did something, dice per attack, and, from session logs, seconds per decision.
+
+#### Agents for ranged fights (0.10.0)
+
+By default, engine agents play ranged fights simply:
+- the tactical target reacts to a shot only for this shot's blocks;
+- the tactical archer aims as if the target will stay put;
+- scripted pursuers never buy movement, and nobody closes in off-turn.
+
+These agent spec fields make them play the reactions 0.10.0 allows. They're off by default so earlier results reproduce; report both agent families, as for any positional result.
+
+| Field | Agents | What it does |
+|---|---|---|
+| `buy = "keep_steps"` or `"any"` | scripted, tactical | Buy on-turn squares to attack this turn. `keep_steps` buys only if the attack keeps as many steps; `any` (the tactical default) if at least one is left |
+| `close = "off_turn"` | tactical | In the window right before its turn, buy off-turn squares so its free movement reaches the target |
+| `reaction = "position"` | tactical | A reaction also values where it ends: contact with the shooter (it has to pay to leave, or take an opportunity attack), plus `approach_weight` per square closer (default `"0"`; try `"1/2"` or `"1"` for sensitivity) |
+| `aim = "reaction"` | tactical archer | Aim counts the target's best reaction to each roll: cover, closing in, backing off |
+
+For example: `agent = { kind = "tactical", aim = "reaction", reaction = "position", close = "off_turn", buy = "keep_steps" }`.
+
+#### The 0.10.0 ranged scenarios (`se suite ranged10`)
+
+The library has the simulator requirements' scenarios, each on 0.10.0 with the tactical agents' ranged behaviors on (`approach_weight = "1"`: a square closer is worth what buying it on-turn costs):
+
+| Scenario | What's in it |
+|---|---|
+| `s1_archer_v_melee` | Longbow archer v sword-and-board fighter, open ground (`range_open`), 8 apart |
+| `s2_low_walls` | The same with low walls near the fighter's path (`range_walls`) |
+| `s3_focus_fire` | Two archers and a fighter v a fighter and a caster near cover (`range_party`) |
+| `s4_two_archers` | Two archers 8–10 squares from a caster and a shielded knight in heavy armor |
+| `s5_archer_v_plate` | One archer v the heavy-armor knight, 8 apart |
+| `s6_archers_v_beast` | Two superheavy archers v an armored beast, 10 apart |
+
+`se suite ranged10` runs them by distance, bow, melee build, reaction package (`v0.10.0` or `v0.10.0-cover-only`), crit rule (A, C′, C) and agent family. It ends with a sensitivity group for `approach_weight`.
+
+Every fight row (`se run --out`) also carries the ranged measures:
+- shots by band and critical dice on shots;
+- HP the shots took per stamina they cost;
+- reactions by kind (close, cover, back, shift) and their cost;
+- point-blank opportunity attacks provoked and made;
+- the first melee round;
+- each creature's round down, and whether a side was down by round 2;
+- the turn-1 shooter's spend and reserve.
+
+`metrics.ranged_measures` documents each one.
+
+Caveats:
+- **Over-budget archers.** The archers other than the longbow's (`l1_archer_shortbow`, `l1_archer_warbow`, `l1_archer_superheavy`) are over the level-1 Expertise budget, as the design study's were, so each bow is compared at the attributes it wants.
+- **A stand-in beast.** S6's `l1_beast` has armor 4 (the `s6_beast` table) and HP 14: the engine has no stat blocks, and the size rule is shelved.
 
 #### Playing one decision at a time (`se play --step`)
 

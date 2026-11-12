@@ -31,7 +31,9 @@ from stamina_engine.engine.events import (
     AttackRolled,
     Dived,
     OpportunityProvoked,
+    PointBlankProvoked,
     RangePenalized,
+    Reacted,
     ShotDeclared,
     ShotMissed,
 )
@@ -316,10 +318,19 @@ def dive(
     answer = b.broker.dive(request)
     if not isinstance(answer, Move) or not answer.path:
         return level, 0
+    assert target.pos is not None and shooter.pos is not None
+    start, stamina = target.pos, target.stamina
     with b.context.frame(f"dive {target.id}"):
         move(b, target, answer.path, on_turn=False)
     new = Cover(r.dive_cover(int(cover_from(b, shooter, target))))
     b.ops.emit(Dived(target.id, int(new)))
+    if target.pos is not None:
+        grid = b.rules.grid
+        was, now = distance(shooter.pos, start, grid), distance(shooter.pos, target.pos, grid)
+        closed = point_blank(b, target, shooter) and not point_blank(b, target, shooter, start)
+        kind = "close" if closed else "cover" if new > level else "back" if now > was else "shift"
+        spent = stamina - target.stamina
+        b.ops.emit(Reacted(target.id, shooter.id, kind, len(answer.path), spent, was, now))
     return new, len(answer.path)
 
 
@@ -340,6 +351,7 @@ def point_blank_oas(
         threatening = tuple(reversed(threatening))
     square = shooter.pos
     with b.context.frame(f"point-blank {shooter.id}"):
+        b.ops.emit(PointBlankProvoked(shooter.id, threatening))
         b.ops.emit(OpportunityProvoked(shooter.id, square, threatening))
         caps = tuple(reach_cap(b, b.state.get(e), square) for e in threatening)
         paid: tuple[str, ...] = ()

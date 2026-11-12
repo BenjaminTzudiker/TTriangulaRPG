@@ -223,6 +223,32 @@ class Dived(Event):
 
 
 @dataclass(frozen=True)
+class Reacted(Event):
+    """What a reaction to a shot did, for the measures (requirements R9): its kind, how far
+    it went, and the stamina the target spent during it (purchases, plus anything the
+    opportunity attacks it provoked cost). kind: close (it ended with the shooter in reach,
+    and didn't start so), cover (better cover than before), back (farther from the shooter),
+    else shift. Staying has no event."""
+
+    target: str
+    shooter: str
+    kind: str
+    squares: int
+    cost: int
+    distance_before: int
+    distance_after: int
+
+
+@dataclass(frozen=True)
+class PointBlankProvoked(Event):
+    """A shot declared within enemies' reach provokes them (Packet: Triggers, shooting in
+    melee); enemies are those that may attack once it has resolved."""
+
+    shooter: str
+    enemies: tuple[str, ...]
+
+
+@dataclass(frozen=True)
 class Drew(Event):
     who: str
     loadout: str

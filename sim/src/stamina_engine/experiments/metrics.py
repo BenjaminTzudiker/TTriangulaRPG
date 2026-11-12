@@ -14,16 +14,22 @@ from stamina_engine.engine.events import (
     BlocksDeclared,
     Dived,
     Drew,
+    Injured,
     Moved,
     ObjectiveResolved,
     OpportunityAvoided,
     OpportunityDeclared,
     OpportunityProvoked,
+    PointBlankProvoked,
+    RangePenalized,
+    Reacted,
     Recovered,
     RoundStarted,
     ShotDeclared,
     ShotMissed,
     Spent,
+    TurnEnded,
+    TurnStarted,
 )
 from stamina_engine.experiments.stats import Interval, mean_interval, median, wilson
 from stamina_engine.model.state import Status
@@ -119,6 +125,7 @@ def fight_row(result: BattleResult, trial: int, seed: int) -> Row:
         "draws": draws,
         "log_sha256": result.log_sha256(),
     }
+    row.update(ranged_measures(result))
     if result.objective is not None:  # scenarios with an objective only (O1)
         row["objective"] = result.objective  # done, failed, or open (the fight ended first)
         row["objective_round"] = next(
@@ -143,6 +150,106 @@ def fight_row(result: BattleResult, trial: int, seed: int) -> Row:
         row[f"surrendered:{team}"] = sum(
             1 for c in state.combatants if c.team == team and c.status is Status.SURRENDERED
         )
+    return row
+
+
+REACTION_KINDS = ("close", "cover", "back", "shift")
+
+
+def ranged_measures(result: BattleResult) -> Row:
+    """The ranged measures (simulator requirements R9), per fight:
+    - shot_crits: critical dice on shots; shots_band1, shots_band2, shots_band3plus: shots
+      by the band they were blocked in (linear bands only);
+    - shot_hp:{team}: HP the team's shots took (with shot_spent from spent:{team}:shot);
+    - reactions:{kind} and reaction_cost: reactions to shots by kind (close, cover, back,
+      shift; a shot with none was stayed against) and the stamina they cost;
+    - pb_provoked, pb_taken: opportunity attacks a point-blank shot provoked and the ones
+      made;
+    - melee_round: the first round anyone made a melee attack (an OA included);
+    - fell:{id}: the round each creature went down (None: it didn't), team:{id} its team;
+      down_by_r2:{team}: any of the team down by the end of round 2;
+    - t1_shot_spend, t1_shot_reserve: for creatures that shot in their first turn, the
+      stamina that turn cost and what was left at its end (means; None if none did)."""
+    state = result.state
+    team_of = {c.id: c.team for c in state.combatants}
+    reactions: Counter[str] = Counter()
+    bands: Counter[str] = Counter()
+    shot_hp: Counter[str] = Counter()
+    crits = cost = pb_provoked = pb_taken = 0
+    pb_open = False
+    rolling: str | None = None
+    open_shots: dict[str, str] = {}
+    melee_round: int | None = None
+    fell: dict[str, int | None] = {c.id: None for c in state.combatants}
+    first_turn: dict[str, list[int]] = {}  # who -> [spent, stamina after, shot?]
+    in_turn: str | None = None
+    round_ = 0
+    for e in result.log:
+        if isinstance(e, RoundStarted):
+            round_ = e.round
+        elif isinstance(e, TurnStarted):
+            in_turn = e.who if e.who not in first_turn else None
+            if in_turn is not None:
+                first_turn[e.who] = [0, -1, 0]
+        elif isinstance(e, TurnEnded):
+            in_turn = None
+            pb_open = False
+        elif isinstance(e, Spent) and in_turn is not None and e.who == in_turn:
+            first_turn[in_turn][0] += e.amount
+            first_turn[in_turn][1] = e.stamina_after
+        elif isinstance(e, ShotDeclared):
+            rolling = e.shooter
+            open_shots[e.shooter] = e.target
+            pb_open = False
+            if in_turn is not None and e.shooter == in_turn:
+                first_turn[in_turn][2] = 1
+        elif isinstance(e, AttackRolled) and rolling == e.attacker:
+            crits += e.crit_dice
+            rolling = None
+        elif isinstance(e, AttackResolved) and open_shots.get(e.attacker) == e.target:
+            shot_hp[team_of[e.attacker]] += e.injury
+            del open_shots[e.attacker]
+        elif isinstance(e, RangePenalized):
+            n = e.band.removeprefix("band ")
+            bands["1" if n == "1" else "2" if n == "2" else "3plus"] += 1
+        elif isinstance(e, Reacted):
+            reactions[e.kind] += 1
+            cost += e.cost
+        elif isinstance(e, PointBlankProvoked):
+            pb_provoked += len(e.enemies)
+            pb_open = True
+        elif isinstance(e, OpportunityDeclared):
+            pb_taken += pb_open
+            if melee_round is None:
+                melee_round = round_
+        elif isinstance(e, AttackDeclared):
+            pb_open = False
+            if melee_round is None:
+                melee_round = round_
+        elif isinstance(e, Moved):
+            pb_open = False
+        elif isinstance(e, Injured) and e.status_after != "active" and fell.get(e.who) is None:
+            fell[e.who] = round_
+    shooters = [v for v in first_turn.values() if v[2]]
+    row: Row = {
+        "shot_crits": crits,
+        **{f"shots_band{k}": bands[k] for k in ("1", "2", "3plus")},
+        **{f"reactions:{k}": reactions[k] for k in REACTION_KINDS},
+        "reaction_cost": cost,
+        "pb_provoked": pb_provoked,
+        "pb_taken": pb_taken,
+        "melee_round": melee_round,
+        "t1_shot_spend": sum(v[0] for v in shooters) / len(shooters) if shooters else None,
+        "t1_shot_reserve": sum(v[1] for v in shooters) / len(shooters) if shooters else None,
+    }
+    for team in sorted(set(team_of.values())):
+        row[f"shot_hp:{team}"] = shot_hp[team]
+        row[f"down_by_r2:{team}"] = any(
+            r is not None and r <= 2 for cid, r in fell.items() if team_of[cid] == team
+        )
+    for cid, r in fell.items():
+        row[f"fell:{cid}"] = r
+        row[f"team:{cid}"] = team_of[cid]
     return row
 
 

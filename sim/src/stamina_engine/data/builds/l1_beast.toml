@@ -1,0 +1,9 @@
+# 0.10.0 ranged tests (S6): a stand-in for a Large armored beast. The engine has no stat
+# blocks, so it's a character: STR 6 (HP 14, not the requirements' ~20) in 4-point hide
+# (the s6_beast equipment table), with a two-handed longsword for claws. No size rule:
+# sizes are shelved (Not in This Version). Over the Expertise budget.
+level = 1
+attributes = { STR = 6, AGI = 1 }
+cores = ["fighter"]
+budget = "ignore"
+loadouts.main = { weapon = "longsword", grip = "two", armor = "beast_hide" }

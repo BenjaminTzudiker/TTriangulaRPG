@@ -48,6 +48,8 @@ Each packet version is a preset. **`v0.10.0` (packet 0.10.0, the ranged package)
 | `v0.9.2` | 0.9.1, with +1 per critical die only if damage gets past blocks and armor (`crit` kind `per_die_if_through`) and maximum HP 8 + 2 per even Strength (`resources.hp_base = 8`) |
 | `v0.9.3` | 0.9.2's components and digest under the new name: 0.9.3's changes (healing below 0 HP, dying rolls after a fight ends) are all after a fight, which the engine doesn't play yet. The campaign layer's rest rules will extend it |
 | `v0.10.0` | 0.9.3, with linear range bands: a band width per bow, −2 per further band measured after the target's reaction, no maximum range (`ranged.bands = "linear"`, `ranged.range_measured = "after_reaction"`); shots are actions (`ranged.shot_action`) with one free aim die (`ranged.free_aim_dice = 1`); aim steps 1d6 with no Finesse (`ranged.aim_finesse = false`); the aim limit (`ranged.aim_limit = "damage_roll"`); aim dice never critical (`crit.aim_dice_can_crit = false`); cover +1 / +2; +1 Ranged Defense for moving in reaction to a shot (`ranged.reaction_bonus = 1`) and per even Agility (`defenses.ranged_mode = "dodge_folded"`); point-blank OAs only from enemies in reach both when the shot is declared and when they happen (`opportunity.point_blank_eligible`). Use it with `equipment = "v0_10"`: shortbow, longbow, warbow and superheavy warbow with band widths, Strength requirements, Piercing and Precise, and the +1 / +1 shield |
+| `v0.10.0-cover-only` | Not a packet version: the "reaction changes cover only" package. 0.10.0, with the range penalty and Melee vs Ranged Defense judged where the target was when the shot was declared (`ranged.range_measured = "declaration"`, `ranged.defense_timing = "declaration"`); a reaction still earns cover and the +1 |
+| `v0.10.0-crit-c-prime`, `v0.10.0-crit-c` | Not packet versions: the solver study's crit rules C′ (aim dice crit only on a 6, at most one critical die a shot) and C (every die can crit, Finesse-widened, at most one a shot). 0.10.0 itself is rule A |
 
 Nightly HP recovery isn't modeled, since the engine plays single fights. Without a cap, engine agents size an opportunity attack by their commitment policy rather than spending everything (Assumptions register).
 
@@ -102,6 +104,7 @@ se table 8 --equipment f8_die_upgrades                 # an exact table with a v
 se suite cores --workers 8 --out reports/cores_suite.md # each core and candidate ability, off and on
 se suite objectives --workers 8 --out reports/objectives_o1_suite.md # O1: objective scenarios, kill v first
 se play src/stamina_engine/data/scenarios/l1_duel_open.toml --as A --log session.jsonl
+se play src/stamina_engine/data/scenarios/archer_open.toml --as A --step --answers a.jsonl  # one decision at a time
 se load src/stamina_engine/data/scenarios/one_v_three_open.toml --trials 200
 se load --session session.jsonl                        # a person's decisions, with seconds
 ```
@@ -171,6 +174,32 @@ Engine agents pass every ability window unless their spec says `abilities = "use
 
 `se play scenario.toml --as ID` lets you play one combatant at the keyboard; everyone else keeps the scenario's agent, and the dice are trial N's, so the fight is comparable with the engine's. Each prompt lists the options with their prices (`?` shows the answer formats). Every decision is timed, and `--log` writes the session as JSON lines. `se load` reports decision load (Review F11): requests per creature-round by kind, their option counts, how many are non-trivial, how often they did something, dice per attack, and, from session logs, seconds per decision.
 
+#### Playing one decision at a time (`se play --step`)
+
+A chat can't answer prompts, so `--step` plays a fight from an answers file, one decision per command:
+
+```bash
+se play scenario.toml --as A --step --answers a.jsonl              # print the waiting decision
+se play scenario.toml --as A --step --answers a.jsonl --answer "s F"  # answer it, print the next
+```
+
+- **How it works.** Each command replays the trial from its seed with every answer in the file, then stops at the first decision with no answer and prints it as JSON.
+  - Nothing else is kept between commands, so the same scenario, trial and answers always reach the same request.
+  - Use `--trial N` for other dice. Repeat `--as` to play several combatants from one file, answering in the order they're asked.
+- **What the decision says.** `decision` has:
+  - `kind`, `who` and `context` (where the battle is);
+  - `observation`: everyone's position, HP, stamina, defenses, armor and weapon, plus your own counters (`actions_this_turn` for the surcharge, `off_turn_costs` for the escalation);
+  - `fields`: the request's options with their prices. A reaction to a shot (`react`) lists every reachable square with the cover, total to block and defense you'd face there (`cover_after`, `damage_after`, `defense_after`).
+  - `answer_help` (the answer format) and `text` (the same prompt `se play` shows).
+
+  The report also has `map` with a `legend`, and `events_since_last_decision`.
+- **Answers.** An answer is the line you'd type at `se play` (`s F`, `2`, `m 4,3`, `p`).
+  - `--answer` appends it to the file only if the engine accepts it.
+  - A rejected answer is reported with the reason and isn't written. A bad line already in the file is reported by its line number; delete it.
+  - The file holds one JSON object a line, `{"who": "A", "kind": "aim", "answer": "2"}`. `who` is checked against the decision.
+- **Exit codes.** 10: a decision is waiting. 0: the fight is over (the report has the winner). 11: an invalid answer.
+- **The session log.** With `--log session.jsonl`, the command that ends the fight writes the session log `se load --session` reads. Its seconds are empty, since a chat's timing isn't a person's.
+
 `--rounding half-even` reproduces the review, whose simulator used Python's `round()`. The packet's rounding is half up, which changes three Table 1 cells and Table 8's 2.125 (see the Assumptions register).
 
 ### Fights
@@ -212,7 +241,12 @@ opportunity = { cap_rule = "weapon_base" }       # F9 option 1: bring back a cap
 # blocks = { ranged_flat = 2 }                   # F3 option 2: flat ranged perfect blocks
 # ranged = { aim_mode = "precision" }            # F3 option 3: aim widens crit range instead
 # ranged = { bands = "minus_d6" }                # F11 (b): range bands as -1d6 / -2d6
-# crit = { aim_dice_can_crit = false }           # the packet's TODO
+# crit = { aim_dice_can_crit = false }           # v0.9's TODO (0.10.0 rules it false)
+# ranged = { defense_timing = "declaration" }    # Melee vs Ranged Defense from where the target was
+# ranged = { reaction_purchases = 1 }            # a reaction to a shot buys at most 1 purchase
+# ranged = { swap_single_purchase = true }       # the defense swap only counts within one purchase
+# ranged = { crit_in_limit = true }              # the critical bonus counts toward the aim limit
+# crit = { aim_dice_can_crit = true, aim_dice_widen = false, per_shot_cap = 1 }  # crit rule C'
 ```
 
 From Python:
@@ -224,6 +258,7 @@ from stamina_engine.experiments.metrics import summarize
 from stamina_engine.experiments.sweep import compare
 from stamina_engine.analysis.strike import mirror_strike   # the opening full strike, exactly
 from stamina_engine.analysis.retreat import escape, table  # Addendum 2 retreat costs, exactly
+from stamina_engine.analysis.one_round import Archer, Target, solve_round  # one round of shots, exactly
 
 s = load_scenario("src/stamina_engine/data/scenarios/l1_duel.toml")
 print("\n".join(summarize(run_scenario(s, trials=500).fights).lines()))
@@ -232,7 +267,7 @@ print("\n".join(summarize(run_scenario(s, trials=500).fights).lines()))
 The core pieces for single exchanges:
 
 ```python
-from stamina_engine.rules.ruleset import preset, load_ruleset   # presets: "v0.9", "v0.9.1", "v0.9.2", "v0.9.3", "v0.10.0", "review-candidate", "review-sim"
+from stamina_engine.rules.ruleset import preset, load_ruleset   # presets: "v0.9" ... "v0.10.0", the v0.10.0-* packages, "review-candidate", "review-sim"
 from stamina_engine.model.build import load_build        # library builds in src/stamina_engine/data/builds
 from stamina_engine.model.derive import derive           # Build x RuleSet -> CombatProfile
 from stamina_engine.rules.pricing import Pricing, Trackers

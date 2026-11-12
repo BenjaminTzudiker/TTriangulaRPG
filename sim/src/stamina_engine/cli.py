@@ -15,7 +15,7 @@ import contextlib
 import io
 import sys
 from collections.abc import Callable, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 
 from stamina_engine.analysis.tables import (
@@ -28,7 +28,7 @@ from stamina_engine.analysis.tables import (
 from stamina_engine.core.errors import ConfigError
 from stamina_engine.experiments.metrics import summarize
 from stamina_engine.experiments.runner import RunResult, run_scenario
-from stamina_engine.experiments.scenario import load_scenario
+from stamina_engine.experiments.scenario import Scenario, load_scenario
 from stamina_engine.experiments.sweep import compare as compare_rules
 from stamina_engine.experiments.sweep import load_sweep, run_sweep
 from stamina_engine.grid.battlefield import library_maps, load_map
@@ -229,21 +229,57 @@ def map_show(args: argparse.Namespace) -> int:
 
 def play(args: argparse.Namespace) -> int:
     """Play one fight as one combatant, at the keyboard; everyone else keeps the scenario's
-    agent. Every decision is timed; --log keeps them for `se load --session`."""
+    agent. Every decision is timed; --log keeps them for `se load --session`. With --step,
+    one decision at a time from an answers file (experiments/step.py)."""
     from stamina_engine.experiments.session import play as play_fight
     from stamina_engine.experiments.session import write_session
 
     s = load_scenario(args.scenario)
+    who: list[str] = args.who
+    if args.step:
+        return _play_step(args, s, tuple(who))
+    if args.answers is not None or args.answer is not None:
+        raise UsageError("--answers and --answer go with --step")
+    if len(who) != 1:
+        raise UsageError("play one combatant at the keyboard (several need --step)")
     try:
-        result, seed = play_fight(s, args.who, args.trial)
+        result, seed = play_fight(s, who[0], args.trial)
     except (EOFError, KeyboardInterrupt):
         _say("\nsession abandoned; nothing logged")
         return 1
     _say(f"{result.reason}: winner {result.winner}, {result.rounds} rounds")
     if args.log is not None:
-        write_session(args.log, s, args.who, args.trial, seed, result)
+        write_session(args.log, s, who[0], args.trial, seed, result)
         _say(f"wrote {args.log}")
     return 0
+
+
+def _play_step(args: argparse.Namespace, s: Scenario, who: tuple[str, ...]) -> int:
+    import json
+
+    from stamina_engine.experiments.session import write_session
+    from stamina_engine.experiments.step import INVALID, OVER, Answer, answer_line, read_answers
+    from stamina_engine.experiments.step import step as step_fight
+
+    path: Path | None = args.answers
+    if path is None:
+        raise UsageError("--step needs --answers FILE (it may not exist yet)")
+    answers = read_answers(path)
+    res = step_fight(s, who, args.trial, answers)
+    if args.answer is not None and res.code != INVALID:
+        if res.code == OVER:
+            res = replace(res, code=INVALID)
+            res.report.update(status="invalid", reason="the fight is over; nothing to answer")
+        else:
+            new = step_fight(s, who, args.trial, [*answers, Answer(args.answer)])
+            if new.code != INVALID:
+                with path.open("a") as f:
+                    f.write(answer_line(args.answer, res.report) + "\n")
+            res = new
+    _say(json.dumps(res.report, indent=1))
+    if res.code == OVER and args.log is not None and res.result is not None:
+        write_session(args.log, s, ",".join(who), args.trial, res.seed, res.result)
+    return res.code
 
 
 def load(args: argparse.Namespace) -> int:
@@ -271,10 +307,10 @@ def load(args: argparse.Namespace) -> int:
         decisions, attacks, rounds = [], [], 0
         for path in sessions:
             sess = read_session(path)
-            who = str(sess.header["played_by_human"])
-            decisions += [d for d in sess.decisions if d["who"] == who]
-            attacks += [a for a in sess.attacks if a["attacker"] == who]
-            rounds += int(sess.result.get("rounds", 0))
+            whos = set(str(sess.header["played_by_human"]).split(","))
+            decisions += [d for d in sess.decisions if d["who"] in whos]
+            attacks += [a for a in sess.attacks if a["attacker"] in whos]
+            rounds += int(sess.result.get("rounds", 0)) * len(whos)
         title = f"Load: {len(sessions)} session(s), people's decisions"
         report = load_report(decisions, attacks, rounds, title)
     _write_or_print(report, args.out)
@@ -390,9 +426,25 @@ def build_parser() -> argparse.ArgumentParser:
 
     p = command("play", play)
     p.add_argument("scenario", type=Path, help="A scenario TOML file.")
-    p.add_argument("--as", dest="who", required=True, help="The combatant id you play.")
+    p.add_argument(
+        "--as",
+        dest="who",
+        action="append",
+        required=True,
+        help="The combatant id you play (repeatable with --step).",
+    )
     p.add_argument("--trial", type=int, default=0, help="Which trial's dice to fight with.")
     p.add_argument("--log", type=Path, help="Write the session log here (JSONL).")
+    p.add_argument(
+        "--step",
+        action="store_true",
+        help="One decision at a time: replay the answers, print the next decision as JSON "
+        "and exit (0 fight over, 10 awaiting a decision, 11 invalid answer).",
+    )
+    p.add_argument("--answers", type=Path, help="With --step: the answers file (JSON lines).")
+    p.add_argument(
+        "--answer", help="With --step: answer the waiting decision; appended only if valid."
+    )
 
     p = command("load", load)
     p.add_argument(

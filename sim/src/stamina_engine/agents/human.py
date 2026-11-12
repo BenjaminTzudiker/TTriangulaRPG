@@ -156,8 +156,10 @@ class HumanAgent:
                 continue
             try:
                 value = parse(line)
-            except (_Invalid, ValueError, IndexError, KeyError, RulesError, Unaffordable):
-                self.io.show("  That isn't one of the options (? for help).")
+            except (_Invalid, ValueError, IndexError, KeyError, RulesError, Unaffordable) as exc:
+                why = "" if isinstance(exc, _Invalid) else str(exc)
+                because = f": {why}" if why else ""
+                self.io.show(f"  That isn't one of the options{because} (? for help).")
                 continue
             self._seconds = self.clock() - start
             return value

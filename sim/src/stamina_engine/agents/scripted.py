@@ -349,6 +349,48 @@ def approach(obs: Observation, rules: RuleSet, moves: MoveOptions, target: str) 
     return Move(route.path) if route is not None else None
 
 
+BUY_MODES = frozenset({"never", "keep_steps", "any"})
+
+
+def buys(mode: str, before: int, after: int) -> bool:
+    """Is buying movement worth it, given the attack steps the commitment policy would make
+    before and after paying? keep_steps: only if it keeps every step (the steps' cost
+    thresholds, not the stamina, are what matter); any: if at least one step is left."""
+    if mode == "never" or after <= 0:
+        return False
+    return mode == "any" or after >= before
+
+
+def bought_approach(
+    obs: Observation,
+    rules: RuleSet,
+    moves: MoveOptions,
+    target: str,
+    commit: "CommitPolicy",
+    mode: str,
+) -> Move | None:
+    """Buy squares to reach a square it can attack the target from this turn, the cheapest
+    (stamina plus 1 per threatening enemy on each square left), if `buys` allows it."""
+    me, view = obs.me, obs.view(target)
+    weapon = me.gear.weapon
+    if mode == "never" or obs.field is None or weapon is None or weapon.ranged:
+        return None
+    if me.pos is None or view.pos is None:
+        return None
+    spots = sorted(
+        attack_squares(obs.field, rules, weapon.reach, view.pos) & set(moves.destinations)
+    )
+    if not spots:
+        return None
+    route = Board(obs, rules).route(moves, spots, moves.max_squares)
+    if route is None:
+        return None
+    spend = int(moves.price_by_length[len(route.path)]) + int(route.exposure)
+    before = commit.steps(me, view)
+    after = commit.steps(replace(me, stamina=me.stamina - spend), view)
+    return Move(route.path) if buys(mode, before, after) else None
+
+
 # --- the agent -----------------------------------------------------------------------
 
 
@@ -363,6 +405,7 @@ class ScriptedAgent:
     aims: int = 3  # a shooter's aim steps, as many of these as it can afford
     abilities: AbilityPolicy | None = None  # None: pass every ability window
     objective: str = "kill"  # or "first" (agents/objective_play.py)
+    buy: str = "never"  # buying on-turn squares to reach its target: never, keep_steps, any
     _pending: int = field(default=0, init=False)
     _shot_round: int = field(default=-1, init=False)
 
@@ -398,12 +441,22 @@ class ScriptedAgent:
         wants = steps > 0 or not isinstance(self.commit, NeverAttack)
         if wants and tid not in request.targets and request.moves is not None:
             step = approach(obs, self.rules, request.moves, tid)
+            if step is None or not self._attackable_after(obs, step, tid):
+                bought = bought_approach(obs, self.rules, request.moves, tid, self.commit, self.buy)
+                step = bought or step
             if step is not None:
                 return step
         if steps <= 0 or tid not in request.targets:
             return EndTurn()
         self._pending = steps
         return Attack(tid)
+
+    def _attackable_after(self, obs: Observation, step: Move, tid: str) -> bool:
+        """Does a free move end where it can attack tid?"""
+        weapon, view = obs.me.gear.weapon, obs.view(tid)
+        if obs.field is None or weapon is None or view.pos is None or not step.path:
+            return False
+        return step.path[-1] in attack_squares(obs.field, self.rules, weapon.reach, view.pos)
 
     def _pursue(self, request: TurnCommand, g: Goal) -> TurnAnswer:
         """Head for the goal with free movement, flee from an exit when escaping, and attack
@@ -481,6 +534,7 @@ SCRIPTED_FIELDS = {
     "aims",
     "abilities",
     "objective",
+    "buy",
 }
 TACTICAL_FIELDS = {
     "retreat_engaged",
@@ -492,6 +546,10 @@ TACTICAL_FIELDS = {
     "surrender_below",
     "profile",
     "description",
+    "reaction",
+    "approach_weight",
+    "aim",
+    "close",
 }
 
 
@@ -503,8 +561,10 @@ def make_agent(
     target = "first" | "lowest_stamina" (tactical: or "nearest"), w = "3",
     estimator = "exact" | "sampled", avoid = "worth_it" | "always" | "never",
     oa = "max" | "never", abilities = "none" | "use", objective = "kill" | "first"}; tactical
-    also takes
-    retreat_engaged = 2, low_stamina = "1/3", reach_spacing = true."""
+    buy = "never" | "keep_steps" | "any" (buying on-turn squares to reach its target; tactical
+    default any); tactical also takes retreat_engaged = 2, low_stamina = "1/3",
+    reach_spacing = true, reaction = "shot" | "position", approach_weight = "0",
+    aim = "stays" | "reaction", close = "none" | "off_turn" (agents/tactical.py)."""
     from stamina_engine.agents.tactical import TacticalAgent
 
     if spec == "tactical":
@@ -535,6 +595,9 @@ def make_agent(
     uses = make_policy(str(table.get("abilities", "none")), rules, w)
     objective = check_mode(str(table.get("objective", "kill")))
     estimator = Estimator(rules, str(table.get("estimator", "exact")), source)
+    buy = str(table.get("buy", "any" if kind == "tactical" else "never"))
+    if buy not in BUY_MODES:
+        raise ConfigError(f"buy must be one of {sorted(BUY_MODES)}, not {buy!r}")
     pricing = Pricing(rules)
     name, _, arg = commit.partition(":")
     policy: CommitPolicy
@@ -581,6 +644,11 @@ def make_agent(
             Fraction(str(table.get("surrender_below", "0"))),
             uses,
             objective,
+            buy,
+            str(table.get("reaction", "shot")),
+            Fraction(str(table.get("approach_weight", "0"))),
+            str(table.get("aim", "stays")),
+            str(table.get("close", "none")),
         )
     if target not in TARGETS:
         raise ConfigError(f"unknown target policy {target!r}; known: {sorted(TARGETS)}")
@@ -594,4 +662,5 @@ def make_agent(
         int(str(table.get("aims", 3))),
         uses,
         objective,
+        buy,
     )

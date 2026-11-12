@@ -174,6 +174,24 @@ Engine agents pass every ability window unless their spec says `abilities = "use
 
 `se play scenario.toml --as ID` lets you play one combatant at the keyboard; everyone else keeps the scenario's agent, and the dice are trial N's, so the fight is comparable with the engine's. Each prompt lists the options with their prices (`?` shows the answer formats). Every decision is timed, and `--log` writes the session as JSON lines. `se load` reports decision load (Review F11): requests per creature-round by kind, their option counts, how many are non-trivial, how often they did something, dice per attack, and, from session logs, seconds per decision.
 
+#### Agents for ranged fights (0.10.0)
+
+By default, engine agents play ranged fights simply:
+- the tactical target reacts to a shot only for this shot's blocks;
+- the tactical archer aims as if the target will stay put;
+- scripted pursuers never buy movement, and nobody closes in off-turn.
+
+These agent spec fields make them play the reactions 0.10.0 allows. They're off by default so earlier results reproduce; report both agent families, as for any positional result.
+
+| Field | Agents | What it does |
+|---|---|---|
+| `buy = "keep_steps"` or `"any"` | scripted, tactical | Buy on-turn squares to attack this turn. `keep_steps` buys only if the attack keeps as many steps; `any` (the tactical default) if at least one is left |
+| `close = "off_turn"` | tactical | In the window right before its turn, buy off-turn squares so its free movement reaches the target |
+| `reaction = "position"` | tactical | A reaction also values where it ends: contact with the shooter (it has to pay to leave, or take an opportunity attack), plus `approach_weight` per square closer (default `"0"`; try `"1/2"` or `"1"` for sensitivity) |
+| `aim = "reaction"` | tactical archer | Aim counts the target's best reaction to each roll: cover, closing in, backing off |
+
+For example: `agent = { kind = "tactical", aim = "reaction", reaction = "position", close = "off_turn", buy = "keep_steps" }`.
+
 #### Playing one decision at a time (`se play --step`)
 
 A chat can't answer prompts, so `--step` plays a fight from an answers file, one decision per command:

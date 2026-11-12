@@ -23,8 +23,13 @@ What it does:
   cost to it is more than the price.
 - **Opportunity attacks.** It takes the largest one that fits.
 
-Weights are data in the agent spec, which is the hook M4's NPC profiles fill. Cover seeking
-and diving wait for ranged attacks (M3).
+Weights are data in the agent spec, which is the hook M4's NPC profiles fill.
+
+For testing 0.10.0's ranged rules (opt-in spec fields; Assumptions register):
+- buy = never | keep_steps | any (default any): buying squares to attack this turn;
+- close = off_turn: buying off-turn squares, just before its turn, to attack on it;
+- reaction = position, approach_weight: a reaction to a shot values where it ends;
+- aim = reaction: an archer's aim counts the target's best reaction to each roll.
 """
 
 from collections.abc import Callable
@@ -76,13 +81,17 @@ from stamina_engine.agents.objective_play import (
     goal,
     in_goal,
 )
-from stamina_engine.agents.scripted import CommitPolicy, avoid_worth_it, sized_oa
+from stamina_engine.agents.scripted import BUY_MODES, CommitPolicy, avoid_worth_it, buys, sized_oa
+from stamina_engine.analysis.ranged import shot
 from stamina_engine.core.errors import ConfigError
 from stamina_engine.grid.battlefield import Cell
 from stamina_engine.grid.geometry import distance, reach_cells
-from stamina_engine.grid.los import Cover
+from stamina_engine.grid.los import Cover, cover
+from stamina_engine.grid.pathing import Passage, reachable
+from stamina_engine.grid.threat import body, melee_weapons, threatened_by
+from stamina_engine.rules.block_solver import block_frontier
 from stamina_engine.rules.exchange import Blocks
-from stamina_engine.rules.pricing import Pricing
+from stamina_engine.rules.pricing import Pricing, Trackers
 from stamina_engine.rules.ruleset import RuleSet
 
 cites = (
@@ -93,6 +102,9 @@ cites = (
 )
 
 TARGET_MODES = frozenset({"lowest_stamina", "nearest", "first", "focus"})
+REACTION_MODES = frozenset({"shot", "position"})
+AIM_MODES = frozenset({"stays", "reaction"})
+CLOSE_MODES = frozenset({"none", "off_turn"})
 
 
 @dataclass
@@ -108,12 +120,25 @@ class TacticalAgent:
     surrender_below: Fraction = Fraction(0)  # ...and surrender when engaged (0: never)
     abilities: AbilityPolicy | None = None  # None: pass every ability window
     objective: str = "kill"  # or "first" (agents/objective_play.py)
+    buy: str = "any"  # buying on-turn squares to reach its target (scripted.buys)
+    reaction: str = "shot"  # or "position": a reaction also values where it ends
+    approach_weight: Fraction = Fraction(0)  # reaction = position: per square closed
+    aim_mode: str = "stays"  # or "reaction": an archer weighs the target's best reaction
+    close: str = "none"  # or "off_turn": buy off-turn squares to attack on its next turn
     _pending: int = field(default=0, init=False)
     _plan: tuple[int, str] = field(default=(-1, ""), init=False)  # (round, stage) this turn
 
     def __post_init__(self) -> None:
         if self.target_mode not in TARGET_MODES:
             raise ConfigError(f"tactical target must be one of {sorted(TARGET_MODES)}")
+        for name, value, modes in (
+            ("buy", self.buy, BUY_MODES),
+            ("reaction", self.reaction, REACTION_MODES),
+            ("aim", self.aim_mode, AIM_MODES),
+            ("close", self.close, CLOSE_MODES),
+        ):
+            if value not in modes:
+                raise ConfigError(f"tactical {name} must be one of {sorted(modes)}, not {value!r}")
         self.pricing = Pricing(self.rules)
 
     # --- helpers ---------------------------------------------------------------------
@@ -417,7 +442,11 @@ class TacticalAgent:
                 if route is None:
                     continue
                 price = moves.price_by_length[len(route.path)]
-                if self._steps_with(board.obs, tid, int(price) + int(route.exposure)) <= 0:
+                spend = int(price) + int(route.exposure)
+                after = self._steps_with(board.obs, tid, spend)
+                if after <= 0:
+                    continue
+                if spend > 0 and not buys(self.buy, self._steps_with(board.obs, tid, 0), after):
                     continue
                 key = (board.engagers(s, moved=True), route.exposure + price, len(route.path))
                 if best is None or key < best[0]:
@@ -525,6 +554,10 @@ class TacticalAgent:
         low = me.stamina < self.low_stamina * me.max_stamina
         blade = self._blade(request)
         if engaged < self.retreat_engaged and not (engaged >= 1 and low):
+            if engaged == 0 and self.close == "off_turn" and request.moves is not None:
+                step = self._close_in(board, request.context, request.moves)
+                if step is not None:
+                    return step
             return blade if engaged >= 1 and blade is not None else Pass()
         moves = request.moves
         if moves is None:
@@ -548,6 +581,51 @@ class TacticalAgent:
         if best is not None:
             return Move(best[1])
         return blade if blade is not None else Pass()
+
+    def _close_in(self, board: Board, context: tuple[str, ...], moves: MoveOptions) -> Move | None:
+        """close = off_turn: in the window just before its own turn, if it couldn't reach a
+        square to attack its target from with its next turn's free movement, buy off-turn
+        squares to one from which it could, the cheapest (stamina plus 1 per threatening
+        enemy on each square left), if the attack it would then make passes `buys` (the
+        stamina is spent before its turn, and recovery comes after)."""
+        obs, me = board.obs, board.me
+        weapon = me.gear.weapon
+        if weapon is None or weapon.ranged or is_shooter(me) or me.pos is None:
+            return None
+        if not _mine_next(obs, context):
+            return None
+        tid = self._target(board)
+        if tid is None:
+            return None
+        target = obs.view(tid)
+        if target.pos is None:
+            return None
+        spots = attack_squares(board.field, self.rules, weapon.reach, target.pos)
+
+        def can_attack_from(cell: Cell) -> bool:
+            if cell in spots:
+                return True
+            bodies = tuple(replace(b, pos=cell) if b.id == me.id else b for b in board.bodies)
+            passage = Passage.for_mover(self.rules.grid, me.id, me.team, bodies)
+            reach = reachable(board.field, self.rules.grid, cell, passage, me.gear.movement)
+            return any(s in reach.steps and s not in reach.passage.no_stop for s in spots)
+
+        if can_attack_from(me.pos):
+            return None
+        full = self._steps_with(obs, tid, 0)
+        routes = board.routes(moves, moves.max_squares)
+        for cell, route in sorted(
+            routes.items(), key=lambda kv: (kv[1].total, len(kv[1].path), kv[0])
+        ):
+            if cell not in moves.destinations or not route.path:
+                continue
+            after = self._steps_with(obs, tid, int(route.total))
+            if not buys(self.buy, full, after):
+                continue
+            far = distance(cell, target.pos, self.rules.grid) > me.gear.movement + weapon.reach
+            if not far and can_attack_from(cell):
+                return Move(route.path)
+        return None
 
     def _blade(self, request: OffTurnMove) -> Draw | None:
         """A shooter holding its bow readies a free melee loadout (a quick-draw blade)."""
@@ -575,10 +653,10 @@ class TacticalAgent:
         me, target = obs.me, obs.view(request.target)
         weapon = me.gear.weapon
         assert weapon is not None
+        if self.aim_mode == "reaction" and obs.field is not None and target.pos is not None:
+            return self._aim_against_reaction(request, Board(obs, self.rules), target)
         defense = target.gear.ranged_defense
         if obs.field is not None and me.pos is not None and target.pos is not None:
-            from stamina_engine.grid.threat import body, threatened_by
-
             reach = threatened_by(
                 obs.field,
                 self.rules.grid,
@@ -663,6 +741,156 @@ class TacticalAgent:
 
         return cost
 
+    def _place_value(self, board: Board, shooter: CombatantView) -> Callable[[Cell], Fraction]:
+        """reaction = position: what ending a reaction on a square is worth, beyond this
+        shot's blocks, in stamina.
+        - Contact: if its ready melee weapons would reach the shooter from there, the
+          shooter's cheapest answer on its next turn (one reply): pay to leave its reach
+          (avoidance, 1 a square as written), or stay and take its opportunity attack by
+          shooting point blank, worth what that attack costs the shooter (block stamina +
+          w x injury, exact, at up to 2 steps).
+        - Approach: approach_weight per square closer to the shooter (Chebyshev), for a
+          creature with no bow; 0 by default, a sensitivity knob."""
+        me = board.me
+        weapons = melee_weapons(me.gear)
+        w = self.w
+        contact = Fraction(0)
+        if weapons and shooter.pos is not None:
+            weapon = max(weapons, key=lambda x: x.base)
+            fee = Fraction(self.pricing.avoid_opportunity(1).total)
+            k = min(2, self.pricing.max_steps(weapon.base, max(0, me.stamina), light=weapon.light))
+            oa = Fraction(10**9)
+            if k > 0:
+                est = exact_estimate(
+                    weapon,
+                    k,
+                    Target(
+                        shooter.gear.melee_defense,
+                        shooter.gear.armor,
+                        max(0, shooter.stamina),
+                        shooter.hp,
+                    ),
+                    self.rules,
+                    w,
+                )
+                oa = Fraction(est.cost) + w * Fraction(est.injury)
+            contact = min(fee, oa)
+        weight = self.approach_weight if not is_shooter(me) else Fraction(0)
+        assert shooter.pos is not None and me.pos is not None
+        start = distance(me.pos, shooter.pos, self.rules.grid)
+
+        def value(cell: Cell) -> Fraction:
+            near = contact if shooter.pos in board.attack_spots(cell) else Fraction(0)
+            closer = start - distance(cell, shooter.pos, self.rules.grid)  # type: ignore[arg-type]
+            return near + weight * closer
+
+        return value
+
+    def _reaction_options(
+        self, board: Board, target: CombatantView, request: AimRequest
+    ) -> list[tuple[int, int, int]]:
+        """aim = reaction: what the target could make the shot face by reacting, as
+        (defense with cover, range penalty, stamina it spends), the dominated ones dropped.
+        From every square one off-turn move reaches (within any reaction cap), priced as if
+        its off-turn track were fresh (the archer can't see it), judged as the engine judges
+        the reaction (ranged.range_measured, defense_timing, the reaction bonus, cover from
+        a dive). Staying is (its defense now, the penalty now, 0)."""
+        me = board.me
+        weapon = me.gear.weapon
+        assert weapon is not None and me.pos is not None and target.pos is not None
+        r = self.rules.ranged
+        grid = self.rules.grid
+        gear = target.gear
+
+        def melee_from(cell: Cell) -> bool:
+            b = body(target.id, target.team, cell, gear, True)
+            return me.pos in threatened_by(board.field, grid, b)
+
+        declared = melee_from(target.pos)
+        stay_def = (gear.melee_defense if declared else gear.ranged_defense) + r.cover_bonus(
+            request.cover
+        )
+        out = {(stay_def, request.penalty): 0}
+        per = max(1, gear.squares_per_purchase)
+        cap = r.reaction_purchase_cap()
+        area = board.field.width * board.field.height
+        prices = self.pricing.move_prices(
+            on_turn=False,
+            trackers=Trackers(),
+            stamina=max(0, target.stamina),
+            off_turn_squares=per,
+            limit=area if cap is None else min(area, cap * per),
+        )
+        if len(prices) > 1:
+            bodies = tuple(b for b in board.bodies if b.id != target.id)
+            passage = Passage.for_mover(grid, target.id, target.team, board.bodies)
+            reach = reachable(board.field, grid, target.pos, passage, len(prices) - 1)
+            for cell, n in reach.destinations().items():
+                others = [b.pos for b in bodies if b.id != me.id]
+                level = r.dive_cover(int(cover(board.field, grid, me.pos, cell, others)))
+                melee = declared
+                if r.defense_after_reaction():
+                    now = melee_from(cell)
+                    single = -(-n // per) <= 1 or not r.swap_needs_single_purchase()
+                    melee = now if (now == declared or single) else declared
+                base = gear.melee_defense if melee else gear.ranged_defense + r.reaction_defense()
+                d = distance(me.pos, cell, grid)
+                pen = (
+                    r.range_penalty(d, weapon.band_width)
+                    if r.measures_after_reaction()
+                    else request.penalty
+                )
+                key = (base + r.cover_bonus(level), pen)
+                if key not in out or prices[n] < out[key]:
+                    out[key] = prices[n]
+        options = sorted((d, p, c) for (d, p), c in out.items())
+        return [
+            o
+            for o in options
+            if not any(q != o and q[0] >= o[0] and q[1] >= o[1] and q[2] <= o[2] for q in options)
+        ]
+
+    def _aim_against_reaction(
+        self, request: AimRequest, board: Board, target: CombatantView
+    ) -> int:
+        """aim = reaction: the aim count with the best expected value when the target
+        answers each roll with its best reaction (_reaction_options) and blocks, valued as
+        aim's (w x injury + stamina it spends, moving included, + 10w x P(down), less the
+        shot's cost and the reply look-ahead)."""
+        obs, me = request.observation, request.observation.me
+        weapon = me.gear.weapon
+        assert weapon is not None
+        options = self._reaction_options(board, target, request)
+        faced = max(0, target.gear.armor - weapon.piercing)
+        hp, stamina, w = target.hp, max(0, target.stamina), self.w
+        reply = self._reply_cost(obs)
+        best = (Fraction(-(10**9)), 0)
+        for k, quote in enumerate(request.quotes):
+            value = Fraction(-quote.total)
+            if reply is not None:
+                value -= reply(me.stamina - quote.total)
+            if k >= request.required:
+                joint = shot(weapon, k, me.gear.attributes.FIN, request.band, self.rules)
+                for (total, crits, limit), p in joint.items():
+                    pick: tuple[tuple[bool, Fraction, int], Fraction] | None = None
+                    for defense, pen, spend in options:
+                        if spend > stamina:
+                            continue
+                        left = max(0, total - pen)
+                        for cost, injury in block_frontier(
+                            left, crits, defense, faced, stamina - spend, self.rules, True, limit
+                        ):
+                            down = injury >= hp
+                            key = (down, cost + spend + w * injury, cost + spend)
+                            got = w * injury + cost + spend + (10 * w if down else 0)
+                            if pick is None or key < pick[0]:
+                                pick = (key, got)
+                    assert pick is not None
+                    value += p * pick[1]
+            if value > best[0]:
+                best = (value, k)
+        return best[1]
+
     def ability(self, request: AbilityRequest) -> UseAbility | Pass:
         if self.abilities is None:
             return Pass()
@@ -674,8 +902,9 @@ class TacticalAgent:
         leaves). Under v0.9 the agent looks only at squares with better cover. Where the
         request says what the shot would be from each square (0.10.0: range measured after
         the reaction, Ranged Defense for moving), every square counts: diving for cover,
-        closing in to block with Melee Defense, or backing away into a further band. It
-        values only this shot's blocks, not where it ends up (Assumptions register)."""
+        closing in to block with Melee Defense, or backing away into a further band. With
+        reaction = shot it values only this shot's blocks; with reaction = position it adds
+        what the square it ends on is worth (_place_value; Assumptions register)."""
         if self.abilities is not None:
             step = self.abilities.withdrawal_move(request)
             if step is not None:
@@ -715,16 +944,37 @@ class TacticalAgent:
         )
         stay = score(request.damage, stay_defense, me.stamina)
         routes = board.routes(request.moves, request.moves.max_squares)
+        place = self._place_value(board, shooter) if self.reaction == "position" else None
+        here = place(me.pos) if place is not None else Fraction(0)
         best: tuple[Fraction, tuple[Cell, ...]] | None = None
         for c, level in request.cover_after.items():
             route = routes.get(c)
-            if route is None or (not given and level <= request.cover):
+            if route is None or (not given and place is None and level <= request.cover):
                 continue
             spend = route.total
             damage = request.damage_after.get(c, request.damage)
             defense = request.defense_after.get(c, defense_at(c, level))
             there = score(damage, defense, me.stamina - int(spend))
             gain = stay - there - Fraction(spend)
+            if place is not None:
+                gain += place(c) - here
             if gain > 0 and (best is None or gain > best[0]):
                 best = (gain, route.path)
         return Move(best[1]) if best is not None else Pass()
+
+
+def _mine_next(obs: Observation, context: tuple[str, ...]) -> bool:
+    """Is this the off-turn window right before the observer's own turn? The next creature
+    in initiative order after the one whose turn just ended, skipping any that can't act."""
+    after = [f[len("off-turn after ") :] for f in context if f.startswith("off-turn after ")]
+    if not after or after[-1] not in obs.order:
+        return False
+    order = obs.order
+    i = order.index(after[-1])
+    for k in range(1, len(order) + 1):
+        cid = order[(i + k) % len(order)]
+        if cid == obs.me.id:
+            return True
+        if obs.view(cid).status == "active":
+            return False
+    return False

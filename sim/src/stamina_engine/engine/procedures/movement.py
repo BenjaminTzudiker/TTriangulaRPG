@@ -46,13 +46,17 @@ def _price_args(c: CombatantState, on_turn: bool) -> dict[str, int]:
     }
 
 
-def move_options(b: Battle, c: CombatantState, on_turn: bool) -> MoveOptions | None:
-    """Where c could move now, or None if nowhere (no map, no affordable square)."""
+def move_options(
+    b: Battle, c: CombatantState, on_turn: bool, max_squares: int | None = None
+) -> MoveOptions | None:
+    """Where c could move now, or None if nowhere (no map, no affordable square). max_squares
+    caps the squares (a reaction to a shot under ranged.reaction_purchases)."""
     field = b.field
     if field is None or c.pos is None or not c.active:
         return None
     args = _price_args(c, on_turn)
-    limit = field.width * field.height
+    area = field.width * field.height
+    limit = area if max_squares is None else min(max_squares, area)
     prices = b.pricing.move_prices(
         on_turn=on_turn, trackers=c.trackers, stamina=c.stamina, limit=limit, **args
     )

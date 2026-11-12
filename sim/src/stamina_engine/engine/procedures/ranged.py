@@ -8,12 +8,14 @@ A shot, following the packet's steps (readings in the Assumptions register):
 2. Pay the shot and buy aim steps (Pricing: a flat shot cost, or from 0.10.0 an action).
 3. Roll: the weapon's damage, any free aim dice and each aim step. v0.9: too few aims for
    the range band and it misses.
-4. The target may react with one off-turn move (dive for cover, close in, back away); OAs
-   that move provokes resolve first. Total cover at the end counts as three-quarters.
+4. The target may react with one off-turn move (dive for cover, close in, back away), of
+   at most ranged.reaction_purchases purchases if capped; OAs that move provokes resolve
+   first. Total cover at the end counts as three-quarters.
 5. The range penalty (linear bands), from the target's square after its reaction or at
    declaration (ranged.range_measured). The target blocks with Ranged Defense (plus
-   ranged.reaction_bonus if it moved) or, if the shooter is now within its reach, Melee
-   Defense; cover adds to either.
+   ranged.reaction_bonus if it moved) or, if the shooter is within its reach, Melee
+   Defense; cover adds to either. Reach is judged after the reaction or at declaration
+   (ranged.defense_timing; ranged.swap_single_purchase).
 6. Armor less Piercing and critical dice, the aim limit, the crit effect, injury.
 7. If the shooter is within any enemy's reach, every enemy threatening it may make an
    opportunity attack, lowest initiative first (from 0.10.0, only those that also
@@ -111,25 +113,53 @@ def point_blank(
     return shooter.pos in threatened_by(b.field, b.rules.grid, me)
 
 
+def blocks_in_melee(
+    b: Battle,
+    shooter: CombatantState,
+    target: CombatantState,
+    declared: bool,
+    purchases: int,
+    at: Cell | None = None,
+) -> bool:
+    """Does the target block with Melee Defense (Packet: Ranged Defense, point-blank
+    shots)? declared: whether the shooter was within its reach when the shot was declared;
+    purchases: the off-turn purchases its reaction took. Judged after the reaction (with the
+    target at `at`, if given) unless ranged.defense_timing says at declaration; under
+    ranged.swap_single_purchase, a swap that took more than one purchase doesn't count."""
+    r = b.rules.ranged
+    if not r.defense_after_reaction():
+        return declared
+    now = point_blank(b, target, shooter, at)
+    if now != declared and purchases > 1 and r.swap_needs_single_purchase():
+        return declared
+    return now
+
+
 def shot_defense(
     b: Battle,
     shooter: CombatantState,
     target: CombatantState,
     level: int,
     moved: bool,
-    at: Cell | None = None,
+    melee: bool,
 ) -> int:
     """The defense a shot faces, cover included (Packet: Defenses, Cover): Melee Defense if
-    the shooter is within the target's reach, else Ranged Defense, plus the reaction bonus
-    if the target moved in reaction to this shot (Ranged Defense only, as the packet lists
-    it; Assumptions register)."""
+    melee (see blocks_in_melee), else Ranged Defense, plus the reaction bonus if the target
+    moved in reaction to this shot (Ranged Defense only, as the packet lists it; Assumptions
+    register)."""
     r = b.rules.ranged
     gear = target.gear
-    if point_blank(b, target, shooter, at):
+    if melee:
         base = gear.melee_defense
     else:
         base = gear.ranged_defense + (r.reaction_defense() if moved else 0)
     return base + r.cover_bonus(level)
+
+
+def _purchases(target: CombatantState, squares: int) -> int:
+    """Off-turn purchases a reaction of this many squares takes."""
+    per = max(1, target.gear.squares_per_purchase)
+    return -(-squares // per)
 
 
 def shoot(b: Battle, shooter: CombatantState, target: CombatantState) -> None:
@@ -147,6 +177,7 @@ def shoot(b: Battle, shooter: CombatantState, target: CombatantState) -> None:
         required = r.required_aims(band)
         if b.rules.opportunity.point_blank_needs_declared():
             declared = b.arena.threatening(b.state, shooter, shooter.pos)
+        melee_at_declaration = point_blank(b, target, shooter)
         quotes: list[Quote] = []
         while True:
             q = b.pricing.ranged_attack(weapon.base, len(quotes), shooter.trackers)
@@ -190,7 +221,8 @@ def shoot(b: Battle, shooter: CombatantState, target: CombatantState) -> None:
             attack = at(None)
             faces = tuple(f for s in attack.steps for f in s.faces)
             b.ops.emit(AttackRolled(shooter.id, faces, attack.total, attack.crit_dice))
-            level, moved = dive(b, shooter, target, attack, level, at)
+            level, squares = dive(b, shooter, target, attack, level, at, melee_at_declaration)
+            moved = squares > 0
             if b.outcome is None:
                 attack = at(None)
                 if r.uses_band_width():
@@ -205,7 +237,10 @@ def shoot(b: Battle, shooter: CombatantState, target: CombatantState) -> None:
                             attack.penalty,
                         )
                     )
-                defense = shot_defense(b, shooter, target, int(level), moved)
+                melee = blocks_in_melee(
+                    b, shooter, target, melee_at_declaration, _purchases(target, squares)
+                )
+                defense = shot_defense(b, shooter, target, int(level), moved, melee)
                 bonus = r.cover_bonus(int(level))
                 blocks = declare_blocks(
                     b,
@@ -233,19 +268,28 @@ def dive(
     attack: AttackRoll,
     level: Cover,
     at: Callable[[Cell | None], AttackRoll],
-) -> tuple[Cover, bool]:
-    """Step 4: the target may react with off-turn movement. Returns the cover the shot then
-    faces and whether the target moved."""
+    declared_melee: bool = False,
+) -> tuple[Cover, int]:
+    """Step 4: the target may react with off-turn movement (at most
+    ranged.reaction_purchases purchases, if capped). Returns the cover the shot then faces
+    and how many squares the target moved. The request's per-square data assumes the
+    fewest purchases that reach each square."""
     if not target.active or b.field is None:
-        return level, False
-    moves = move_options(b, target, on_turn=False)
-    if moves is None:
-        return level, False
+        return level, 0
     r = b.rules.ranged
+    cap = r.reaction_purchase_cap()
+    most = None if cap is None else cap * max(1, target.gear.squares_per_purchase)
+    moves = move_options(b, target, on_turn=False, max_squares=most)
+    if moves is None:
+        return level, 0
     after = {d: r.dive_cover(int(cover_from(b, shooter, target, d))) for d in moves.destinations}
     weapon = shooter.gear.weapon
     assert weapon is not None
     rich = r.measures_after_reaction() or r.reaction_defense() > 0
+
+    def melee(d: Cell | None, squares: int) -> bool:
+        return blocks_in_melee(b, shooter, target, declared_melee, _purchases(target, squares), d)
+
     request = DiveRequest(
         target.id,
         b.observe(target.id),
@@ -256,10 +300,13 @@ def dive(
         int(level),
         moves,
         after,
-        shot_defense(b, shooter, target, int(level), False) if rich else None,
+        shot_defense(b, shooter, target, int(level), False, melee(None, 0)) if rich else None,
         {d: at(d).total for d in moves.destinations} if rich else {},
         (
-            {d: shot_defense(b, shooter, target, after[d], True, d) for d in moves.destinations}
+            {
+                d: shot_defense(b, shooter, target, after[d], True, melee(d, n))
+                for d, n in moves.destinations.items()
+            }
             if rich
             else {}
         ),
@@ -268,12 +315,12 @@ def dive(
     )
     answer = b.broker.dive(request)
     if not isinstance(answer, Move) or not answer.path:
-        return level, False
+        return level, 0
     with b.context.frame(f"dive {target.id}"):
         move(b, target, answer.path, on_turn=False)
     new = Cover(r.dive_cover(int(cover_from(b, shooter, target))))
     b.ops.emit(Dived(target.id, int(new)))
-    return new, True
+    return new, len(answer.path)
 
 
 def point_blank_oas(

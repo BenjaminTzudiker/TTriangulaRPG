@@ -102,3 +102,26 @@ def scripted_randint(oracle: Any, monkeypatch: pytest.MonkeyPatch) -> Callable[[
         monkeypatch.setattr(oracle, "random", types.SimpleNamespace(randint=randint))
 
     return script
+
+
+SOLVER_PATH = Path(__file__).parent / "solver" / "bows5.py"
+_solver_module: types.ModuleType | None = None
+
+
+@pytest.fixture
+def bows_solver() -> Iterator[Any]:
+    """The design study's exact ranged solver (tests/solver/bows5.py), never edited. Its
+    module switches INCAP and AP are restored afterwards."""
+    global _solver_module
+    if _solver_module is None:
+        spec = importlib.util.spec_from_file_location("bows5", SOLVER_PATH)
+        assert spec is not None and spec.loader is not None
+        module = importlib.util.module_from_spec(spec)
+        sys.modules["bows5"] = module  # its dataclasses look their module up
+        spec.loader.exec_module(module)
+        _solver_module = module
+    saved = (_solver_module.INCAP[0], _solver_module.AP[0])
+    try:
+        yield _solver_module
+    finally:
+        _solver_module.INCAP[0], _solver_module.AP[0] = saved

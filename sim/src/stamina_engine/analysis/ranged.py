@@ -62,7 +62,7 @@ def shot(
     widen = weapon.crit_widen + (aims if precision else 0)
     aim = POINT
     if not precision:
-        aim_widen = weapon.crit_widen if rules.crit.aim_dice_can_crit else -1
+        aim_widen = rules.crit.aim_widen(weapon.crit_widen)
         fin = finesse if r.aim_adds_finesse() else 0
         free = r.free_aims()
         for i in range(free + aims):
@@ -82,7 +82,7 @@ def shot(
     out: dict[tuple[int, int, int | None], Fraction] = defaultdict(Fraction)
     for (t, c, limit), p in _weapon_roll(weapon, widen, finesse, rules).items():
         for (ta, ca), pa in aim.items():
-            out[(max(0, t + ta - penalty), c + ca, limit)] += p * pa
+            out[(max(0, t + ta - penalty), rules.crit.shot_crits(c + ca), limit)] += p * pa
     return dict(out)
 
 

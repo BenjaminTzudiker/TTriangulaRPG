@@ -235,6 +235,36 @@ def v0_10_0() -> RuleSet:
     )
 
 
+def v0_10_0_cover_only() -> RuleSet:
+    """Not a packet version: the designer's "reaction changes cover only" package on 0.10.0.
+    The range penalty and Melee vs Ranged Defense are judged where the target was when the
+    shot was declared; a reaction still earns cover and the +1 Ranged Defense for moving."""
+    base = v0_10_0()
+    assert isinstance(base.ranged, V09Ranged)
+    ranged = dataclasses.replace(
+        base.ranged, range_measured="declaration", defense_timing="declaration"
+    )
+    return base.with_(name="v0.10.0-cover-only", ranged=ranged)
+
+
+def v0_10_0_crit_c_prime() -> RuleSet:
+    """Not a packet version: 0.10.0 with the solver study's crit rule C': aim dice can be
+    critical, but only on a 6, and a shot counts at most one critical die."""
+    base = v0_10_0()
+    crit = dataclasses.replace(
+        base.crit, aim_dice_can_crit=True, aim_dice_widen=False, per_shot_cap=1
+    )
+    return base.with_(name="v0.10.0-crit-c-prime", crit=crit)
+
+
+def v0_10_0_crit_c() -> RuleSet:
+    """Not a packet version: 0.10.0 with the solver study's crit rule C: every die can be
+    critical (Finesse widens aim dice too), and a shot counts at most one critical die."""
+    base = v0_10_0()
+    crit = dataclasses.replace(base.crit, aim_dice_can_crit=True, per_shot_cap=1)
+    return base.with_(name="v0.10.0-crit-c", crit=crit)
+
+
 def review_candidate() -> RuleSet:
     """The review's candidate: +2 surcharge per prior action, v0.9 crits."""
     return v0_9().with_(name="review-candidate", surcharge=LinearSurcharge(slope=2))
@@ -267,6 +297,9 @@ PRESETS: dict[str, Callable[[], RuleSet]] = {
     "v0.9.2": v0_9_2,
     "v0.9.3": v0_9_3,
     "v0.10.0": v0_10_0,
+    "v0.10.0-cover-only": v0_10_0_cover_only,
+    "v0.10.0-crit-c-prime": v0_10_0_crit_c_prime,
+    "v0.10.0-crit-c": v0_10_0_crit_c,
     "review-candidate": review_candidate,
     "review-sim": review_sim,
 }

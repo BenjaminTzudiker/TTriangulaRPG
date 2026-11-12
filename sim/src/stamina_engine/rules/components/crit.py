@@ -1,7 +1,18 @@
-"""Critical hits (Packet: Critical Hits)."""
+"""Critical hits (Packet: Critical Hits).
+
+Switches for shots (Assumptions register; the defaults are the review's reading, and 0.10.0
+sets aim_dice_can_crit = false):
+- aim_dice_can_crit: aim dice (free or bought) can be critical.
+- aim_dice_widen: if they can, Finesse widens their range as the weapon's (true), or they
+  crit only on their maximum (false).
+- per_shot_cap: the most critical dice one shot counts (0: no cap). Melee steps are never
+  capped. The solver study's configurations: A = aim dice can't crit (0.10.0); B = every die
+  can, each counts; C' = aim dice crit only on a 6, cap 1; C = every die can, cap 1.
+"""
 
 from dataclasses import dataclass
 
+from stamina_engine.core.errors import ConfigError
 from stamina_engine.core.mathx import odd_count
 from stamina_engine.rules.registry import Component, register
 
@@ -13,8 +24,26 @@ class CritRule(Component):
     max_widen: int = 3
     armor_ignore_per_die: int = 1
     aim_dice_can_crit: bool = True  # packet TODO; Assumptions register
+    aim_dice_widen: bool = True  # aim dice crit on the weapon's widened range, or only a 6
+    per_shot_cap: int = 0  # the most critical dice one shot counts (0: no cap); not melee
 
     cites = ("Packet: Critical Hits", "Ledger CB-6")
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        if self.per_shot_cap < 0:
+            raise ConfigError("crit: per_shot_cap is >= 0 (0: no cap)")
+
+    def aim_widen(self, weapon_widen: int) -> int:
+        """The critical range widening an aim die gets, or -1 if aim dice can't be critical
+        (0: only its maximum face)."""
+        if not self.aim_dice_can_crit:
+            return -1
+        return weapon_widen if self.aim_dice_widen else 0
+
+    def shot_crits(self, crit_dice: int) -> int:
+        """The critical dice a shot counts, after the per-shot cap."""
+        return min(crit_dice, self.per_shot_cap) if self.per_shot_cap else crit_dice
 
     def widen(self, finesse: int) -> int:
         """Critical range widening: +1 per odd Finesse value, up to max_widen."""

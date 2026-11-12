@@ -92,17 +92,17 @@ GRID_PINNED = [
     (
         "extraction_3v3.toml",  # objectives (O1)
         0,
-        "e0a5055422d5893f28c2b9d3a7c95aee74f75d48761679661786c7340a079133",
+        "0587c08695885c44105f7ada60ac93ee3f4387ca5fee89483f57ef9960e297cd",
     ),
     (
         "breakthrough_3v3.toml",  # objectives (O1)
         0,
-        "850c78136cc7df31a288170f5af3d9b74f5e78c0762a2840691607aba032a3d5",
+        "2020116dd0bc88ff8835dd6de52c0d5c3325dec91f6de616e26528bcb1762f54",
     ),
     (
         "hold_hill_3v3.toml",  # objectives (O1)
         0,
-        "2dbd56adecf72c28338b6336cc71ff26ed9d8b6aa1a2e54c816aea44543571ab",
+        "e62b66a0df431866fd87513ad4c3f8906b6d5ea4c725de61be29561e77bb14ac",
     ),
     (
         "hold_the_door_1v3.toml",  # objectives (O1)
@@ -112,6 +112,8 @@ GRID_PINNED = [
 ]
 
 
+# 2026-11-11: the 3v3 hashes moved when shots got the Reacted and PointBlankProvoked events
+# (measures only); without those two events each log hashes to its old pin.
 @pytest.mark.parametrize(("scenario", "trial", "expected"), GRID_PINNED)
 def test_pinned_grid_log_hashes(scenario: str, trial: int, expected: str) -> None:
     """Grid battles (tactical and scripted agents, OAs and off-turn windows), under each

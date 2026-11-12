@@ -1,0 +1,9 @@
+# 0.10.0 ranged tests (S6): packet 0.10.0's table plus a 4-point hide for the beast stand-in
+# (no Agility step or Strength requirement). Not equipment a character could buy.
+[table]
+weapons = "v0_10"
+
+[armor.beast_hide]
+value = 4
+agility_step = 2
+strength_requirement = 0

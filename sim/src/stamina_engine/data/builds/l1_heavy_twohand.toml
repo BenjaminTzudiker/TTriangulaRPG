@@ -1,0 +1,6 @@
+# 0.10.0 ranged tests: the heavy-armor knight (l1_heavy) without its shield, longsword in two
+# hands. STR 2 is 1 below heavy armor's requirement, so AGI and FIN drop to 0.
+level = 1
+attributes = { STR = 2, AGI = 1, FIN = 1 }
+cores = ["fighter"]
+loadouts.main = { weapon = "longsword", grip = "two", armor = "heavy" }

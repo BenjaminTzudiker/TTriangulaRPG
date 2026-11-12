@@ -44,6 +44,7 @@ class SuiteRow:
     builds: Mapping[str, str] | None = None  # combatant id -> library build
     side: str = ""  # the team whose result the row reports
     equipment: str | None = None  # an equipment table instead of the scenario's
+    spawns: Mapping[str, tuple[int, int]] | None = None  # combatant id -> starting square
 
 
 # The baseline and the review's candidate fix (+2 surcharge per prior action) on top of it.
@@ -179,6 +180,14 @@ def build_scenario(row: SuiteRow) -> Scenario:
             combatants=tuple(
                 replace(c, build=load_build(row.builds[c.id])) if c.id in row.builds else c
                 for c in s.combatants
+            ),
+        )
+    if row.spawns:
+        spawns = row.spawns
+        s = replace(
+            s,
+            combatants=tuple(
+                replace(c, pos=spawns[c.id]) if c.id in spawns else c for c in s.combatants
             ),
         )
     return s

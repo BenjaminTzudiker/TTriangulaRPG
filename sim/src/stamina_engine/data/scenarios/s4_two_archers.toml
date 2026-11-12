@@ -1,0 +1,37 @@
+# 0.10.0 ranged tests, S4: two longbow archers 8 to 10 squares from a caster and a knight in
+# heavy armor with a shield, near scattered cover: the lethality budget at normal range.
+[scenario]
+name = "s4-two-archers"
+ruleset = "v0.10.0"
+map = "range_party"
+round_cap = 30
+trials = 500
+seed = 20261111
+
+[[combatant]]
+id = "A1"
+team = "archers"
+build = "l1_archer"
+spawn = [3, 4]
+agent = { kind = "tactical", commit = "chipkill", aim = "reaction", reaction = "position", approach_weight = "1", close = "off_turn", buy = "keep_steps" }
+
+[[combatant]]
+id = "A2"
+team = "archers"
+build = "l1_archer"
+spawn = [3, 8]
+agent = { kind = "tactical", commit = "chipkill", aim = "reaction", reaction = "position", approach_weight = "1", close = "off_turn", buy = "keep_steps" }
+
+[[combatant]]
+id = "C"
+team = "party"
+build = "l1_caster_dagger"
+spawn = [12, 5]
+agent = { kind = "tactical", commit = "chipkill", aim = "reaction", reaction = "position", approach_weight = "1", close = "off_turn", buy = "keep_steps" }
+
+[[combatant]]
+id = "K"
+team = "party"
+build = "l1_heavy"
+spawn = [13, 7]
+agent = { kind = "tactical", commit = "chipkill", aim = "reaction", reaction = "position", approach_weight = "1", close = "off_turn", buy = "keep_steps" }

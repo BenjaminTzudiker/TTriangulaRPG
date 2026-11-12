@@ -36,7 +36,7 @@ from stamina_engine.provenance import collect
 from stamina_engine.rules.plugins import PluginInfo, load_plugin
 from stamina_engine.rules.ruleset import BASELINE, RuleSet, load_ruleset, preset
 
-SUITES = ("parity", "positioning", "ranged", "phase", "cores", "objectives")
+SUITES = ("parity", "positioning", "ranged", "phase", "cores", "objectives", "ranged10")
 
 
 class UsageError(Exception):
@@ -162,7 +162,8 @@ def suite(args: argparse.Namespace) -> int:
     """Run a suite and print or write its report. parity: every published review
     configuration in lockstep with the review's simulator, beside the review's figures.
     positioning (M2), ranged (M3), phase (M4) and cores (M5): the milestone suites;
-    objectives (O1): the objective scenarios, pursuers ignoring or playing the objective."""
+    objectives (O1): the objective scenarios, pursuers ignoring or playing the objective;
+    ranged10: the 0.10.0 ranged scenarios S1-S6 (experiments/ranged10_suite.py)."""
     if args.name == "parity":
         return _parity(args.scale, args.workers, args.out)
 
@@ -181,6 +182,12 @@ def suite(args: argparse.Namespace) -> int:
 
         rows = run_rows(RANGED_ROWS, trials, workers)
         report = render_ranged(rows, stamp, trials, render_table5(preset("v0.9")))
+    elif args.name == "ranged10":
+        from stamina_engine.experiments import ranged10_suite
+        from stamina_engine.experiments.positioning import run_rows
+
+        rows = run_rows(ranged10_suite.ROWS, trials, workers)
+        report = ranged10_suite.render(rows, stamp, trials)
     elif args.name == "phase":
         from stamina_engine.experiments import phase_suite
 

@@ -1,0 +1,16 @@
+; S3 and S4: archers on open ground (left), defenders near scattered cover (right): pillars (o)
+; block sight and movement, crates (=) block movement; both give cover. 24 x 11 inside the walls;
+; A and B are archers' squares, F and C the party's (S3).
+##########################
+#........................#
+#.............oo.........#
+#...................o....#
+#..A............C........#
+#...............==.......#
+#............=F..........#
+#........................#
+#..B..........o..........#
+#.................==.....#
+#........................#
+#........................#
+##########################

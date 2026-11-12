@@ -1,0 +1,32 @@
+# 0.10.0 ranged tests, S6: two archers against an armored beast 10 squares away on open ground.
+# The beast is a stand-in (l1_beast: armor 4, HP 14): the engine has no stat blocks, and
+# runs this without the shelved size rule.
+[scenario]
+name = "s6-archers-v-beast"
+ruleset = "v0.10.0"
+equipment = "s6_beast"
+map = "range_open"
+round_cap = 30
+trials = 500
+seed = 20261111
+
+[[combatant]]
+id = "A1"
+team = "archers"
+build = "l1_archer_superheavy"
+spawn = [4, 3]
+agent = { kind = "tactical", commit = "chipkill", aim = "reaction", reaction = "position", approach_weight = "1", close = "off_turn", buy = "keep_steps" }
+
+[[combatant]]
+id = "A2"
+team = "archers"
+build = "l1_archer_superheavy"
+spawn = [4, 7]
+agent = { kind = "tactical", commit = "chipkill", aim = "reaction", reaction = "position", approach_weight = "1", close = "off_turn", buy = "keep_steps" }
+
+[[combatant]]
+id = "B"
+team = "beast"
+build = "l1_beast"
+spawn = [14, 5]
+agent = { kind = "tactical", commit = "chipkill", aim = "reaction", reaction = "position", approach_weight = "1", close = "off_turn", buy = "keep_steps" }

@@ -1,0 +1,23 @@
+# 0.10.0 ranged tests, S5: one archer against a knight in heavy armor (3) with a shield, 8
+# squares apart on open ground (the suite also runs each bow, and the knight without it).
+[scenario]
+name = "s5-archer-v-plate"
+ruleset = "v0.10.0"
+map = "range_open"
+round_cap = 30
+trials = 500
+seed = 20261111
+
+[[combatant]]
+id = "A"
+team = "archer"
+build = "l1_archer"
+spawn = [4, 5]
+agent = { kind = "tactical", commit = "chipkill", aim = "reaction", reaction = "position", approach_weight = "1", close = "off_turn", buy = "keep_steps" }
+
+[[combatant]]
+id = "K"
+team = "knight"
+build = "l1_heavy"
+spawn = [12, 5]
+agent = { kind = "tactical", commit = "chipkill", aim = "reaction", reaction = "position", approach_weight = "1", close = "off_turn", buy = "keep_steps" }

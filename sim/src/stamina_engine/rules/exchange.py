@@ -43,6 +43,7 @@ class AttackRoll:
     steps: tuple[StepRoll, ...]
     penalty: int = 0  # subtracted from the total, floored at 0 (range bands)
     limit: int | None = None  # a shot's aim limit: the most HP it can take before crits
+    crit_cap: int = 0  # the most critical dice it counts (0: no cap); shots only
 
     @property
     def total(self) -> int:
@@ -50,7 +51,8 @@ class AttackRoll:
 
     @property
     def crit_dice(self) -> int:
-        return sum(s.crit_dice for s in self.steps)
+        n = sum(s.crit_dice for s in self.steps)
+        return min(n, self.crit_cap) if self.crit_cap else n
 
 
 def roll_step(damage: Damage, widen: int, crit: CritRule, source: DiceSource) -> StepRoll:
@@ -93,7 +95,8 @@ def roll_shot(
     Linear bands' penalty depends on where the target ends its reaction, so the caller sets
     it afterwards (dataclasses.replace); minus_d6's dice are rolled here. With the aim limit
     on, limit is the weapon's damage roll: its dice and Strength terms (Precise weapons: at
-    least Finesse). The range penalty doesn't lower it (Assumptions register)."""
+    least Finesse). The range penalty doesn't lower it (Assumptions register). The crit
+    switches say which aim dice can be critical and how many critical dice a shot counts."""
     r = rules.ranged
     precision = r.precision_aim()
     widen = weapon.crit_widen + (aims if precision else 0)
@@ -101,7 +104,7 @@ def roll_shot(
     steps = [first]
     if not precision:
         dropped = r.dropped_aim_dice(band)
-        aim_widen = weapon.crit_widen if rules.crit.aim_dice_can_crit else -1
+        aim_widen = rules.crit.aim_widen(weapon.crit_widen)
         fin = finesse if r.aim_adds_finesse() else 0
         free = r.free_aims()
         for i in range(free + aims):
@@ -112,7 +115,8 @@ def roll_shot(
             crit = int(aim_widen >= 0 and rules.crit.is_crit(face, r.aim_dice(), aim_widen))
             steps.append(StepRoll((face,), max(0, face + fin), crit))
     penalty = sum(roll(Dice(r.penalty_dice(band), 6), source)) if r.penalty_dice(band) else 0
-    return AttackRoll(tuple(steps), penalty, shot_limit(weapon, first.faces, finesse, rules))
+    limit = shot_limit(weapon, first.faces, finesse, rules)
+    return AttackRoll(tuple(steps), penalty, limit, rules.crit.per_shot_cap)
 
 
 def shot_limit(
@@ -160,11 +164,14 @@ def resolve(
     """Steps 5-9. Each block subtracts the defense; each graze leaks. Armor (already less
     any Piercing), less 1 per crit die, soaks what got through and the leaks together; a
     shot's aim limit then caps what's left, and the crit effect applies to the result
-    (Assumptions register: what armor soaks)."""
+    (Assumptions register: what armor soaks), capped again by the limit if
+    ranged.crit_in_limit says the critical bonus counts toward it."""
     through = max(0, damage - blocks.count * defense)
     leaked = blocks.grazing * rules.blocks.graze_leak
     armor_applied = max(0, armor - rules.crit.armor_ignored(crit_dice))
     after_armor = max(0, through + leaked - armor_applied)
     capped = after_armor if limit is None else min(after_armor, limit)
     injury = rules.crit.finalize(capped, crit_dice)
+    if limit is not None and rules.ranged.crit_inside_limit():
+        injury = min(injury, limit)
     return Outcome(damage, crit_dice, blocks, through, leaked, armor_applied, after_armor, injury)

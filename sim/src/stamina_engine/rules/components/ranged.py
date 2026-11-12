@@ -24,6 +24,16 @@ Packet 0.10.0 (all off by default, so v0.9's presets keep their rules and digest
 - range_measured = after_reaction: the range penalty is measured from where the target
   ends its reaction to the shot.
 - reaction_bonus: Ranged Defense against a shot the target moved in reaction to.
+
+Reaction switches the designer may weigh against 0.10.0 (defaults keep its rules):
+- defense_timing: after_reaction (0.10.0) judges Melee vs Ranged Defense from where the
+  target ends its reaction; declaration, from where it was when the shot was declared.
+  Cover is always judged after the reaction.
+- reaction_purchases: the most off-turn purchases a reaction to a shot may buy (0: no cap).
+- swap_single_purchase: the defense swap (into or out of the shooter's being in reach)
+  counts only if the reaction took a single purchase; otherwise the declaration's defense
+  stands. Cover and range are unaffected.
+- crit_inside_limit: the critical bonus counts toward the aim limit (0.10.0: it comes after).
 """
 
 from dataclasses import dataclass
@@ -61,6 +71,7 @@ class RangedRule(Component):
         "point_blank_order": frozenset({"dive_oas_first"}),
         "aim_limit": frozenset({"none", "damage_roll"}),
         "range_measured": frozenset({"declaration", "after_reaction"}),
+        "defense_timing": frozenset({"declaration", "after_reaction"}),
     }
 
     def aim_base(self) -> int:
@@ -120,6 +131,21 @@ class RangedRule(Component):
         """Ranged Defense against a shot the target moved in reaction to."""
         raise NotImplementedError
 
+    def defense_after_reaction(self) -> bool:
+        """Is Melee vs Ranged Defense judged from where the target ends its reaction?"""
+        raise NotImplementedError
+
+    def reaction_purchase_cap(self) -> int | None:
+        """The most off-turn purchases a reaction to a shot may buy (None: no cap)."""
+        raise NotImplementedError
+
+    def swap_needs_single_purchase(self) -> bool:
+        raise NotImplementedError
+
+    def crit_inside_limit(self) -> bool:
+        """Does the critical bonus count toward the aim limit?"""
+        raise NotImplementedError
+
     def required_aims(self, band: str) -> int:
         raise NotImplementedError
 
@@ -166,11 +192,17 @@ class V09Ranged(RangedRule):
     aim_limit: str = "none"
     range_measured: str = "declaration"
     reaction_bonus: int = 0
+    defense_timing: str = "after_reaction"
+    reaction_purchases: int = 0
+    swap_single_purchase: bool = False
+    crit_in_limit: bool = False
 
     def __post_init__(self) -> None:
         super().__post_init__()
-        if self.free_aim_dice < 0 or self.band_penalty < 0 or self.reaction_bonus < 0:
+        if min(self.free_aim_dice, self.band_penalty, self.reaction_bonus) < 0:
             raise ConfigError("ranged: free_aim_dice, band_penalty and reaction_bonus are >= 0")
+        if self.reaction_purchases < 0:
+            raise ConfigError("ranged: reaction_purchases is >= 0 (0: no cap)")
 
     def aim_base(self) -> int:
         return self.aim_cost_base
@@ -233,3 +265,15 @@ class V09Ranged(RangedRule):
 
     def reaction_defense(self) -> int:
         return self.reaction_bonus
+
+    def defense_after_reaction(self) -> bool:
+        return self.defense_timing == "after_reaction"
+
+    def reaction_purchase_cap(self) -> int | None:
+        return self.reaction_purchases or None
+
+    def swap_needs_single_purchase(self) -> bool:
+        return self.swap_single_purchase
+
+    def crit_inside_limit(self) -> bool:
+        return self.crit_in_limit

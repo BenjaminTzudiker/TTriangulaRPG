@@ -10,25 +10,33 @@
   },
   "crit/double_once": {
     "aim_dice_can_crit": true,
+    "aim_dice_widen": true,
     "armor_ignore_per_die": 1,
-    "max_widen": 3
+    "max_widen": 3,
+    "per_shot_cap": 0
   },
   "crit/none": {
     "aim_dice_can_crit": true,
+    "aim_dice_widen": true,
     "armor_ignore_per_die": 1,
-    "max_widen": 3
+    "max_widen": 3,
+    "per_shot_cap": 0
   },
   "crit/per_die_bonus": {
     "aim_dice_can_crit": true,
+    "aim_dice_widen": true,
     "armor_ignore_per_die": 1,
     "bonus": 2,
-    "max_widen": 3
+    "max_widen": 3,
+    "per_shot_cap": 0
   },
   "crit/per_die_if_through": {
     "aim_dice_can_crit": true,
+    "aim_dice_widen": true,
     "armor_ignore_per_die": 1,
     "bonus": 1,
-    "max_widen": 3
+    "max_widen": 3,
+    "per_shot_cap": 0
   },
   "defenses/v0_9": {
     "agility_split": false,
@@ -97,6 +105,8 @@
     "aim_mode": "damage",
     "band_penalty": 2,
     "bands": "v0_9",
+    "crit_in_limit": false,
+    "defense_timing": "after_reaction",
     "dive": "half_is_half",
     "draw_between_turns": 1,
     "free_aim_dice": 0,
@@ -104,7 +114,9 @@
     "point_blank_order": "dive_oas_first",
     "range_measured": "declaration",
     "reaction_bonus": 0,
+    "reaction_purchases": 0,
     "shot_action": false,
+    "swap_single_purchase": false,
     "three_quarter_cover": 5
   },
   "resources/v0_9": {

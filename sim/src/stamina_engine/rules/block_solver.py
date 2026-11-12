@@ -107,6 +107,41 @@ def cheapest_zero_injury(
     return best
 
 
+@lru_cache(maxsize=1 << 16)
+def block_frontier(
+    damage: int,
+    crit_dice: int,
+    defense: int,
+    armor: int,
+    stamina: int,
+    rules: RuleSet,
+    ranged: bool = False,
+    limit: int | None = None,
+) -> tuple[tuple[int, int], ...]:
+    """The affordable (stamina, injury) pairs no other affordable pair beats on both, by
+    rising cost (falling injury): every block choice worth considering."""
+    pricing = Pricing(rules)
+    graze = rules.blocks.graze_cost
+    needed = _needed(damage, defense)
+    points: set[tuple[int, int]] = set()
+    p, perfect_cost = 0, 0
+    while perfect_cost <= stamina:
+        g = 0
+        while perfect_cost + g * graze <= stamina:
+            out = resolve(damage, crit_dice, defense, armor, Blocks(p, g), rules, limit)
+            points.add((perfect_cost + g * graze, out.injury))
+            if needed is not None and p + g >= needed and out.after_armor == 0:
+                break
+            g += 1
+        p += 1
+        perfect_cost += pricing.perfect_block(p, ranged)
+    out_: list[tuple[int, int]] = []
+    for cost, injury in sorted(points):
+        if not out_ or injury < out_[-1][1]:
+            out_.append((cost, injury))
+    return tuple(out_)
+
+
 @dataclass(frozen=True)
 class BlockOptions:
     """How many choices a Blocks decision offers (F11): every affordable (perfect, grazing)

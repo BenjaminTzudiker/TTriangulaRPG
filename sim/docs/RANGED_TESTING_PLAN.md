@@ -1,6 +1,6 @@
 # Testing the 0.10.0 ranged rules: engine plan
 
-*Status: built (2026-11-11). It answers the project doc `claude/Sim_Requirements_Ranged_Package_2026-11-11.md` ("the requirements"). Paths are relative to `sim/src/stamina_engine/` unless they start with `sim/` or `rules/`. The first results are in `sim/reports/ranged10_first_run.md`.*
+*Status: built (2026-11-11). It answers the project doc `claude/Sim_Requirements_Ranged_Package_2026-11-11.md` ("the requirements"). Paths are relative to `sim/src/stamina_engine/` unless they start with `sim/` or `rules/`. The first results are in `sim/reports/ranged10_findings.md` (tables: `ranged10_suite.md`).*
 
 ## What 0.10.0 already settled
 

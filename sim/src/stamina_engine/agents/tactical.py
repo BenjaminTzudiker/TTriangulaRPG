@@ -370,7 +370,9 @@ class TacticalAgent:
             if keep is not None and weapon is not None:
                 there = board.obs.view(keep).pos
                 assert there is not None
-                band = self.rules.ranged.band(distance(c, there, self.rules.grid), weapon.ranges)
+                band = self.rules.ranged.band(
+                    distance(c, there, self.rules.grid), weapon.ranges, weapon.band_width
+                )
                 if band == "beyond" or board.cover_at(c, there, (keep, me.id)) >= Cover.TOTAL:
                     continue
             threatened = bool(board.threatening(c))
@@ -603,6 +605,7 @@ class TacticalAgent:
                     target.hp,
                     self.rules,
                     self.w,
+                    request.penalty,
                 )
                 value += self.w * inj + drained + 10 * self.w * down
             if value > best[0]:
@@ -666,8 +669,13 @@ class TacticalAgent:
         return self.abilities.at_window(request, self._pending)
 
     def dive(self, request: DiveRequest) -> MoveAnswer:
-        """Dive if the roll, blocked from the best reachable cover, saves more than the move
-        costs (its purchases, plus 1 per enemy threatening each square it leaves)."""
+        """React to a shot if blocking its roll from the best reachable square saves more
+        than the move costs (its purchases, plus 1 per enemy threatening each square it
+        leaves). Under v0.9 the agent looks only at squares with better cover. Where the
+        request says what the shot would be from each square (0.10.0: range measured after
+        the reaction, Ranged Defense for moving), every square counts: diving for cover,
+        closing in to block with Melee Defense, or backing away into a further band. It
+        values only this shot's blocks, not where it ends up (Assumptions register)."""
         if self.abilities is not None:
             step = self.abilities.withdrawal_move(request)
             if step is not None:
@@ -680,40 +688,42 @@ class TacticalAgent:
         gear = me.gear
         shooter = obs.view(request.shooter)
         r = self.rules.ranged
+        armor = gear.armor if request.armor is None else request.armor
+        given = request.defense is not None
 
         def defense_at(cell: Cell, level: int) -> int:
             assert shooter.pos is not None
             near = shooter.pos in board.attack_spots(cell)
             return (gear.melee_defense if near else gear.ranged_defense) + r.cover_bonus(level)
 
+        def score(damage: int, defense: int, stamina: int) -> Fraction:
+            return block_score(
+                damage,
+                request.crit_dice,
+                defense,
+                armor,
+                stamina,
+                me.hp,
+                self.rules,
+                self.w,
+                request.limit,
+            )
+
         assert me.pos is not None
-        stay = block_score(
-            request.damage,
-            request.crit_dice,
-            defense_at(me.pos, request.cover),
-            gear.armor,
-            me.stamina,
-            me.hp,
-            self.rules,
-            self.w,
+        stay_defense = (
+            request.defense if request.defense is not None else defense_at(me.pos, request.cover)
         )
+        stay = score(request.damage, stay_defense, me.stamina)
         routes = board.routes(request.moves, request.moves.max_squares)
         best: tuple[Fraction, tuple[Cell, ...]] | None = None
         for c, level in request.cover_after.items():
             route = routes.get(c)
-            if route is None or level <= request.cover:
+            if route is None or (not given and level <= request.cover):
                 continue
             spend = route.total
-            there = block_score(
-                request.damage,
-                request.crit_dice,
-                defense_at(c, level),
-                gear.armor,
-                me.stamina - int(spend),
-                me.hp,
-                self.rules,
-                self.w,
-            )
+            damage = request.damage_after.get(c, request.damage)
+            defense = request.defense_after.get(c, defense_at(c, level))
+            there = score(damage, defense, me.stamina - int(spend))
             gain = stay - there - Fraction(spend)
             if gain > 0 and (best is None or gain > best[0]):
                 best = (gain, route.path)

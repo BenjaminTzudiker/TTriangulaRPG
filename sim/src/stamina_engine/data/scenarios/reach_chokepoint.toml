@@ -3,7 +3,7 @@
 # see the FIN-0 spearman, who can never make an OA at the default cap.
 [scenario]
 name = "reach-chokepoint"
-ruleset = "v0.9.3"
+ruleset = "v0.10.0"
 map = "chokepoint"
 round_cap = 30
 trials = 500

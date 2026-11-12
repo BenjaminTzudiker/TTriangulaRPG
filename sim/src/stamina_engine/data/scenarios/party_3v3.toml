@@ -3,7 +3,7 @@
 # tactical; the NPCs use the disciplined_2step profile (swap profiles to turn the dial).
 [scenario]
 name = "party-3v3"
-ruleset = "v0.9.3"
+ruleset = "v0.10.0"
 map = "party_field"
 round_cap = 30
 trials = 300

@@ -2,7 +2,7 @@
 # attacker at a time can reach it.
 [scenario]
 name = "one-v-three-corridor"
-ruleset = "v0.9.3"
+ruleset = "v0.10.0"
 map = "corridor"
 round_cap = 20
 trials = 500

@@ -207,6 +207,34 @@ def v0_9_3() -> RuleSet:
     return v0_9_2().with_(name="v0.9.3")
 
 
+def v0_10_0() -> RuleSet:
+    """Packet 0.10.0, the ranged package: 0.9.3 with band widths and -2 per further band
+    measured after the target's reaction; shots as actions with one free aim die; aim steps
+    1d6 with no Finesse; the aim limit; aim dice never critical; cover +1 / +2; +1 Ranged
+    Defense for moving in reaction to a shot and +1 per even Agility (armor-adjusted, the
+    dodge_folded mode); point-blank OAs only from enemies in reach both when the shot is
+    declared and when they happen. The bows, Piercing, Precise and the +1 / +1 shield are
+    equipment: run it with the v0_10 equipment table (derive refuses v0.9's bows)."""
+    base = v0_9_3()
+    return base.with_(
+        name="v0.10.0",
+        crit=PerDieIfThrough(aim_dice_can_crit=False),
+        defenses=V09Defenses(ranged_mode="dodge_folded"),
+        ranged=V09Ranged(
+            bands="linear",
+            shot_action=True,
+            aim_finesse=False,
+            free_aim_dice=1,
+            aim_limit="damage_roll",
+            half_cover=1,
+            three_quarter_cover=2,
+            range_measured="after_reaction",
+            reaction_bonus=1,
+        ),
+        opportunity=V09Opportunity(cap_rule="none", point_blank_eligible="declared_and_resolution"),
+    )
+
+
 def review_candidate() -> RuleSet:
     """The review's candidate: +2 surcharge per prior action, v0.9 crits."""
     return v0_9().with_(name="review-candidate", surcharge=LinearSurcharge(slope=2))
@@ -229,7 +257,7 @@ def review_sim() -> RuleSet:
     )
 
 
-BASELINE = "v0.9.3"
+BASELINE = "v0.10.0"
 """The preset the engine's scenarios, suites and defaults use: the current packet. Moving the
 baseline to a new packet version is this one line (and the pinned hashes it moves)."""
 
@@ -238,6 +266,7 @@ PRESETS: dict[str, Callable[[], RuleSet]] = {
     "v0.9.1": v0_9_1,
     "v0.9.2": v0_9_2,
     "v0.9.3": v0_9_3,
+    "v0.10.0": v0_10_0,
     "review-candidate": review_candidate,
     "review-sim": review_sim,
 }

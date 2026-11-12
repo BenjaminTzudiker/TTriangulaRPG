@@ -44,7 +44,7 @@ def battle_for(
     dice: DiceProvider = SharedStream(seed) if scenario.dice == "lockstep" else Streams(seed)
     profiles: dict[str, CombatProfile] = {}
     entrants = []
-    table = _table(scenario.equipment)
+    table = _table(scenario.table_name)
     for c in scenario.combatants:
         if c.build.name not in profiles:
             profiles[c.build.name] = derive(c.build, scenario.rules, table)

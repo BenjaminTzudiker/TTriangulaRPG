@@ -19,6 +19,7 @@ cites = (
     "Packet: Actions and the On-Turn Surcharge",
     "Packet: Melee Attacks",
     "Packet: Aim",
+    "Packet: Ranged Attacks",
     "Packet: On-Turn Movement",
     "Packet: Off-Turn Movement",
     "Packet: Off-Turn Escalation",
@@ -167,9 +168,15 @@ class Pricing:
     def ranged_attack(
         self, shot_base: int, aims: int, trackers: Trackers = FRESH, stamina: int | None = None
     ) -> Quote:
-        """The flat shot cost, then each aim step as an action. The shot itself isn't one, so
-        only the aim steps advance the surcharge."""
+        """The shot, then each aim step as an action. Under v0.9 the shot cost is flat and
+        isn't an action, so only the aim steps advance the surcharge; from 0.10.0
+        (ranged.shot_action) the shot is an action too: shot cost + the surcharge. Free aim
+        dice cost nothing and aren't priced here."""
         prior = trackers.actions_this_turn
+        if self.rules.ranged.shot_is_action():
+            shot = shot_base + self.rules.surcharge.surcharge(prior)
+            aim_parts = tuple(self.aim_step(prior + 1 + i) for i in range(aims))
+            return _ensure(Quote((shot, *aim_parts), Track.ON_TURN), stamina)
         aim_parts = tuple(self.aim_step(prior + i) for i in range(aims))
         return _ensure(Quote((shot_base, *aim_parts), Track.ON_TURN, free_parts=1), stamina)
 

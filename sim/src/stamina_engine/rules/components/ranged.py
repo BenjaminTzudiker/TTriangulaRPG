@@ -9,10 +9,27 @@ Readings and variants (Assumptions register):
   option 3): aim steps add no damage; each widens the critical range of the shot's dice by 1.
 - dive: a dive that ends fully behind cover counts as three-quarters, as written; ending in
   half cover gives half (half_is_half).
+
+Packet 0.10.0 (all off by default, so v0.9's presets keep their rules and digests):
+- bands = linear: each weapon has a band width (+1 square per odd Finesse, -1 per point of
+  Strength below its requirement; at 0 or less it can't shoot). No penalty out to one band
+  width, band_penalty (2) off the total for each further band, full or partial; no maximum
+  range.
+- shot_action: a shot is an action (shot cost + the on-turn surcharge), not a flat cost.
+- aim_finesse = false: aim steps add their die only. free_aim_dice: dice every shot rolls
+  as aim without being an action.
+- aim_limit = damage_roll: the HP a shot takes can't exceed the weapon's damage roll (its
+  dice plus its Strength terms; Precise weapons the higher of that and Finesse), applied
+  after armor and before the critical bonus.
+- range_measured = after_reaction: the range penalty is measured from where the target
+  ends its reaction to the shot.
+- reaction_bonus: Ranged Defense against a shot the target moved in reaction to.
 """
 
 from dataclasses import dataclass
 
+from stamina_engine.core.errors import ConfigError
+from stamina_engine.core.mathx import odd_count
 from stamina_engine.rules.registry import Component, register
 
 BANDS = ("short", "medium", "long", "beyond")
@@ -33,12 +50,17 @@ class RangedRule(Component):
         "Ledger EQ-3",
         "Review F3",
         "Review F11",
+        "Packet: Actions and the On-Turn Surcharge",
+        "Packet: Procedure",
+        "Packet: Weapon Properties",
     )
     allowed = {
         "aim_mode": frozenset({"damage", "precision"}),
-        "bands": frozenset({"v0_9", "minus_d6", "none"}),
+        "bands": frozenset({"v0_9", "minus_d6", "none", "linear"}),
         "dive": frozenset({"half_is_half"}),
         "point_blank_order": frozenset({"dive_oas_first"}),
+        "aim_limit": frozenset({"none", "damage_roll"}),
+        "range_measured": frozenset({"declaration", "after_reaction"}),
     }
 
     def aim_base(self) -> int:
@@ -47,12 +69,56 @@ class RangedRule(Component):
     def draw_cost(self, quick_draw: bool) -> int:
         raise NotImplementedError
 
-    def band(self, distance: int, ranges: tuple[int, ...]) -> str:
-        """short, medium, long or beyond, from the weapon's three ranges."""
+    def band(self, distance: int, ranges: tuple[int, ...], band_width: int = 0) -> str:
+        """short, medium, long or beyond, from the weapon's three ranges. With linear bands,
+        "band N" (band 1 is short) from the wielder's band width, or beyond if it can't
+        shoot at all."""
+        if self.uses_band_width():
+            if band_width <= 0:
+                return "beyond"
+            return f"band {self.band_number(distance, band_width)}"
         for name, limit in zip(BANDS, ranges, strict=False):
             if distance <= limit:
                 return name
         return "beyond"
+
+    def uses_band_width(self) -> bool:
+        """Do ranged weapons use a band width (0.10.0) rather than three ranges?"""
+        return False
+
+    def band_number(self, distance: int, band_width: int) -> int:
+        """Which band a distance falls in: 1 out to one band width, then 2, 3... (a partial
+        band counts as a full one)."""
+        return max(1, -(-distance // band_width))
+
+    def band_width(self, weapon_width: int, finesse: int, strength: int, requirement: int) -> int:
+        """The wielder's band width, in squares (0 or less: it can't shoot the weapon)."""
+        raise NotImplementedError
+
+    def range_penalty(self, distance: int, band_width: int) -> int:
+        """Points off the shot's total at this distance (linear bands)."""
+        raise NotImplementedError
+
+    def shot_is_action(self) -> bool:
+        raise NotImplementedError
+
+    def aim_adds_finesse(self) -> bool:
+        raise NotImplementedError
+
+    def free_aims(self) -> int:
+        """Aim dice every shot rolls without being an action."""
+        raise NotImplementedError
+
+    def limits_wounds(self) -> bool:
+        """Is a shot's HP loss capped at the weapon's damage roll (the aim limit)?"""
+        raise NotImplementedError
+
+    def measures_after_reaction(self) -> bool:
+        raise NotImplementedError
+
+    def reaction_defense(self) -> int:
+        """Ranged Defense against a shot the target moved in reaction to."""
+        raise NotImplementedError
 
     def required_aims(self, band: str) -> int:
         raise NotImplementedError
@@ -93,6 +159,18 @@ class V09Ranged(RangedRule):
     point_blank_order: str = "dive_oas_first"
     draw_between_turns: int = 1
     bands: str = "v0_9"
+    band_penalty: int = 2
+    shot_action: bool = False
+    aim_finesse: bool = True
+    free_aim_dice: int = 0
+    aim_limit: str = "none"
+    range_measured: str = "declaration"
+    reaction_bonus: int = 0
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        if self.free_aim_dice < 0 or self.band_penalty < 0 or self.reaction_bonus < 0:
+            raise ConfigError("ranged: free_aim_dice, band_penalty and reaction_bonus are >= 0")
 
     def aim_base(self) -> int:
         return self.aim_cost_base
@@ -124,3 +202,34 @@ class V09Ranged(RangedRule):
 
     def dive_cover(self, level: int) -> int:
         return min(level, 2)  # total cover counts as three-quarters
+
+    def uses_band_width(self) -> bool:
+        return self.bands == "linear"
+
+    def band_width(self, weapon_width: int, finesse: int, strength: int, requirement: int) -> int:
+        if not self.uses_band_width():
+            return 0
+        return weapon_width + odd_count(finesse) - max(0, requirement - strength)
+
+    def range_penalty(self, distance: int, band_width: int) -> int:
+        if not self.uses_band_width() or band_width <= 0:
+            return 0
+        return self.band_penalty * (self.band_number(distance, band_width) - 1)
+
+    def shot_is_action(self) -> bool:
+        return self.shot_action
+
+    def aim_adds_finesse(self) -> bool:
+        return self.aim_finesse
+
+    def free_aims(self) -> int:
+        return self.free_aim_dice
+
+    def limits_wounds(self) -> bool:
+        return self.aim_limit == "damage_roll"
+
+    def measures_after_reaction(self) -> bool:
+        return self.range_measured == "after_reaction"
+
+    def reaction_defense(self) -> int:
+        return self.reaction_bonus

@@ -156,7 +156,9 @@ def render(
     return (
         head
         + "\n## Review Table 5's static part, exactly\n\n"
-        + "Target spends / takes / downed against one shot at short range, exactly, with the "
+        + "Under v0.9, the review's rules and bows (the baseline's 0.10.0 ranged rules aren't "
+        + "comparable). Target spends / takes / downed against one shot at short range, "
+        + "exactly, with the "
         + "review's Monte Carlo figures beside each (a check mark where they agree within the "
         + "printed rounding and three standard errors of 4000 rolls).\n\n"
         + table5

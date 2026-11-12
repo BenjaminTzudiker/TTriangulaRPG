@@ -2,17 +2,18 @@
 
 For claude.ai chats in the "Tactical fantasy TTRPG" project. Claude Code keeps this file current.
 
-**Status:** milestones M0–M5 are done (tags `m0`–`m5`): the turn engine, maps and movement, opportunity attacks, ranged attacks, cover and diving, drawing weapons, equipment variant tables, NPC profiles, fleeing and surrendering, the full phase suite, class cores and candidate abilities with strain, playing a side yourself, and the load report. M5's gate still needs one session played by a person. Packet versions 0.9.1–0.9.3 are the presets `v0.9.1`, `v0.9.2` and `v0.9.3` (below).
+**Status:** milestones M0–M5 are done (tags `m0`–`m5`): the turn engine, maps and movement, opportunity attacks, ranged attacks, cover and diving, drawing weapons, equipment variant tables, NPC profiles, fleeing and surrendering, the full phase suite, class cores and candidate abilities with strain, playing a side yourself, and the load report. M5's gate still needs one session played by a person. Packet versions 0.9.1–0.10.0 are the presets `v0.9.1`, `v0.9.2`, `v0.9.3` and `v0.10.0` (below).
 
 ## Packet versions
 
-Each packet version is a preset. **Packet 0.10.0 (2026-11-11) isn't implemented yet.** It changes ranged attacks, cover and Ranged Defense, and drops shields from +2 to +1, so results under `v0.9.3` don't reflect it; say so when a result touches ranged combat or shields. `v0.9.3` is the latest implemented packet; `v0.9` stays the v0.9 packet, so earlier results still reproduce, and `review-sim` (parity) and `review-candidate` are built on it. **`v0.9.3` is the baseline** (ruled 2026-11-08): the library's scenarios and the milestone suites name it, and it's what a scenario without a ruleset, a sweep without rulesets and `se table` use. Name `v0.9` to reproduce the review or an earlier result: `se table 5 --ruleset v0.9`, or `se compare scenario.toml --a v0.9 --b v0.9.3`. Reports in `sim/reports/` written before the move ran under `v0.9`; their stamps say so.
+Each packet version is a preset. **`v0.10.0` (packet 0.10.0, the ranged package) is the baseline** (ruled 2026-11-11): the library's scenarios and the milestone suites name it, and it's what a scenario without a ruleset, a sweep without rulesets and `se table` use. Its equipment is the `v0_10` table (the new bows and the +1 / +1 shield): a scenario that names no `equipment` gets its RuleSet's own, `v0_10` for 0.10.0's range bands and `v0_9` for earlier presets, and the engine refuses to mix 0.10.0's rules with v0.9's bows, or the reverse. Results from before 2026-11-11 ran under `v0.9.3` (+2 shields, v0.9's ranged rules) or earlier presets. `v0.9` stays the v0.9 packet, so earlier results still reproduce, and `review-sim` (parity) and `review-candidate` are built on it. Name `v0.9` to reproduce the review or an earlier result: `se table 5 --ruleset v0.9`, or `se compare scenario.toml --a v0.9.3 --b v0.10.0`. Every report in `sim/reports/` names the preset it ran under in its stamp.
 
 | Preset | Rules (see `rules/CHANGELOG.md`) |
 |---|---|
 | `v0.9.1` | No opportunity-attack cap (`opportunity.cap_rule = "none"`); extra on-turn movement 1 square a purchase (`movement.extra_squares = "one"`); initiative 2d12 + Cunning (`turn_order.bonus = "cunning"`); maximum HP 6 + 2 per even Strength (`resources.hp_strength = "per_even"`); the dying roll adds Will (`dying.roll_attribute = "will"`); Intelligence's core-ability discount and bonus AP in build budgets (`resources.core_discount`, `resources.bonus_ap`) |
 | `v0.9.2` | 0.9.1, with +1 per critical die only if damage gets past blocks and armor (`crit` kind `per_die_if_through`) and maximum HP 8 + 2 per even Strength (`resources.hp_base = 8`) |
 | `v0.9.3` | 0.9.2's components and digest under the new name: 0.9.3's changes (healing below 0 HP, dying rolls after a fight ends) are all after a fight, which the engine doesn't play yet. The campaign layer's rest rules will extend it |
+| `v0.10.0` | 0.9.3, with linear range bands: a band width per bow, −2 per further band measured after the target's reaction, no maximum range (`ranged.bands = "linear"`, `ranged.range_measured = "after_reaction"`); shots are actions (`ranged.shot_action`) with one free aim die (`ranged.free_aim_dice = 1`); aim steps 1d6 with no Finesse (`ranged.aim_finesse = false`); the aim limit (`ranged.aim_limit = "damage_roll"`); aim dice never critical (`crit.aim_dice_can_crit = false`); cover +1 / +2; +1 Ranged Defense for moving in reaction to a shot (`ranged.reaction_bonus = 1`) and per even Agility (`defenses.ranged_mode = "dodge_folded"`); point-blank OAs only from enemies in reach both when the shot is declared and when they happen (`opportunity.point_blank_eligible`). Use it with `equipment = "v0_10"`: shortbow, longbow, warbow and superheavy warbow with band widths, Strength requirements, Piercing and Precise, and the +1 / +1 shield |
 
 Nightly HP recovery isn't modeled, since the engine plays single fights. Without a cap, engine agents size an opportunity attack by their commitment policy rather than spending everything (Assumptions register).
 
@@ -51,7 +52,7 @@ se table 1 --ruleset v0.9                             # review Table 1 under the
 se table 1 --ruleset review-sim --rounding half-even   # reproduces the review's printed Table 1
 se table 8 --ruleset v0.9 --rounding half-even         # review Table 8
 se run src/stamina_engine/data/scenarios/l1_duel.toml --trials 2000 --workers 4
-se compare src/stamina_engine/data/scenarios/one_v_three.toml --a v0.9 --b v0.9.3
+se compare src/stamina_engine/data/scenarios/one_v_three.toml --a v0.9.3 --b v0.10.0
 se sweep src/stamina_engine/data/scenarios/surcharge_sweep.toml --out results/surcharge
 se suite parity --workers 8 --out reports/m1_parity.md # every published review fight, in lockstep
 se map list                                            # library maps
@@ -73,7 +74,7 @@ se load --session session.jsonl                        # a person's decisions, w
 
 ### Equipment variants and NPC profiles (M4)
 
-A scenario's `equipment = "f4_shield_1"` swaps the weapon, armor and shield table for a variant in `src/stamina_engine/data/equipment/` (each overlays the packet's table entry by entry; copy one to try your own). The shipped variants are Review F8's (die upgrades, Strength capped at die size) and F4's (a +1/+2 shield, a shield with a Strength requirement); F8's light-weapon discount and F4's two-hander bonus are RuleSet switches (`surcharge.light_exempt`, `defenses.two_hander_bonus`, `defenses.agility_split`).
+A scenario's `equipment = "f4_shield_1"` swaps the weapon, armor and shield table for a variant in `src/stamina_engine/data/equipment/` (each overlays the packet's table entry by entry; copy one to try your own). `v0_10` is packet 0.10.0's bows and shield, for the `v0.10.0` preset. The other shipped variants are Review F8's (die upgrades, Strength capped at die size) and F4's (a +1/+2 shield, a shield with a Strength requirement); F8's light-weapon discount and F4's two-hander bonus are RuleSet switches (`surcharge.light_exempt`, `defenses.two_hander_bonus`, `defenses.agility_split`).
 
 NPC profiles (`src/stamina_engine/data/profiles/`) configure the tactical agent the way a stat block would: `agent = { kind = "npc", profile = "disciplined_2step" }` commits 2 steps, 3 against a target below half stamina, and focuses fire. `cautious` flees through an exit square (`>` on a map) at half HP and surrenders at a quarter. Fleeing and surrendering aren't in the packet; they're engine end states pending the designer (Assumptions register).
 
@@ -97,7 +98,7 @@ The engine measures whatever fight you give it. An objective only produces an in
    - focus fire (F6): a lone defender holding a corridor;
    - retreat economics (Review Addendum 2): an escape that has to break contact, with pursuers able to reach the route;
    - stamina banking: a hold scored only at the deadline (`score = "final"`).
-2. **Use the current rules.** Name the baseline, `ruleset = "v0.9.3"` (or leave the ruleset out). The `v0.9` preset predates packet 0.9.1, so its extra on-turn purchase moves 1 + odd Agility squares instead of 1 square, and it keeps the opportunity-attack cap. Movement decides most objective fights, so this matters more here than anywhere else.
+2. **Use the current rules.** Name the baseline, `ruleset = "v0.10.0"` (or leave the ruleset out). The `v0.9` preset predates packet 0.9.1, so its extra on-turn purchase moves 1 + odd Agility squares instead of 1 square, and it keeps the opportunity-attack cap. Movement decides most objective fights, so this matters more here than anywhere else.
 3. **Do the movement arithmetic.** Under current rules a creature covers its free Movement (5, +1 per odd Agility) plus 1 square per stamina it spends, all on its own turn. It can also move off-turn, at escalating prices. With `se map show <map>`, measure each pursuer's distance to the goal and each denier's distance to the intercept squares.
    - If a pursuer can reach the goal on its first turn before any denier can engage it, the fight is a race decided by initiative.
    - That is a fine thing to measure on purpose, but not by accident.
@@ -164,7 +165,7 @@ Report positional results for both families: agent behavior can drive a result a
 
 ```toml
 [ruleset]
-base = "v0.9.3"
+base = "v0.10.0"
 opportunity = { cap_rule = "weapon_base" }       # F9 option 1: bring back a cap of weapon base + odd FIN
 # opportunity = { avoid_price = "attacker_cap" } # F9 option 2 (needs a cap: base = "v0.9", or option 1)
 # opportunity = { avoid_track = "off_turn" }     # F9 option 3 (or "off_turn_only")
@@ -197,7 +198,7 @@ print("\n".join(summarize(run_scenario(s, trials=500).fights).lines()))
 The core pieces for single exchanges:
 
 ```python
-from stamina_engine.rules.ruleset import preset, load_ruleset   # presets: "v0.9", "v0.9.1", "v0.9.2", "v0.9.3", "review-candidate", "review-sim"
+from stamina_engine.rules.ruleset import preset, load_ruleset   # presets: "v0.9", "v0.9.1", "v0.9.2", "v0.9.3", "v0.10.0", "review-candidate", "review-sim"
 from stamina_engine.model.build import load_build        # library builds in src/stamina_engine/data/builds
 from stamina_engine.model.derive import derive           # Build x RuleSet -> CombatProfile
 from stamina_engine.rules.pricing import Pricing, Trackers
@@ -205,13 +206,13 @@ from stamina_engine.rules.block_solver import best_block, cheapest_zero_injury
 from stamina_engine.analysis import dist                 # exact (total, crit dice) distributions
 from stamina_engine.provenance import collect            # the stamp to quote with results
 
-rules = preset("v0.9.3")                                # the baseline
+rules = preset("v0.10.0")                               # the baseline
 fighter = derive(load_build("l1_sample"), rules)
 Pricing(rules).melee_attack(base=2, steps=3).total      # 9
 print(collect(rules).text())
 ```
 
-`review-sim` reproduces the review's simulator, quirks included; use `v0.9.3`, the current packet (or your variant on it), for design questions. `uv run pytest` takes under a minute; `uv run pytest -m slow` adds the full-count oracle parity runs.
+`review-sim` reproduces the review's simulator, quirks included; use `v0.10.0`, the current packet (or your variant on it), for design questions. `uv run pytest` takes under a minute; `uv run pytest -m slow` adds the full-count oracle parity runs.
 
 ## Trying a rule change
 
@@ -222,7 +223,7 @@ Never edit the baseline: not the v0.9 components, not the presets, not `rules/`.
    ```toml
    # steep.toml
    [ruleset]
-   base = "v0.9.3"
+   base = "v0.10.0"
    name = "steep-surcharge"
    surcharge = { slope = 2 }
    blocks = { slope_num = 1, slope_den = 2 }   # perfect blocks 1, 1, 2, 2, 3...

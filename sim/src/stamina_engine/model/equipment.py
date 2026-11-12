@@ -1,4 +1,5 @@
-"""Weapons, armor and shields as data (Packet: Weapon Table, Armor, Shields)."""
+"""Weapons, armor and shields as data (Packet: Weapon Table, Weapon Properties, Armor,
+Shields)."""
 
 import re
 from dataclasses import dataclass
@@ -73,6 +74,9 @@ class Weapon:
     ranges: tuple[int, ...]
     properties: frozenset[str]
     grips: tuple[tuple[str, DamageExpr], ...]  # ("one" | "two", damage)
+    band_width: int = 0  # squares per range band (0.10.0 bows); v0.9 bows use ranges
+    strength: int = 0  # Strength N: the bow's Strength requirement (shortens its bands)
+    piercing: int = 0  # Piercing N: ignores N armor (Hammer is Piercing 1)
 
     def damage(self, grip: str) -> DamageExpr:
         for name, expr in self.grips:
@@ -83,6 +87,12 @@ class Weapon:
     @property
     def quick_draw(self) -> bool:
         return "quick-draw" in self.properties
+
+    @property
+    def precise(self) -> bool:
+        """Precise (shortbows): Finesse counts like aim, and the aim limit is the higher of
+        the damage roll and Finesse."""
+        return "precise" in self.properties
 
 
 @dataclass(frozen=True)
@@ -136,14 +146,25 @@ def _weapon(name: str, data: dict[str, Any]) -> Weapon:
     grips = data.get("grips", {})
     if not grips:
         raise ConfigError(f"weapon {name} has no grips")
+    properties = frozenset(data.get("properties", ()))
+    unknown = set(data) - {
+        "base", "reach", "ranged", "ranges", "properties", "grips", "band_width", "strength",
+        "piercing",
+    }  # fmt: skip
+    if unknown:
+        raise ConfigError(f"weapon {name}: unknown fields {sorted(unknown)}")
     return Weapon(
         name=name,
         base=int(data["base"]),
         reach=int(data.get("reach", 0 if data.get("ranged") else 1)),
         ranged=bool(data.get("ranged", False)),
         ranges=tuple(int(r) for r in data.get("ranges", ())),
-        properties=frozenset(data.get("properties", ())),
+        properties=properties,
         grips=tuple((g, DamageExpr.parse(text)) for g, text in grips.items()),
+        band_width=int(data.get("band_width", 0)),
+        strength=int(data.get("strength", 0)),
+        # Packet: Weapon Properties: Hammer is Piercing 1.
+        piercing=int(data.get("piercing", 1 if "hammer" in properties else 0)),
     )
 
 

@@ -6,7 +6,7 @@
 # Set up by the checklist in sim/docs/USAGE_FOR_CHATS.md.
 [scenario]
 name = "extraction-3v3"
-ruleset = "v0.9.3"
+ruleset = "v0.10.0"
 map = "extraction"
 round_cap = 20
 trials = 300

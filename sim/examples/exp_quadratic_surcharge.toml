@@ -1,5 +1,5 @@
-# Example RuleSet for exp_quadratic_surcharge.py: v0.9.3 with only the surcharge replaced.
+# Example RuleSet for exp_quadratic_surcharge.py: v0.10.0 with only the surcharge replaced.
 [ruleset]
-base = "v0.9.3"
+base = "v0.10.0"
 name = "exp-quadratic-surcharge"
 surcharge = { kind = "exp_quadratic", slope = 1 }

@@ -1,18 +1,27 @@
-"""Ranged attacks and drawing weapons (Packet: Ranged Attacks, Aim, Range Bands, Cover,
-Drawing Weapons; Opportunity Attacks: shooting in melee).
+"""Ranged attacks and drawing weapons (Packet: Ranged Attacks, Procedure, Aim, Range Bands,
+Cover, Drawing Weapons; Opportunity Attacks: shooting in melee).
 
 A shot, following the packet's steps (readings in the Assumptions register):
-1. Declare the target: an enemy within the weapon's long range that isn't in total cover.
-2-3. Pay the flat shot cost and buy aim steps (actions: the surcharge applies).
-4. Roll: the weapon's damage plus each aim step. Too few aims for the range band: it misses.
-5. The target may dive for cover with off-turn movement; its OAs resolve first. Total cover
-   at the end of a dive counts as three-quarters.
-6. The target blocks with Ranged Defense, or Melee Defense if the shooter is within its
-   reach (judged after the dive); cover adds to either.
-7. Armor, crits, injury.
-Then, if the shooter is within any enemy's reach, every enemy threatening it may make an
-opportunity attack, lowest initiative first; these can't be avoided by paying (as written).
+1. Declare the target: an enemy the weapon can reach (v0.9: within long range; linear
+   bands: any, if the wielder's band width is above 0) that isn't in total cover. Note who
+   threatens the shooter now, for the point-blank OAs.
+2. Pay the shot and buy aim steps (Pricing: a flat shot cost, or from 0.10.0 an action).
+3. Roll: the weapon's damage, any free aim dice and each aim step. v0.9: too few aims for
+   the range band and it misses.
+4. The target may react with one off-turn move (dive for cover, close in, back away); OAs
+   that move provokes resolve first. Total cover at the end counts as three-quarters.
+5. The range penalty (linear bands), from the target's square after its reaction or at
+   declaration (ranged.range_measured). The target blocks with Ranged Defense (plus
+   ranged.reaction_bonus if it moved) or, if the shooter is now within its reach, Melee
+   Defense; cover adds to either.
+6. Armor less Piercing and critical dice, the aim limit, the crit effect, injury.
+7. If the shooter is within any enemy's reach, every enemy threatening it may make an
+   opportunity attack, lowest initiative first (from 0.10.0, only those that also
+   threatened it at step 1); these can't be avoided by paying (as written).
 """
+
+from collections.abc import Callable
+from dataclasses import replace
 
 from stamina_engine.agents.decisions import AimRequest, DiveRequest, DrawOption, Move
 from stamina_engine.engine.battle import Battle
@@ -20,10 +29,16 @@ from stamina_engine.engine.events import (
     AttackRolled,
     Dived,
     OpportunityProvoked,
+    RangePenalized,
     ShotDeclared,
     ShotMissed,
 )
-from stamina_engine.engine.procedures.melee import armor_and_crits, declare_blocks, lose_hp
+from stamina_engine.engine.procedures.melee import (
+    armor_and_crits,
+    declare_blocks,
+    faced_armor,
+    lose_hp,
+)
 from stamina_engine.engine.procedures.movement import avoid, move, move_options
 from stamina_engine.engine.procedures.opportunity import OAContext, opportunity_attack, reach_cap
 from stamina_engine.grid.battlefield import Cell
@@ -31,14 +46,17 @@ from stamina_engine.grid.geometry import distance
 from stamina_engine.grid.los import Cover, cover
 from stamina_engine.grid.threat import body, threatened_by
 from stamina_engine.model.state import CombatantState
-from stamina_engine.rules.exchange import roll_shot
+from stamina_engine.rules.exchange import AttackRoll, roll_shot
 from stamina_engine.rules.pricing import Quote
 
 cites = (
     "Packet: Ranged Attacks",
+    "Packet: Procedure",
     "Packet: Aim",
     "Packet: Range Bands",
     "Packet: Cover",
+    "Packet: Ranged Defense",
+    "Packet: Weapon Properties",
     "Packet: Triggers",
     "Packet: Drawing Weapons",
     "Ledger RG-1",
@@ -74,18 +92,44 @@ def shot_targets(b: Battle, c: CombatantState) -> tuple[str, ...]:
     for o in b.state.enemies_of(c):
         if not o.active or o.pos is None:
             continue
-        band = b.rules.ranged.band(distance(c.pos, o.pos, b.rules.grid), weapon.ranges)
+        band = b.rules.ranged.band(
+            distance(c.pos, o.pos, b.rules.grid), weapon.ranges, weapon.band_width
+        )
         if band != "beyond" and cover_from(b, c, o) < Cover.TOTAL:
             out.append(o.id)
     return tuple(out)
 
 
-def point_blank(b: Battle, target: CombatantState, shooter: CombatantState) -> bool:
-    """Is the shooter within the target's melee reach?"""
-    if b.field is None or target.pos is None or shooter.pos is None:
+def point_blank(
+    b: Battle, target: CombatantState, shooter: CombatantState, at: Cell | None = None
+) -> bool:
+    """Is the shooter within the target's melee reach (with the target at `at`, if given)?"""
+    spot = at if at is not None else target.pos
+    if b.field is None or spot is None or shooter.pos is None:
         return False
-    me = body(target.id, target.team, target.pos, target.gear, target.active)
+    me = body(target.id, target.team, spot, target.gear, target.active)
     return shooter.pos in threatened_by(b.field, b.rules.grid, me)
+
+
+def shot_defense(
+    b: Battle,
+    shooter: CombatantState,
+    target: CombatantState,
+    level: int,
+    moved: bool,
+    at: Cell | None = None,
+) -> int:
+    """The defense a shot faces, cover included (Packet: Defenses, Cover): Melee Defense if
+    the shooter is within the target's reach, else Ranged Defense, plus the reaction bonus
+    if the target moved in reaction to this shot (Ranged Defense only, as the packet lists
+    it; Assumptions register)."""
+    r = b.rules.ranged
+    gear = target.gear
+    if point_blank(b, target, shooter, at):
+        base = gear.melee_defense
+    else:
+        base = gear.ranged_defense + (r.reaction_defense() if moved else 0)
+    return base + r.cover_bonus(level)
 
 
 def shoot(b: Battle, shooter: CombatantState, target: CombatantState) -> None:
@@ -94,10 +138,15 @@ def shoot(b: Battle, shooter: CombatantState, target: CombatantState) -> None:
         weapon is not None and weapon.ranged and shooter.pos is not None and target.pos is not None
     )
     r = b.rules.ranged
+    grid = b.rules.grid
+    declared: tuple[str, ...] | None = None
     with b.context.frame(f"shot {shooter.id}->{target.id}"):
-        band = r.band(distance(shooter.pos, target.pos, b.rules.grid), weapon.ranges)
+        at_declaration = distance(shooter.pos, target.pos, grid)
+        band = r.band(at_declaration, weapon.ranges, weapon.band_width)
         level = cover_from(b, shooter, target)
         required = r.required_aims(band)
+        if b.rules.opportunity.point_blank_needs_declared():
+            declared = b.arena.threatening(b.state, shooter, shooter.pos)
         quotes: list[Quote] = []
         while True:
             q = b.pricing.ranged_attack(weapon.base, len(quotes), shooter.trackers)
@@ -113,6 +162,7 @@ def shoot(b: Battle, shooter: CombatantState, target: CombatantState) -> None:
             int(level),
             required,
             tuple(quotes),
+            r.range_penalty(at_declaration, weapon.band_width),
         )
         aims = b.broker.aim(request)
         b.ops.emit(ShotDeclared(shooter.id, target.id, aims, band, int(level)))
@@ -122,68 +172,121 @@ def shoot(b: Battle, shooter: CombatantState, target: CombatantState) -> None:
             b.ops.emit(ShotMissed(shooter.id, target.id, f"{band} range needs {required} aims"))
         else:
             fin = shooter.gear.attributes.FIN
-            attack = roll_shot(
+            rolled = roll_shot(
                 weapon, aims, fin, band, b.rules, b.dice.dice(f"attack:{shooter.id}")
             )
+            origin = shooter.pos
+
+            def at(cell: Cell | None) -> AttackRoll:
+                """The roll with the range penalty for the target at cell (None: where it
+                is now), or at declaration if range isn't measured after the reaction."""
+                spot = cell if cell is not None else target.pos
+                assert spot is not None
+                d = distance(origin, spot, grid) if r.measures_after_reaction() else at_declaration
+                return replace(
+                    rolled, penalty=rolled.penalty + r.range_penalty(d, weapon.band_width)
+                )
+
+            attack = at(None)
             faces = tuple(f for s in attack.steps for f in s.faces)
             b.ops.emit(AttackRolled(shooter.id, faces, attack.total, attack.crit_dice))
-            level = dive(b, shooter, target, attack.total, attack.crit_dice, level)
+            level, moved = dive(b, shooter, target, attack, level, at)
             if b.outcome is None:
+                attack = at(None)
+                if r.uses_band_width():
+                    assert target.pos is not None
+                    d = distance(origin, target.pos, grid)
+                    b.ops.emit(
+                        RangePenalized(
+                            shooter.id,
+                            target.id,
+                            d,
+                            r.band(d, weapon.ranges, weapon.band_width),
+                            attack.penalty,
+                        )
+                    )
+                defense = shot_defense(b, shooter, target, int(level), moved)
                 bonus = r.cover_bonus(int(level))
-                gear = target.gear
-                base = (
-                    gear.melee_defense if point_blank(b, target, shooter) else gear.ranged_defense
+                blocks = declare_blocks(
+                    b,
+                    shooter,
+                    target,
+                    attack,
+                    defense,
+                    True,
+                    bonus,
+                    faced_armor(target, weapon),
+                    attack.limit,
                 )
-                blocks = declare_blocks(b, shooter, target, attack, base + bonus, True, bonus)
-                outcome = armor_and_crits(b, shooter, target, attack, blocks, base + bonus)
+                outcome = armor_and_crits(
+                    b, shooter, target, attack, blocks, defense, pierce=weapon.piercing
+                )
                 lose_hp(b, target, outcome)
     if b.outcome is None and shooter.active:
-        point_blank_oas(b, shooter)
+        point_blank_oas(b, shooter, declared)
 
 
 def dive(
     b: Battle,
     shooter: CombatantState,
     target: CombatantState,
-    damage: int,
-    crit_dice: int,
+    attack: AttackRoll,
     level: Cover,
-) -> Cover:
-    """Step 5: the target may dive with off-turn movement. Returns the cover the shot faces."""
+    at: Callable[[Cell | None], AttackRoll],
+) -> tuple[Cover, bool]:
+    """Step 4: the target may react with off-turn movement. Returns the cover the shot then
+    faces and whether the target moved."""
     if not target.active or b.field is None:
-        return level
+        return level, False
     moves = move_options(b, target, on_turn=False)
     if moves is None:
-        return level
+        return level, False
     r = b.rules.ranged
     after = {d: r.dive_cover(int(cover_from(b, shooter, target, d))) for d in moves.destinations}
+    weapon = shooter.gear.weapon
+    assert weapon is not None
+    rich = r.measures_after_reaction() or r.reaction_defense() > 0
     request = DiveRequest(
         target.id,
         b.observe(target.id),
         b.context.path(),
         shooter.id,
-        damage,
-        crit_dice,
+        attack.total,
+        attack.crit_dice,
         int(level),
         moves,
         after,
+        shot_defense(b, shooter, target, int(level), False) if rich else None,
+        {d: at(d).total for d in moves.destinations} if rich else {},
+        (
+            {d: shot_defense(b, shooter, target, after[d], True, d) for d in moves.destinations}
+            if rich
+            else {}
+        ),
+        faced_armor(target, weapon) if rich else None,
+        attack.limit,
     )
     answer = b.broker.dive(request)
-    if not isinstance(answer, Move):
-        return level
+    if not isinstance(answer, Move) or not answer.path:
+        return level, False
     with b.context.frame(f"dive {target.id}"):
         move(b, target, answer.path, on_turn=False)
     new = Cover(r.dive_cover(int(cover_from(b, shooter, target))))
     b.ops.emit(Dived(target.id, int(new)))
-    return new
+    return new, True
 
 
-def point_blank_oas(b: Battle, shooter: CombatantState) -> None:
+def point_blank_oas(
+    b: Battle, shooter: CombatantState, declared: tuple[str, ...] | None = None
+) -> None:
     """Shooting within an enemy's reach provokes from every enemy threatening the shooter,
-    once the shot has resolved."""
+    once the shot has resolved; with declared given (0.10.0), only from those that also
+    threatened it when the shot was declared."""
     if not b.rules.opportunity.attacks_allowed() or shooter.pos is None:
         return
     threatening = b.arena.threatening(b.state, shooter, shooter.pos)
+    if declared is not None:
+        threatening = tuple(e for e in threatening if e in declared)
     if not threatening:
         return
     if b.rules.off_turn.order_mode() == "ascending_initiative":

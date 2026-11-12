@@ -11,10 +11,11 @@ from dataclasses import dataclass, replace
 from fractions import Fraction
 from math import sqrt
 
-from stamina_engine.analysis.dist import POINT, Joint, convolve, die, step
+from stamina_engine.analysis.dist import POINT, Joint, convolve, die
 from stamina_engine.model.build import Loadout, load_build
 from stamina_engine.model.derive import WeaponProfile, derive
 from stamina_engine.rules.block_solver import DEFAULT_W, best_block
+from stamina_engine.rules.exchange import shot_limit
 from stamina_engine.rules.pricing import Pricing
 from stamina_engine.rules.ruleset import RuleSet
 
@@ -24,41 +25,73 @@ cites = (
     "Packet: Range Bands",
     "Packet: Cover",
     "Packet: Blocking",
+    "Packet: Weapon Properties",
     "Review F3",
 )
 
 
-def shot(weapon: WeaponProfile, aims: int, finesse: int, band: str, rules: RuleSet) -> Joint:
-    """The exact (total, crit dice) distribution of one shot, as exchange.roll_shot rolls it."""
+ShotJoint = dict[tuple[int, int, int | None], Fraction]
+"""(total, critical dice, aim limit) -> probability; the limit is None when it's off."""
+
+
+def _weapon_roll(weapon: WeaponProfile, widen: int, finesse: int, rules: RuleSet) -> ShotJoint:
+    """The weapon's own damage roll, with the aim limit it sets."""
+    faces: Joint = POINT  # (sum of faces, crit dice)
+    for dice in weapon.damage.dice:
+        for _ in range(dice.count):
+            faces = convolve(faces, die(dice.size, widen, rules.crit))
+    out: dict[tuple[int, int, int | None], Fraction] = defaultdict(Fraction)
+    for (total, crits), p in faces.items():
+        limit = shot_limit(weapon, (total,), finesse, rules)
+        out[(max(weapon.damage.step_floor, total + weapon.damage.flat), crits, limit)] += p
+    return dict(out)
+
+
+def shot(
+    weapon: WeaponProfile,
+    aims: int,
+    finesse: int,
+    band: str,
+    rules: RuleSet,
+    penalty: int = 0,
+) -> ShotJoint:
+    """The exact (total, crit dice, aim limit) distribution of one shot, as
+    exchange.roll_shot rolls it, less a known range penalty (linear bands)."""
     r = rules.ranged
     precision = r.precision_aim()
     widen = weapon.crit_widen + (aims if precision else 0)
-    joint = step(weapon.damage, widen, rules.crit)
+    aim = POINT
     if not precision:
         aim_widen = weapon.crit_widen if rules.crit.aim_dice_can_crit else -1
-        flat = max(0, finesse)
-        for i in range(aims):
-            if i < r.dropped_aim_dice(band):
-                joint = {(t + flat, c): p for (t, c), p in joint.items()}
+        fin = finesse if r.aim_adds_finesse() else 0
+        free = r.free_aims()
+        for i in range(free + aims):
+            if i >= free and i - free < r.dropped_aim_dice(band):
+                aim = {(t + max(0, fin), c): p for (t, c), p in aim.items()}
                 continue
             size = r.aim_dice()
             one: dict[tuple[int, int], Fraction] = defaultdict(Fraction)
             for f in range(1, size + 1):
                 crit = int(aim_widen >= 0 and rules.crit.is_crit(f, size, aim_widen))
-                one[(max(0, f + finesse), crit)] += Fraction(1, size)
-            joint = convolve(joint, dict(one))
+                one[(max(0, f + fin), crit)] += Fraction(1, size)
+            aim = convolve(aim, dict(one))
     k = r.penalty_dice(band)
     if k:
-        penalty = POINT
         for _ in range(k):
-            penalty = convolve(
-                penalty, {(-t, 0): p for (t, _), p in die(6, -1, rules.crit).items()}
-            )
-        out: dict[tuple[int, int], Fraction] = defaultdict(Fraction)
-        for (t, c), p in convolve(joint, penalty).items():
-            out[(max(0, t), c)] += p
-        joint = dict(out)
-    return joint
+            aim = convolve(aim, {(-t, 0): p for (t, _), p in die(6, -1, rules.crit).items()})
+    out: dict[tuple[int, int, int | None], Fraction] = defaultdict(Fraction)
+    for (t, c, limit), p in _weapon_roll(weapon, widen, finesse, rules).items():
+        for (ta, ca), pa in aim.items():
+            out[(max(0, t + ta - penalty), c + ca, limit)] += p * pa
+    return dict(out)
+
+
+def totals(joint: ShotJoint) -> Joint:
+    """The (total, crit dice) marginal of a shot's distribution."""
+    out: dict[tuple[int, int], Fraction] = defaultdict(Fraction)
+    for (t, c, _), p in joint.items():
+        out[(t, c)] += p
+    return dict(out)
 
 
 @dataclass(frozen=True)
@@ -73,7 +106,7 @@ class Response:
 
 
 def respond(
-    joint: Joint,
+    joint: ShotJoint,
     defense: int,
     armor: int,
     stamina: int,
@@ -82,8 +115,10 @@ def respond(
     w: Fraction = DEFAULT_W,
 ) -> Response:
     s = i = d = s2 = i2 = Fraction(0)
-    for (total, crits), p in joint.items():
-        b = best_block(total, crits, defense, armor, stamina, hp, rules, w, ranged=True)
+    for (total, crits, limit), p in joint.items():
+        b = best_block(
+            total, crits, defense, armor, stamina, hp, rules, w, ranged=True, limit=limit
+        )
         s += p * b.cost
         i += p * b.injury
         s2 += p * b.cost * b.cost

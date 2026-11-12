@@ -1,0 +1,40 @@
+# Packet 0.10.0: Weapon Table (the bows), Weapon Properties and Shields. Run it with the
+# v0.10.0 RuleSet preset: these bows have band widths, not v0.9's three ranges.
+# base is the shot cost. band_width is in squares; strength is the bow's Strength N.
+# The melee weapons and the armor are v0.9's, unchanged.
+[table]
+weapons = "v0_9"
+
+[weapons.shortbow]
+base = 3
+ranged = true
+band_width = 2
+properties = ["precise"]
+grips.two = "1d4 + FIN"
+
+[weapons.longbow]
+base = 4
+ranged = true
+band_width = 3
+strength = 1
+grips.two = "1d8 + STR"
+
+[weapons.warbow]
+base = 6
+ranged = true
+band_width = 4
+strength = 3
+piercing = 1
+grips.two = "1d10 + STR"
+
+[weapons.superheavy_warbow]  # provisional in the packet
+base = 8
+ranged = true
+band_width = 5
+strength = 5
+piercing = 2
+grips.two = "1d12 + STR"
+
+[shields.shield]
+melee = 1
+ranged = 1

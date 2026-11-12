@@ -23,6 +23,7 @@ from stamina_engine.engine.events import OpportunityDeclared
 from stamina_engine.engine.procedures.melee import (
     armor_and_crits,
     declare_blocks,
+    faced_armor,
     lose_hp,
     reactions,
     roll,
@@ -146,6 +147,6 @@ def opportunity_attack(
         oa.spend(attacker.id, quote.total)
         attack = roll(b, attacker, weapon, answer.steps)
         reactions(b, attacker, target)
-        blocks = declare_blocks(b, attacker, target, attack)
-        outcome = armor_and_crits(b, attacker, target, attack, blocks)
+        blocks = declare_blocks(b, attacker, target, attack, armor=faced_armor(target, weapon))
+        outcome = armor_and_crits(b, attacker, target, attack, blocks, pierce=weapon.piercing)
         lose_hp(b, target, outcome)

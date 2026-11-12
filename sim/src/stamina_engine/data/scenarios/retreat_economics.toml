@@ -5,7 +5,7 @@
 # buy extra movement (which is what Review F10's options change).
 [scenario]
 name = "retreat-economics"
-ruleset = "v0.9.3"
+ruleset = "v0.10.0"
 map = "retreat_line"
 round_cap = 30
 trials = 500

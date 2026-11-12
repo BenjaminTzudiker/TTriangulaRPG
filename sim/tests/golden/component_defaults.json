@@ -86,17 +86,25 @@
     "enabled": true,
     "per_square_cap": false,
     "point_blank_avoidable": false,
+    "point_blank_eligible": "at_resolution",
     "timing": "on_leave"
   },
   "ranged/v0_9": {
     "aim_cost_base": 1,
     "aim_die": 6,
+    "aim_finesse": true,
+    "aim_limit": "none",
     "aim_mode": "damage",
+    "band_penalty": 2,
     "bands": "v0_9",
     "dive": "half_is_half",
     "draw_between_turns": 1,
+    "free_aim_dice": 0,
     "half_cover": 2,
     "point_blank_order": "dive_oas_first",
+    "range_measured": "declaration",
+    "reaction_bonus": 0,
+    "shot_action": false,
     "three_quarter_cover": 5
   },
   "resources/v0_9": {

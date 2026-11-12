@@ -258,8 +258,8 @@ def exact_tables() -> str:
     parts = [
         "### Table 1 (attack against full-block cost by k, exact; packet rounding)",
         render_table1(table1(rules, Rounding.HALF_UP), Rounding.HALF_UP),
-        "### Table 5 (single shots, exact, beside the review's figures)",
-        render_table5(rules),
+        "### Table 5 (single shots, exact, under v0.9, beside the review's figures)",
+        render_table5(preset("v0.9")),
         "### Table 8 (damage per stamina by commitment, exact)",
         render_table8(table8(rules), Rounding.HALF_UP),
     ]

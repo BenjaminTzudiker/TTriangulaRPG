@@ -17,7 +17,7 @@ from stamina_engine.agents.decisions import CombatantView, Observation
 from stamina_engine.grid.battlefield import Battlefield
 from stamina_engine.rules.pricing import Quote, Trackers
 
-cites = ("Review F11",)
+cites = ("Packet: Starting Combat and Turn Structure", "Review F11")
 
 KINDS = {
     "TurnCommand": "turn",

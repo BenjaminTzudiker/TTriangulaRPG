@@ -690,20 +690,41 @@ class TacticalAgent:
                 best = (value, k)
         return best[1]
 
-    def _reply_cost(self, obs: Observation) -> "Callable[[int], Fraction] | None":
+    def _reply_cost(
+        self, obs: Observation, bought: bool = False
+    ) -> "Callable[[int], Fraction] | None":
         """One ply, as the review's look-ahead: what the worst enemy reply next turn would
         cost me (w x injury + stamina + 10w x P(down)) if I keep `left` stamina now and
-        recover before it. None if no enemy could engage me next turn."""
+        recover before it. None if no enemy could engage me next turn.
+
+        By default an enemy engages only if its free movement reaches a square to attack
+        me from. With bought (aim = reaction), also if it could buy the squares on its
+        turn (1 stamina a purchase), attacking with what's left: otherwise an archer facing
+        a pursuer one purchase out of reach sees no reply and spends everything on aim."""
         board = Board(obs, self.rules)
         me = obs.me
         assert me.pos is not None
-        foes = [
-            e
-            for e in board.enemies()
-            if e.gear.weapon is not None
-            and not e.gear.weapon.ranged
-            and board.free_reach(e).steps.keys() & board.attack_squares_of(e, me.pos)
-        ]
+        budgets: dict[str, int] = {}  # foe -> stamina left for its attack
+        for e in board.enemies():
+            weapon = e.gear.weapon
+            if weapon is None or weapon.ranged or e.pos is None:
+                continue
+            spots = board.attack_squares_of(e, me.pos)
+            if board.free_reach(e).steps.keys() & spots:
+                budgets[e.id] = max(0, e.stamina)
+                continue
+            if not bought:
+                continue
+            per = max(1, e.gear.extra_squares_per_purchase)
+            price = self.pricing.extra_movement().total
+            extra = max(0, e.stamina - weapon.base) // max(1, price) * per
+            passage = Passage.for_mover(self.rules.grid, e.id, e.team, board.bodies)
+            reach = reachable(board.field, self.rules.grid, e.pos, passage, e.gear.movement + extra)
+            need = [n for c, n in reach.steps.items() if c in spots and c not in passage.no_stop]
+            if need:
+                squares = max(0, min(need) - e.gear.movement)
+                budgets[e.id] = max(0, e.stamina - -(-squares // per) * price)
+        foes = [e for e in board.enemies() if e.id in budgets]
         if not foes:
             return None
         md = max(
@@ -722,12 +743,7 @@ class TacticalAgent:
             for e in foes:
                 weapon = e.gear.weapon
                 assert weapon is not None
-                k = min(
-                    2,
-                    Pricing(self.rules).max_steps(
-                        weapon.base, max(0, e.stamina), light=weapon.light
-                    ),
-                )
+                k = min(2, self.pricing.max_steps(weapon.base, budgets[e.id], light=weapon.light))
                 if k == 0:
                     continue
                 est = exact_estimate(
@@ -863,7 +879,7 @@ class TacticalAgent:
         options = self._reaction_options(board, target, request)
         faced = max(0, target.gear.armor - weapon.piercing)
         hp, stamina, w = target.hp, max(0, target.stamina), self.w
-        reply = self._reply_cost(obs)
+        reply = self._reply_cost(obs, bought=True)
         best = (Fraction(-(10**9)), 0)
         for k, quote in enumerate(request.quotes):
             value = Fraction(-quote.total)

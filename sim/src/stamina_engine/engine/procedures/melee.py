@@ -49,9 +49,12 @@ def melee_attack(b: Battle, attacker: CombatantState, target: CombatantState) ->
         attack = roll(b, attacker, weapon, steps)
         if reactions(b, attacker, target, attack, weapon):
             return  # the target got out of reach
-        blocks = declare_blocks(b, attacker, target, attack, armor=faced_armor(target, weapon))
+        pierce = 2 * extra  # Heavy Swing: penetrate 2 armor
+        blocks = declare_blocks(
+            b, attacker, target, attack, armor=faced_armor(target, weapon, pierce)
+        )
         outcome = armor_and_crits(
-            b, attacker, target, attack, blocks, pierce=2 * extra + weapon.piercing
+            b, attacker, target, attack, blocks, pierce=pierce + weapon.piercing
         )
         lose_hp(b, target, outcome)
         if blocks.perfect and b.outcome is None:
@@ -190,8 +193,11 @@ def declare_blocks(
         "damage": attack.total,
         "crit_dice": attack.crit_dice,
         "defense": defense,
+        "armor": armor,
         "ranged": int(ranged),
     }
+    if limit is not None:
+        facts["limit"] = limit
     used = abilities.window(b, target, "before_blocks", facts)
     flat = used == "monk_core"
     if not target.active:
@@ -268,10 +274,11 @@ def armor_and_crits(
     return outcome
 
 
-def faced_armor(target: CombatantState, weapon: WeaponProfile) -> int:
+def faced_armor(target: CombatantState, weapon: WeaponProfile, pierce: int = 0) -> int:
     """The armor an attack with weapon faces, after its Piercing (Packet: Weapon
-    Properties); what the defender is told when it blocks. Critical dice come off later."""
-    return max(0, target.gear.armor - weapon.piercing)
+    Properties) and any other armor penetration (pierce: Heavy Swing's 2); what the
+    defender is told when it blocks. Critical dice come off later."""
+    return max(0, target.gear.armor - weapon.piercing - pierce)
 
 
 def lose_hp(b: Battle, target: CombatantState, outcome: Outcome) -> None:

@@ -12,7 +12,7 @@ A tactical fantasy TTRPG built on a regenerating stamina system, plus a Python r
   - `Fix_Order_and_Dependencies.md`: the order those findings get fixed (Phases 0–8).
   - `Design_Notes_for_Design_Bible.md` and `Rules_Reconciliation_Ledger_v0.8-to-v0.9.md`: why the rules are the way they are. Ledger IDs (MV-3, CB-2…) are cited in code.
 - `sim/docs/ENGINE_PLAN.md` is the engine's architecture and milestone plan. Follow it; propose changes to it rather than drifting from it.
-- `sim/docs/USAGE_FOR_CHATS.md` tells design chats how to install and run the engine.
+- `sim/docs/USAGE_FOR_CHATS.md` tells design chats how to install and run the engine, when a run is worth doing, and what the engine doesn't capture. Keep its "What the engine doesn't capture" section current when a milestone closes a gap (e.g. the campaign layer, packet 0.10.0, the search auditor).
 - `sim/tests/oracle/` holds the simulator from the original review. Never edit it. It is the parity oracle.
 - `sim/reports/` is where experiment write-ups for the designer go.
 - `sim/examples/` holds the worked plugin example design chats copy when they try a new mechanism (see `USAGE_FOR_CHATS.md`).

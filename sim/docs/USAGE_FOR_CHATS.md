@@ -4,6 +4,40 @@ For claude.ai chats in the "Tactical fantasy TTRPG" project. Claude Code keeps t
 
 **Status:** milestones M0–M5 are done (tags `m0`–`m5`): the turn engine, maps and movement, opportunity attacks, ranged attacks, cover and diving, drawing weapons, equipment variant tables, NPC profiles, fleeing and surrendering, the full phase suite, class cores and candidate abilities with strain, playing a side yourself, and the load report. M5's gate still needs one session played by a person. Packet versions 0.9.1–0.10.0 are the presets `v0.9.1`, `v0.9.2`, `v0.9.3` and `v0.10.0` (below).
 
+## Purpose: evidence, not the answer
+
+The engine exists to support design decisions. Its fights are a simplified model of the game, played by scripted agents; it cannot tell you whether the game is fun, whether a decision feels meaningful, or how players will actually behave. A design chat's main work is reasoning about the rules: brainstorming, playing scenarios out by hand, and arguing from the pillars. The engine is a secondary check on that reasoning.
+
+- **Default to reasoning.** For questions about feel, decisions, incentives or pacing, play two or three rounds of a specific fight by hand: real positions, the choices each side faces, what each player would be thinking. That captures what the engine leaves out, and it is the default evidence for those questions.
+- **Run the engine only to test a specific claim** your advice depends on. Before running, write down the claim, why the engine can test it, what you expect to see, and what each plausible result would mean for the design. If you can't fill that in, don't run it.
+- **Check every result against the limitations below** before using it. Ask: "Could this result change if the missing thing were present?" If plausibly yes, the engine can't settle the question; say so, and reason it out instead.
+- **A number never stands alone.** A simulated result appears in a reply only as support for a design point, with its design implication and the limitation most likely to undercut it.
+
+## What the engine doesn't capture
+
+These are the simplifications most likely to matter to design advice. Name the relevant ones whenever you draw a conclusion from a run.
+
+**Players and agents**
+- **Agents are heuristics, not players.** Scripted agents follow one fixed commitment policy (`alpha`, `fixed:k`, `reserve:N`, `chipkill`, `lookahead`). Tactical agents score squares and retreat by fixed thresholds. Neither reads the opponent, adapts across a fight, bluffs, baits, or plans several turns ahead.
+- **Blocking is a fixed exchange rate.** The block solver minimizes stamina + w × injury with a constant `w` (3 by default). Real players value an HP point very differently depending on the situation (the next fight, a downed ally, how close they are to dying).
+- **"No dominant strategy" can't be established here.** The search auditor (M6) isn't built, so a strategy the agents don't try can still dominate. Absence of an exploit in engine results is weak evidence.
+- **Teamwork is minimal.** Agents focus fire by target policy, but there is no coordinated plan: no flanking setups, protecting a weak ally, body-blocking a gap, or trading position for tempo. Deniers in objective scenarios attack rather than block routes.
+- **Scripted agents barely use movement.** They approach with free movement and never move off-turn or buy squares. Results from scripted agents say little about positioning, diving, retreat or opportunity attacks.
+- **Agent behavior can produce a result by itself.** A result that holds for only one agent family, or that a smarter choice would plausibly overturn, is about the agents, not the rules.
+
+**The game around the fight**
+- **Each fight is the whole world.** Fights start at full HP and stamina with strain 0. There's no adventuring day: wounds don't carry into the next fight as lower maximum stamina, strain isn't a day budget, and nightly recovery isn't modeled (CAMPAIGN_PLAN.md is a proposal, not built). Anything about attrition, risk-taking across a day, or how punishing a loss is lives mostly outside the engine.
+- **No GM.** There's no telegraphing, morale beyond NPC profile thresholds, reinforcements, terrain the GM invents, or narrative stakes. Fleeing and surrender are engine conventions, not packet rules.
+- **Scenarios are chosen, not representative.** Maps, rosters and builds come from a small library (mostly level 1, a few at 30 and 99). A result describes that scenario, not encounters in general.
+
+**Rules coverage**
+- **Packet 0.10.0 isn't implemented.** The ranged package, cover and Ranged Defense changes, and shields at +1 aren't in any preset yet (see Packet versions).
+- **Out of scope:** spells and spell lists, conditions, grappling, extended contests, skill checks, out-of-combat rules, and advancement beyond derived numbers.
+- **Silent readings.** Where the packet is unclear, the engine picks a reading recorded in the Assumptions register (`sim/docs/ENGINE_PLAN.md`). A result can hinge on one; check the register before trusting a surprising number.
+
+**Experience**
+- **The engine measures outcomes, not experience.** Win rates, rounds and HP lost don't show whether choices feel meaningful, whether arithmetic feels like busywork, or whether fights feel tense or grindy. The load report (`se load`) counts decisions and options, not whether they're interesting. The single human `se play` session is the only experience data, and it hasn't been played yet.
+
 ## Packet versions
 
 Each packet version is a preset. **`v0.10.0` (packet 0.10.0, the ranged package) is the baseline** (ruled 2026-11-11): the library's scenarios and the milestone suites name it, and it's what a scenario without a ruleset, a sweep without rulesets and `se table` use. Its equipment is the `v0_10` table (the new bows and the +1 / +1 shield): a scenario that names no `equipment` gets its RuleSet's own, `v0_10` for 0.10.0's range bands and `v0_9` for earlier presets, and the engine refuses to mix 0.10.0's rules with v0.9's bows, or the reverse. Results from before 2026-11-11 ran under `v0.9.3` (+2 shields, v0.9's ranged rules) or earlier presets. `v0.9` stays the v0.9 packet, so earlier results still reproduce, and `review-sim` (parity) and `review-candidate` are built on it. Name `v0.9` to reproduce the review or an earlier result: `se table 5 --ruleset v0.9`, or `se compare scenario.toml --a v0.9.3 --b v0.10.0`. Every report in `sim/reports/` names the preset it ran under in its stamp.
@@ -273,7 +307,10 @@ Plugin exp_quadratic_surcharge.py 9460148edc70: surcharge/exp_quadratic
 - **source** hashes the engine's code and data tables. It identifies the implementation even outside git, in an unpacked copy or with uncommitted edits. "uncommitted changes" means that copy's code differs from the commit shown.
 - **Plugin** lines hash each plugin file.
 
-Quote the whole stamp with every number, plus trial counts and confidence intervals for anything simulated (`se run` and `se compare` print both). Attach plugin files and RuleSet files to the report, so anyone can rerun it. Write-ups go in `sim/reports/`. The report, not the branch, is what lasts.
+Provenance lives in the results file, not the reply:
+
+- **Results file:** save each investigation's full results (tables, every number with its whole stamp, trial counts, 95% confidence intervals, and the limitations that apply) to a results file. Attach plugin and RuleSet files so anyone can rerun it. Write-ups for the designer go in `sim/reports/`; working results can be project docs. The report, not the branch, is what lasts.
+- **Replies and design docs:** cite only the few numbers that carry the argument, each with a short tag such as `[rs:3bf6fc, n=2000, ±2%]`, and point to the results file for the rest.
 
 ## Sharing changes
 
@@ -285,4 +322,5 @@ A chat can push only if the Claude GitHub App has access to this repo.
 
 - Read `CLAUDE.md` at the repo root before changing anything. Its ground rules apply to chats too.
 - Never change what a rule means. Experiments are new named variants, never edits to the baseline. If the packet is unclear, flag it and add it to the Assumptions register in `sim/docs/ENGINE_PLAN.md`.
-- Quote every number with its full provenance stamp.
+- Every simulated number is traceable: full stamp in the results file, short tag in prose (see Reporting results).
+- Run the engine only to test a stated claim, and name the limitations that could undercut the result (see Purpose and What the engine doesn't capture).

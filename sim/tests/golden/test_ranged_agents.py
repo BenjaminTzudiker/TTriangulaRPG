@@ -208,11 +208,13 @@ def test_a_reaction_that_closes_in() -> None:
 # --- aim = reaction -----------------------------------------------------------------
 
 
-def _aim_request(field: Battlefield, archer_at: Cell, target_at: Cell) -> AimRequest:
+def _aim_request(
+    field: Battlefield, archer_at: Cell, target_at: Cell, archer: str = "l1_archer"
+) -> AimRequest:
     a = Listed(turns=[Shoot("T")])
     fight(
         [
-            ("A", "red", profile("l1_archer"), archer_at, a),
+            ("A", "red", profile(archer), archer_at, a),
             ("T", "blue", profile("l1_sample"), target_at, Listed()),
         ],
         field,
@@ -257,3 +259,17 @@ def test_the_new_agents_play_and_repeat() -> None:
     for trial in range(3):
         first = log_lines(run_trial(s, trial, check=True).log)
         assert first == log_lines(run_trial(s, trial, check=True).log)
+
+
+def test_the_archer_counts_a_pursuer_that_can_buy_its_way_in() -> None:
+    """A fighter 10 squares off can't reach the archer with free movement (6) but can by
+    buying 3 squares (3 stamina). The old look-ahead saw no reply, so the archer put its
+    whole turn into one aimed warbow shot; with aim = reaction it keeps a reserve."""
+    request = _aim_request(WIDE, (0, 2), (10, 2), "l1_archer_warbow")
+    agent = tactical(aim="reaction")
+    obs = request.observation
+    assert agent._reply_cost(obs) is None
+    assert agent._reply_cost(obs, bought=True) is not None
+    assert [q.total for q in request.quotes] == [6, 8, 11, 15]
+    assert tactical().aim(request) == 3  # the old look-ahead: everything on one shot
+    assert agent.aim(request) < 3

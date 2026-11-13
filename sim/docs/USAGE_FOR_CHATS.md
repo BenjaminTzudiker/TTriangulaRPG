@@ -51,6 +51,8 @@ Each packet version is a preset. **`v0.10.0` (packet 0.10.0, the ranged package)
 | `v0.10.0-cover-only` | Not a packet version: the "reaction changes cover only" package. 0.10.0, with the range penalty and Melee vs Ranged Defense judged where the target was when the shot was declared (`ranged.range_measured = "declaration"`, `ranged.defense_timing = "declaration"`); a reaction still earns cover and the +1 |
 | `v0.10.0-crit-c-prime`, `v0.10.0-crit-c` | Not packet versions: the solver study's crit rules C′ (aim dice crit only on a 6, at most one critical die a shot) and C (every die can crit, Finesse-widened, at most one a shot). 0.10.0 itself is rule A |
 
+**Packet 0.10.1 has no preset yet.** It reorganizes and clarifies the notes, and `v0.10.0` plays it except for one rule: in 0.10.1 a grazing block with nothing left to stop leaks nothing (perfect blocks counted first), while the engine still leaks 1 per grazing block. The two differ only when a defender declares a grazing block that stops nothing, which the block solver never does.
+
 Nightly HP recovery isn't modeled, since the engine plays single fights. Without a cap, engine agents size an opportunity attack by their commitment policy rather than spending everything (Assumptions register).
 
 ## Reading the code

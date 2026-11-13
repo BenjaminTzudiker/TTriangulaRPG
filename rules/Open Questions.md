@@ -6,7 +6,8 @@ next: "[[Not in This Version]]"
 # Open Questions
 
 **Combat**
-- Ranged lethality under the 0.10.0 bows: untested at normal ranges. Two archers shooting one target back to back are the main risk.- A better name for "action".
+- Ranged lethality under the 0.10.0 bows: untested at normal ranges. Two archers shooting one target back to back are the main risk.
+- A better name for "action".
 - Whether Dodge Defense stays in the game.
 - Area attacks, such as a fireball or dragon breath. One idea: measure cover from the blast's origin, and let a dive out of the area count as three-quarters cover.
 - An "out of the fight but alive" state above 0 HP.

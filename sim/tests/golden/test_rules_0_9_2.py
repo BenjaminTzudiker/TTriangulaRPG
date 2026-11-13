@@ -35,7 +35,7 @@ def test_hp_from_even_strength() -> None:
 
 
 def test_sample_character() -> None:
-    """Packet: Quick Reference, Sample Character (0.9.2): HP 10, stamina 16, recovers 4,
+    """Packet: Sample Character (0.9.2): HP 10, stamina 16, recovers 4,
     strain 6; MD 4, RD 3, DD 1; movement 6, 2 squares per off-turn purchase; initiative 2d12
     (CUN 0); a d8 crits on 7-8."""
     rules = v0_9_2()
@@ -54,7 +54,7 @@ def test_sample_character() -> None:
 
 
 def test_melee_example_with_a_critical_die() -> None:
-    """Packet: Critical Hits, Example: Melee Attack. The orc has Melee Defense 4, armor 1."""
+    """Packet: Attack Procedure, Example: Melee Attack. The orc has Melee Defense 4, armor 1."""
     rules = v0_9_2()
     no_crit = {
         Blocks(4, 0): 0,

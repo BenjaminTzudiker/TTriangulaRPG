@@ -1,0 +1,14 @@
+---
+up: "[[Playtest Packet]]"
+prev: "[[Will]]"
+next: "[[Currencies]]"
+---
+# Cunning
+
+*Status: Exploratory*
+
+Cunning is awareness, instinct, perception, social insight, deception, and the ability to rapidly understand a situation as it unfolds.
+- **Every point:** +1 initiative. This is a placeholder whose job is to show that Cunning sets initiative.
+- Other combat benefits: **TODO**.
+
+The mental attributes need to matter to characters who don't use magic. They aren't fully defined yet.

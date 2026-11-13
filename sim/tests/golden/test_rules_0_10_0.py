@@ -232,7 +232,7 @@ def test_the_bows_need_their_table() -> None:
 
 
 def test_sample_character() -> None:
-    """Packet: Quick Reference, Sample Character (0.10.0): Melee Defense 3, Ranged Defense 2,
+    """Packet: Sample Character (0.10.0): Melee Defense 3, Ranged Defense 2,
     HP 10, stamina 16."""
     p = sample()
     assert (p.hp_max, p.stamina_max) == (10, 16)

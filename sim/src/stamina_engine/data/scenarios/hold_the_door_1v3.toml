@@ -5,7 +5,7 @@
 # question.
 [scenario]
 name = "hold-the-door-1v3"
-ruleset = "v0.10.0"
+ruleset = "v0.10.1"
 map = "corridor"
 round_cap = 20
 trials = 500

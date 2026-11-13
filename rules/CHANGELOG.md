@@ -29,11 +29,11 @@ A commit that only fixes typos can skip the entry by putting `[no changelog]` in
 
 ### Editorial
 
-- [[CHANGELOG]]: the *Engine:* note on 0.10.1's [[Blocking]] entry, "not implemented" → the `blocks.graze_needs_stop` switch and the `v0.10.1` preset; the 0.10.1 introduction now names the preset. No rule changes. Why: the engine now implements 0.10.1. The baseline stays `v0.10.0` until the designer moves it. Source: designer's request, design chat, 2026-11-13.
+- [[CHANGELOG]]: the *Engine:* note on 0.10.1's [[Blocking]] entry, "not implemented" → the `blocks.graze_needs_stop` switch and the `v0.10.1` preset; the 0.10.1 introduction now names the preset. No rule changes. Why: the engine now implements 0.10.1, and the designer moved its baseline to `v0.10.1`. Source: designer's requests, design chat, 2026-11-13.
 
 ## 0.10.1 (2026-11-13)
 
-Clarifications from a cold read of the compiled packet, and a new reading order. The reading order now follows what each rule depends on; no rule changed meaning in the move. The three entries under Rules settle points the text left open or stated two ways. The engine implements it as the `v0.10.1` preset, which is `v0.10.0` with the grazing-block entry below; the engine's baseline is still `v0.10.0`.
+Clarifications from a cold read of the compiled packet, and a new reading order. The reading order now follows what each rule depends on; no rule changed meaning in the move. The three entries under Rules settle points the text left open or stated two ways. The engine implements it as the `v0.10.1` preset, which is `v0.10.0` with the grazing-block entry below, and is the engine's baseline.
 
 ### Rules
 

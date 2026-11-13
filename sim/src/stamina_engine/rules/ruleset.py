@@ -298,7 +298,7 @@ def review_sim() -> RuleSet:
     )
 
 
-BASELINE = "v0.10.0"
+BASELINE = "v0.10.1"
 """The preset the engine's scenarios, suites and defaults use: the current packet. Moving the
 baseline to a new packet version is this one line (and the pinned hashes it moves)."""
 

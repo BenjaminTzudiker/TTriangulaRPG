@@ -17,6 +17,12 @@ class BlockRule(Component):
       option 2 ("block count reset per attacker per round").
     - per_round: one count per defender per round, shared across attackers. The other
       reading.
+
+    graze_needs_stop says when a grazing block leaks (packet 0.10.1):
+
+    - False (through 0.10.0): every grazing block leaks, whatever it stopped.
+    - True (0.10.1): the leak is part of the damage that block stopped, so a grazing block
+      with nothing left to stop leaks nothing. Perfect blocks count first.
     """
 
     cites = ("Packet: Blocking", "Ledger CB-3", "Ledger CB-4", "Review F3", "Review F6")
@@ -28,6 +34,17 @@ class BlockRule(Component):
     # Review F3 option 2: perfect blocks against a ranged attack cost this flat amount each
     # (no escalation). 0 is as written: the same escalation as melee.
     ranged_flat: int = 0
+    graze_needs_stop: bool = False
+
+    def leaked(self, damage: int, defense: int, perfect: int, grazing: int) -> int:
+        """What leaks past the grazing blocks against an attack of `damage`."""
+        if not self.graze_needs_stop:
+            return grazing * self.graze_leak
+        if defense <= 0:
+            return 0  # a block that subtracts nothing stops nothing
+        left = max(0, damage - perfect * defense)
+        stopping = min(grazing, -(-left // defense))
+        return stopping * self.graze_leak
 
     def perfect_cost(self, nth: int) -> int:
         """Cost of the nth perfect block against one attack (nth starts at 1)."""

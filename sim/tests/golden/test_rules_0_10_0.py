@@ -128,6 +128,12 @@ def test_the_aim_limit_example() -> None:
     assert (a.total, a.crit_dice, a.limit) == (15, 0, 4)
     out = resolve(a.total, a.crit_dice, 2, 0, Blocks(3, 0), V10, a.limit)
     assert (out.through_blocks, out.injury) == (9, 4)
+    # The example's other two lines: unblocked it's the same 4 HP, so those three blocks
+    # bought nothing; six perfect blocks (21 stamina) leave 3, under the limit.
+    assert resolve(a.total, a.crit_dice, 2, 0, Blocks(0, 0), V10, a.limit).injury == 4
+    six = resolve(a.total, a.crit_dice, 2, 0, Blocks(6, 0), V10, a.limit)
+    assert (six.through_blocks, six.injury) == (3, 3)
+    assert Pricing(V10).blocks(6, 0).total == 21
 
 
 def test_aim_dice_add_no_finesse_and_never_crit() -> None:

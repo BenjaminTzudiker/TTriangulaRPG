@@ -23,6 +23,7 @@ Moving into reach doesn't provoke; only leaving a threatened square does.
 ## Avoiding Opportunity Attacks
 
 To deny an enemy its opportunity attack for one square you leave, pay **1 stamina**.
+- Pay as you leave the square, before the enemy says whether it would attack.
 - Pay once per enemy, per square.
 - The cost is always 1, on or off your turn.
 - It doesn't escalate, and it isn't an off-turn cost, so it doesn't add to the off-turn escalation.

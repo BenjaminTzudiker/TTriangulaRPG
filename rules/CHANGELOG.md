@@ -27,6 +27,17 @@ A commit that only fixes typos can skip the entry by putting `[no changelog]` in
 
 ## Unreleased
 
+### Rules
+
+- [[Blocking]]: a grazing block leaked 1 damage whatever it stopped → the leak is 1 point of the damage that block stopped, so a grazing block with nothing left to stop leaks nothing; perfect blocks count first. A grazing block that stops less than a full defense value still leaks 1, so every worked example is unchanged. Restated in [[Defined Terms]]. Why: the designer's intent is that 1 of the blocked damage leaks, so over-blocking shouldn't add damage. "Perfect blocks count first" is the design chat's reading of blocks being declared together, for the designer to confirm. Source: cold read of the compiled packet (`claude/Cold_Read_Packet_0.10.0_2026-11-12.md`) and the designer's answers, design chat, 2026-11-13. *Engine:* not implemented; `rules.exchange.resolve` leaks 1 per grazing block. The two differ only for a grazing block that stops nothing, which the block solver never chooses.
+- [[Opportunity Attacks]]: when you pay to avoid an opportunity attack wasn't stated → you pay as you leave the square, before the enemy says whether it would attack. Why: the designer confirmed the reading. Source: cold read of the compiled packet (`claude/Cold_Read_Packet_0.10.0_2026-11-12.md`) and the designer's answers, design chat, 2026-11-13. *Engine:* already how `engine.procedures.movement.leave` works (the mover answers `AvoidOA` before any enemy is asked); no change.
+
+### Clarified
+
+- [[Aim]]: the free aim die is 1d6, the same as an aim step; before, only the example implied it. Restated in [[Defined Terms]]. Why: the designer confirmed it. Source: cold read of the compiled packet (`claude/Cold_Read_Packet_0.10.0_2026-11-12.md`) and the designer's answers, design chat, 2026-11-13.
+- [[Aim]]: the aim limit now says that blocks and armor save HP only once they bring the shot below the limit, and that the range penalty comes off the shot's total, never off the limit. The example now shows the same shot with no blocks (4 HP), three perfect blocks (still 4 HP, the stamina wasted) and six (3 HP); before, it showed only the three blocks, without saying they bought nothing. Why: the cold read took the example to mean the blocks had helped; the designer confirmed both readings. The range penalty reading was already the engine's (Assumptions register, ruled 2026-11-11). Source: cold read of the compiled packet (`claude/Cold_Read_Packet_0.10.0_2026-11-12.md`) and the designer's answers, design chat, 2026-11-13. *Engine:* no change; `tests/golden/test_rules_0_10_0.py` checks the example's new lines.
+- [[Blocking]]: perfect and grazing blocks are declared together, so their order doesn't matter. This follows from [[Attack Procedure]] step 5. Why: the designer confirmed it. Source: cold read of the compiled packet (`claude/Cold_Read_Packet_0.10.0_2026-11-12.md`) and the designer's answers, design chat, 2026-11-13.
+
 ### Editorial
 
 - [[CHANGELOG]]: the *Engine:* notes on the 0.10.0 entries, "not implemented" → the switches, the `v0.10.0` preset and the `v0_10` equipment table that implement them; the 0.10.0 introduction now names the preset, which is the engine's baseline. No rule changes. Why: the engine now implements 0.10.0, and the designer moved the baseline to it. Source: engine pull request and designer's ruling, 2026-11-11.

@@ -9,7 +9,7 @@ next: "[[Critical Hits]]"
 
 Blocking is deterministic. The attacker rolls first; then you see the total, and how many dice were critical, and decide exactly how much stamina to spend.
 
-Each block subtracts your defense value from the incoming damage. Mix the two kinds however you like.
+Each block subtracts your defense value from the incoming damage. Mix the two kinds however you like. You declare them together, so their order doesn't matter.
 
 **Perfect Block**
 - Stops the blocked damage completely.
@@ -20,6 +20,7 @@ Each block subtracts your defense value from the incoming damage. Mix the two ki
 **Grazing Block**
 - Always costs **1 stamina**.
 - Subtracts your defense value like a perfect block, but **1 damage leaks through** per grazing block.
+- The leak is 1 point of the damage that block stopped. A grazing block with nothing left to stop leaks nothing; count your perfect blocks first.
 - Further blocks can't stop the leak, but armor can.
 - Grazing blocks don't count toward the perfect-block escalation.
 

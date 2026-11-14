@@ -161,13 +161,14 @@ def resolve(
     rules: RuleSet,
     limit: int | None = None,
 ) -> Outcome:
-    """Steps 5-9. Each block subtracts the defense; each graze leaks. Armor (already less
+    """Steps 5-9. Each block subtracts the defense; each graze leaks (from 0.10.1, only if
+    it had damage left to stop: blocks.graze_needs_stop). Armor (already less
     any Piercing), less 1 per crit die, soaks what got through and the leaks together; a
     shot's aim limit then caps what's left, and the crit effect applies to the result
     (Assumptions register: what armor soaks), capped again by the limit if
     ranged.crit_in_limit says the critical bonus counts toward it."""
     through = max(0, damage - blocks.count * defense)
-    leaked = blocks.grazing * rules.blocks.graze_leak
+    leaked = rules.blocks.leaked(damage, defense, blocks.perfect, blocks.grazing)
     armor_applied = max(0, armor - rules.crit.armor_ignored(crit_dice))
     after_armor = max(0, through + leaked - armor_applied)
     capped = after_armor if limit is None else min(after_armor, limit)

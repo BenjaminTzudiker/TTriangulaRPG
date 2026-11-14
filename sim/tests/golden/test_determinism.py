@@ -78,36 +78,36 @@ def test_pinned_log_hashes(
 
 
 GRID_PINNED = [
-    ("archer_wall.toml", 2, "036a8407b8a1645c0850413c065f246f2fa8cf47348f3db9374abc6129f0b9be"),
+    ("archer_wall.toml", 2, "677e547e76b94ff25500147db2573ca31a7037b0da80c8a4e32708461340282f"),
     (
         "one_v_three_corridor.toml",
         0,
-        "52c4dc95c527391173f6e44b3194baa76e9f83abf2a66fdc0061f9b90e3c47f0",
+        "3c3430b6e246418702232e1c555414187ec289bae004b2f7d8b409d0df5189ef",
     ),
     (
         "reach_chokepoint.toml",
         3,
-        "71d2a158d6b67d198297c8bf3eb93fe1455112734c6b0b6fc6f9f31271b5ce7d",
+        "f72c8277589662bcde08a9d540d8279e70dceb95edf5cf085edf3f612600cc78",
     ),
     (
         "extraction_3v3.toml",  # objectives (O1)
         0,
-        "e0a5055422d5893f28c2b9d3a7c95aee74f75d48761679661786c7340a079133",
+        "0b80a3db02b3e04fef511f7ddfa0644232bb6c76ae562d4d0c2bdb97864c0e07",
     ),
     (
         "breakthrough_3v3.toml",  # objectives (O1)
         0,
-        "850c78136cc7df31a288170f5af3d9b74f5e78c0762a2840691607aba032a3d5",
+        "bbf696370297289cdbfffde260e3f6a1d5b77b390a960cc03cfa6f331db630c1",
     ),
     (
         "hold_hill_3v3.toml",  # objectives (O1)
         0,
-        "2dbd56adecf72c28338b6336cc71ff26ed9d8b6aa1a2e54c816aea44543571ab",
+        "ff837c011f45dcf67e5a607c46038e66a0a6d9ecfa1925dbc5cab62f658d05b2",
     ),
     (
         "hold_the_door_1v3.toml",  # objectives (O1)
         0,
-        "9c6542f27eba6d5d9a19838f3bde83c6647887708ac8dfd483b74fb29a67f2d7",
+        "b04abe9615b2d4afeeb39aacf60940e381abb6cd85c033be7138d5d363550adb",
     ),
 ]
 
@@ -115,7 +115,10 @@ GRID_PINNED = [
 @pytest.mark.parametrize(("scenario", "trial", "expected"), GRID_PINNED)
 def test_pinned_grid_log_hashes(scenario: str, trial: int, expected: str) -> None:
     """Grid battles (tactical and scripted agents, OAs and off-turn windows), under each
-    scenario's own ruleset: the baseline (now v0.10.0)."""
+    scenario's own ruleset: the baseline (now v0.10.1). The hashes moved with the baseline
+    from v0.10.0 only because a log's first event names the RuleSet and its digest: the
+    fights themselves are the same, event for event (all bundled scenarios, 25 trials
+    each, 2026-11-13)."""
     from pathlib import Path
 
     from stamina_engine.experiments.runner import run_trial

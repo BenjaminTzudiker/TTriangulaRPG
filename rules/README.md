@@ -6,6 +6,7 @@ The rules text, one note per rule. Start at [[Playtest Packet]]: it lists every 
 
 - Every section of the packet is a note. A subsection becomes its own note only if it carries its own status marker. Its parent then embeds it (`![[Aim]]`) where it used to be, so the parent still reads as one section.
 - Core Concepts and Quick Reference stay whole, because they're read together.
+- The reading order follows what each rule depends on: a note comes after the notes whose terms it uses, wherever that's possible. That's why the attributes come after combat, and why armor is read with blocking, not with the other equipment.
 - Folders are the packet's parts, numbered for reading order. Note names aren't numbered, so links read naturally and match the engine's citations: `"Packet: Blocking"` in the engine means [[Blocking]], and `"Packet: Triggers"` means the Triggers heading inside [[Opportunity Attacks]].
 - Note names are unique across `rules/`.
 
@@ -41,13 +42,14 @@ When the change is made, in the same commit:
 
 1. Edit the rule's own note.
 2. Update every restatement. Search `rules/` for links to the note (`[[Aim`) and for the rule's own terms and numbers (`aim step`, `1d6 + Finesse`), because links alone miss some. Restatements live in:
-   - [[Quick Reference]], whose sections each name what they restate on their *Restates* line, including [[Quick Reference#Sample Character|Sample Character]];
+   - [[Quick Reference]], whose sections each name what they restate on their *Restates* line;
+   - [[Sample Character]], which has a *Restates* line of its own;
    - [[Defined Terms]];
    - notes that state the same rule from both sides: the attribute notes and the [[Defenses]] tables; [[Stamina]], [[Strain]], [[Rest and Healing]] and [[Character Advancement]].
 3. Add the [[CHANGELOG]] line.
 4. Run `python3 tools/check_rules.py`. If the engine implements the rule, its change goes in the same commit (see `CLAUDE.md`).
 
-A new Quick Reference section needs its own *Restates* line; the checker fails without one.
+A new Quick Reference section needs its own *Restates* line, and [[Sample Character]] must keep its own; the checker fails without one.
 
 ## Adding, renaming or removing a note
 

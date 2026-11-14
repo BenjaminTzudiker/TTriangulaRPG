@@ -1,7 +1,7 @@
 ---
 up: "[[Playtest Packet]]"
 prev: "[[What This Game Is Trying To Do]]"
-next: "[[HP]]"
+next: "[[Sample Character]]"
 ---
 # Core Concepts
 

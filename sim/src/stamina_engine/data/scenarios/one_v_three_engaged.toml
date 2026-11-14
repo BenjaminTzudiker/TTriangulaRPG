@@ -2,7 +2,7 @@
 # defender, as in the review's all-adjacent 1v3, but now everyone can move.
 [scenario]
 name = "one-v-three-engaged"
-ruleset = "v0.10.0"
+ruleset = "v0.10.1"
 map = "open_12x12"
 round_cap = 20
 trials = 500

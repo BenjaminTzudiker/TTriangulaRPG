@@ -4,7 +4,7 @@
 # turns when the fighter could reach it, and dives for cover. Swap agents to compare.
 [scenario]
 name = "archer-duelist-open"
-ruleset = "v0.10.0"
+ruleset = "v0.10.1"
 map = "archer_open"
 round_cap = 30
 trials = 500

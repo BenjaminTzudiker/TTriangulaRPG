@@ -375,7 +375,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument(
         "--ruleset",
         default=BASELINE,
-        help="A preset name (v0.9, v0.9.1, v0.9.2, v0.9.3, v0.10.0, review-candidate, "
+        help="A preset name (v0.9, v0.9.1, v0.9.2, v0.9.3, v0.10.0, v0.10.1, review-candidate, "
         "review-sim) or a .toml file.",
     )
     p.add_argument(

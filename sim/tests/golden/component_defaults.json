@@ -3,6 +3,7 @@
     "first": 1,
     "graze_cost": 1,
     "graze_leak": 1,
+    "graze_needs_stop": false,
     "ranged_flat": 0,
     "reset": "per_attack",
     "slope_den": 1,

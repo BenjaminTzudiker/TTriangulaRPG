@@ -27,6 +27,7 @@ PRESET_DIGESTS = {
     "v0.9.2": "8dd5547b5abe",
     "v0.9.3": "8dd5547b5abe",  # 0.9.3 changes nothing inside a fight
     "v0.10.0": "a89fed59543d",
+    "v0.10.1": "50a73c176f63",  # 0.10.0 with blocks.graze_needs_stop
     "v0.10.0-cover-only": "820505340da8",
     "v0.10.0-crit-c-prime": "b7690db2f629",
     "v0.10.0-crit-c": "6a1c7e8b7971",

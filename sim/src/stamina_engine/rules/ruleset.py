@@ -235,6 +235,17 @@ def v0_10_0() -> RuleSet:
     )
 
 
+def v0_10_1() -> RuleSet:
+    """Packet 0.10.1: 0.10.0 with one rule changed. A grazing block leaks 1 of the damage
+    it stopped, so one with nothing left to stop leaks nothing (perfect blocks count
+    first). The packet's other 0.10.1 entries (paying to avoid an opportunity attack before
+    the enemy decides; Melee Defense against a shot when the shooter is within the target's
+    reach) are already how every preset plays."""
+    base = v0_10_0()
+    blocks = dataclasses.replace(base.blocks, graze_needs_stop=True)
+    return base.with_(name="v0.10.1", blocks=blocks)
+
+
 def v0_10_0_cover_only() -> RuleSet:
     """Not a packet version: the designer's "reaction changes cover only" package on 0.10.0.
     The range penalty and Melee vs Ranged Defense are judged where the target was when the
@@ -287,7 +298,7 @@ def review_sim() -> RuleSet:
     )
 
 
-BASELINE = "v0.10.0"
+BASELINE = "v0.10.1"
 """The preset the engine's scenarios, suites and defaults use: the current packet. Moving the
 baseline to a new packet version is this one line (and the pinned hashes it moves)."""
 
@@ -297,6 +308,7 @@ PRESETS: dict[str, Callable[[], RuleSet]] = {
     "v0.9.2": v0_9_2,
     "v0.9.3": v0_9_3,
     "v0.10.0": v0_10_0,
+    "v0.10.1": v0_10_1,
     "v0.10.0-cover-only": v0_10_0_cover_only,
     "v0.10.0-crit-c-prime": v0_10_0_crit_c_prime,
     "v0.10.0-crit-c": v0_10_0_crit_c,

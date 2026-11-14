@@ -2,7 +2,7 @@
 
 For claude.ai chats in the "Tactical fantasy TTRPG" project. Claude Code keeps this file current.
 
-**Status:** milestones M0–M5 are done (tags `m0`–`m5`): the turn engine, maps and movement, opportunity attacks, ranged attacks, cover and diving, drawing weapons, equipment variant tables, NPC profiles, fleeing and surrendering, the full phase suite, class cores and candidate abilities with strain, playing a side yourself, and the load report. M5's gate still needs one session played by a person. Packet versions 0.9.1–0.10.0 are the presets `v0.9.1`, `v0.9.2`, `v0.9.3` and `v0.10.0` (below).
+**Status:** milestones M0–M5 are done (tags `m0`–`m5`): the turn engine, maps and movement, opportunity attacks, ranged attacks, cover and diving, drawing weapons, equipment variant tables, NPC profiles, fleeing and surrendering, the full phase suite, class cores and candidate abilities with strain, playing a side yourself, and the load report. M5's gate still needs one session played by a person. Packet versions 0.9.1–0.10.1 are the presets `v0.9.1`, `v0.9.2`, `v0.9.3`, `v0.10.0` and `v0.10.1` (below).
 
 ## Purpose: evidence, not the answer
 
@@ -40,7 +40,7 @@ These are the simplifications most likely to matter to design advice. Name the r
 
 ## Packet versions
 
-Each packet version is a preset. **`v0.10.0` (packet 0.10.0, the ranged package) is the baseline** (ruled 2026-11-11): the library's scenarios and the milestone suites name it, and it's what a scenario without a ruleset, a sweep without rulesets and `se table` use. Its equipment is the `v0_10` table (the new bows and the +1 / +1 shield): a scenario that names no `equipment` gets its RuleSet's own, `v0_10` for 0.10.0's range bands and `v0_9` for earlier presets, and the engine refuses to mix 0.10.0's rules with v0.9's bows, or the reverse. Results from before 2026-11-11 ran under `v0.9.3` (+2 shields, v0.9's ranged rules) or earlier presets. `v0.9` stays the v0.9 packet, so earlier results still reproduce, and `review-sim` (parity) and `review-candidate` are built on it. Name `v0.9` to reproduce the review or an earlier result: `se table 5 --ruleset v0.9`, or `se compare scenario.toml --a v0.9.3 --b v0.10.0`. Every report in `sim/reports/` names the preset it ran under in its stamp.
+Each packet version is a preset. **`v0.10.1` (packet 0.10.1: the ranged package, plus the grazing-block ruling) is the baseline** (ruled 2026-11-13; it was `v0.10.0` from 2026-11-11): the library's scenarios and the milestone suites name it, and it's what a scenario without a ruleset, a sweep without rulesets and `se table` use. Its equipment is the `v0_10` table (the new bows and the +1 / +1 shield): a scenario that names no `equipment` gets its RuleSet's own, `v0_10` for 0.10.0's range bands (which 0.10.1 keeps) and `v0_9` for earlier presets, and the engine refuses to mix 0.10.0's rules with v0.9's bows, or the reverse. Results from 2026-11-11 to 2026-11-13 ran under `v0.10.0`, and they stand under `v0.10.1`: every bundled scenario plays the same fights under both, event for event (25 trials each), because the block solver never declares a grazing block that stops nothing. Results from before 2026-11-11 ran under `v0.9.3` (+2 shields, v0.9's ranged rules) or earlier presets. `v0.9` stays the v0.9 packet, so earlier results still reproduce, and `review-sim` (parity) and `review-candidate` are built on it. Name `v0.9` to reproduce the review or an earlier result: `se table 5 --ruleset v0.9`, or `se compare scenario.toml --a v0.9.3 --b v0.10.0`. Every report in `sim/reports/` names the preset it ran under in its stamp.
 
 | Preset | Rules (see `rules/CHANGELOG.md`) |
 |---|---|
@@ -48,6 +48,7 @@ Each packet version is a preset. **`v0.10.0` (packet 0.10.0, the ranged package)
 | `v0.9.2` | 0.9.1, with +1 per critical die only if damage gets past blocks and armor (`crit` kind `per_die_if_through`) and maximum HP 8 + 2 per even Strength (`resources.hp_base = 8`) |
 | `v0.9.3` | 0.9.2's components and digest under the new name: 0.9.3's changes (healing below 0 HP, dying rolls after a fight ends) are all after a fight, which the engine doesn't play yet. The campaign layer's rest rules will extend it |
 | `v0.10.0` | 0.9.3, with linear range bands: a band width per bow, −2 per further band measured after the target's reaction, no maximum range (`ranged.bands = "linear"`, `ranged.range_measured = "after_reaction"`); shots are actions (`ranged.shot_action`) with one free aim die (`ranged.free_aim_dice = 1`); aim steps 1d6 with no Finesse (`ranged.aim_finesse = false`); the aim limit (`ranged.aim_limit = "damage_roll"`); aim dice never critical (`crit.aim_dice_can_crit = false`); cover +1 / +2; +1 Ranged Defense for moving in reaction to a shot (`ranged.reaction_bonus = 1`) and per even Agility (`defenses.ranged_mode = "dodge_folded"`); point-blank OAs only from enemies in reach both when the shot is declared and when they happen (`opportunity.point_blank_eligible`). Use it with `equipment = "v0_10"`: shortbow, longbow, warbow and superheavy warbow with band widths, Strength requirements, Piercing and Precise, and the +1 / +1 shield |
+| `v0.10.1` | 0.10.0, with one rule changed: a grazing block leaks 1 of the damage it stopped, so one with nothing left to stop leaks nothing, perfect blocks counted first (`blocks.graze_needs_stop = true`). The block solver chooses the same blocks under both, so engine agents play 0.10.1 exactly as 0.10.0; it differs only when an agent you script or play declares a grazing block that stops nothing. **The baseline** |
 | `v0.10.0-cover-only` | Not a packet version: the "reaction changes cover only" package. 0.10.0, with the range penalty and Melee vs Ranged Defense judged where the target was when the shot was declared (`ranged.range_measured = "declaration"`, `ranged.defense_timing = "declaration"`); a reaction still earns cover and the +1 |
 | `v0.10.0-crit-c-prime`, `v0.10.0-crit-c` | Not packet versions: the solver study's crit rules C′ (aim dice crit only on a 6, at most one critical die a shot) and C (every die can crit, Finesse-widened, at most one a shot). 0.10.0 itself is rule A |
 
@@ -135,7 +136,7 @@ The engine measures whatever fight you give it. An objective only produces an in
    - focus fire (F6): a lone defender holding a corridor;
    - retreat economics (Review Addendum 2): an escape that has to break contact, with pursuers able to reach the route;
    - stamina banking: a hold scored only at the deadline (`score = "final"`).
-2. **Use the current rules.** Name the baseline, `ruleset = "v0.10.0"` (or leave the ruleset out). The `v0.9` preset predates packet 0.9.1, so its extra on-turn purchase moves 1 + odd Agility squares instead of 1 square, and it keeps the opportunity-attack cap. Movement decides most objective fights, so this matters more here than anywhere else.
+2. **Use the current rules.** Name the baseline, `ruleset = "v0.10.1"` (or leave the ruleset out). The `v0.9` preset predates packet 0.9.1, so its extra on-turn purchase moves 1 + odd Agility squares instead of 1 square, and it keeps the opportunity-attack cap. Movement decides most objective fights, so this matters more here than anywhere else.
 3. **Do the movement arithmetic.** Under current rules a creature covers its free Movement (5, +1 per odd Agility) plus 1 square per stamina it spends, all on its own turn. It can also move off-turn, at escalating prices. With `se map show <map>`, measure each pursuer's distance to the goal and each denier's distance to the intercept squares.
    - If a pursuer can reach the goal on its first turn before any denier can engage it, the fight is a race decided by initiative.
    - That is a fine thing to measure on purpose, but not by accident.
@@ -228,7 +229,7 @@ Report positional results for both families: agent behavior can drive a result a
 
 ```toml
 [ruleset]
-base = "v0.10.0"
+base = "v0.10.1"
 opportunity = { cap_rule = "weapon_base" }       # F9 option 1: bring back a cap of weapon base + odd FIN
 # opportunity = { avoid_price = "attacker_cap" } # F9 option 2 (needs a cap: base = "v0.9", or option 1)
 # opportunity = { avoid_track = "off_turn" }     # F9 option 3 (or "off_turn_only")
@@ -267,7 +268,7 @@ print("\n".join(summarize(run_scenario(s, trials=500).fights).lines()))
 The core pieces for single exchanges:
 
 ```python
-from stamina_engine.rules.ruleset import preset, load_ruleset   # presets: "v0.9" ... "v0.10.0", the v0.10.0-* packages, "review-candidate", "review-sim"
+from stamina_engine.rules.ruleset import preset, load_ruleset   # presets: "v0.9" ... "v0.10.1", the v0.10.0-* packages, "review-candidate", "review-sim"
 from stamina_engine.model.build import load_build        # library builds in src/stamina_engine/data/builds
 from stamina_engine.model.derive import derive           # Build x RuleSet -> CombatProfile
 from stamina_engine.rules.pricing import Pricing, Trackers
@@ -275,13 +276,13 @@ from stamina_engine.rules.block_solver import best_block, cheapest_zero_injury
 from stamina_engine.analysis import dist                 # exact (total, crit dice) distributions
 from stamina_engine.provenance import collect            # the stamp to quote with results
 
-rules = preset("v0.10.0")                               # the baseline
+rules = preset("v0.10.1")                               # the baseline
 fighter = derive(load_build("l1_sample"), rules)
 Pricing(rules).melee_attack(base=2, steps=3).total      # 9
 print(collect(rules).text())
 ```
 
-`review-sim` reproduces the review's simulator, quirks included; use `v0.10.0`, the current packet (or your variant on it), for design questions. `uv run pytest` takes under a minute; `uv run pytest -m slow` adds the full-count oracle parity runs.
+`review-sim` reproduces the review's simulator, quirks included; use `v0.10.1`, the current packet (or your variant on it), for design questions. `uv run pytest` takes under a minute; `uv run pytest -m slow` adds the full-count oracle parity runs.
 
 ## Trying a rule change
 
@@ -292,7 +293,7 @@ Never edit the baseline: not the v0.9 components, not the presets, not `rules/`.
    ```toml
    # steep.toml
    [ruleset]
-   base = "v0.10.0"
+   base = "v0.10.1"
    name = "steep-surcharge"
    surcharge = { slope = 2 }
    blocks = { slope_num = 1, slope_den = 2 }   # perfect blocks 1, 1, 2, 2, 3...

@@ -5,9 +5,9 @@ scenarios = ["l1_duel.toml", "one_v_three.toml"]
 trials = 500
 
 [[ruleset]]
-label = "v0.10.0"
-spec = "v0.10.0"
+label = "v0.10.1"
+spec = "v0.10.1"
 
 [[ruleset]]
 label = "surcharge+2"
-spec = { base = "v0.10.0", name = "surcharge+2", surcharge = { slope = 2 } }
+spec = { base = "v0.10.1", name = "surcharge+2", surcharge = { slope = 2 } }

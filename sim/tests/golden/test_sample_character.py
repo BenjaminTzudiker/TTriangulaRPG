@@ -1,4 +1,4 @@
-"""Packet: Quick Reference, Sample Character; plus the review's stated build numbers."""
+"""Packet: Sample Character; plus the review's stated build numbers."""
 
 from fractions import Fraction
 

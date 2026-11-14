@@ -19,7 +19,7 @@ def test_se_table() -> None:
     assert eight.exit_code == 0
     assert "Greataxe 2d6 + 6 (base 3) | 4.33" in eight.output
     assert invoke(["table", "4"]).exit_code != 0
-    assert "RuleSet v0.10.0 " in eight.output and "source " in eight.output  # the baseline
+    assert "RuleSet v0.10.1 " in eight.output and "source " in eight.output  # the baseline
 
 
 def test_se_table_with_plugin() -> None:
@@ -61,4 +61,4 @@ def test_runs_with_no_installed_packages() -> None:
             timeout=120,
         )
         assert done.returncode == 0, done.stderr
-        assert "RuleSet v0.10.0 " in done.stdout
+        assert "RuleSet v0.10.1 " in done.stdout

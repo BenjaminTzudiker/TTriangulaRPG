@@ -3,7 +3,7 @@ next: "[[What This Game Is Trying To Do]]"
 ---
 # Playtest Packet
 
-Consolidated Prototype · Version 0.10.0 · Changes since this version: [[CHANGELOG]]
+Consolidated Prototype · Version 0.10.1 · Changes since this version: [[CHANGELOG]]
 
 > [!info] Purpose
 > This is the current implementation of the game, written for internal playtesting rather than publication. Treat everything here as the current rules unless it's marked **TODO**.
@@ -32,13 +32,51 @@ To read it all in one scroll, open [[Full Packet]]. To go note by note, use the 
 
 - [[What This Game Is Trying To Do]]
 - [[Core Concepts]]
+- [[Sample Character]]
 
-### Core Resources
+### Turns and Resources
 
+- [[Starting Combat and Turn Structure]]
 - [[HP]]
 - [[Stamina]]
-- [[Strain]]
-	- [[Going Over Your Maximum Strain]]
+
+### Attacking and Defending
+
+- [[Melee Attacks]]
+- [[Actions and the On-Turn Surcharge]]
+- [[Blocking]]
+- [[Defenses]]
+- [[Armor]]
+- [[Critical Hits]]
+- [[Attack Procedure]]
+- [[Dying and Death]]
+
+### Weapons and Shields
+
+- [[Weapons]]
+- [[Shields]]
+
+### Movement and Positioning
+
+- [[Movement]]
+	- [[On-Turn Movement]]
+	- [[Off-Turn Movement]]
+	- [[Off-Turn Escalation]]
+- [[Opportunity Attacks]]
+
+### Ranged Combat
+
+- [[Ranged Attacks]]
+	- [[Aim]]
+	- [[Range Bands]]
+	- [[Cover]]
+	- [[Ranged Defense]]
+- [[Drawing Weapons]]
+
+### Other Combat Rules
+
+- [[Dodge Defense]]
+- [[Conditions and Control Effects]]
 
 ### Attributes
 
@@ -52,48 +90,18 @@ To read it all in one scroll, open [[Full Packet]]. To go note by note, use the 
 - [[Will]]
 - [[Cunning]]
 
-### Combat
-
-- [[Starting Combat and Turn Structure]]
-- [[Actions and the On-Turn Surcharge]]
-- [[Melee Attacks]]
-	- [[Attack Procedure]]
-- [[Defenses]]
-	- [[Dodge Defense]]
-- [[Blocking]]
-- [[Critical Hits]]
-- [[Ranged Attacks]]
-	- [[Aim]]
-	- [[Range Bands]]
-	- [[Cover]]
-- [[Movement]]
-	- [[On-Turn Movement]]
-	- [[Off-Turn Movement]]
-	- [[Off-Turn Escalation]]
-- [[Opportunity Attacks]]
-- [[Conditions and Control Effects]]
-- [[Dying and Death]]
-
-### Equipment
-
-- [[Weapons]]
-- [[Drawing Weapons]]
-- [[Armor]]
-- [[Shields]]
-
-### Magic
-
-- [[Magic]]
-
 ### Characters
 
-- [[Character Creation]]
 - [[Currencies]]
 - [[Costs]]
+- [[Character Advancement]]
+- [[Strain]]
+	- [[Going Over Your Maximum Strain]]
 - [[Class Trees]]
 	- [[Core Abilities]]
 	- [[Candidate Abilities]]
-- [[Character Advancement]]
+- [[Magic]]
+- [[Character Creation]]
 
 ### Outside Combat
 

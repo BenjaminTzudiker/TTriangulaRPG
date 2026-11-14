@@ -39,7 +39,7 @@ from stamina_engine.model.equipment import load_table
 from stamina_engine.rules.ruleset import BASELINE, preset
 
 cites = (
-    "Packet: Combat",
+    "Packet: Playtest Packet",
     "Review F1",
     "Review F4",
     "Review F6",

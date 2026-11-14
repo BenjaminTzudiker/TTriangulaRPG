@@ -13,13 +13,57 @@ The whole packet in reading order, for reading straight through. Each section is
 
 ![[Core Concepts]]
 
-# Core Resources
+![[Sample Character]]
+
+# Turns and Resources
+
+![[Starting Combat and Turn Structure]]
 
 ![[HP]]
 
 ![[Stamina]]
 
-![[Strain]]
+# Attacking and Defending
+
+![[Melee Attacks]]
+
+![[Actions and the On-Turn Surcharge]]
+
+![[Blocking]]
+
+![[Defenses]]
+
+![[Armor]]
+
+![[Critical Hits]]
+
+![[Attack Procedure]]
+
+![[Dying and Death]]
+
+# Weapons and Shields
+
+![[Weapons]]
+
+![[Shields]]
+
+# Movement and Positioning
+
+![[Movement]]
+
+![[Opportunity Attacks]]
+
+# Ranged Combat
+
+![[Ranged Attacks]]
+
+![[Drawing Weapons]]
+
+# Other Combat Rules
+
+![[Dodge Defense]]
+
+![[Conditions and Control Effects]]
 
 # Attributes
 
@@ -41,55 +85,21 @@ The whole packet in reading order, for reading straight through. Each section is
 
 ![[Cunning]]
 
-# Combat
-
-![[Starting Combat and Turn Structure]]
-
-![[Actions and the On-Turn Surcharge]]
-
-![[Melee Attacks]]
-
-![[Defenses]]
-
-![[Blocking]]
-
-![[Critical Hits]]
-
-![[Ranged Attacks]]
-
-![[Movement]]
-
-![[Opportunity Attacks]]
-
-![[Conditions and Control Effects]]
-
-![[Dying and Death]]
-
-# Equipment
-
-![[Weapons]]
-
-![[Drawing Weapons]]
-
-![[Armor]]
-
-![[Shields]]
-
-# Magic
-
-![[Magic]]
-
 # Characters
-
-![[Character Creation]]
 
 ![[Currencies]]
 
 ![[Costs]]
 
+![[Character Advancement]]
+
+![[Strain]]
+
 ![[Class Trees]]
 
-![[Character Advancement]]
+![[Magic]]
+
+![[Character Creation]]
 
 # Outside Combat
 

@@ -1,0 +1,70 @@
+W|
+X| m 15,4 | e
+W|
+A| e
+W|
+Y| m 15,6 | e
+W|
+C| m 7,5 | s X 0
+X| stay
+C| m 5,5 | d blade | e
+W|
+Z| m 15,5 | e
+W|
+B| e
+W|
+X| m 14,4 | e
+W|
+A| m 6,4 | e
+W|
+Y| m 14,6 | e
+W|
+C| d bow | m 7,5 | s Z
+C| 1
+Z| m 16,6
+C| m 5,5 | d blade | e
+W|
+Z| m 13,5 | e
+W|
+B| m 5,6 | e
+W| C m 3,5
+X| m 13,3 12,3 11,3 10,3 9,3 8,3 7,3 | a A 3
+X| e
+W|
+A| a X 2
+A| m 5,4 4,4 3,4 2,4 1,4 pay=none | e
+W| B m 3,6
+Y| m 13,6 12,6 | e
+W| X m 9,4
+C| d bow | m 5,4 | s X 0
+C| s X 0
+C| m 4,5 3,5 2,5 1,5 | d blade | e
+W|
+Z| m 10,5 | e
+W|
+B| m 2,6 1,6 | e
+W|
+A| e
+W|
+Y| m 2,4 | a C 2
+Y| e
+W|
+C| e
+W|
+Z| m 2,6 | a C 2
+Z| e B:2
+W|
+B| a Z 4
+B| e
+W|
+A| m 2,5 pay=all | a Z 1
+A| a Y 2 blk=2,2
+A| e
+W|
+Y| a C 1
+Y| e
+W|
+B| m 3,5 | a Y 2
+B| e
+W|
+A| a Y 1

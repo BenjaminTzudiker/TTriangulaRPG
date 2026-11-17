@@ -36,7 +36,7 @@ from stamina_engine.model.state import CombatantState
 
 cites = (
     "Packet: Making Opportunity Attacks",
-    "Packet: Off-Turn Escalation",
+    "Packet: Actions and Escalation",
     "Packet: Attack Procedure",
     "Ledger MV-4",
     "Ledger MV-5",

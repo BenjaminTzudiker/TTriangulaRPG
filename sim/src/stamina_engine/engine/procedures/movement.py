@@ -1,4 +1,4 @@
-"""Movement, square by square (Packet: On-Turn Movement, Off-Turn Movement, Triggers,
+"""Movement, square by square (Packet: Free Movement, Dash, Triggers,
 Avoiding Opportunity Attacks).
 
 A move is a path the creature chose (readings in the Assumptions register):
@@ -23,9 +23,9 @@ from stamina_engine.grid.pathing import Passage, reachable
 from stamina_engine.model.state import CombatantState
 
 cites = (
-    "Packet: On-Turn Movement",
-    "Packet: Off-Turn Movement",
-    "Packet: Off-Turn Escalation",
+    "Packet: Free Movement",
+    "Packet: Dash",
+    "Packet: Actions and Escalation",
     "Packet: Triggers",
     "Packet: Avoiding Opportunity Attacks",
     "Ledger MV-1",

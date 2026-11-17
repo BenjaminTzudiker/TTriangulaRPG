@@ -5,7 +5,7 @@ next: "[[Starting Combat and Turn Structure]]"
 ---
 # Sample Character
 
-*Restates [[Character Creation]], [[Costs]], [[HP]], [[Stamina]], [[Strain]], [[Rest and Healing]], [[Defenses]], [[Ranged Defense]], [[Dodge Defense]], [[On-Turn Movement]], [[Off-Turn Movement]], [[Starting Combat and Turn Structure]], [[Critical Hits]], [[Weapons]], [[Armor]], [[Shields]] and [[Core Abilities]].*
+*Restates [[Character Creation]], [[Costs]], [[HP]], [[Stamina]], [[Strain]], [[Rest and Healing]], [[Defenses]], [[Ranged Defense]], [[Dodge Defense]], [[Free Movement]], [[Dash]], [[Starting Combat and Turn Structure]], [[Critical Hits]], [[Weapons]], [[Armor]], [[Shields]] and [[Core Abilities]].*
 
 *Illustrative only*
 
@@ -21,7 +21,7 @@ A level-1 **Fighter**, using the starting 5 Expertise and 1 Ability Point. Every
 | **Melee Defense** | 3: base 1 + proficient weapon 1 + shield 1 |
 | **Ranged Defense** | 2: base 1 + shield 1; +1 against a shot it moves in reaction to |
 | **Dodge Defense** | 1 |
-| **Movement** | 6 squares; 2 squares per off-turn purchase |
+| **Movement** | 6 squares; 2 squares per dash |
 | **Initiative** | 2d12 (CUN 0) |
 | **Critical range** | d8 crits on 7–8 |
 | **Attack** | Longsword: base 2, 1d8 + 3 per step |

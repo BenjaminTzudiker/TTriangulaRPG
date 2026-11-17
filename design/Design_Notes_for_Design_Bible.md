@@ -1,6 +1,7 @@
 > **⚠ STATUS: WORKING NOTES — NOT A FINISHED DESIGN BIBLE.**
-> This is raw source material for a future design bible. It was updated on 2026-11-01 for the designer's nine rounds of rulings on the reconciliation ledger. Entries citing [C:2026-11-05] were added from the attribute design chat of that date.
-> - **What the rules currently are:** the ledger is authoritative. These notes record *why*.
+> This is raw source material for a future design bible. It was updated on 2026-11-01 for the designer's nine rounds of rulings on the reconciliation ledger. Entries citing [C:2026-11-05] were added from the attribute design chat of that date. Entries citing [C:2026-11-14], [C:2026-11-15] or [C:2026-11-16] were added with packet 0.11.0, from the design chats on aggression, gang-ups and movement.
+> - **What the rules currently are:** the rules notes in `rules/` are authoritative, and `rules/CHANGELOG.md` records every change since packet v0.9. The ledger is the record up to v0.9. These notes record *why*.
+> - **How current:** a line that says how a principle is applied was right when its entry was written, which for most entries means packet v0.9. Only lines that name a packet (such as "packet 0.11.0") have been brought up to date since.
 > - **Pillars:** the wordings in §2 are draft condensations, not adopted text.
 > - **UNCERTAIN:** unconfirmed.
 > - **SHELVED:** the principle still stands, but the mechanism that served it is deliberately out of the current rules (ledger Part H).
@@ -20,6 +21,7 @@
 - *[p.N] is a transcript page, ±1.*
 - *[R1:A3] is your ruling round 1, item A3. All rulings are dated 2026-11-01 and logged verbatim in the ledger's Part G. Round 2's unnumbered items are cited as [R2].*
 - *[C:2026-11-05] is a design chat on that date (the attribute chat). Quotes are your messages in it.*
+- *[C:2026-11-14] is the design chat of that date on aggression, gang-ups and uncertainty. [C:2026-11-15] and [C:2026-11-16] are the chat that followed it, on hard flux, tackle and movement, which led to packet 0.11.0. Quotes are your messages. The 2026-11-14 quotes were copied from notes written in that chat (`claude/Handoff_Pressure_Escape_Tackle_2026-11-14.md` and `claude/Design_Pillars_Redraft_2026-11-14.md` in the claude.ai project), not from the transcript, so check their wording.*
 - *Where a principle evolved, the final form comes first and the history follows.*
 
 ---
@@ -137,6 +139,12 @@ Earlier form of the same goal:
 - *Source:* "you're encouraged to spend some stamina immediately because otherwise your first turn regen will be wasted, which will hopefully help prevent passivity" [p.1275]. "it rewards higher initiative" [p.788].
 - **STATED**
 
+**Reward aggression, but don't let whoever attacks first decide the fight.**
+- *Rule:* Both halves have to hold at once. If committing first is a mistake, both sides wait for the other to make it. If committing first wins, the fight goes to whoever happened to act first. The working form: at least one side should want to be aggressive, and the other side should have at least one option that is interesting and feasible. That option either answers being on the back foot, or disengages or changes the circumstances of the fight.
+- *Source:* "I need to both reward aggression to prevent optimal play from devolving into both sides waiting for the other to make the mistake of committing first while also making it so fights don't get decided by whoever happens to be able to go on the offense first." "I need at least one side to want to be aggressive and make at least one option interesting and feasible for the other side." The other side's option is a way "to counteract being on the back foot (which often literally means a way to make up for rolling poorly on initiative)" or "to disengage from the fight/change the fight circumstances so things are in their favor now". [C:2026-11-14]
+- **STATED**
+- *How it's applied now:* packet 0.11.0 puts a dash phase before every turn, the first turn of a fight included, so a creature that lost initiative can move before the first attack. "This seems like it fixes another weird thing where only the highest initiative person can act before others get to move off-turn and now anyone can." [C:2026-11-16] That answers a first strike from across a gap. A first strike from within free movement is unchanged in the duel checked (`claude/v0.11.0_Checks_2026-11-16.md`), and is still open (§5, item 11).
+
 **Attacking should be more stamina-efficient than perfect blocking; cheap grazing is the counterweight.**
 - *Rule:* Don't nerf attacks to make defense viable. Give defense a flat-cost option that trades a little injury for efficiency, plus armor.
 - *Why:* Prevents turtling while letting defenders punish overcommitment.
@@ -159,11 +167,15 @@ Earlier form of the same goal:
 **Doing several things in a turn is possible but expensive.**
 - *Source:* "I want to make it possible but expensive to do multiple things in one turn." [p.1226]. "Having that scaling stamina for attacks *and* extra attack like in 5e seems messy and unnecessary." [p.176]. "There should probably be some way to combine multiple actions per turn" [R1:A4].
 - **STATED**
-- *How it's applied now:*
-  - Each melee attack step and each aim step is an "action".
-  - Each action costs +1 per action already taken this turn.
-  - Ranged shots pay a flat base cost [R1:A4].
+- *How it's applied now (packet 0.11.0):*
+  - An "action" is a melee attack step, a ranged shot, an aim step or a dash (movement you pay for).
+  - Each action costs its base +1 per action you've taken since your last turn ended. That count is your escalation, and it resets only when your turn ends.
+  - So the price runs over a whole round, not one turn: a dash between turns makes your next turn's actions dearer.
   - The mechanism is open, and "action" is a provisional name (§3.6).
+- *Evolution:*
+  1. Melee attack steps and aim steps were actions, counted within one turn. Ranged shots paid a flat base cost [R1:A4].
+  2. Ranged shots became actions (packet 0.10.0).
+  3. Bought movement became an action, the dash, and one count now runs from the end of one of your turns to the end of the next (packet 0.11.0). Your proposal began as putting extra on-turn movement on the same count as attacks, "which would add +1 stamina for every attack step you made on top of costing more to move more" [C:2026-11-14]. The ruling: "This dash action counts as an action for the purposes of escalation, which is now unified - there is only one escalation track rather than two" [C:2026-11-16].
 
 **Commit up front; misjudging should cost efficiency, not be forbidden.**
 - *Rule:* You declare the whole attack. Follow-ups are allowed but are easier to block, because the defender's count resets.
@@ -182,18 +194,26 @@ Earlier form of the same goal:
   - *My reading:* each square is still a decision the system tracks, so the principle survives and only the granularity changed.
 
 **Don't punish aggression with unrelated costs.**
-- *Rule:* Advancing on your turn shouldn't make your later retreat more expensive; being further forward is risk enough. On-turn and off-turn costs use separate tracks, and blocking escalates only within one attack.
+- *Rule:* Advancing on your turn shouldn't make your later retreat more expensive; being further forward is risk enough. Blocking escalates only within one attack.
 - *Source:* "there's no penalty to off-turn movement from your on-turn movement so there's no mechanical punishment for aggression" [p.1712]. "blocking is its own thing that only escalates within one attack" [p.1783].
 - **STATED**
-- *Corollary:* off-turn movement and opportunity attacks share one off-turn track, which resets at the start of your turn, "so off turn movement competes with opportunity attacks for stamina" [R1:B4, R1:A6]. **STATED**
+- *How it's applied now (packet 0.11.0):* there is one escalation, and "it resets at the end of your turn at the same time as you recover stamina (and just prior to the off-turn dash opportunity between your turn and the next turn)" [C:2026-11-16]. So nothing you did on your turn makes a dash after it dearer. (A dash taken on your turn, after attacking, does cost more; the dash phase that follows your turn is the cheap way out.) Blocks aren't actions and aren't part of the escalation.
+- *A link now runs the other way, on purpose:* what you buy between turns comes out of your next turn. Your reason for one count that resets there: moving between turns to close a gap should limit how aggressive you can be on your next turn [C:2026-11-15; paraphrased, so check the wording]. The same link also taxes a creature that gives ground or reacts to a shot. On the shot: "For now, yes, this counts." [C:2026-11-16]
+- *History:* until packet 0.11.0 the rule was kept with separate tracks. On-turn and off-turn costs each had their own ("Separate from on-turn, at least in the current rules" [R1:B4]). Off-turn movement and opportunity attacks shared the off-turn one, which reset at the start of your turn, "so off turn movement competes with opportunity attacks for stamina" [R1:B4, R1:A6]. Opportunity attacks are now outside the escalation (next entry).
 
 **Opportunity attacks are limited and not free, but exposure should be punishable.**
-- *Rule:*
-  - Cap what you can spend on one OA: 1 stamina, +1 per odd Finesse. Finesse is the OA stat.
-  - OAs count toward the attacker's off-turn track, so they cost the attacker future options.
-  - An enemy that exposes itself for several squares should be punishable for more, even by someone who hasn't invested in Finesse. The mechanism for this is open.
+- *Rule (the intent; the mechanism is being redesigned):*
+  - What one opportunity attack can do is limited.
+  - Making one costs the attacker something.
+  - An enemy that exposes itself for several squares should be punishable for more, even by someone who hasn't invested in Finesse.
 - *Source:* "mechanic to limit opportunity attack power" [R1:A8]. "The enemies don't get to opportunity attack for free" [R2:1]. "the intent being that it's still sometimes possible to opportunity attack for more than 1 stamina even if you don't invest in finesse as long as the enemy exposes themself enough" [R2:1].
 - **STATED** (intent locked, mechanism open)
+- *How it's applied now (packet 0.11.0):* a placeholder. Each trigger allows exactly one attack step, at the weapon's base cost whatever your escalation is. It isn't an action, and stamina is the only limit on how many you make. "This is a placeholder." The hold rules planned for a later version are named as one way to complete it [C:2026-11-16].
+- *History:*
+  1. A cap on what you could spend on one opportunity attack: 1 stamina, +1 per odd Finesse, which made Finesse the stat for them. Their steps went on the attacker's off-turn track, so making one cost the attacker later options [R1:A8, R2:1].
+  2. Packet 0.9.1 removed the cap and Finesse's bonus to it. The off-turn track was then the only limit.
+  3. Packet 0.11.0 removed the off-turn track (previous entry), which left opportunity attacks without a price rule. Hence the placeholder.
+- *My reading:* the placeholder keeps "limited" (one step) and "not free" (the base cost), and a longer exposure gives more triggers. It drops the cost to the attacker's later options: making one no longer raises the price of anything.
 
 **Using your fun abilities shouldn't cripple you afterwards.**
 - *Rule:* Prefer soft limits that tax the present turn (strain overage adds stamina cost) over lasting debuffs (max-stamina costs) or "bug the party for a rest" lockouts.
@@ -268,8 +288,26 @@ Earlier form of the same goal:
 
 **Positioning must stay live within a round.**
 - *Rule:* Low HP plus coarse turns makes melee approach suicidal, so give reactive movement instead of shortening turns.
-- *Source:* "how can people position aggressively with such large time increments for each turn? Making one turn represent less in-universe time than a 5e turn just seems like it'd just bog down combat." [p.762]
+- *Source:* "how can people position aggressively with such large time increments for each turn? Making one turn represent less in-universe time than a 5e turn just seems like it'd just bog down combat." [p.762] Moving after any creature's turn was added for "dogpiling and too-coarse positioning timing in a sequential turn based game" [C:2026-11-14].
 - **STATED**
+- *What you hoped it would add:* "I was hoping that reading other peoples' movements would factor into the skill/foresight nature of the game, though I agree the current mechanics don't make that work very well." [C:2026-11-14] (The mechanics then were packet 0.10.1's.)
+- *How it's applied now (packet 0.11.0):* the dash, and a dash phase before every turn.
+  - Anyone may say they want to dash, without saying where. Of those, the highest in initiative goes. Then anyone may say so again, until nobody wants to.
+  - Nobody is handed the last move: "There's no need to deal with preferring to go last, since that's handled by the tension of whether you want to declare a move at all knowing that others could move after you" [C:2026-11-16].
+  - A dash is an action, so each one comes out of what you can do on your next turn (§3.1, "Don't punish aggression with unrelated costs").
+- *History:* off-turn movement after another creature's turn (packet v0.8) → after any creature's turn, your own included [R1:B3] → a dash phase before every turn, which adds the first turn of a fight (packet 0.11.0).
+
+**Giving ground should buy time, without kiting or the charge taking over.**
+- *Rule:* Someone outnumbered should be able to delay a gang-up by giving ground. A delay of one round is worth having if it lets friends arrive and put pressure on the attackers. Ideally that is also how you help an ally under attack, with no separate rule for it. The price of movement has to do this without letting either a kiter, or a creature charging a kiter down, dominate.
+- *Source:* "It's a delicate balance - not letting either kiting or charging down kiters dominate in unhealthy ways, and giving someone outnumbered the ability to buy time before dying." The delay is worth having if it "gives a one turn window for support in the form of teammates to arrive and pressure the enemy". "It'd be nice to not need a separate 'help rule' since you can already 'help' by pressuring the people your ally in need of help is fighting." [C:2026-11-14]
+- **STATED**
+- *How it's applied now (packet 0.11.0):* giving ground now buys the round. Pursuers pay for every dash out of their own attack, so in the case tested, three attackers who all act first rarely take down a fresh fighter that gives ground (the 0.11.0 entry in `rules/CHANGELOG.md` has the figures and their limits). The balance against kiting is not there yet: the same price leaves a fighter who is running an archer down worse off than before. You left that to later changes on the ranged side (§5, item 21).
+
+**Agency through foresight, not only through take-backs.**
+- *Rule:* The rules mostly give agency by letting you answer after the facts are in: block after the roll, move after a turn, pay to cancel an opportunity attack. Positional play needs the other kind, where you see something coming and commit to an answer before it lands.
+- *Source:* Claude's framing: "You've been adding agency by adding take-backs; positional play needs agency through foresight". Your reply: "Hmm, I think I agree with you here." [C:2026-11-14]
+- **UNCERTAIN** (a lean; the wording is Claude's)
+- *Note:* it pulls against "Resolve every offensive step before any defensive step" (§3.6), which stands.
 
 ### 3.3 Fiction and plausibility
 
@@ -575,7 +613,7 @@ Earlier form of the same goal:
 | Deterministic aim (flat FIN per step) | "barely any uncertainty" | 1d6 + FIN | p.1226 |
 | Growing aim die (d4→d12) | More aim would mean fewer crits | 1d6 + FIN | p.1226 |
 | "Pressure" vs "Wound" as two tracked numbers / game terms | Not tracked separately; just a cap | "damage" (the Max HP Damage cap itself is shelved, H-1) | p.1200, p.1471; R1:A2 |
-| Shorter in-world turns to fix dogpiling | Bogs down combat | Off-turn movement | p.762 |
+| Shorter in-world turns to fix dogpiling | Bogs down combat | Off-turn movement (since packet 0.11.0, the dash and the dash phase) | p.762 |
 | Paying stamina for normal on-turn movement; aim penalty for moving | Don't discourage movement | Free on-turn movement | p.1274 |
 | Facing; "maneuver" keyword; free disengagement | Facing is a new concept used nowhere else | Pay stamina to deny OAs (now per enemy per square; see §4.1) | p.1349, p.1355, p.1361 |
 | Main-hand shield rule | "not important enough to need a rule" | One shield, +2/+2 | p.1481 |
@@ -595,7 +633,7 @@ Earlier form of the same goal:
 | Control defense = 1 + attribute | Too swingy; multiplies weak saves; GM-dependent | (open; shelved, H-4) | p.1949 |
 | 5e save-or-suck | All-or-nothing | Progressive control | p.152, p.1858 |
 | Separate tier-unlock currency / auto tiers every 10 levels (post-export, ChatGPT's); unlocking "tier trees" as separate things | You wanted no special point type | Tier-unlock abilities bought with AP; core abilities cost +1 AP per core owned | p.1649; R1:A14, R1:B12, R2:8 |
-| Dash action / escalating extra on-turn movement (ChatGPT's) | Wrong chase dynamics | Flat 1 per extra square; +1 square per purchase per odd AGI | p.1706–1712; R3:6 |
+| Dash action / escalating extra on-turn movement (ChatGPT's) | Wrong chase dynamics | Flat 1 per extra square; +1 square per purchase per odd AGI. Reversed by packet 0.11.0, which adopts an escalating dash (see §4.1) | p.1706–1712; R3:6 |
 | "Exertion" as the name for an on-turn step | Overlaps stamina and strain; awkward to say | "Action" (provisional; issues noted) | R2; R7:CB-2 |
 | Flat −1 AGI/FIN/CUN armor penalty | (not stated) | −1 FIN and −1 AGI per STR below a threshold (placeholder) | R1:A15; R2:5 |
 | ChatGPT's dying track (death at 3 Shock, +1 per round) | (not stated) | System Shock: start at negative HP, roll each turn, die at 10 Shock or −10 HP | p.608–612; R2, R4–R6 |
@@ -613,6 +651,16 @@ These are earlier settled positions that the rulings changed. Each is recorded s
 | Packet: +1 stamina available for OAs each round | Cap on spending per OA, as above | R1:A8 |
 | Packet: each ranged shot surcharged, aim steps exempt | Shots cost a flat base; aim steps are surcharged actions | R1:A4 |
 | Packet: off-turn movement has its own progression | Off-turn movement and OAs share one off-turn track | R1:A6; R1:B4 |
+
+**Changed again since, by later packets.** The table above is as of the 2026-11-01 rulings. Its second to fifth rows have moved on, and two more positions from that date were reversed:
+
+| Position as of 2026-11-01 | Now | Ref |
+|---|---|---|
+| A spending cap of 1 + odd FIN on each OA | No cap, so no Finesse bonus to it (packet 0.9.1). Making an OA is now a placeholder: one attack step per trigger at the weapon's base cost, outside the escalation (packet 0.11.0) | Packets 0.9.1, 0.11.0; C:2026-11-16 |
+| Shots cost a flat base; aim steps are surcharged actions | A shot is an action too | Packet 0.10.0 |
+| On-turn and off-turn costs use separate tracks; off-turn movement and OAs share the off-turn one, which resets at the start of your turn | One escalation counts every action. It resets only when your turn ends. OAs are outside it | Packet 0.11.0; C:2026-11-16 |
+| Extra on-turn movement is a flat 1 stamina and isn't an action [R3:6; ledger MV-1]. An escalating dash was rejected for its chase dynamics (§4) | Bought movement is a dash, on your turn or off it: an action, 1 + your escalation. The chase concern stands and is left to later ranged-side changes (§5, item 21) | Packet 0.11.0; C:2026-11-16 |
+| Off-turn movement comes after any creature's turn [R1:B3]; no order is given when several creatures move | A dash phase before every turn, the first turn of a fight included. Of those who want to dash, the highest in initiative goes; then anyone may say so again | Packet 0.11.0; C:2026-11-16 |
 
 ### 4.2 Shelved, not rejected
 
@@ -660,6 +708,8 @@ These are the threads you kept returning to. Most are unresolved. Item 1 is the 
 9. **One-round vulnerability vs multi-round hangover** after big spells or aimed shots [p.1090].
 10. **Numbers scale:** keep ±1 meaningful vs give room for growth [p.1380–1388].
 11. **Initiative fairness:** do higher-initiative characters suffer [p.249, p.255]? Standoffs at the start of combat [p.227].
+    - The opposite worry is now the live one: fights decided by whoever acts first (§3.1, "Reward aggression, but don't let whoever attacks first decide the fight") [C:2026-11-14].
+    - Packet 0.11.0's dash phase before the first turn answers a first strike from across a gap. A first strike from within free movement is unchanged. You've said the first-mover issue still needs addressing, after hard flux and tackle [C:2026-11-15; paraphrased]. Bidding for initiative is in the packet's Not in This Version.
 12. **Whether there's a KO state before 0 HP** [p.112, p.339–343, p.603–611].
     - Below 0 HP is now settled: System Shock [R2, R4–R6].
     - Still open: an "out of the fight but alive" state above 0 HP. Your stated concern is characters only "going down" when they hit 0 HP [R1]. H-2 is the candidate.
@@ -668,11 +718,17 @@ These are the threads you kept returning to. Most are unresolved. Item 1 is the 
     - Also open: universal conditions vs self-describing effects [R1:A16].
 14. **Keeping Strength relevant at high levels without overpowering it early** [p.1156]. STR's +1 HP "scales poorly at higher levels" [R1:A15].
 15. **Rogue vs Fighter as movement-punishers** (OA identity) [p.1369].
+    - Making an opportunity attack is a placeholder since packet 0.11.0 (§3.1). The finished rule is open, and may come from the hold rules planned for a later version [C:2026-11-16].
 16. **Combat as sport vs war;** pre- and post-fight phases [p.1567].
 17. **Ability selection that isn't obvious,** without abstract Slay the Spire-style mechanics [p.1587–1616].
 18. **Naming the on-turn step.** "Action" is provisional: it's misleading next to D&D and implies each attack step is a separate action [R7:CB-2].
 19. **Dodge's place in the system** is marked uncertain [R2:7].
 20. **Magic's scope.** You may take the design in a direction without magic; for now you expect something like the shelved spellcasting ideas (H-5) [R8].
+21. **Chasing and kiting under one escalation.** The price that lets a creature give ground also makes an archer harder to run down.
+    - Earlier positions: melee characters need a way to catch archers who retreat off-turn [p.1706]; an escalating dash was rejected for its chase dynamics [p.1706–1712]; a fighter who starts far away should arrive low on stamina, not be kited for several turns (the reason recorded for packet 0.9.1's movement change).
+    - Packet 0.11.0 adopts an escalating dash all the same, for the sake of gang-ups (§3.2), and a fighter chasing an archer is worse off for it.
+    - Your lean on kiting: "I'm tempted to try to get rid of extra on-turn movement again and rein in kiting via other changes." [C:2026-11-16] In the end the dash stayed available on your turn. The "other changes" are ranged-side rules, left for later versions.
+    - Also unsettled: whether a dash on your turn differs enough from one in the dash phase just before it. "I'm still not completely convinced that allowing on-turn action dashes is the same as not allowing them b/c you can just move right before your turn, but I'm not sure if the differences (say, running up to attack or shoot and dashing out after using the current turn's escalation, or choosing where to move only after seeing what happens on your turn) matter a ton." [C:2026-11-16]
 
 ---
 
@@ -705,6 +761,11 @@ Only cases where you drew a conclusion. Pure research asks are omitted.
     - class level ≈ tree tier; battlemaster dice ≈ Ability Point purchase [p.1054];
     - Sentinel as the model for OA-control feats [p.1375];
     - spell-level power buckets [p.1697].
+- **Starsector:** its flux-based combat is a source of inspiration for the stamina system, and a difficult one to carry over.
+  - Hard flux is "a very important part of making Starsector combat work". It was "one of the first things I tried to bring over but couldn't work into the arithmetic properly", and "finding something to replace what it was doing in Starsector has been a challenge" [C:2026-11-14]. The stamina cap that the 0.11.0 changelog leaves for a later version is a first, untested idea for it.
+  - One qualm: its skill system mixes in-combat and campaign bonuses (§3.4) [C:2026-11-05].
+- **EVE Online small-gang PvP:** tackle is "almost Eve's 'secret sauce' mechanic". "It requires commitment/skill to capitalize on an advantage (you need to hold tackle to prevent a mispositioned/dying ship from warping out) without adding extra onus on the person in a bad position too." [C:2026-11-14] The hold rules planned for a later version are the attempt to bring it over.
+- **Both:** "Positioning is huge in games I like (Starsector, Eve Online smallgang PvP, etc)" [C:2026-11-14].
 - **Call of Cthulhu:** arbitrary skill granularity makes some concepts cheap and others expensive [p.22, p.1446].
 - **Game of Thrones named characters vs mooks:** the combat-feel model [p.1277].
 - **Eddie Hall:** calibration for Strength 9, a world's-strongest-man contender [p.743]. 10 is now the once-in-a-generation pinnacle [R7:AT-5].

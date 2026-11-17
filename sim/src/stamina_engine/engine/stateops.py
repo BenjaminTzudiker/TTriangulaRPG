@@ -46,10 +46,9 @@ from stamina_engine.rules.ruleset import RuleSet
 cites = (
     "Packet: Stamina",
     "Packet: Dying and Death",
-    "Packet: Actions and the On-Turn Surcharge",
-    "Packet: Off-Turn Escalation",
-    "Packet: On-Turn Movement",
-    "Packet: Off-Turn Movement",
+    "Packet: Actions and Escalation",
+    "Packet: Free Movement",
+    "Packet: Dash",
     "Ledger MV-1",
     "Ledger MV-2",
     "Ledger CR-2",

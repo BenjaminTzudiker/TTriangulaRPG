@@ -96,3 +96,16 @@ These are cheap to change now and expensive once weapons, classes and spells ref
 - Phase 1 ↔ Phase 2: pool size sets max steps, the surcharge slope sets what those steps cost. Decide shape in 1, formulas in 2, re-check 1 once.
 - Phase 1 → Phase 5: a steeper surcharge already lowers volley lethality (aim steps are actions); measure before adding ranged-specific fixes.
 - Phase 4 → Phase 5: movement cost decides whether kiting exists at all; decide it before judging archers.
+
+## 6. After packet 0.11.0 (added 2026-11-16)
+
+This file was written against packet v0.9 and has not been kept current. `rules/CHANGELOG.md` says what each later packet changed and which finding it answers (F10 in 0.9.1, F2 in 0.9.2 and F3 in 0.10.0, among others).
+
+Packet 0.11.0 replaced both kinds of bought movement with one **dash**, and the on-turn surcharge and off-turn escalation with one **escalation**. That changes six things above:
+
+- **F10 (extra movement too cheap)** has now been answered twice. Packet 0.9.1 cut each extra on-turn purchase to 1 square. Packet 0.11.0 makes bought movement a dash: an action, costing 1 + your escalation.
+- **"Chasers must still win"** (the F10 row, Phase 4 and §3) no longer describes the rules. It relied on the fleeing side paying an off-turn escalation while the chaser paid a flat price. Both sides now pay the same price for a dash, and a fighter chasing an archer is worse off than under packet 0.10.1 (the changelog's 0.11.0 entry gives the figures). The designer left that to later changes on the ranged side, which is Phase 5's subject.
+- **F6b (focus fire).** Packet 0.11.0 is a priced form of the "retreat step" option in Phase 3: a creature that gives ground can no longer be followed for nothing. It has been checked for one round only (changelog, 0.11.0). The first-mover edge in a duel that starts within free movement is not changed by it (`claude/v0.11.0_Checks_2026-11-16.md`).
+- **F9.** "Whether the off-turn track mirrors any surcharge change" no longer applies: there is one escalation. The opportunity attack cap went in packet 0.9.1, and making an opportunity attack is a one-step placeholder until it is redesigned.
+- **F14.** The order of simultaneous off-turn movement is ruled: in the dash phase before each turn, the highest in initiative of those who want to dash goes, and this repeats until nobody wants to. (The review suggested lowest first.) The Rogue's timing is ruled only as far as the dash phase goes: its core is declared just after a dash phase ends, and that is open to change. Where a moved turn sits in the next round is still unstated. The initiative tiebreaker (Phase 0) is still missing, and the dash phase now relies on initiative order.
+- **§5, Phase 4 → Phase 5** still holds, with one difference: the movement price was chosen for gang-ups, and kiting was knowingly left for the ranged work.

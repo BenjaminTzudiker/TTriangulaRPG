@@ -1,4 +1,4 @@
-"""Distance, steps and reach on the grid (Packet: Weapon Table reach, On-Turn Movement).
+"""Distance, steps and reach on the grid (Packet: Weapon Table reach, Free Movement).
 
 Readings (Assumptions register):
 - Distance is Chebyshev: a diagonal is one square (`grid.metric`, ruled for now).
@@ -20,7 +20,7 @@ from stamina_engine.core.errors import ConfigError
 from stamina_engine.grid.battlefield import Battlefield, Cell
 from stamina_engine.rules.components.grid import GridRule
 
-cites = ("Packet: Weapon Table", "Packet: On-Turn Movement", "Ledger MV-1")
+cites = ("Packet: Weapon Table", "Packet: Free Movement", "Ledger MV-1")
 
 # Orthogonal steps first, then diagonals, clockwise from north: a fixed order keeps every
 # search deterministic.

@@ -13,7 +13,7 @@ from stamina_engine.rules.registry import Component, register
 class GridRule(Component):
     cites = (
         "Packet: Weapon Table",
-        "Packet: On-Turn Movement",
+        "Packet: Free Movement",
         "Packet: Triggers",
         "Packet: Cover",
         "Ledger MV-1",

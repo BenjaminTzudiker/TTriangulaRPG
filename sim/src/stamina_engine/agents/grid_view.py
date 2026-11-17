@@ -27,7 +27,7 @@ from stamina_engine.rules.block_solver import best_block
 from stamina_engine.rules.pricing import FRESH, Pricing
 from stamina_engine.rules.ruleset import RuleSet
 
-cites = ("Packet: Triggers", "Packet: Making Opportunity Attacks", "Packet: On-Turn Movement")
+cites = ("Packet: Triggers", "Packet: Making Opportunity Attacks", "Packet: Free Movement")
 
 
 def bodies_from(obs: Observation) -> tuple[Body, ...]:

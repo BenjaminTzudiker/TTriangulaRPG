@@ -1,4 +1,4 @@
-"""Off-turn escalation (Packet: Off-Turn Escalation)."""
+"""Off-turn escalation (Packet: Actions and Escalation)."""
 
 from dataclasses import dataclass
 
@@ -8,8 +8,8 @@ from stamina_engine.rules.registry import Component, register
 @dataclass(frozen=True)
 class OffTurnRule(Component):
     cites = (
-        "Packet: Off-Turn Escalation",
-        "Packet: Off-Turn Movement",
+        "Packet: Actions and Escalation",
+        "Packet: Dash",
         "Ledger MV-2",
         "Ledger MV-4",
     )

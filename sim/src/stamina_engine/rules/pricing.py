@@ -16,13 +16,12 @@ if TYPE_CHECKING:
     from stamina_engine.model.derive import LoadoutProfile
 
 cites = (
-    "Packet: Actions and the On-Turn Surcharge",
+    "Packet: Actions and Escalation",
     "Packet: Melee Attacks",
     "Packet: Aim",
     "Packet: Ranged Attacks",
-    "Packet: On-Turn Movement",
-    "Packet: Off-Turn Movement",
-    "Packet: Off-Turn Escalation",
+    "Packet: Free Movement",
+    "Packet: Dash",
     "Packet: Avoiding Opportunity Attacks",
     "Packet: Making Opportunity Attacks",
     "Packet: Blocking",

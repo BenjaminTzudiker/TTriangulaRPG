@@ -35,7 +35,7 @@ cites = (
     "Packet: Aim",
     "Packet: Range Bands",
     "Packet: Blocking",
-    "Packet: Actions and the On-Turn Surcharge",
+    "Packet: Actions and Escalation",
     "Packet: Stamina",
 )
 

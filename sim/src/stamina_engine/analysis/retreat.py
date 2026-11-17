@@ -18,9 +18,9 @@ from stamina_engine.rules.pricing import FRESH, Pricing
 from stamina_engine.rules.ruleset import RuleSet
 
 cites = (
-    "Packet: On-Turn Movement",
-    "Packet: Off-Turn Movement",
-    "Packet: Off-Turn Escalation",
+    "Packet: Free Movement",
+    "Packet: Dash",
+    "Packet: Actions and Escalation",
     "Packet: Avoiding Opportunity Attacks",
     "Ledger MV-1",
     "Ledger MV-2",

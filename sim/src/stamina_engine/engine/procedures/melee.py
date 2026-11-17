@@ -22,7 +22,7 @@ from stamina_engine.rules.pricing import Quote
 cites = (
     "Packet: Attack Procedure",
     "Packet: Melee Attacks",
-    "Packet: Actions and the On-Turn Surcharge",
+    "Packet: Actions and Escalation",
     "Packet: Blocking",
     "Packet: Armor",
     "Packet: Critical Hits",

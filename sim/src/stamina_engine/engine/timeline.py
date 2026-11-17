@@ -31,8 +31,8 @@ from stamina_engine.model.state import CombatantState, Status
 
 cites = (
     "Packet: Starting Combat and Turn Structure",
-    "Packet: On-Turn Movement",
-    "Packet: Off-Turn Movement",
+    "Packet: Free Movement",
+    "Packet: Dash",
     "Packet: Stamina",
     "Packet: Dying and Death",
     "Ledger CB-9",

@@ -347,6 +347,39 @@ def exp_holds_per_square() -> RuleSet:
     )
 
 
+def exp_holds_next_turn() -> RuleSet:
+    """exp-holds with the designer's second timing (2026-11-17): holds are set at the end
+    of your turn before you recover, and the tokens stay out through your next turn, coming
+    back at its end right before you recover (when you may set new ones)."""
+    base = exp_holds()
+    return base.with_(
+        name="exp-holds-next-turn",
+        opportunity=dataclasses.replace(
+            base.opportunity, hold_return="turn_end", hold_set="before_recovery"
+        ),
+    )
+
+
+def exp_holds_next_turn_break() -> RuleSet:
+    """exp-holds-next-turn, and a holder that loses HP drops its holds (tokens stay out)."""
+    base = exp_holds_next_turn()
+    return base.with_(
+        name="exp-holds-next-turn-break",
+        opportunity=dataclasses.replace(base.opportunity, hold_breaks_on_injury=True),
+    )
+
+
+def exp_holds_next_turn_half() -> RuleSet:
+    """exp-holds-next-turn with holds set after recovering, at most half your ready stamina."""
+    base = exp_holds_next_turn()
+    return base.with_(
+        name="exp-holds-next-turn-half",
+        opportunity=dataclasses.replace(
+            base.opportunity, hold_set="after_recovery", hold_max_percent=50
+        ),
+    )
+
+
 BASELINE = "v0.10.1"
 """The preset the engine's scenarios, suites and defaults use: the current packet. Moving the
 baseline to a new packet version is this one line (and the pinned hashes it moves)."""
@@ -366,6 +399,9 @@ PRESETS: dict[str, Callable[[], RuleSet]] = {
     "exp-0.11.0": exp_0_11_0,
     "exp-holds": exp_holds,
     "exp-holds-per-square": exp_holds_per_square,
+    "exp-holds-next-turn": exp_holds_next_turn,
+    "exp-holds-next-turn-break": exp_holds_next_turn_break,
+    "exp-holds-next-turn-half": exp_holds_next_turn_half,
 }
 
 

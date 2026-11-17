@@ -134,6 +134,9 @@ class StateOps:
                 c.holds[target] -= cut
                 over -= cut
             c.holds = {t: n for t, n in c.holds.items() if n > 0}
+        if c.holds and c.active and self.rules.opportunity.holds_break_on_injury():
+            for target in list(c.holds):  # a wounded holder drops its holds; tokens stay out
+                self.end_hold(c, target, "injured")
         if not c.active and c.holds:  # a creature that goes down holds no one (assumption)
             for target in list(c.holds):
                 left = c.holds.pop(target)
@@ -153,12 +156,8 @@ class StateOps:
             c.trackers = Trackers(c.trackers.actions_this_turn, 0, c.trackers.strain)
         else:
             c.trackers = Trackers(0, 0, c.trackers.strain)
-        if c.set_aside:  # the hold rule: tokens come back at the start of your turn
-            back = c.set_aside
-            c.holds = {}
-            c.parked = 0
-            c.stamina += back
-            self._emit(HoldsReturned(c.id, back, c.stamina))
+        if not self.rules.opportunity.holds_return_at_turn_end():
+            self.return_holds(c)  # the hold rule: tokens come back at the start of your turn
         c.free_move_left = c.gear.movement
         c.banked = 0
         c.used_weapon = False
@@ -175,6 +174,16 @@ class StateOps:
         self._emit(TurnEnded(c.id))
 
     # --- holds (experiment) ----------------------------------------------------------
+
+    def return_holds(self, c: CombatantState) -> None:
+        """All of a holder's tokens come back to its ready stamina; its holds end."""
+        if not c.set_aside:
+            return
+        back = c.set_aside
+        c.holds = {}
+        c.parked = 0
+        c.stamina += back
+        self._emit(HoldsReturned(c.id, back, c.stamina))
 
     def set_hold(self, c: CombatantState, target: str, tokens: int) -> None:
         """Set ready stamina aside as tokens on an enemy."""

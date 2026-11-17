@@ -23,7 +23,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <math.h>
-static int HF=4, G=1, REM=16, R=5, PF=1, HOLD=1, HREC=1, HMAX=99, CAP=2, K=4, KP=5, FATK=1, PST=16, FST=-1, TRACE=0, QUIET=0, HSET=1, PAYALL=0, NEWHOLD=0;
+static int HF=4, G=1, REM=16, R=5, PF=1, HOLD=1, HREC=-1, HMAX=99, CAP=2, K=4, KP=5, FATK=1, PST=16, FST=-1, TRACE=0, QUIET=0, HSET=1, PAYALL=0, NEWHOLD=0, HPBREAK=0, HPCT=100;
 static const int MD=3, ARM=2, REC=4, FREE=6, BASE=2;
 typedef struct { int t, c; double p; } Out;
 static Out OUTS[5][128]; static int NOUT[5];
@@ -88,6 +88,7 @@ static V hit_p(int n,S s,Cont cont,void *ctx){
   for(int o=0;o<NOUT[n];o++){ int tt=OUTS[n][o].t,c=OUTS[n][o].c; V best=PDOWN; int any=0; double p=OUTS[n][o].p;
     for(int q=0;q<FN[tt][c];q++){ int bc=FC[tt][c][q], w=FW[tt][c][q]; if(bc>s.pst) break; if(w>=s.php) continue;
       S u=s; u.php-=w; int top=6+u.php; u.pst=s.pst-bc;
+      if(HPBREAK && w>0) u.act=0;   /* the wounded holder's hold ends; its tokens stay out */
       if(u.pst+u.out>top){ int over=u.pst+u.out-top; int cut=imin(over,u.pst); u.pst-=cut; over-=cut; u.out-=over; if(u.out==0) u.act=0; }
       V v=cont(ctx,u); if(!any || sc(v)>sc(best)){ best=v; any=1; } }
     acc.d+=p*best.d; acc.e+=p*best.e; acc.k+=p*best.k; }
@@ -141,6 +142,7 @@ static V p_end(S s,int adjacent){      /* s.pst = ready before recovering */
   s.pesc=0; s.out=0; s.act=0;
   if(!(HOLD && adjacent)){ s.pst=imin(top,pre+REC); return after_p(s); }
   V best={-2,0,0}; int mx=tok_max(pre,top);
+  if(HPCT<100){ int avail = HREC ? imin(top,pre+REC) : pre; mx=imin(mx, avail*HPCT/100); }
   for(int T=0;T<=mx;T++){ if(HSET && !cand(T,s.fst,mx)) continue;
     S u=s; u.out=T; u.act=(T>0); u.pst=r_after(pre,T,top); V v=after_p(u); if(sc(v)>sc(best)) best=v; }
   return best;
@@ -203,13 +205,13 @@ static V FT(S s){
 int main(int argc,char **argv){
   for(int a=1;a<argc;a++){ char *eq=strchr(argv[a],'='); if(!eq) continue; *eq=0; int v=atoi(eq+1); const char *k=argv[a];
     #define P(n,var) if(!strcmp(k,n)) var=v;
-    P("HF",HF) P("G",G) P("REM",REM) P("R",R) P("PF",PF) P("HOLD",HOLD) P("HREC",HREC) P("HMAX",HMAX) P("CAP",CAP) P("K",K) P("KP",KP) P("FATK",FATK) P("PST",PST) P("FST",FST) P("TRACE",TRACE) P("QUIET",QUIET) P("HSET",HSET) P("PAYALL",PAYALL) P("NEWHOLD",NEWHOLD) }
-  if(NEWHOLD) HREC=0;   /* holds come from stamina before recovering */
+    P("HF",HF) P("G",G) P("REM",REM) P("R",R) P("PF",PF) P("HOLD",HOLD) P("HREC",HREC) P("HMAX",HMAX) P("CAP",CAP) P("K",K) P("KP",KP) P("FATK",FATK) P("PST",PST) P("FST",FST) P("TRACE",TRACE) P("QUIET",QUIET) P("HSET",HSET) P("PAYALL",PAYALL) P("NEWHOLD",NEWHOLD) P("HPBREAK",HPBREAK) P("HPCT",HPCT) }
+  if(HREC<0) HREC = NEWHOLD ? 0 : 1;   /* default timing: before recovering with NEWHOLD, after without */
   build(); HK=calloc(1L<<HBITS,sizeof(uint64_t)); HV=malloc((1L<<HBITS)*sizeof(V));
   S s={HF, FST<0?6+HF:FST, 0, 10, PST, 0, 0,0, G, REM, 1};
   V v = PF ? WPH(s,0) : WPH(s,1);
   if(QUIET){ printf("%.6f %.6f %.6f\n",v.d,v.e,v.k); return 0; }
-  printf("HF=%d G=%d REM=%d R=%d PF=%d HOLD=%d HREC=%d HMAX=%d HSET=%d PAYALL=%d NEWHOLD=%d FATK=%d | F down %6.2f%% | F away %6.2f%% | P down %6.2f%% | neither %6.2f%% | states %ld\n",
-         HF,G,REM,R,PF,HOLD,HREC,HMAX,HSET,PAYALL,NEWHOLD,FATK,100*v.d,100*v.e,100*v.k,100*(1-v.d-v.e-v.k),HUSED);
+  printf("HF=%d G=%d REM=%d R=%d PF=%d HOLD=%d HREC=%d HMAX=%d HSET=%d PAYALL=%d NEWHOLD=%d HPBREAK=%d HPCT=%d FATK=%d | F down %6.2f%% | F away %6.2f%% | P down %6.2f%% | neither %6.2f%% | states %ld\n",
+         HF,G,REM,R,PF,HOLD,HREC,HMAX,HSET,PAYALL,NEWHOLD,HPBREAK,HPCT,FATK,100*v.d,100*v.e,100*v.k,100*(1-v.d-v.e-v.k),HUSED);
   return 0;
 }

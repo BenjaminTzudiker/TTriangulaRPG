@@ -478,7 +478,12 @@ def describe_turn(b, r):
         near = [o.id for o in b.state.enemies_of(c) if o.active and o.pos is not None
                 and c.id in b.arena.threatening(b.state, o, o.pos)]
         if near:
-            lines.append(f"  in reach for a hold at end of turn (after recovering {c.profile.recovery}): "
+            opp = b.rules.opportunity
+            when = (f"set before you recover; tokens you have out come back first" if opp.holds_set_before_recovery()
+                    else f"after recovering {c.profile.recovery}")
+            if opp.hold_limit(100) < 100:
+                when += f"; at most {opp.hold_limit(100)}% of your ready stamina"
+            lines.append(f"  in reach for a hold at end of turn ({when}): "
                          + ", ".join(f"{o} (ready {b.state.get(o).stamina})" for o in near))
     if r.draws:
         lines.append(f"  can draw: {', '.join(d.loadout + ' (' + str(d.quote.total) + ')' for d in r.draws)}")

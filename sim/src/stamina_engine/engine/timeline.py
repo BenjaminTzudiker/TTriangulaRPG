@@ -102,15 +102,22 @@ def take_turn(b: Battle, c: CombatantState) -> None:
             if b.outcome is not None:
                 return  # the fight ended mid-turn
         b.ops.end_turn(c)
+        opp = b.rules.opportunity
+        if opp.holds_on() and opp.holds_return_at_turn_end():
+            b.ops.return_holds(c)  # last turn's tokens come back now, before recovering
+        before = opp.holds_set_before_recovery()
+        if before:
+            set_holds(b, c)
         if c.active or b.rules.resources.recovers_while_incapacitated():
             b.ops.recover(c, c.profile.recovery)
-        set_holds(b, c)
+        if not before:
+            set_holds(b, c)
         off_turn_window(b, c)
 
 
 def set_holds(b: Battle, c: CombatantState) -> None:
-    """Experiment (the hold rule, designer 2026-11-17): at the end of your turn, after you
-    recover, put any of your ready stamina on enemies within your reach as tokens."""
+    """Experiment (the hold rule, designer 2026-11-17): at the end of your turn, before or
+    after you recover (a switch), put ready stamina on enemies within your reach as tokens."""
     if not b.rules.opportunity.holds_on() or b.field is None or b.outcome is not None:
         return
     if not c.active or c.stamina <= 0:
@@ -122,8 +129,11 @@ def set_holds(b: Battle, c: CombatantState) -> None:
     )
     if not targets:
         return
+    limit = b.rules.opportunity.hold_limit(c.stamina)
+    if limit <= 0:
+        return
     answer = b.broker.holds(
-        HoldRequest(c.id, b.observe(c.id), b.context.path(), targets, c.stamina)
+        HoldRequest(c.id, b.observe(c.id), b.context.path(), targets, limit)
     )
     for target, n in answer.tokens.items():
         b.ops.set_hold(c, target, n)

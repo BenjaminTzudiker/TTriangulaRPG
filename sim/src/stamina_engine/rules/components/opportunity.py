@@ -28,6 +28,11 @@ class OpportunityRule(Component):
         # Whether avoidance escalates and counts as an off-turn cost (F9 option 3): never,
         # always, or only when paid off-turn.
         "avoid_track": frozenset({"none", "off_turn", "off_turn_only"}),
+        # The hold rule (experiments): when a holder's tokens come back (the start of its
+        # next turn, or the end of it, right before it recovers), and whether holds are set
+        # before or after the holder recovers.
+        "hold_return": frozenset({"turn_start", "turn_end"}),
+        "hold_set": frozenset({"after_recovery", "before_recovery"}),
         # Which enemies a point-blank shot's OAs come from: those threatening the shooter
         # once the shot resolves (v0.9's reading), or (0.10.0) only those threatening it both
         # when the shot is declared and when the attacks happen.
@@ -81,6 +86,19 @@ class OpportunityRule(Component):
         """The hold rule (designer, 2026-11-17)."""
         return False
 
+    def holds_return_at_turn_end(self) -> bool:
+        return False
+
+    def holds_set_before_recovery(self) -> bool:
+        return False
+
+    def holds_break_on_injury(self) -> bool:
+        return False
+
+    def hold_limit(self, stamina: int) -> int:
+        """Most tokens a creature with this much ready stamina may set."""
+        return stamina
+
 
 @register("opportunity", "v0_9")
 @dataclass(frozen=True)
@@ -105,6 +123,10 @@ class V09Opportunity(OpportunityRule):
     pricing: str = "track"
     max_steps: int = 0
     holds: bool = False  # meant for pricing = fresh (tokens pay on no track)
+    hold_return: str = "turn_start"
+    hold_set: str = "after_recovery"
+    hold_breaks_on_injury: bool = False  # a holder that loses HP drops its holds
+    hold_max_percent: int = 100  # tokens set at most this % of ready stamina (rounded down)
 
     def __post_init__(self) -> None:
         super().__post_init__()
@@ -156,3 +178,15 @@ class V09Opportunity(OpportunityRule):
 
     def holds_on(self) -> bool:
         return self.holds
+
+    def holds_return_at_turn_end(self) -> bool:
+        return self.hold_return == "turn_end"
+
+    def holds_set_before_recovery(self) -> bool:
+        return self.hold_set == "before_recovery"
+
+    def holds_break_on_injury(self) -> bool:
+        return self.hold_breaks_on_injury
+
+    def hold_limit(self, stamina: int) -> int:
+        return stamina * self.hold_max_percent // 100

@@ -23,7 +23,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <math.h>
-static int HF=4, G=1, REM=16, R=5, PF=1, HOLD=1, HREC=1, HMAX=99, CAP=2, K=4, KP=5, FATK=1, PST=16, FST=-1, TRACE=0, QUIET=0, HSET=1, PAYALL=0;
+static int HF=4, G=1, REM=16, R=5, PF=1, HOLD=1, HREC=1, HMAX=99, CAP=2, K=4, KP=5, FATK=1, PST=16, FST=-1, TRACE=0, QUIET=0, HSET=1, PAYALL=0, NEWHOLD=0;
 static const int MD=3, ARM=2, REC=4, FREE=6, BASE=2;
 typedef struct { int t, c; double p; } Out;
 static Out OUTS[5][128]; static int NOUT[5];
@@ -137,7 +137,8 @@ static inline int r_after(int pre,int T,int top){ return HREC ? imin(top,pre+REC
    stamina (F can't pay), and everything it can. This can only lower P's result: a lower bound. HSET=0 tries all. */
 static int cand(int T,int fst,int mx){ if(T<0||T>mx) return 0; if(T==0||T==3||T==7||T==12||T==mx) return 1; if(T==fst||T==fst-1) return 1; return 0; }
 static V p_end(S s,int adjacent){      /* s.pst = ready before recovering */
-  int top=6+s.php, pre=s.pst; s.pesc=0; s.out=0; s.act=0;
+  int top=6+s.php, pre=s.pst+(NEWHOLD?s.out:0);   /* NEWHOLD: last turn's tokens come back now, right before recovery */
+  s.pesc=0; s.out=0; s.act=0;
   if(!(HOLD && adjacent)){ s.pst=imin(top,pre+REC); return after_p(s); }
   V best={-2,0,0}; int mx=tok_max(pre,top);
   for(int T=0;T<=mx;T++){ if(HSET && !cand(T,s.fst,mx)) continue;
@@ -153,7 +154,7 @@ static V p_adjacent(S u){              /* P stands next to F: any attack, then t
 }
 static V PT(S s){
   uint64_t k=key(2,s,0); V v; if(memo_get(k,&v)) return v;
-  s.pst+=s.out; s.out=0; s.act=0;                       /* tokens come back */
+  if(!NEWHOLD){ s.pst+=s.out; s.out=0; s.act=0; }       /* tokens come back (NEWHOLD: they stay out through this turn) */
   V best;
   if(s.g==1) best=p_adjacent(s);
   else {
@@ -202,12 +203,13 @@ static V FT(S s){
 int main(int argc,char **argv){
   for(int a=1;a<argc;a++){ char *eq=strchr(argv[a],'='); if(!eq) continue; *eq=0; int v=atoi(eq+1); const char *k=argv[a];
     #define P(n,var) if(!strcmp(k,n)) var=v;
-    P("HF",HF) P("G",G) P("REM",REM) P("R",R) P("PF",PF) P("HOLD",HOLD) P("HREC",HREC) P("HMAX",HMAX) P("CAP",CAP) P("K",K) P("KP",KP) P("FATK",FATK) P("PST",PST) P("FST",FST) P("TRACE",TRACE) P("QUIET",QUIET) P("HSET",HSET) P("PAYALL",PAYALL) }
+    P("HF",HF) P("G",G) P("REM",REM) P("R",R) P("PF",PF) P("HOLD",HOLD) P("HREC",HREC) P("HMAX",HMAX) P("CAP",CAP) P("K",K) P("KP",KP) P("FATK",FATK) P("PST",PST) P("FST",FST) P("TRACE",TRACE) P("QUIET",QUIET) P("HSET",HSET) P("PAYALL",PAYALL) P("NEWHOLD",NEWHOLD) }
+  if(NEWHOLD) HREC=0;   /* holds come from stamina before recovering */
   build(); HK=calloc(1L<<HBITS,sizeof(uint64_t)); HV=malloc((1L<<HBITS)*sizeof(V));
   S s={HF, FST<0?6+HF:FST, 0, 10, PST, 0, 0,0, G, REM, 1};
   V v = PF ? WPH(s,0) : WPH(s,1);
   if(QUIET){ printf("%.6f %.6f %.6f\n",v.d,v.e,v.k); return 0; }
-  printf("HF=%d G=%d REM=%d R=%d PF=%d HOLD=%d HREC=%d HMAX=%d HSET=%d PAYALL=%d FATK=%d | F down %6.2f%% | F away %6.2f%% | P down %6.2f%% | neither %6.2f%% | states %ld\n",
-         HF,G,REM,R,PF,HOLD,HREC,HMAX,HSET,PAYALL,FATK,100*v.d,100*v.e,100*v.k,100*(1-v.d-v.e-v.k),HUSED);
+  printf("HF=%d G=%d REM=%d R=%d PF=%d HOLD=%d HREC=%d HMAX=%d HSET=%d PAYALL=%d NEWHOLD=%d FATK=%d | F down %6.2f%% | F away %6.2f%% | P down %6.2f%% | neither %6.2f%% | states %ld\n",
+         HF,G,REM,R,PF,HOLD,HREC,HMAX,HSET,PAYALL,NEWHOLD,FATK,100*v.d,100*v.e,100*v.k,100*(1-v.d-v.e-v.k),HUSED);
   return 0;
 }

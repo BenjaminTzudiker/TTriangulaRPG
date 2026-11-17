@@ -35,6 +35,10 @@ class CombatantState:
     free_move_left: int = 0  # free squares left this turn
     banked: int = 0  # squares bought this turn and not yet used (on-turn purchases)
     debt: int = 0  # avoidance paid without stamina, owed from the next recovery (F14 variant)
+    # Experiment (the hold rule): stamina set aside as tokens on enemies (by target id), and
+    # tokens whose hold has ended. Both come back at the start of this creature's next turn.
+    holds: dict[str, int] = field(default_factory=dict)
+    parked: int = 0
     out: str | None = None  # "fled" or "surrendered": out of the fight without going down
     step_costs: list[int] = field(default_factory=list)  # attack steps paid this turn, unrefunded
     control: dict[str, int] = field(default_factory=dict)  # control effects' progress (stub)
@@ -64,6 +68,11 @@ class CombatantState:
     @property
     def gear(self) -> LoadoutProfile:
         return self.profile.loadout(self.loadout)
+
+    @property
+    def set_aside(self) -> int:
+        """Stamina out on holds: not ready, not spent."""
+        return sum(self.holds.values()) + self.parked
 
 
 OBJECTIVE_OPEN, OBJECTIVE_DONE, OBJECTIVE_FAILED = "open", "done", "failed"

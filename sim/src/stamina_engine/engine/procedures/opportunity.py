@@ -33,6 +33,7 @@ from stamina_engine.grid.geometry import reach_cells
 from stamina_engine.grid.threat import melee_weapons
 from stamina_engine.model.derive import WeaponProfile
 from stamina_engine.model.state import CombatantState
+from stamina_engine.rules.pricing import Quote
 
 cites = (
     "Packet: Making Opportunity Attacks",
@@ -106,6 +107,8 @@ def opportunity_attack(
 ) -> None:
     per_square = b.rules.opportunity.per_square()
     fin = attacker.gear.attributes.FIN
+    # The hold rule: tokens on this target add to the cap and are spent first.
+    tokens = attacker.holds.get(target.id, 0) if b.rules.opportunity.holds_on() else 0
     options = []
     caps = {}
     for slot, w in _reaching(b, attacker, square):
@@ -115,7 +118,7 @@ def opportunity_attack(
         while True:
             try:
                 quote = b.pricing.opportunity_attack(
-                    w.base, k, attacker.trackers, cap, stamina=attacker.stamina
+                    w.base, k, attacker.trackers, cap, stamina=attacker.stamina, tokens=tokens
                 )
             except Unaffordable:
                 break
@@ -135,6 +138,7 @@ def opportunity_attack(
             square,
             _largest(caps.values()),
             tuple(options),
+            tokens,
         )
         answer = b.broker.take_oa(request)
         if answer.steps == 0:
@@ -143,8 +147,14 @@ def opportunity_attack(
         weapon = dict(_reaching(b, attacker, square))[answer.weapon]
         quote = option.quotes[answer.steps - 1]
         b.ops.emit(OpportunityDeclared(attacker.id, target.id, answer.weapon, answer.steps))
-        b.ops.spend(attacker, quote, "opportunity")
-        oa.spend(attacker.id, quote.total)
+        used = min(tokens, quote.total)
+        if used:
+            b.ops.spend_hold(attacker, target.id, used)
+            if quote.total > used:
+                b.ops.spend(attacker, Quote((quote.total - used,), quote.track), "opportunity")
+        else:
+            b.ops.spend(attacker, quote, "opportunity")
+        oa.spend(attacker.id, quote.total - used)
         attack = roll(b, attacker, weapon, answer.steps)
         reactions(b, attacker, target)
         blocks = declare_blocks(b, attacker, target, attack, armor=faced_armor(target, weapon))

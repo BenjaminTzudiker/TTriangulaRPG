@@ -32,6 +32,9 @@ class OpportunityRule(Component):
         # once the shot resolves (v0.9's reading), or (0.10.0) only those threatening it both
         # when the shot is declared and when the attacks happen.
         "point_blank_eligible": frozenset({"at_resolution", "declared_and_resolution"}),
+        # How an OA's steps are priced: on the off-turn track (to 0.10.1), or "fresh"
+        # (0.11.0 on): base + 1 per earlier step of this OA, on no track.
+        "pricing": frozenset({"track", "fresh"}),
     }
 
     def cap(self, finesse: int, weapon_base: int = 0) -> int | None:
@@ -67,6 +70,17 @@ class OpportunityRule(Component):
         point-blank OA?"""
         raise NotImplementedError
 
+    def fresh_pricing(self) -> bool:
+        return False
+
+    def step_limit(self) -> int:
+        """Most steps in one OA; 0 for no limit."""
+        return 0
+
+    def holds_on(self) -> bool:
+        """The hold rule (designer, 2026-11-17)."""
+        return False
+
 
 @register("opportunity", "v0_9")
 @dataclass(frozen=True)
@@ -86,6 +100,11 @@ class V09Opportunity(OpportunityRule):
     avoid_price: str = "flat"
     avoid_track: str = "none"
     point_blank_eligible: str = "at_resolution"
+    # Experiments (exp/holds): 0.11.0's placeholder is pricing = fresh, max_steps = 1, no cap;
+    # the hold rule is pricing = fresh, cap_rule = flat, holds = true.
+    pricing: str = "track"
+    max_steps: int = 0
+    holds: bool = False  # meant for pricing = fresh (tokens pay on no track)
 
     def __post_init__(self) -> None:
         super().__post_init__()
@@ -128,3 +147,12 @@ class V09Opportunity(OpportunityRule):
 
     def point_blank_needs_declared(self) -> bool:
         return self.point_blank_eligible == "declared_and_resolution"
+
+    def fresh_pricing(self) -> bool:
+        return self.pricing == "fresh"
+
+    def step_limit(self) -> int:
+        return self.max_steps
+
+    def holds_on(self) -> bool:
+        return self.holds

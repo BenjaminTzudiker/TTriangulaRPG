@@ -41,6 +41,8 @@ class CombatantView:
     status: str
     trackers: Trackers | None  # only for the observer itself
     pos: Cell | None = None  # positions are public; None in the all-adjacent arena
+    holds: Mapping[str, int] = field(default_factory=dict)  # tokens on enemies (public)
+    parked: int = 0  # tokens whose hold has ended (public)
     free_move_left: int | None = None  # only for the observer itself
     banked: int | None = None  # only for the observer itself
 
@@ -300,6 +302,7 @@ class AvoidOA:
     trackers: Trackers
     stamina: int
     affordable: int  # how many subsets of enemies it can pay for (F11)
+    extras: tuple[int, ...] = ()  # the hold rule: tokens each enemy holds on the mover
 
     @property
     def option_count(self) -> int:
@@ -329,6 +332,7 @@ class TakeOA:
     leaving: Cell
     cap: int | None  # None: no cap (0.9.1), only stamina and the off-turn escalation
     options: tuple[OAOption, ...]  # one per ready melee weapon that reaches the square
+    tokens: int = 0  # the hold rule: tokens on this target, spent before ready stamina
 
     @property
     def option_count(self) -> int:
@@ -339,6 +343,27 @@ class TakeOA:
 class OATake:
     weapon: str = "main"
     steps: int = 0  # 0 declines
+
+
+@dataclass(frozen=True)
+class HoldRequest:
+    """Experiment (the hold rule): at the end of your turn, after you recover, set any of
+    your ready stamina aside as tokens on enemies within your reach."""
+
+    who: str
+    observation: Observation
+    context: tuple[str, ...]
+    targets: tuple[str, ...]
+    stamina: int
+
+    @property
+    def option_count(self) -> int:
+        return 1 + self.stamina * len(self.targets)
+
+
+@dataclass(frozen=True)
+class Holds:
+    tokens: Mapping[str, int] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)

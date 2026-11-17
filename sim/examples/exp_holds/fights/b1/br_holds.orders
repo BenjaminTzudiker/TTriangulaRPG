@@ -1,0 +1,81 @@
+W|
+A| m 7,4
+A| e
+W|
+X| e
+W|
+B| m 5,3
+B| e
+W|
+Y| m 17,5
+Y| e
+W|
+C| m 7,5
+C| e
+W|
+Z| e
+W|
+A| e
+W|
+X| e
+W|
+B| m 5,4
+B| e
+W|
+Y| e
+W|
+C| e
+W|
+Z| e
+W|
+A| m 8,4
+A| e
+W|
+X| m 9,4 | a A 2
+X| e A:3
+W|
+B| m 8,3 | a X 2
+B| a X 1
+B| m 5,3 pay=none
+B| e
+W|
+Y| m 9,5 | a A 2
+Y| e
+W|
+C| a Y 4
+C| m 4,5
+C| e
+W| B m 3,3
+Z| m 5,2 | a B 2
+Z| e B:1
+W|
+X| m 4,3 pay=none | a B 1
+X| e
+W|
+B| e
+W|
+C| m 4,4 | a Z 2
+C| e
+W|
+Z| a B 1
+Z| e
+W|
+X| a B 2
+X| e
+W|
+C| a Z 2
+C| e
+W|
+Z| m 9,2 pay=none
+Z| e
+W|
+X| a C 1
+X| e C:3
+W|
+C| e
+W|
+Z| m 6,3 | a C 1
+Z| e
+W|
+X| a C
+X| 2

@@ -47,6 +47,10 @@ class MovementRule(Component):
     def keeps_leftover(self) -> bool:
         raise NotImplementedError
 
+    def extra_is_action(self) -> bool:
+        """Packet 0.11.0: movement bought on your turn is a dash, an action."""
+        return False
+
 
 @register("movement", "v0_9")
 @dataclass(frozen=True)
@@ -59,6 +63,7 @@ class V09Movement(MovementRule):
     extra_squares: str = "agility"
     extra_cap: str = "none"
     leftover: str = "turn"
+    extra_action: bool = False  # experiment (packet 0.11.0; exp/holds)
 
     def free_movement(self, agility: int) -> int:
         return self.free_base + odd_count(agility)
@@ -79,3 +84,6 @@ class V09Movement(MovementRule):
 
     def keeps_leftover(self) -> bool:
         return self.leftover == "turn"
+
+    def extra_is_action(self) -> bool:
+        return self.extra_action

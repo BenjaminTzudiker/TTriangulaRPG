@@ -1,0 +1,22 @@
+W|
+X| a A 4
+X| e A:5
+W|
+A| a X 1
+A| e
+W|
+Y| m 18,2 17,3
+Y| a B 4
+Y| e A:4
+W| C m 10,6
+Z| m 11,6
+Z| a C 3
+Z| e
+W|
+X| a A 2
+X| e A:4
+W|
+A| e
+W|
+Y| a A
+Y| 2

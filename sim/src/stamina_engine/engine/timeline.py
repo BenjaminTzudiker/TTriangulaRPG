@@ -8,6 +8,7 @@ from stamina_engine.agents.decisions import (
     Draw,
     EndTurn,
     Flee,
+    HoldRequest,
     Move,
     Shoot,
     Surrender,
@@ -103,7 +104,29 @@ def take_turn(b: Battle, c: CombatantState) -> None:
         b.ops.end_turn(c)
         if c.active or b.rules.resources.recovers_while_incapacitated():
             b.ops.recover(c, c.profile.recovery)
+        set_holds(b, c)
         off_turn_window(b, c)
+
+
+def set_holds(b: Battle, c: CombatantState) -> None:
+    """Experiment (the hold rule, designer 2026-11-17): at the end of your turn, after you
+    recover, put any of your ready stamina on enemies within your reach as tokens."""
+    if not b.rules.opportunity.holds_on() or b.field is None or b.outcome is not None:
+        return
+    if not c.active or c.stamina <= 0:
+        return
+    targets = tuple(
+        o.id
+        for o in b.state.enemies_of(c)
+        if o.active and o.pos is not None and c.id in b.arena.threatening(b.state, o, o.pos)
+    )
+    if not targets:
+        return
+    answer = b.broker.holds(
+        HoldRequest(c.id, b.observe(c.id), b.context.path(), targets, c.stamina)
+    )
+    for target, n in answer.tokens.items():
+        b.ops.set_hold(c, target, n)
 
 
 def command_loop(b: Battle, c: CombatantState) -> None:
@@ -233,6 +256,8 @@ def run_battle(b: Battle) -> BattleResult:
         b.ops.set_round(round_)
         b.ops.emit(RoundStarted(round_))
         with b.context.frame(f"round {round_}"):
+            if round_ == 1 and b.rules.off_turn.opens_fight():
+                off_turn_window(b, None)  # 0.11.0: a dash phase before the first turn
             play_round(b)
         b.end_of_round()
     winner, reason = b.outcome if b.outcome is not None else (None, "round_cap")

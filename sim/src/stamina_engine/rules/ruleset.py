@@ -298,6 +298,55 @@ def review_sim() -> RuleSet:
     )
 
 
+def exp_0_11_0() -> RuleSet:
+    """Not a baseline preset: an experiment's reading of packet 0.11.0's movement on 0.10.1
+    (exp/holds). One dash (an action on the one escalation, 1 square + 1 per odd Agility,
+    on or off your turn), the escalation reset when your turn ends, a dash phase before
+    every turn with the highest in initiative first, and the placeholder opportunity
+    attack: one step at the weapon's base cost, not an action, no cap."""
+    base = v0_10_1()
+    return base.with_(
+        name="exp-0.11.0",
+        movement=dataclasses.replace(
+            base.movement, extra_squares="agility", leftover="move", extra_action=True
+        ),
+        off_turn=dataclasses.replace(
+            base.off_turn,
+            order="descending_initiative",
+            track="unified",
+            restart=True,
+            opening=True,
+        ),
+        opportunity=dataclasses.replace(
+            base.opportunity, cap_rule="none", pricing="fresh", max_steps=1
+        ),
+    )
+
+
+def exp_holds() -> RuleSet:
+    """Not a baseline preset: exp-0.11.0 with the designer's hold rule of 2026-11-17. An
+    opportunity attack's steps cost base + 1 per earlier step of that attack, within a cap
+    of 1 + 1 per odd Finesse plus the tokens of a hold on that target; leaving costs 1 + a
+    hold's tokens for the first square."""
+    base = exp_0_11_0()
+    return base.with_(
+        name="exp-holds",
+        opportunity=dataclasses.replace(
+            base.opportunity, cap_rule="flat", max_steps=0, holds=True
+        ),
+    )
+
+
+def exp_holds_per_square() -> RuleSet:
+    """exp-holds with the cap added again for each square the mover leaves within your
+    reach without paying you, pooled for one move."""
+    base = exp_holds()
+    return base.with_(
+        name="exp-holds-per-square",
+        opportunity=dataclasses.replace(base.opportunity, per_square_cap=True),
+    )
+
+
 BASELINE = "v0.10.1"
 """The preset the engine's scenarios, suites and defaults use: the current packet. Moving the
 baseline to a new packet version is this one line (and the pinned hashes it moves)."""
@@ -314,6 +363,9 @@ PRESETS: dict[str, Callable[[], RuleSet]] = {
     "v0.10.0-crit-c": v0_10_0_crit_c,
     "review-candidate": review_candidate,
     "review-sim": review_sim,
+    "exp-0.11.0": exp_0_11_0,
+    "exp-holds": exp_holds,
+    "exp-holds-per-square": exp_holds_per_square,
 }
 
 

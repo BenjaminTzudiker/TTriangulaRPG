@@ -1,4 +1,4 @@
-"""On-turn surcharge (Packet: Actions and the On-Turn Surcharge)."""
+"""On-turn surcharge (Packet: Actions and Escalation)."""
 
 from dataclasses import dataclass
 
@@ -7,7 +7,7 @@ from stamina_engine.rules.registry import Component, register
 
 @dataclass(frozen=True)
 class SurchargeRule(Component):
-    cites = ("Packet: Actions and the On-Turn Surcharge", "Ledger CB-2", "Review F8")
+    cites = ("Packet: Actions and Escalation", "Ledger CB-2", "Review F8")
 
     def surcharge(self, prior_actions: int) -> int:
         raise NotImplementedError

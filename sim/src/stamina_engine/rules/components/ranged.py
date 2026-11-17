@@ -60,7 +60,7 @@ class RangedRule(Component):
         "Ledger EQ-3",
         "Review F3",
         "Review F11",
-        "Packet: Actions and the On-Turn Surcharge",
+        "Packet: Actions and Escalation",
         "Packet: Procedure",
         "Packet: Weapon Properties",
     )

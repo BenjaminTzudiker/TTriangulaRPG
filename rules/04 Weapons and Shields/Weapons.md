@@ -30,7 +30,7 @@ A weapon card lists its category, base stamina cost (a shot cost, for ranged wea
 | Superheavy warbow | 8 per shot | 1d12 + STR | Two | Band width 5; Strength 5; Piercing 2. Provisional |
 
 **Bows:**
-- A shot is an action, so it costs its shot cost + the on-turn surcharge (see [[Actions and the On-Turn Surcharge]]).
+- A shot is an action, so it costs its shot cost + your escalation (see [[Actions and Escalation]]).
 - Aim works as described in [[Aim]], and range as described in [[Range Bands]].
 - **Strength N** is the bow's Strength requirement. Each point of Strength you're short shortens its band width by 1 square.
 

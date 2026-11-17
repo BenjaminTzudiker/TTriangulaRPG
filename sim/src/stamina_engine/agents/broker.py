@@ -42,8 +42,8 @@ from stamina_engine.rules.pricing import Pricing
 cites = (
     "Packet: Commitment",
     "Packet: Blocking",
-    "Packet: On-Turn Movement",
-    "Packet: Off-Turn Movement",
+    "Packet: Free Movement",
+    "Packet: Dash",
     "Packet: Avoiding Opportunity Attacks",
     "Packet: Making Opportunity Attacks",
     "Review F11",

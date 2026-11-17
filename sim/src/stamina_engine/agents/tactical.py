@@ -87,8 +87,8 @@ from stamina_engine.rules.ruleset import RuleSet
 
 cites = (
     "Packet: Positioning",
-    "Packet: On-Turn Movement",
-    "Packet: Off-Turn Movement",
+    "Packet: Free Movement",
+    "Packet: Dash",
     "Review F6",
 )
 

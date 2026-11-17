@@ -1,6 +1,6 @@
 ---
 up: "[[Playtest Packet]]"
-prev: "[[Actions and the On-Turn Surcharge]]"
+prev: "[[Actions and Escalation]]"
 next: "[[Defenses]]"
 ---
 # Blocking
@@ -15,7 +15,7 @@ Each block subtracts your defense value (see [[Defenses]]) from the incoming dam
 - Stops the blocked damage completely.
 - The first perfect block against an attack costs 1 stamina. Each further perfect block **against the same attack** costs 1 more (1, 2, 3…).
 - The count resets when you're attacked again, even before your own turn comes around.
-- Blocking escalates only within one attack. It isn't part of any other surcharge.
+- Block costs rise only within one attack. Blocks aren't actions, and they aren't part of your escalation (see [[Actions and Escalation]]).
 
 **Grazing Block**
 - Always costs **1 stamina**.

@@ -1,4 +1,4 @@
-"""Off-turn windows (Packet: Starting Combat and Turn Structure step 3, Off-Turn Movement).
+"""Off-turn windows (Packet: Starting Combat and Turn Structure step 3, Dash).
 
 After any creature's turn ends, including its own and an incapacitated creature's dying-roll
 turn, anyone may buy off-turn movement or draw a weapon (readings in the Assumptions
@@ -22,8 +22,8 @@ from stamina_engine.model.state import CombatantState
 
 cites = (
     "Packet: Starting Combat and Turn Structure",
-    "Packet: Off-Turn Movement",
-    "Packet: Off-Turn Escalation",
+    "Packet: Dash",
+    "Packet: Actions and Escalation",
     "Ledger MV-2",
     "Ledger MV-4",
     "Review F14",

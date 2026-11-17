@@ -18,7 +18,7 @@ from stamina_engine.grid.geometry import neighbour_table
 from stamina_engine.grid.threat import Body, blocked_squares, threatened_by
 from stamina_engine.rules.components.grid import GridRule
 
-cites = ("Packet: On-Turn Movement", "Packet: Off-Turn Movement", "Ledger MV-1", "Ledger MV-2")
+cites = ("Packet: Free Movement", "Packet: Dash", "Ledger MV-1", "Ledger MV-2")
 
 Number = int | Fraction
 

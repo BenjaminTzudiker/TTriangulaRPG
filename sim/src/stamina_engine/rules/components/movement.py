@@ -1,4 +1,4 @@
-"""On-turn and off-turn movement (Packet: On-Turn Movement, Off-Turn Movement)."""
+"""On-turn and off-turn movement (Packet: Free Movement, Dash)."""
 
 from dataclasses import dataclass
 
@@ -9,8 +9,8 @@ from stamina_engine.rules.registry import Component, register
 @dataclass(frozen=True)
 class MovementRule(Component):
     cites = (
-        "Packet: On-Turn Movement",
-        "Packet: Off-Turn Movement",
+        "Packet: Free Movement",
+        "Packet: Dash",
         "Ledger MV-1",
         "Ledger MV-2",
         "Review F10",

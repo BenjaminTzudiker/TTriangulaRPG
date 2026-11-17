@@ -14,11 +14,15 @@ Experiment branch, not baseline. Presets added in `rules/ruleset.py` (none is th
   holds end at once (its tokens still stay out until they'd come back).
 - `exp-holds-next-turn-half`: exp-holds-next-turn with holds set after recovering, at most half
   of ready stamina.
+- `exp-holds-placeholder`: the designer's placeholder hold rules (2026-11-17):
+  exp-holds-next-turn-break, and when a wound lowers maximum stamina below ready stamina plus
+  tokens, the tokens come off first (switch `opportunity.hold_wound_clamp = "tokens_first"`).
 
 Readings the engine makes that the rulings don't settle: holds are set after recovering in
 `exp-holds` and `exp-holds-per-square`. In every preset, leftover tokens stay out until they'd
 come back; a hold ends when its holder goes down; tokens on a target that goes down stay out;
-and a wound clamps ready stamina first, then idle tokens, then live holds.
+and a wound clamps ready stamina first, then idle tokens, then live holds
+(except in `exp-holds-placeholder`).
 
 ## Hand play
 

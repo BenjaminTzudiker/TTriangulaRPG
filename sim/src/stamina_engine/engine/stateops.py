@@ -119,13 +119,16 @@ class StateOps:
             return
         c.dying = self.rules.dying.take_damage(c.dying, damage)
         c.damage_taken.append(damage)
-        # Ready stamina and tokens together can't exceed the new maximum. The excess comes
-        # off ready stamina first, then ended holds, then live ones (exp/holds: an assumption).
+        # Ready stamina and tokens together can't exceed the new maximum. By default the
+        # excess comes off ready stamina first, then ended holds, then live ones (exp/holds:
+        # an assumption); the tokens-first switch takes ended holds, live ones, then ready.
         over = c.stamina + c.set_aside - self.max_stamina(c)
         if over > 0:
-            cut = min(over, c.stamina)
-            c.stamina -= cut
-            over -= cut
+            tokens_first = self.rules.opportunity.wound_clamps_tokens_first()
+            if not tokens_first:
+                cut = min(over, c.stamina)
+                c.stamina -= cut
+                over -= cut
             cut = min(over, c.parked)
             c.parked -= cut
             over -= cut
@@ -134,6 +137,10 @@ class StateOps:
                 c.holds[target] -= cut
                 over -= cut
             c.holds = {t: n for t, n in c.holds.items() if n > 0}
+            if tokens_first:
+                cut = min(over, c.stamina)
+                c.stamina -= cut
+                over -= cut
         if c.holds and c.active and self.rules.opportunity.holds_break_on_injury():
             for target in list(c.holds):  # a wounded holder drops its holds; tokens stay out
                 self.end_hold(c, target, "injured")

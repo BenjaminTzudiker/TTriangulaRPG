@@ -369,6 +369,16 @@ def exp_holds_next_turn_break() -> RuleSet:
     )
 
 
+def exp_holds_placeholder() -> RuleSet:
+    """The designer's placeholder hold rules (2026-11-17): exp-holds-next-turn-break, and a
+    wound that lowers maximum stamina takes tokens before ready stamina."""
+    base = exp_holds_next_turn_break()
+    return base.with_(
+        name="exp-holds-placeholder",
+        opportunity=dataclasses.replace(base.opportunity, hold_wound_clamp="tokens_first"),
+    )
+
+
 def exp_holds_next_turn_half() -> RuleSet:
     """exp-holds-next-turn with holds set after recovering, at most half your ready stamina."""
     base = exp_holds_next_turn()
@@ -402,6 +412,7 @@ PRESETS: dict[str, Callable[[], RuleSet]] = {
     "exp-holds-next-turn": exp_holds_next_turn,
     "exp-holds-next-turn-break": exp_holds_next_turn_break,
     "exp-holds-next-turn-half": exp_holds_next_turn_half,
+    "exp-holds-placeholder": exp_holds_placeholder,
 }
 
 

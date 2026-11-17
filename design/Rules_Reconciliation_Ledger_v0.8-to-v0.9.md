@@ -4,6 +4,7 @@
 > - **PROPOSAL**, **UNCERTAIN** and **ABANDONED** entries are *not* rules; don't treat them as current design.
 > - The designer's rulings (logged verbatim in Part G) are folded into Parts A–D. **Part H (SHELVED)** holds ideas deliberately left out of the current rules; they are not rules.
 > - **Playtest Packet v0.9** is now the rules source and incorporates these rulings (through round 9). This ledger remains the record of where each rule came from and how firm it is.
+> - **Later packets:** the entries describe packet v0.9. `rules/CHANGELOG.md` records every change since then. Seven entries carry a **Later changes** line for what packet 0.11.0 changed (CB-2, CB-9, MV-1, MV-2, MV-4, MV-5 and CP-7; the reaction to a shot is under MV-2). The rest have not been brought up to date, and neither have the summaries in Parts A to C.
 
 # Rules Reconciliation Ledger: Playtest Packet v0.8 vs. Design Transcript
 
@@ -478,6 +479,15 @@
   - +1 per action [p.1226, p.1480].
   - Aim steps moved into the surcharge; ranged shots made flat (your ruling, 2026-11-01).
 - **Evidence:** Ruling A4; clarifications 3 and 4 (your ruling, 2026-11-01).
+- **Later changes:**
+  - *Packet 0.10.0:* a ranged shot became an action: the shot cost + the surcharge. The flat shot above no longer applies.
+  - *Packet 0.11.0 (your rulings, 2026-11-16):* the on-turn surcharge and the off-turn escalation (MV-4) became **one escalation**.
+    - An action is a melee attack step, a ranged shot, an aim step or a **dash**, the new name for movement you pay for (MV-1, MV-2). That reverses "Not actions: extra on-turn movement" above.
+    - Each action costs its base +1 per action you've taken since your last turn ended. The count includes dashes taken outside your turn.
+    - It resets only when your turn ends, as you recover stamina. Before your first turn of a fight it counts every action since the fight began.
+    - Not actions: free movement, blocks, the free aim die, drawing a weapon, paying to avoid an opportunity attack and, as a placeholder, making one (MV-5).
+    - *Why:* so that dashing between turns to close a gap limits what you can do on your next turn, and so that one rule prices bought movement where there were two.
+    - *Now in:* the rules note Actions and Escalation (Mechanism open). `rules/CHANGELOG.md`, 0.11.0, has the reasons, the evidence and the known costs.
 
 ### CB-3 Perfect Block
 - **Firmness:** Locked. Same structure since p.90; formalized [p.1480].
@@ -567,6 +577,12 @@
   - AGI + CUN [p.1481].
   - Odd Agility + odd Cunning (your ruling, 2026-11-01).
 - **Evidence:** Ruling B10, clarification 6 (your ruling, 2026-11-01).
+- **Later changes:**
+  - *Packet 0.9.1:* the modifier became Cunning, +1 per point: 2d12 + Cunning. Still a placeholder, with no tiebreaker.
+  - *Packet 0.11.0 (your rulings, 2026-11-16):* each turn now goes: a **dash phase** before the turn starts (MV-2), then the turn, then the end of the turn, when you recover stamina and your escalation resets (CB-2). The first turn of a fight has a dash phase too.
+    - The dash phase gives priority by initiative, and assumes a clear order. Ties are for the initiative rules to settle: "For now, tiebreaker is TBD - the entire initiative roll system is a known placeholder".
+    - *Why a dash phase before the first turn:* without it, only the creature highest in initiative acts before anyone else can move.
+    - *Now in:* the rules note Starting Combat and Turn Structure (Exploratory).
 
 ---
 
@@ -587,6 +603,17 @@
 - **Packet:** **Missing** (base values and extra movement).
 - **History:** v0.3 had 1 stamina per extra square [p.334] → TBD [p.1481] → proposed [p.1712] → adopted (your ruling, 2026-11-01).
 - **Evidence:** [p.1481], [p.1712]; clarification 6 (your ruling, 2026-11-01).
+- **Later changes:**
+  - *Packet 0.9.1:* each extra on-turn purchase moved 1 square, with no Agility bonus. The cost stayed 1 stamina, flat.
+  - *Packet 0.11.0 (your rulings, 2026-11-16):* extra on-turn movement no longer exists as its own purchase. To go further than your free movement you **dash** (MV-2): an action, costing 1 + your escalation (CB-2), moving 1 square +1 per odd Agility.
+    - That reverses "It isn't an action: it always costs 1 stamina" above, and brings the Agility bonus back.
+    - Free movement is unchanged: 5 squares, +1 per odd Agility, split around your actions, no aim penalty.
+    - *The intent above, as it stands:*
+      - Movement "shouldn't be discouraged": still true of free movement.
+      - "Advancing shouldn't make later retreat pricier" still holds for a retreat after your turn: the escalation resets when your turn ends. A dash taken on your turn, after attacking, does cost more.
+      - "Melee characters need a way to catch archers who retreat off-turn" is not served by this version. A fighter chasing an archer is worse off than under packet 0.10.1 (the changelog's 0.11.0 entry gives the figures), and you left that to later changes on the ranged side.
+    - *Why:* one rule for bought movement where there were two, and moving and attacking is taxed more than just moving.
+    - *Now in:* the rules notes Free Movement (Locked for free movement; distances are placeholders) and Dash.
 
 ### MV-2 Off-turn movement
 - **Firmness:** Locked.
@@ -603,6 +630,16 @@
   - It describes a separate progression, but movement shares the off-turn track with OAs.
   - It omits the 4-square cap.
 - **Evidence:** [p.1274], [p.1481]. Rulings A6, B3, B4 (your ruling, 2026-11-01).
+- **Later changes:**
+  - *Packet 0.11.0 (your rulings, 2026-11-16):* off-turn movement became the **dash**, one purchase used on your turn and off it.
+    - **When:** on your turn; in the **dash phase** before any turn (your own, the turn after yours, anyone's); or when targeted by a ranged attack. "After any creature's turn" became "before every turn", which adds one moment: before the first turn of a fight.
+    - **Cost:** 1 + your escalation (CB-2). The off-turn escalation (MV-4) is gone. Nothing you did on your turn makes a dash after it pricier, because the escalation has just reset. Every dash makes what you do before your next turn ends pricier, that turn's attacks included.
+    - **Distance:** unchanged: 1 square, +1 per odd Agility, up to 4.
+    - **How many:** any number each time, including none. You noted this may change for some occasions, such as being targeted by a ranged attack.
+    - **Order in a dash phase:** anyone may say they want to dash, without saying where. Of those, the highest in initiative goes. Then anyone may say so again. The phase ends when nobody wants to. This settles what the entry left unstated (Review F14, which had suggested lowest first).
+    - A dash taken in reaction to a shot is an action like any other ("For now, yes, this counts").
+    - *Why:* the intent above is unchanged. Two things now let a creature that gives ground get away from several attackers: pursuers pay for each dash out of their own attack (CB-2), and there is a dash phase before the first turn. The order rule answers Review F14.
+    - *Now in:* the rules note Dash (Mechanism open; Numbers placeholder (distance)). Off-Turn Movement, the note it replaces, was Locked.
 
 ### MV-3 Opportunity attacks: triggers and avoidance
 - **Former names:** guarded movement, reposition carefully, "maneuver".
@@ -637,6 +674,15 @@
 - **Status:** DECISION (mechanism open)
 - **Packet:** **Contradicts:** the packet gives off-turn movement a separate progression and has no shared track.
 - **Evidence:** [p.1783]. Rulings A6, B4 (your ruling, 2026-11-01).
+- **Later changes:**
+  - *Packet 0.11.0 (your rulings, 2026-11-16):* **removed.** There is one escalation (CB-2). It resets when your turn ends, not at the start of your turn.
+    - Dashes are on it. Opportunity attacks are outside it (MV-5).
+    - Your example above (move, move, a 1-stamina opportunity attack, move), started right after your turn ends, now costs 1 + 2 + 1 + 3 = **7**, not 10.
+    - *The intent above, as it stands:*
+      - "Off-turn costs are separate from on-turn costs so that aggression isn't punished": the separation is gone, and the aim is kept by the reset. Your turn's actions are forgotten when it ends, so they don't make a dash after it pricier. A link now runs the other way, on purpose: what you buy between turns makes your next turn pricier.
+      - "Off-turn movement and opportunity attacks compete for the same stamina": they still draw on the same stamina, but neither raises the other's price any more.
+      - "Blocking stays its own thing": unchanged.
+    - *Now in:* the rules note Actions and Escalation. The note Off-Turn Escalation is removed.
 
 ### MV-5 Making opportunity attacks: cost and cap
 - **Firmness:** Intent locked, mechanism open.
@@ -652,6 +698,15 @@
 - **Packet:** **Contradicts:** replaces "+1 stamina available for opportunity attacks each round".
 - **Evidence:** Ruling A8, clarifications 1 and 2 (your ruling, 2026-11-01).
 - **Clarified:** the Finesse part counts odd values (1, 3, 5), not FIN ÷ 2 rounded down (your ruling, 2026-11-01).
+- **Later changes:**
+  - *Packet 0.9.1:* the cap and the optional add-on were removed, along with Finesse's bonus to the cap. The off-turn escalation became the only limit on an opportunity attack.
+  - *Packet 0.11.0 (your rulings, 2026-11-16):* a **placeholder**, because the off-turn escalation that priced and limited opportunity attacks is gone (MV-4).
+    - An opportunity attack is exactly one attack step. You can't add steps to it.
+    - It costs the weapon's base cost, whatever your escalation is. It isn't an action, so it doesn't add to your escalation.
+    - Each trigger allows one. Stamina is the only other limit.
+    - It stands in until opportunity attacks are redesigned. The hold rules planned for a later version are named as one way to complete them.
+    - *The intent above, as it stands:* "limited in power but not free" is met by the single step and its base cost. More exposure means more triggers, at one step each. Finesse has not been the stat for them since packet 0.9.1.
+    - *Now in:* the rules note Opportunity Attacks, under Making Opportunity Attacks (Exploratory).
 
 ---
 
@@ -910,6 +965,8 @@
 - **Status:** DECISION (Monk exploratory)
 - **Packet:** Missing.
 - **Evidence:** [p.942], [p.957–960] and your Monk ruling (your ruling, 2026-11-01).
+- **Later changes:**
+  - *Packet 0.11.0 (your rulings, 2026-11-16):* the Rogue's core is declared **just after a dash phase ends** (it was "between anyone's turns"), and the turn that follows starts with no new dash phase. So nobody can dash in answer to the announcement. Marked as open to change if that makes the ability degenerate.
 
 ### CP-8 Martial vs caster tree structure
 - **Firmness:** Locked (as principle).

@@ -27,6 +27,10 @@ A commit that only fixes typos can skip the entry by putting `[no changelog]` in
 
 ## Unreleased
 
+### Editorial
+
+- [[Open Questions]]: added whether stamina is public (exact numbers, rough bands or nothing) and how it's tracked with more than one pool. Why: it decides how players size attacks and how lethal threats are telegraphed; it came up while testing holds. Source: design chat, 2026-11-17; `design/Fix_Order_and_Dependencies.md`, F6a (Phase 0).
+
 ## 0.11.0 (2026-11-16)
 
 One dash and one escalation. Extra movement on your turn and off-turn movement become a single purchase, the dash, priced on one count of actions that resets when your turn ends. There is a dash phase before every turn, including the first of a fight, with a stated order. Opportunity attacks are a one-step placeholder until they are redesigned. Not in this version: any ranged-side change, the stamina cap, the hold rules and an initiative tiebreaker. The engine implements none of it yet; its baseline is still the `v0.10.1` preset.

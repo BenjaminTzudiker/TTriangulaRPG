@@ -9,14 +9,16 @@ python3 calc.py seq HP READY S1 S2 ...
   Several separate attacks in a row on the same target (no recovery in between), e.g. an
   attack then an OA. Prints the cumulative down chance after each.
 """
+import os
 import sys
 from collections import defaultdict
 from fractions import Fraction
 
-sys.path.insert(0, "/home/claude/work/hold/play/r3")
+HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path[:0] = [HERE, os.path.normpath(os.path.join(HERE, "..", ".."))]  # table.py
 import table as T  # noqa: E402
 
-scen, _ = T.load("/home/claude/work/hold/play/r3/rg_next")
+scen, _ = T.load(os.path.join(HERE, "rg_next"))
 b, _d = T.build(scen, [])
 rules = b.rules
 X = b.state.get("X")

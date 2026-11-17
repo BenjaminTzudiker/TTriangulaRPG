@@ -7,15 +7,18 @@ usage: python3 calc.py ATTACKER TARGET COSTS [st=N] [hp=N] [def=N] [arm=N]
   st/hp/def/arm override the target's ready stamina, HP, melee defense, armor.
 Weapons, defenses and HP come from the fight's current state (replayed quietly).
 """
+import os
 import sys
 from collections import defaultdict
 from fractions import Fraction
 
-sys.path.insert(0, "/home/claude/work/hold/play/m3")
+HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path[:0] = [HERE, os.path.normpath(os.path.join(HERE, "..", ".."))]  # table.py
 import table  # noqa: E402
+
 from stamina_engine.rules.block_solver import best_block  # noqa: E402
 
-scen, orders = table.load("/home/claude/work/hold/play/m3/sc_next")
+scen, orders = table.load(os.path.join(HERE, "sc_next"))
 b, d, result, stop = table.play(scen, orders, 0, quiet=True)
 
 att, tgt, costs = sys.argv[1], sys.argv[2], [int(c) for c in sys.argv[3].split(",")]

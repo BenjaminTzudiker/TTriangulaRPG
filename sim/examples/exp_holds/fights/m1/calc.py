@@ -11,12 +11,13 @@
 
 It uses no dice from any fight: these are exact odds over all rolls.
 """
+import pathlib
 import sys
 from collections import defaultdict
 from fractions import Fraction
 from itertools import product
 
-sys.path.insert(0, "/home/claude/work/holds/sim/src")
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[4] / "src"))  # sim/src
 from stamina_engine.rules.block_solver import best_block  # noqa: E402
 from stamina_engine.rules.ruleset import preset  # noqa: E402
 

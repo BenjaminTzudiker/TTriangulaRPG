@@ -7,9 +7,10 @@
                                                  2 three-quarters, 3 total), and distance band penalty
 """
 import importlib.util
+import pathlib
 import sys
 
-sys.path.insert(0, "/home/claude/work/holds/sim/src")
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[4] / "src"))  # sim/src
 from stamina_engine.grid.battlefield import parse_map  # noqa: E402
 from stamina_engine.grid.los import cover  # noqa: E402
 from stamina_engine.rules.ruleset import preset  # noqa: E402

@@ -7,16 +7,25 @@ Experiment branch, not baseline. Presets added in `rules/ruleset.py` (none is th
   attack: one step at base).
 - `exp-holds`: exp-0.11.0 plus the hold rule as ruled.
 - `exp-holds-per-square`: exp-holds with the cap added per unpaid square left in reach.
+- `exp-holds-next-turn`: the designer's second timing. At the end of the holder's turn its old
+  tokens come back, new holds are set from ready stamina, then it recovers (ready + tokens
+  capped at max). Tokens stay out through the holder's whole next turn.
+- `exp-holds-next-turn-break`: exp-holds-next-turn, and a holder that loses any HP has all its
+  holds end at once (its tokens still stay out until they'd come back).
+- `exp-holds-next-turn-half`: exp-holds-next-turn with holds set after recovering, at most half
+  of ready stamina.
 
-Readings the engine makes that the rulings don't settle: holds are set after recovering;
-leftover tokens stay out until the holder's next turn; a hold ends when its holder goes down;
-a wound clamps ready stamina first, then idle tokens, then live holds.
+Readings the engine makes that the rulings don't settle: holds are set after recovering in
+`exp-holds` and `exp-holds-per-square`. In every preset, leftover tokens stay out until they'd
+come back; a hold ends when its holder goes down; tokens on a target that goes down stay out;
+and a wound clamps ready stamina first, then idle tokens, then live holds.
 
 ## Hand play
 
 `table.py` replays a fight from an orders file and stops at each decision with exact odds
 (blocks are automatic, by the block solver). `BRIEF.md` is the rules digest and order syntax
-given to the players; `REDTEAM.md` is the red team's brief. Run from a fight folder:
+given to the players (`BRIEF_next_turn.md` and `BRIEF_next_turn_break.md` for the later rule
+sets); `REDTEAM.md` is the red team's brief. Run from a fight folder:
 
     cd fights/r1 && python3 ../../table.py rg_holds        # or copy go.sh and table.py in
 
@@ -27,6 +36,11 @@ Fights played (orders and players' notes in `fights/`):
 - `m1/sc_holds`: two fighters screening an archer against three fighters (stopped in round 5).
 - `rt/`: the red team's small constructed cases (each .py starts with what it tests).
 - `v2/`: a runner passing a guard in a corridor, three rule sets x three guard weapons.
+- `r3/rg_next`, `b2/br_next`, `m3/sc_next`: the rearguard, brawl and screen again under
+  `exp-holds-next-turn`, same seeds.
+- `r4/rg_break`: the rearguard under `exp-holds-next-turn-break`, same seed. `r4/cf_r3line`
+  replays r3's opening (3-step attack, 7-token hold) under this rule set; `r4/cf_yhold` is a
+  line the player missed (Y runs to A and holds it with 10). Both stop part-way on purpose.
 
 ## Exact solvers (C, no dependencies: `gcc -O3 -o pin2 pin2.c -lm`)
 

@@ -2,10 +2,12 @@
 """My own odds calculator for planning (reads the engine, changes nothing).
 usage: python3 calc.py HP STAMINA [steps_max]   -> longsword (1d8+3, crit on 7-8) vs def 3 armor 2
 """
+import pathlib
 import sys
 from collections import defaultdict
 from fractions import Fraction
-sys.path.insert(0, "/home/claude/work/holds/sim/src")
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[4] / "src"))  # sim/src
 from stamina_engine.rules.block_solver import best_block
 from stamina_engine.rules.ruleset import preset
 

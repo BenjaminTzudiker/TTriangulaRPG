@@ -3,10 +3,16 @@ up: "[[Class Trees]]"
 ---
 # Candidate Abilities
 
-*Status: Exploratory; not yet assigned to trees*
+*Status: Exploratory*
 
-- **Heavy Swing:** +1 stamina per attack step to penetrate 2 armor.
-- **Feint:** a Cunning contest; if it works, the defender declares blocks first. **TODO:** contests aren't defined yet.
-- **Riposte:** an opportunity attack after a perfect block.
-- **Tactical Withdrawal:** 2 stamina to move before an attack resolves.
-- **Press the Advantage, Momentum, Fluid Footwork, Step Through:** names only. **TODO**.
+Abilities being tried out before they're settled. The earlier candidates are in [[Earlier Candidate Abilities]].
+
+## Great Weapon Training
+
+**Prerequisite:** the Fighter core ability, so this is a Tier 1 Fighter feature (see [[Class Trees]]).
+
+Your heavy melee weapons, those with a base cost of 3, reach 1 square further.
+- A greatsword or greataxe reaches 2 squares instead of 1.
+- A heavy weapon that already has reach, such as a halberd that reaches 2, reaches 3.
+
+Reach sets which squares you threaten, so this also widens your opportunity attacks and holds (see [[Opportunity Attacks]] and [[Holds]]).

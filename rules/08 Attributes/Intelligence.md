@@ -28,4 +28,6 @@ Intelligence is learning, reasoning, memory and technical understanding.
 
 This applies retroactively: if you raise Intelligence after one of its levels, you gain that AP at once.
 
+**Every point:** +1 to the roll to help a dying creature (see [[Dying and Death#Helping the Dying|Helping the Dying]]).
+
 Other combat benefits: **TODO**. Intelligence is also expected to matter through abilities and spells across many trees.

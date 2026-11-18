@@ -1,6 +1,7 @@
 ---
 up: "[[Playtest Packet]]"
 prev: "[[Open Questions]]"
+next: "[[Earlier Candidate Abilities]]"
 ---
 # Not in This Version
 
@@ -20,4 +21,4 @@ These ideas are deliberately left out of the current rules. They're strong candi
   - It shouldn't overlap the Rogue's core ability, which sells turn-order control during a fight; bids would set only the opening order.
   - Cunning could set the bidding order (higher Cunning bids after seeing the others).
   - Holds make close gang-ups lean harder on turn order. In a three-on-one starting 3 squares apart, with one attacker acting before the lone fighter, holds raise its chance of going down in the first round from 6% to 58% (exact, one round). If the lone fighter acts first, it's 0% either way.
-  - For now, initiative is 2d12 + Cunning as a placeholder.
+  - For now, initiative is 2d12 + Cunning, with ties broken by Agility + Cunning and then a roll-off, as placeholders.

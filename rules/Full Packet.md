@@ -124,3 +124,5 @@ The whole packet in reading order, for reading straight through. Each section is
 ![[Open Questions]]
 
 ![[Not in This Version]]
+
+![[Earlier Candidate Abilities]]

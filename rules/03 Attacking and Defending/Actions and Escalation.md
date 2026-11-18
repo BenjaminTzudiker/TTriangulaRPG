@@ -13,14 +13,15 @@ An **action** is one of:
 - a **melee attack step**;
 - a **ranged shot** (see [[Ranged Attacks]]);
 - an **aim step** on a ranged attack (see [[Aim]]);
-- a **dash** (see [[Dash]]).
+- a **dash** (see [[Dash]]);
+- **helping the dying** (see [[Dying and Death#Helping the Dying|Helping the Dying]]).
 
 Each action costs its base **+1 stamina for every action you've taken since your last turn ended**. That number is your **escalation**.
 - There's one escalation. It counts dashes you take outside your turn as well as everything you do on it, so dashing between turns makes your own turn more expensive.
 - **Reset:** it goes back to 0 when your turn ends, as you recover stamina and before the next dash phase. Nothing else resets it.
 - Before your first turn of a fight, it counts every action you've taken since the fight began.
 
-**Bases:** a melee attack step costs the weapon's base cost; a shot costs its shot cost; an aim step and a dash cost 1.
+**Bases:** a melee attack step costs the weapon's base cost; a shot costs its shot cost; an aim step and a dash cost 1; helping the dying costs 5.
 
 These aren't actions. They don't add to your escalation, and your escalation doesn't add to their cost:
 - your **free movement** (see [[Free Movement]]);

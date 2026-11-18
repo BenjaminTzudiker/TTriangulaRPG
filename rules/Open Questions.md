@@ -16,7 +16,7 @@ next: "[[Not in This Version]]"
 - The TODO details marked through this packet.
 
 **Attributes**
-- More combat benefits for Will (beyond the dying roll) and Cunning (beyond initiative). Intelligence's current bonuses act only at character building; its in-play role is expected to come from abilities and spells.
+- More combat benefits for Will (beyond the dying roll) and Cunning (beyond initiative). Intelligence's in-play role, beyond helping the dying, is expected to come from abilities and spells.
 - Strength's nightly HP recovery: its value depends on how many fights fall between rests, and the Strength 0 character heals slowest.
 
 **Effects**

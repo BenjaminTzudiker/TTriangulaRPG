@@ -27,6 +27,26 @@ A commit that only fixes typos can skip the entry by putting `[no changelog]` in
 
 ## Unreleased
 
+## 0.11.2 (2026-11-17)
+
+Stopgaps so the game can be playtested, and a new candidate ability. Initiative ties now have a tiebreaker, and an ally can help a dying creature with a roll. The candidate abilities are replaced by one, Great Weapon Training; the earlier ones move to their own note. All three new rules are placeholders. The engine implements none of them.
+
+### Rules
+
+- [[Starting Combat and Turn Structure]]: initiative ties, no tiebreaker → the higher Agility + Cunning goes first; if that's tied too, the tied creatures roll off (each rolls a d12, the highest goes first, and any still tied roll again). Placeholder. Restated in [[Agility]], [[Cunning]], [[Quick Reference]] (Attribute Bonus Table) and [[Not in This Version]]. Why: so a first playtest can run, and the dash phase relies on initiative order; it's a stopgap until initiative is reworked. Source: design chat, 2026-11-17. The designer said "opposed die rolls"; the d12 is Claude's choice. Review F14. *Engine:* not implemented. The closest switch, `turn_order.tiebreak = "higher_agility"`, uses Agility alone and otherwise rerolls initiative.
+- [[Dying and Death]] (Helping the Dying): a Medicine roll, **TODO** → as an action with a base cost of 5, you can tend a creature in System Shock within 1 square: roll 2d12 + Intelligence, and if you roll at least 10 + its Shock, its Shock drops by 1. Placeholder. Restated in [[Actions and Escalation]], [[Intelligence]], [[Defined Terms]], [[Quick Reference]] (Stamina Costs, Attribute Bonus Table) and [[Open Questions]]. Why: so a first playtest can run. Helping the dying was the one gap the readiness review found that needed a new rule rather than a sentence. Source: design chat, 2026-11-17; `claude/FableMax_Playtest_Readiness_2026-11-11.md`. *Engine:* not implemented.
+- [[Candidate Abilities]]: Heavy Swing, Feint, Riposte, Tactical Withdrawal and four names → **Great Weapon Training** (new; prerequisite: the Fighter core ability): your melee weapons with a base cost of 3 reach 1 square further (a greatsword 2, a halberd that already reaches 2, 3). The earlier candidates move unchanged to [[Earlier Candidate Abilities]]. Why: not recorded. Source: design chat, 2026-11-17. *Engine:* Great Weapon Training isn't implemented; the earlier candidates the engine has (`abilities/candidates.py`) now cite their new note.
+
+### Status
+
+- [[Dying and Death]]: Numbers placeholder → Numbers placeholder; Exploratory (helping the dying). Why: the new rule is a stopgap. Source: design chat, 2026-11-17.
+- [[Candidate Abilities]]: Exploratory; not yet assigned to trees → Exploratory. Why: its one ability belongs to the Fighter tree. Source: design chat, 2026-11-17.
+
+### Editorial
+
+- [[Earlier Candidate Abilities]]: new note, under Status of the packet in the reading order. [[Class Trees]] still embeds [[Candidate Abilities]] alone. Why: the designer asked to move the earlier candidates to another file. Source: design chat, 2026-11-17.
+- [[Playtest Packet]]: version line 0.11.1 → 0.11.2. Why: cutting 0.11.2. Source: designer's request, 2026-11-17.
+
 ## 0.11.1 (2026-11-17)
 
 Holds, and opportunity attacks to go with them. At the end of your turn you can put stamina on enemies as tokens: a creature you hold pays more to leave your reach, and your tokens add to your opportunity attack against it. Opportunity attacks get a rule of their own in place of 0.11.0's one-step placeholder: a small cap for everyone, raised by Finesse and by holds. Hold tokens count toward maximum stamina, and the spear needs two hands for its reach. The engine implements this only as an experiment preset, `exp-0.11.1` (with `exp-0.11.0` for 0.11.0's movement alone); its baseline is still `v0.10.1`.

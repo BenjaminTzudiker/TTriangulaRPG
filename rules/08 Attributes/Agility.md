@@ -18,3 +18,5 @@ Agility is whole-body movement: balance, speed, evasiveness and cardiovascular e
 - Medium and heavy armor reduce this (see [[Armor]]).
 
 **Below 0** (for example, from armor penalties): you lose your base 1 Melee, Ranged and Dodge Defense.
+
+**Initiative ties:** the higher Agility + Cunning goes first (see [[Starting Combat and Turn Structure]]).

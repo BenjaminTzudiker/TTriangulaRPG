@@ -5,7 +5,7 @@ next: "[[Weapons]]"
 ---
 # Dying and Death
 
-*Status: Numbers placeholder*
+*Status: Numbers placeholder; Exploratory (helping the dying)*
 
 0 HP is meant to be deadly, dangerous and impactful: clearly worse than being knocked out.
 
@@ -24,10 +24,10 @@ next: "[[Weapons]]"
 
 - **Death:** you die at **10 Shock** or at **−10 HP**.
 - **Stabilized:** reaching 0 Shock, on your own or with help, ends System Shock.
-  - Helping someone stabilize uses a **Medicine** roll (**TODO:** specifics).
+  - Someone else can help you stabilize (see [[#Helping the Dying|Helping the Dying]]).
   - You stay at your negative HP and stay incapacitated, but you stop rolling.
 - **Damaged while stabilized:** you re-enter System Shock, with Shock equal to the damage taken.
-- **When the fight ends:** if anyone is still in System Shock, keep taking turns in initiative order until everyone is stabilized or dead, so the dying rolls continue. Allies who aren't incapacitated can help them stabilize (**TODO:** how).
+- **When the fight ends:** if anyone is still in System Shock, keep taking turns in initiative order until everyone is stabilized or dead, so the dying rolls continue. Allies who aren't incapacitated can help them stabilize (see [[#Helping the Dying|Helping the Dying]]).
 
 > [!example] Example: System Shock
 > 1. You're at 3 HP and take 5 damage. You're now at −2 HP with 2 Shock.
@@ -37,3 +37,10 @@ next: "[[Weapons]]"
 > 5. You take 1 damage: −6 HP and 1 Shock. You're rolling every turn again until you die or stabilize.
 >
 > To put the odds in context: at 9 Shock you need 24 or more to drop to 8. Below 19, you reach 10 and die.
+
+## Helping the Dying
+
+As an **action** with a base cost of **5**, you can tend a creature in System Shock within 1 square of you. It costs 5 + your escalation (see [[Actions and Escalation]]). Roll **2d12 + Intelligence**. If you roll at least **10 + its Shock**, its Shock drops by 1.
+
+> [!example] Example: Helping the Dying
+> Your ally is at 3 Shock, and you're next to it with Intelligence 1. You haven't taken an action this turn, so tending it costs 5. You roll 2d12 + 1 and need 13 or more (10 + 3). On a 15 it drops to 2 Shock. If you try again this turn, it costs 6.

@@ -15,7 +15,7 @@ next: "[[Defined Terms]]"
 
 ## Stamina Costs
 
-*Restates [[Melee Attacks]], [[Actions and Escalation]], [[Ranged Attacks]], [[Aim]], [[Dash]], [[Opportunity Attacks]], [[Holds]], [[Blocking]], [[Drawing Weapons]] and [[Going Over Your Maximum Strain]].*
+*Restates [[Melee Attacks]], [[Actions and Escalation]], [[Ranged Attacks]], [[Aim]], [[Dash]], [[Opportunity Attacks]], [[Holds]], [[Dying and Death]], [[Blocking]], [[Drawing Weapons]] and [[Going Over Your Maximum Strain]].*
 
 **Escalation:** +1 per action you've taken since your last turn ended. It resets when your turn ends.
 
@@ -25,6 +25,7 @@ next: "[[Defined Terms]]"
 | Ranged shot | Shot cost + escalation (includes one free aim die) | Yes |
 | Aim step | 1 + escalation | Yes |
 | Dash | 1 + escalation | Yes |
+| Help the dying | 5 + escalation | Yes |
 | Opportunity attack | Weapon base, +1 per earlier step of that attack. At most 1 + 1 per odd Finesse, plus any hold tokens on the target | No |
 | Avoid an opportunity attack | 1 per enemy, per square; 1 + its tokens on you for the first square if it holds you | No |
 | Hold | Tokens set at the end of your turn, out until the end of your next turn | No |
@@ -45,7 +46,7 @@ The running totals for perfect blocks, attribute costs and skill ranks.
 
 ## Attribute Bonus Table
 
-*Restates [[Odd and Even Values]], [[Strength]], [[Agility]], [[Finesse]], [[Intelligence]] and [[Armor]].*
+*Restates [[Odd and Even Values]], [[Strength]], [[Agility]], [[Finesse]], [[Intelligence]], [[Cunning]], [[Will]], [[Armor]] and [[Starting Combat and Turn Structure]].*
 
 | Value | Odd-value bonuses | Even-value bonuses (normal / medium armor / heavy armor) |
 |---:|---:|---|
@@ -68,7 +69,8 @@ The running totals for perfect blocks, attribute costs and skill ranks.
   - Agility: Melee, Ranged and Dodge Defense. The medium and heavy armor columns apply here.
   - Finesse: Melee Defense while wielding a proficient melee weapon. Armor doesn't change this.
   - Intelligence: extra Ability Points on a level schedule (see [[Intelligence]]).
-- **Every point:** Cunning adds 1 to initiative; Will adds 1 to the dying roll.
+- **Every point:** Cunning adds 1 to initiative; Will adds 1 to the dying roll; Intelligence adds 1 to the roll to help the dying.
+- **Initiative ties:** the higher Agility + Cunning goes first.
 
 ## Critical Range Table
 

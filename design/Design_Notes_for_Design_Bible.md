@@ -555,6 +555,10 @@ Earlier form of the same goal:
 - *Source:* "It's probably healthy for holds to not be happening constantly, since they sound like they'd add a meaningful amount of additional mental load to the game." On the end-of-turn question: "Hopefully the question won't need to be answered unless it's a yes, they'll just say 'I'm putting a hold on X' and that signals the end of their turn." [C:2026-11-17]
 - **STATED**
 
+**Prefer changes that simplify a core mechanic while solving a problem. A new mechanic that comes up every turn has to earn a place among the core ones.**
+- *Source:* on a stamina cap: "I still have the sense that this is layering a new core mechanic on a system that already has enough core mechanics. I liked the movement/off-turn action change because it simplified a core mechanic (two action tracks) while solving a problem. Holds are a new mechanic, but they (hopefully) don't come up every turn." The cap "might not be a bad mechanic and it might end up in the game", but not in the current version: "Whether this is because something else needs to be simplified to make room for a stamina cap or the cap itself needs to be changed, I'm not sure." [C:2026-11-17]
+- **STATED**
+
 **Where the player has an obvious best choice, let them make it; don't write the order into the rules.**
 - *Source:* on what comes off when you'd go over your maximum stamina with hold tokens out: "let's say it's up to you … That will be the universal rule - if there are rules that specify you take it out of the hold pool, then maybe you can drop that since it's assumed that the players can play optimally if they choose." [C:2026-11-17]
 - **STATED**

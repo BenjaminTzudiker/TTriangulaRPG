@@ -4,7 +4,7 @@
 > - **PROPOSAL**, **UNCERTAIN** and **ABANDONED** entries are *not* rules; don't treat them as current design.
 > - The designer's rulings (logged verbatim in Part G) are folded into Parts A–D. **Part H (SHELVED)** holds ideas deliberately left out of the current rules; they are not rules.
 > - **Playtest Packet v0.9** is now the rules source and incorporates these rulings (through round 9). This ledger remains the record of where each rule came from and how firm it is.
-> - **Later packets:** the entries describe packet v0.9. `rules/CHANGELOG.md` records every change since then. Seven entries carry a **Later changes** line for what packet 0.11.0 changed (CB-2, CB-9, MV-1, MV-2, MV-4, MV-5 and CP-7; the reaction to a shot is under MV-2), and five for packet 0.11.1 (CR-2, MV-3, MV-5, EQ-2 and H-4). The rest have not been brought up to date, and neither have the summaries in Parts A to C.
+> - **Later packets:** the entries describe packet v0.9. `rules/CHANGELOG.md` records every change since then. Seven entries carry a **Later changes** line for what packet 0.11.0 changed (CB-2, CB-9, MV-1, MV-2, MV-4, MV-5 and CP-7; the reaction to a shot is under MV-2), five for packet 0.11.1 (CR-2, MV-3, MV-5, EQ-2 and H-4), and three for packet 0.11.2 (CB-9, IN-1 and CP-9). The rest have not been brought up to date, and neither have the summaries in Parts A to C.
 
 # Rules Reconciliation Ledger: Playtest Packet v0.8 vs. Design Transcript
 
@@ -586,6 +586,8 @@
     - The dash phase gives priority by initiative, and assumes a clear order. Ties are for the initiative rules to settle: "For now, tiebreaker is TBD - the entire initiative roll system is a known placeholder".
     - *Why a dash phase before the first turn:* without it, only the creature highest in initiative acts before anyone else can move.
     - *Now in:* the rules note Starting Combat and Turn Structure (Exploratory).
+  - *Packet 0.11.2 (your ruling, 2026-11-17):* a placeholder tiebreaker, "first tiebroken by who has a higher AGI + CUN, and then by opposed die rolls until all ties are broken". The packet makes the opposed rolls a d12 roll-off. It's there so a first playtest can run; you called the close gang-up result with holds "another sign that we need to revamp initiative".
+    - *Now in:* the rules note Starting Combat and Turn Structure; restated in Agility and Cunning.
 
 ---
 
@@ -1010,6 +1012,9 @@
 - **Status:** DECISION as a kept candidate list. They aren't assigned to trees. Other ability lists are ChatGPT's.
 - **Packet:** Missing.
 - **Evidence:** "Some of the abilities I liked from before, with minor alterations" [p.856]
+- **Later changes:**
+  - *Packet 0.11.2 (your ruling, 2026-11-17):* these moved unchanged to the rules note Earlier Candidate Abilities. The candidate list is now one ability, Great Weapon Training: with the Fighter core ability, heavy melee weapons (base cost 3: greatswords, greataxes, halberds) get +1 square of reach. *Why: not recorded.*
+    - *Now in:* the rules notes Candidate Abilities and Earlier Candidate Abilities.
 
 ---
 
@@ -1078,6 +1083,9 @@
 - **Status:** DECISION (placeholder)
 - **Packet:** Missing.
 - **History:** ChatGPT's p.608–612 track (death at 3 Shock, +1 per round) → your thresholds, 10-Shock death and Shock tied to negative HP (your ruling, 2026-11-01).
+- **Later changes:**
+  - *Packet 0.11.2 (your ruling, 2026-11-17):* the Medicine roll gets a placeholder. As an action with a base cost of 5, a creature within 1 square (5 ft) of someone in System Shock rolls 2d12 + Intelligence; at 10 + the target's Shock or more, its Shock drops by 1. It's there so a first playtest can run.
+    - *Now in:* the rules note Dying and Death (Helping the Dying); restated in Actions and Escalation and Intelligence.
 
 ### IN-2 Lingering injuries → SHELVED
 - **Status:** SHELVED (Part H, H-3) (your ruling, 2026-11-01).

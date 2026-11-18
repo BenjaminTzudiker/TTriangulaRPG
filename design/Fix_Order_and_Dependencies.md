@@ -119,3 +119,10 @@ Packet 0.11.1 adds **holds** and gives opportunity attacks a rule again. At the 
 - **Phase 0, stamina visibility.** Still undecided. It is now also in the packet's Open Questions, with how stamina is tracked when a creature has more than one pool, and the caveat that a band or a hidden number leaks if every attack and block is visible. Hold sizing depends on it.
 - **§5, loops.** Holds belong to the loop the 2026-11-15 notes drew between the stamina cap (hard flux), giving ground and tackle. Once a cap is tried, pressed fighters will want to break contact more often, so holds will matter more and should be re-checked with it.
 
+## 8. After packet 0.11.2 (added 2026-11-17)
+
+Packet 0.11.2 adds two placeholders so a first playtest can run, and replaces the candidate abilities.
+- **Phase 0, the initiative tiebreaker (F14)** has a placeholder: the higher Agility + Cunning, then a d12 roll-off. The dash phase's priority by initiative is now always defined.
+- **Helping the dying,** the readiness review's one blocker that needed a new rule, has a placeholder: an action with a base cost of 5, rolling 2d12 + Intelligence against 10 + the target's Shock.
+- **Phase 7 (content-facing gaps):** the candidate abilities are now one, Great Weapon Training (Fighter; +1 square of reach for heavy weapons). The earlier candidates moved to their own note.
+

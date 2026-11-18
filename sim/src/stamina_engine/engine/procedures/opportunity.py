@@ -37,6 +37,7 @@ from stamina_engine.rules.pricing import Quote
 
 cites = (
     "Packet: Making Opportunity Attacks",
+    "Packet: Holds",
     "Packet: Actions and Escalation",
     "Packet: Attack Procedure",
     "Ledger MV-4",

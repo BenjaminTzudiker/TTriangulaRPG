@@ -35,6 +35,7 @@ cites = (
     "Packet: Free Movement",
     "Packet: Dash",
     "Packet: Stamina",
+    "Packet: Holds",
     "Packet: Dying and Death",
     "Ledger CB-9",
     "Ledger CR-3",

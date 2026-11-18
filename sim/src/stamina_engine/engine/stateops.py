@@ -49,6 +49,7 @@ from stamina_engine.rules.ruleset import RuleSet
 
 cites = (
     "Packet: Stamina",
+    "Packet: Holds",
     "Packet: Dying and Death",
     "Packet: Actions and Escalation",
     "Packet: Free Movement",

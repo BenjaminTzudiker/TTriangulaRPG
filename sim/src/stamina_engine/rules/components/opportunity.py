@@ -12,6 +12,7 @@ class OpportunityRule(Component):
     cites = (
         "Packet: Avoiding Opportunity Attacks",
         "Packet: Making Opportunity Attacks",
+        "Packet: Holds",
         "Ledger MV-3",
         "Ledger MV-5",
         "Review F9",

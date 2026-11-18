@@ -28,6 +28,7 @@ cites = (
     "Packet: Actions and Escalation",
     "Packet: Triggers",
     "Packet: Avoiding Opportunity Attacks",
+    "Packet: Holds",
     "Ledger MV-1",
     "Ledger MV-2",
     "Ledger MV-3",

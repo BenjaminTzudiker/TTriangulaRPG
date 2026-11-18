@@ -18,6 +18,8 @@ next: "[[Open Questions]]"
 | Grazing block | Subtract your defense; costs 1; 1 of the damage it stopped leaks through. | [[Blocking]] |
 | Critical die | A weapon damage die (never an aim die) rolling within its critical range; ignores 1 armor; adds 1 damage if any gets past blocks and armor. | [[Critical Hits]] |
 | Threatened square | A square within an enemy's melee reach. | [[Opportunity Attacks]] |
+| Opportunity attack cap | The most one opportunity attack can cost: 1, +1 per odd Finesse, plus any hold tokens on the target. | [[Opportunity Attacks]] |
+| Hold | Stamina you set on an enemy as tokens at the end of your turn. Leaving a square in your reach costs it 1 + the tokens, and they add to your opportunity attack against it. They stay out until the end of your next turn. | [[Holds]] |
 | Dash | Movement you buy: on your turn, in a dash phase, or when targeted by a ranged attack. It's an action. | [[Dash]] |
 | Dash phase | The moment before each turn starts, when anyone may dash. | [[Dash]] |
 | Cover | Half +1, three-quarters +2, to the defense used against a ranged attack. | [[Cover]] |

@@ -15,7 +15,7 @@ next: "[[Defined Terms]]"
 
 ## Stamina Costs
 
-*Restates [[Melee Attacks]], [[Actions and Escalation]], [[Ranged Attacks]], [[Aim]], [[Dash]], [[Opportunity Attacks]], [[Blocking]], [[Drawing Weapons]] and [[Going Over Your Maximum Strain]].*
+*Restates [[Melee Attacks]], [[Actions and Escalation]], [[Ranged Attacks]], [[Aim]], [[Dash]], [[Opportunity Attacks]], [[Holds]], [[Blocking]], [[Drawing Weapons]] and [[Going Over Your Maximum Strain]].*
 
 **Escalation:** +1 per action you've taken since your last turn ended. It resets when your turn ends.
 
@@ -25,8 +25,9 @@ next: "[[Defined Terms]]"
 | Ranged shot | Shot cost + escalation (includes one free aim die) | Yes |
 | Aim step | 1 + escalation | Yes |
 | Dash | 1 + escalation | Yes |
-| Opportunity attack (placeholder) | Weapon base; one step per trigger | No |
-| Avoid an opportunity attack | 1 per enemy, per square | No |
+| Opportunity attack | Weapon base, +1 per earlier step of that attack. At most 1 + 1 per odd Finesse, plus any hold tokens on the target | No |
+| Avoid an opportunity attack | 1 per enemy, per square; 1 + its tokens on you for the first square if it holds you | No |
+| Hold | Tokens set at the end of your turn, out until the end of your next turn | No |
 | Perfect block | 1, 2, 3… within one attack | No; resets every attack |
 | Grazing block | 1 | No |
 | Draw a normal weapon between turns | 1 | No |
@@ -60,7 +61,7 @@ The running totals for perfect blocks, attribute costs and skill ranks.
 - **Odd-value bonuses:**
   - Strength: +1 HP recovered per night.
   - Agility: free movement squares, squares per dash.
-  - Finesse: critical range, squares of band width on ranged weapons.
+  - Finesse: critical range, squares of band width on ranged weapons, opportunity attack cap.
   - Intelligence: core abilities not counted toward the next core's cost.
 - **Even-value bonuses:**
   - Strength: +2 maximum HP each.

@@ -10,7 +10,7 @@ These ideas are deliberately left out of the current rules. They're strong candi
 - **Creature sizes,** with size scaling the range penalty per band: Tiny −8, Small −4, Medium −2, Large −1, bigger to be decided.
 - **Damage reducing maximum stamina:** would let a character be worn out of the fight before reaching 0 HP.
 - **Lingering and permanent injuries.**
-- **Extended contests** for grapples, holds and charms.
+- **Extended contests** for grapples, holds and charms. These are control effects, not the hold in [[Holds]].
 - **Spell schools and spell progression.**
 - **NPC aggression profiles:** balance-tested defaults for how NPCs play.
 - **A Strength requirement for shields,** like armor's. A candidate for pricing the shield's defense (Review F4), to be decided with the rest of the equipment numbers.
@@ -19,4 +19,5 @@ These ideas are deliberately left out of the current rules. They're strong candi
   - It's one decision per fight, so it adds little load.
   - It shouldn't overlap the Rogue's core ability, which sells turn-order control during a fight; bids would set only the opening order.
   - Cunning could set the bidding order (higher Cunning bids after seeing the others).
+  - Holds make close gang-ups lean harder on turn order. In a three-on-one starting 3 squares apart, with one attacker acting before the lone fighter, holds raise its chance of going down in the first round from 6% to 58% (exact, one round). If the lone fighter acts first, it's 0% either way.
   - For now, initiative is 2d12 + Cunning as a placeholder.

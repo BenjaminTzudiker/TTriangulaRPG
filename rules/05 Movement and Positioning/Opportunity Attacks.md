@@ -1,11 +1,11 @@
 ---
 up: "[[Playtest Packet]]"
 prev: "[[Movement]]"
-next: "[[Ranged Attacks]]"
+next: "[[Holds]]"
 ---
 # Opportunity Attacks
 
-*Status: Locked (triggers); Mechanism open (avoidance); Exploratory (making them)*
+*Status: Locked (triggers); Mechanism open (avoidance, making them); Numbers placeholder (the cap)*
 
 Slipping past an engaged enemy should cost something, without making the battlefield sticky. There are no facing rules.
 
@@ -27,6 +27,8 @@ To deny an enemy its opportunity attack for one square you leave, pay **1 stamin
 - Pay once per enemy, per square.
 - The cost is always 1, on or off your turn.
 - It isn't an action, so it doesn't add to your escalation, and your escalation doesn't add to it.
+- **If the enemy holds you,** the first square costs 1 + its tokens on you instead (see [[Holds]]).
+- **If an enemy couldn't make even one step** of an opportunity attack against you, there's nothing to avoid: you owe it nothing.
 - **For now, you can't pay to avoid the opportunity attacks a point-blank shot provokes.**
 
 > [!example] Example: Avoiding Opportunity Attacks
@@ -36,11 +38,14 @@ To deny an enemy its opportunity attack for one square you leave, pay **1 stamin
 
 ## Making Opportunity Attacks
 
-> [!question] Placeholder
-> This section stands in until opportunity attacks are redesigned. The off-turn escalation that used to price and limit them is gone (see [[Actions and Escalation]]). The hold rules planned for a later version are one possible way to complete them.
+An opportunity attack is a normal attack (see [[Attack Procedure]]) with its own pricing.
+- **Steps:** each costs the weapon's base cost, +1 for each earlier step of the same opportunity attack. For a longsword that's 2, then 3, then 4 (2, 5 and 9 in total).
+- **It isn't an action.** It doesn't add to your escalation, and your escalation doesn't add to it. Each opportunity attack starts fresh.
+- **Cap:** one opportunity attack can cost at most **1, +1 per odd Finesse value** (see [[Finesse]]), plus any tokens you have on that creature (see [[Holds]]). Tokens are spent before your other stamina.
+- Each trigger allows one. You can make one for every trigger you're given, while you have the stamina.
 
-An opportunity attack is a normal attack of **exactly one attack step**.
-- **Cost:** the weapon's base cost, whatever your escalation is.
-- It **isn't an action**, so it doesn't add to your escalation.
-- You can't add steps to it.
-- Each trigger allows one. There's no other limit: you can make one for every trigger you're given, while you have the stamina.
+So a weapon with a base cost of 3 can't make an opportunity attack without Finesse 3 or a hold. Heavy weapons have to commit to punish an enemy for leaving.
+
+> [!example] Example: Opportunity Attack Caps
+> The sample fighter (Finesse 1) has a cap of 2: one longsword step.
+> Holding the creature that leaves adds its tokens to the cap. It takes 3 tokens for a second step (2 + 3 = 5), 7 for a third (9), and 12 for a fourth (14).

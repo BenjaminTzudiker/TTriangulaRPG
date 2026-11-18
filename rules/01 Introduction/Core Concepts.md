@@ -27,4 +27,5 @@ Positioning matters all round, not just on your turn. You can:
 - move after other creatures' turns;
 - dive for cover when shot at;
 - punish enemies who slip past you;
+- hold an enemy, so that leaving you costs it more (see [[Holds]]);
 - control space with reach.

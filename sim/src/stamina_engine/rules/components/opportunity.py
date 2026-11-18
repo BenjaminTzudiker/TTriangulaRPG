@@ -37,6 +37,8 @@ class OpportunityRule(Component):
         # off first: ready stamina (then ended holds, then live ones), or tokens (ended holds,
         # then live ones, then ready stamina; the designer's placeholder of 2026-11-17).
         "hold_wound_clamp": frozenset({"ready_first", "tokens_first"}),
+        # Which enemies a hold can go on: those within your reach, or any enemy (packet 0.11.1).
+        "hold_targets": frozenset({"reach", "any"}),
         # Which enemies a point-blank shot's OAs come from: those threatening the shooter
         # once the shot resolves (v0.9's reading), or (0.10.0) only those threatening it both
         # when the shot is declared and when the attacks happen.
@@ -103,6 +105,10 @@ class OpportunityRule(Component):
         """A wound that lowers maximum stamina takes tokens before ready stamina."""
         return False
 
+    def holds_any_enemy(self) -> bool:
+        """Holds can go on any enemy, not only those within your reach (packet 0.11.1)."""
+        return False
+
     def hold_limit(self, stamina: int) -> int:
         """Most tokens a creature with this much ready stamina may set."""
         return stamina
@@ -136,6 +142,7 @@ class V09Opportunity(OpportunityRule):
     hold_breaks_on_injury: bool = False  # a holder that loses HP drops its holds
     hold_max_percent: int = 100  # tokens set at most this % of ready stamina (rounded down)
     hold_wound_clamp: str = "ready_first"
+    hold_targets: str = "reach"
 
     def __post_init__(self) -> None:
         super().__post_init__()
@@ -199,6 +206,9 @@ class V09Opportunity(OpportunityRule):
 
     def wound_clamps_tokens_first(self) -> bool:
         return self.hold_wound_clamp == "tokens_first"
+
+    def holds_any_enemy(self) -> bool:
+        return self.hold_targets == "any"
 
     def hold_limit(self, stamina: int) -> int:
         return stamina * self.hold_max_percent // 100

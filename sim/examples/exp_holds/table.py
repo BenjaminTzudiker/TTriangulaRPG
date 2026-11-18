@@ -199,7 +199,7 @@ class Director:
             return None
         if who != request.who:
             return None
-        if starts is not None and not text.split()[0] in starts:
+        if starts is not None and text.split()[0] not in starts:
             return None
         self._use()
         self.counts[kind] += 1
@@ -475,18 +475,22 @@ def describe_turn(b, r):
     if r.can_flee:
         lines.append("  is on an exit square: 'flee' leaves the fight")
     if b.rules.opportunity.holds_on() and b.field is not None and c.pos is not None:
+        opp = b.rules.opportunity
         near = [o.id for o in b.state.enemies_of(c) if o.active and o.pos is not None
-                and c.id in b.arena.threatening(b.state, o, o.pos)]
+                and (opp.holds_any_enemy() or c.id in b.arena.threatening(b.state, o, o.pos))]
         if near:
-            opp = b.rules.opportunity
-            when = (f"set before you recover; tokens you have out come back first" if opp.holds_set_before_recovery()
-                    else f"after recovering {c.profile.recovery}")
+            if opp.holds_set_before_recovery():
+                when = "set before you recover; tokens you have out come back first"
+            else:
+                when = f"after recovering {c.profile.recovery}"
             if opp.hold_limit(100) < 100:
                 when += f"; at most {opp.hold_limit(100)}% of your ready stamina"
-            lines.append(f"  in reach for a hold at end of turn ({when}): "
+            where = "any enemy" if opp.holds_any_enemy() else "in reach"
+            lines.append(f"  can hold at end of turn ({where}; {when}): "
                          + ", ".join(f"{o} (ready {b.state.get(o).stamina})" for o in near))
     if r.draws:
-        lines.append(f"  can draw: {', '.join(d.loadout + ' (' + str(d.quote.total) + ')' for d in r.draws)}")
+        draws = ", ".join(f"{d.loadout} ({d.quote.total})" for d in r.draws)
+        lines.append(f"  can draw: {draws}")
     return "\n".join(lines)
 
 
@@ -533,7 +537,8 @@ def describe_dive(b, r):
     per = max(1, b.state.get(r.who).gear.squares_per_purchase)
 
     def rank(d):
-        return (-r.defense_after.get(d, 0), r.damage_after.get(d, r.damage), r.moves.destinations[d])
+        after = r.damage_after.get(d, r.damage)
+        return (-r.defense_after.get(d, 0), after, r.moves.destinations[d])
 
     lines = [f"{r.who} is shot by {r.shooter}: total {r.damage} to block, crit dice {r.crit_dice}, "
              f"its defense if it stays {r.defense} (cover {r.cover}), the wound is capped at "
@@ -632,7 +637,8 @@ def fmt_events(log):
         elif k == "AttackRolled":
             out.append(f"    rolled {d['faces']} = {d['total']}, crit dice {d['crit_dice']}")
         elif k == "BlocksDeclared":
-            out.append(f"    {d['defender']} blocks: {d['perfect']} perfect, {d['grazing']} grazing")
+            out.append(
+                f"    {d['defender']} blocks: {d['perfect']} perfect, {d['grazing']} grazing")
         elif k == "AttackResolved":
             out.append(f"    injury {d['injury']} (through blocks {d['through_blocks']}, leaked "
                        f"{d['leaked']}, armor {d['armor_applied']})")
@@ -662,7 +668,6 @@ def hold_stats(log):
     """Counts for judging the hold rule's weight in a fight, from the event log."""
     st = defaultdict(int)
     live = {}  # (holder, target) -> tokens set
-    last = None
     for e in log:
         d = json.loads(e.to_json())
         k = d["event"]
@@ -703,7 +708,6 @@ def hold_stats(log):
             st["stamina paid to leave"] += d["amount"]
         elif k == "Spent" and d["category"] in ("off_turn_move", "extra_move"):
             st["dashes"] += len(d["parts"])
-        last = k
     return dict(st)
 
 
@@ -714,7 +718,8 @@ def build(scen, orders):
     director = Director(orders, scen.get("cfg", {}))
     ents = []
     for cid, team, bname, loadout, pos in scen["roster"]:
-        ents.append(Entrant(cid, team, derive(load_build(bname), rules, table), director, loadout, pos))
+        profile = derive(load_build(bname), rules, table)
+        ents.append(Entrant(cid, team, profile, director, loadout, pos))
     faces = None
     if scen.get("order"):
         rank = {cid: i for i, cid in enumerate(scen["order"])}
@@ -783,7 +788,8 @@ if __name__ == "__main__":
     used = max((i for i in d.marks), default=-1) + 1
     pathlib.Path(name).with_suffix(".log").write_text(
         fmt_events(b.log) + "\n\n" + board(b) + "\n" + status(b) + "\n"
-        + (f"FIGHT OVER: winner {result.winner}, {result.reason}, {result.rounds} rounds\n" if result else "")
+        + (f"FIGHT OVER: winner {result.winner}, {result.reason}, {result.rounds} rounds\n"
+           if result else "")
         + f"hold counts: {hold_stats(b.log)}\n"
         + f"decisions by order {dict(d.counts)}; automatic {dict(d.auto)}\n"
     )
@@ -791,7 +797,8 @@ if __name__ == "__main__":
         i = sys.argv.index("--odds")
         a, t = b.state.get(sys.argv[i + 1]), b.state.get(sys.argv[i + 2])
         w = a.gear.weapon
-        print(f"\n{a.id} attacking {t.id} on its turn at its escalation now ({a.trackers.actions_this_turn}):")
+        esc = a.trackers.actions_this_turn
+        print(f"\n{a.id} attacking {t.id} on its turn at its escalation now ({esc}):")
         quotes = []
         while len(quotes) < 5:
             q = b.pricing.melee_attack(w.base, len(quotes) + 1, a.trackers, light=w.light)
@@ -801,11 +808,13 @@ if __name__ == "__main__":
         print(step_table(b, a, t, w, quotes))
         tokens = a.holds.get(t.id, 0)
         cap = b.pricing.oa_cap(a.gear.attributes.FIN, w.base)
-        print(f"{a.id}'s opportunity attack on {t.id} now (cap {cap}, tokens {tokens}, ready {a.stamina}):")
+        print(f"{a.id}'s opportunity attack on {t.id} now "
+              f"(cap {cap}, tokens {tokens}, ready {a.stamina}):")
         quotes = []
         while len(quotes) < 5:
             try:
-                quotes.append(b.pricing.opportunity_attack(w.base, len(quotes) + 1, a.trackers, cap, stamina=a.stamina, tokens=tokens))
+                quotes.append(b.pricing.opportunity_attack(
+                    w.base, len(quotes) + 1, a.trackers, cap, stamina=a.stamina, tokens=tokens))
             except Unaffordable:
                 break
         print(step_table(b, a, t, w, quotes) if quotes else "    none possible")

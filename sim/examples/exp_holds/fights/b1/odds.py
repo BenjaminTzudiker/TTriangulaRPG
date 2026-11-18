@@ -7,11 +7,14 @@ usage: python3 odds.py WEAPON DEF ARMOR STAMINA HP [ESC] [MAXSTEPS]
   e.g.  python3 odds.py gs 3 2 7 10      greatsword vs a sample fighter with 7 ready, 10 hp
 Also: python3 odds.py WEAPON DEF ARMOR STAMINA HP oa BUDGET   (opportunity attack within a budget)
 """
+import pathlib
 import sys
 from collections import defaultdict
 from fractions import Fraction
 
-import table  # noqa: E402  (adds the engine to sys.path)
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2]))  # exp_holds/, for table.py
+import table  # noqa: E402, F401  (adds the engine to sys.path)
+
 from stamina_engine.rules.block_solver import best_block  # noqa: E402
 from stamina_engine.rules.ruleset import preset  # noqa: E402
 
@@ -30,7 +33,7 @@ def table_for(wname, defense, armor, stamina, hp, costs):
         per[(f + flat, int(f in crits))] += Fraction(1, die)
     dist = {(0, 0): Fraction(1)}
     out = []
-    for k, cost in enumerate(costs, 1):
+    for k, _cost in enumerate(costs, 1):
         nxt = defaultdict(Fraction)
         for (t, c), p in dist.items():
             for (t2, c2), p2 in per.items():

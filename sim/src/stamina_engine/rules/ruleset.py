@@ -305,6 +305,9 @@ def exp_0_11_0() -> RuleSet:
     every turn with the highest in initiative first, and the placeholder opportunity
     attack: one step at the weapon's base cost, not an action, no cap."""
     base = v0_10_1()
+    assert isinstance(base.movement, V09Movement)
+    assert isinstance(base.off_turn, Escalation)
+    assert isinstance(base.opportunity, V09Opportunity)
     return base.with_(
         name="exp-0.11.0",
         movement=dataclasses.replace(
@@ -329,6 +332,7 @@ def exp_holds() -> RuleSet:
     of 1 + 1 per odd Finesse plus the tokens of a hold on that target; leaving costs 1 + a
     hold's tokens for the first square."""
     base = exp_0_11_0()
+    assert isinstance(base.opportunity, V09Opportunity)
     return base.with_(
         name="exp-holds",
         opportunity=dataclasses.replace(
@@ -341,6 +345,7 @@ def exp_holds_per_square() -> RuleSet:
     """exp-holds with the cap added again for each square the mover leaves within your
     reach without paying you, pooled for one move."""
     base = exp_holds()
+    assert isinstance(base.opportunity, V09Opportunity)
     return base.with_(
         name="exp-holds-per-square",
         opportunity=dataclasses.replace(base.opportunity, per_square_cap=True),
@@ -352,6 +357,7 @@ def exp_holds_next_turn() -> RuleSet:
     of your turn before you recover, and the tokens stay out through your next turn, coming
     back at its end right before you recover (when you may set new ones)."""
     base = exp_holds()
+    assert isinstance(base.opportunity, V09Opportunity)
     return base.with_(
         name="exp-holds-next-turn",
         opportunity=dataclasses.replace(
@@ -363,6 +369,7 @@ def exp_holds_next_turn() -> RuleSet:
 def exp_holds_next_turn_break() -> RuleSet:
     """exp-holds-next-turn, and a holder that loses HP drops its holds (tokens stay out)."""
     base = exp_holds_next_turn()
+    assert isinstance(base.opportunity, V09Opportunity)
     return base.with_(
         name="exp-holds-next-turn-break",
         opportunity=dataclasses.replace(base.opportunity, hold_breaks_on_injury=True),
@@ -373,15 +380,33 @@ def exp_holds_placeholder() -> RuleSet:
     """The designer's placeholder hold rules (2026-11-17): exp-holds-next-turn-break, and a
     wound that lowers maximum stamina takes tokens before ready stamina."""
     base = exp_holds_next_turn_break()
+    assert isinstance(base.opportunity, V09Opportunity)
     return base.with_(
         name="exp-holds-placeholder",
         opportunity=dataclasses.replace(base.opportunity, hold_wound_clamp="tokens_first"),
     )
 
 
+def exp_0_11_1() -> RuleSet:
+    """Not a baseline preset: an experiment's reading of packet 0.11.1 on 0.10.1. The
+    movement of exp-0.11.0 and the hold rules of exp-holds-placeholder, with holds allowed on
+    any enemy, in reach or not. Where the packet lets a creature choose what to lose when it
+    would go over its maximum stamina, the engine takes tokens first after a wound (always the
+    better choice once the wound has ended the holds) and keeps them when recovery would go
+    over. The spear's reach only in two hands isn't modelled: the equipment is v0.10.1's,
+    and its spear builds hold the spear one-handed with a shield and still reach 2."""
+    base = exp_holds_placeholder()
+    assert isinstance(base.opportunity, V09Opportunity)
+    return base.with_(
+        name="exp-0.11.1",
+        opportunity=dataclasses.replace(base.opportunity, hold_targets="any"),
+    )
+
+
 def exp_holds_next_turn_half() -> RuleSet:
     """exp-holds-next-turn with holds set after recovering, at most half your ready stamina."""
     base = exp_holds_next_turn()
+    assert isinstance(base.opportunity, V09Opportunity)
     return base.with_(
         name="exp-holds-next-turn-half",
         opportunity=dataclasses.replace(
@@ -413,6 +438,7 @@ PRESETS: dict[str, Callable[[], RuleSet]] = {
     "exp-holds-next-turn-break": exp_holds_next_turn_break,
     "exp-holds-next-turn-half": exp_holds_next_turn_half,
     "exp-holds-placeholder": exp_holds_placeholder,
+    "exp-0.11.1": exp_0_11_1,
 }
 
 

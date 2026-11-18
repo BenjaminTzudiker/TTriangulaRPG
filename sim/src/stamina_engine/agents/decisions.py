@@ -347,8 +347,9 @@ class OATake:
 
 @dataclass(frozen=True)
 class HoldRequest:
-    """Experiment (the hold rule): at the end of your turn, after you recover, set any of
-    your ready stamina aside as tokens on enemies within your reach."""
+    """Experiment (the hold rule): at the end of your turn, set any of your ready stamina
+    aside as tokens on the enemies in targets (within your reach, or any enemy: a switch).
+    Whether this comes before or after you recover is a switch too."""
 
     who: str
     observation: Observation

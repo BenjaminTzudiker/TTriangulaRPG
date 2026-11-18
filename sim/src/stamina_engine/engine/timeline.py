@@ -116,20 +116,24 @@ def take_turn(b: Battle, c: CombatantState) -> None:
 
 
 def set_holds(b: Battle, c: CombatantState) -> None:
-    """Experiment (the hold rule, designer 2026-11-17): at the end of your turn, before or
-    after you recover (a switch), put ready stamina on enemies within your reach as tokens."""
-    if not b.rules.opportunity.holds_on() or b.field is None or b.outcome is not None:
+    """Experiment (the hold rule, designer 2026-11-17; Packet: Holds in 0.11.1): at the end
+    of your turn, before or after you recover (a switch), put ready stamina on enemies as
+    tokens: enemies within your reach, or any enemy (a switch; 0.11.1)."""
+    rule = b.rules.opportunity
+    if not rule.holds_on() or b.field is None or b.outcome is not None:
         return
     if not c.active or c.stamina <= 0:
         return
     targets = tuple(
         o.id
         for o in b.state.enemies_of(c)
-        if o.active and o.pos is not None and c.id in b.arena.threatening(b.state, o, o.pos)
+        if o.active
+        and o.pos is not None
+        and (rule.holds_any_enemy() or c.id in b.arena.threatening(b.state, o, o.pos))
     )
     if not targets:
         return
-    limit = b.rules.opportunity.hold_limit(c.stamina)
+    limit = rule.hold_limit(c.stamina)
     if limit <= 0:
         return
     answer = b.broker.holds(

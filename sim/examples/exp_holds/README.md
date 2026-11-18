@@ -17,6 +17,9 @@ Experiment branch, not baseline. Presets added in `rules/ruleset.py` (none is th
 - `exp-holds-placeholder`: the designer's placeholder hold rules (2026-11-17):
   exp-holds-next-turn-break, and when a wound lowers maximum stamina below ready stamina plus
   tokens, the tokens come off first (switch `opportunity.hold_wound_clamp = "tokens_first"`).
+- `exp-0.11.1`: packet 0.11.1's holds. exp-holds-placeholder, with holds allowed on any enemy,
+  in reach or not (`opportunity.hold_targets = "any"`). Not modelled: the spear's reach only in
+  two hands (the spear builds still hold it one-handed with a shield).
 
 Readings the engine makes that the rulings don't settle: holds are set after recovering in
 `exp-holds` and `exp-holds-per-square`. In every preset, leftover tokens stay out until they'd

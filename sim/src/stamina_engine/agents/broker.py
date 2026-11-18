@@ -144,7 +144,14 @@ class Broker:
             raise RulesError(f"{req.who} set {total} tokens with {req.stamina} stamina")
         text = " ".join(f"{t}:{n}" for t, n in answer.tokens.items() if n) or "none"
         self._record(
-            req.observation.round, req.who, "holds", req.option_count, None, text, total > 0, req.context
+            req.observation.round,
+            req.who,
+            "holds",
+            req.option_count,
+            None,
+            text,
+            total > 0,
+            req.context,
         )
         return answer
 

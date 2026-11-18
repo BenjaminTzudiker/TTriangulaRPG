@@ -45,7 +45,7 @@ from stamina_engine.rules.ruleset import RuleSet
 
 cites = (
     "Packet: Core Abilities",
-    "Packet: Candidate Abilities",
+    "Packet: Earlier Candidate Abilities",
     "Packet: Strain",
     "Packet: Going Over Your Maximum Strain",
 )

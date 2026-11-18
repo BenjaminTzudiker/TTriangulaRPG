@@ -33,6 +33,7 @@ cites = (
     "Packet: Class Trees",
     "Packet: Core Abilities",
     "Packet: Candidate Abilities",
+    "Packet: Earlier Candidate Abilities",
     "Packet: Strain",
     "Packet: Going Over Your Maximum Strain",
 )

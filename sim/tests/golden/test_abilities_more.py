@@ -1,5 +1,6 @@
 """The Rogue core, the candidate abilities and the control-track stub (Packet: Core
-Abilities, Candidate Abilities, Conditions and Control Effects). Readings in the register."""
+Abilities, Earlier Candidate Abilities, Conditions and Control Effects). Readings in the
+register."""
 
 from dataclasses import replace
 

@@ -1,4 +1,4 @@
-"""Candidate abilities (Packet: Candidate Abilities; Exploratory, not yet in trees). Feint
+"""Candidate abilities (Packet: Earlier Candidate Abilities; Exploratory, not yet in trees). Feint
 waits until contests are defined. Readings (Assumptions register):
 
 - Heavy Swing: chosen as you declare a melee attack, before its steps: each step costs 1
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from stamina_engine.engine.battle import Battle
     from stamina_engine.model.state import CombatantState
 
-cites = ("Packet: Candidate Abilities", "Packet: Making Opportunity Attacks")
+cites = ("Packet: Earlier Candidate Abilities", "Packet: Making Opportunity Attacks")
 
 
 def _melee(b: "Battle", c: "CombatantState", window: str, facts: Facts) -> bool:
@@ -38,7 +38,7 @@ HEAVY_SWING = register(
         stamina=0,
         usable=_melee,
         apply=_nothing,
-        cites=("Packet: Candidate Abilities",),
+        cites=("Packet: Earlier Candidate Abilities",),
     )
 )
 
@@ -55,7 +55,7 @@ WITHDRAWAL = register(
         stamina=2,
         usable=_on_map,
         apply=_nothing,
-        cites=("Packet: Candidate Abilities",),
+        cites=("Packet: Earlier Candidate Abilities",),
     )
 )
 

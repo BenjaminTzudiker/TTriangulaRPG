@@ -427,7 +427,7 @@ When a pending row is ruled, or a ruled row changes, the same commit updates the
 | Aim dice can crit | Yes (review assumption) in the v0.9.x presets. Packet 0.10.0 rules that aim dice are never critical, so `v0.10.0` sets it false | `crit.aim_dice_can_crit` | ruled 2026-11-11 (0.10.0); v0.9.x keep the review's reading |
 | Crit doubling happens once per attack | Once (review assumption). Packet 0.9.2 drops the doubling, and the TODO with it | `crit` kind `double_once` | pending designer (v0.9 only) |
 | Per-die crit bonus (+N per crit die) | Dropped as a design candidate. Kept only as a parity component under `review-sim`, where it is added even when nothing gets past armor, as the review's simulator did. Packet 0.9.2's +1 per crit die applies only when damage gets through, so it is its own variant, `per_die_if_through` | `crit` kind `per_die_bonus` | ruled 2026-11-03 |
-| Initiative ties | Reroll the tied creatures (the review's simulator gave ties to the first-listed combatant) | `turn_order.tiebreak` | pending designer |
+| Initiative ties | Reroll the tied creatures (the review's simulator gave ties to the first-listed combatant). Packet 0.11.2 rules the higher Agility + Cunning first, then a d12 roll-off; that isn't a value of the switch yet | `turn_order.tiebreak` | ruled 2026-11-17 (0.11.2); not implemented |
 | Order of off-turn movement after a turn | Lowest initiative first; repeat passes until everyone passes | `off_turn.order` | pending designer |
 | Who and when in an off-turn window | After every turn that is taken, including an incapacitated creature's dying-roll turn (dead creatures take no turn, so there is no window). Every active creature may move, including the one whose turn just ended; only movement (drawing waits for M3). Order is over initiative positions, where ties are already broken; a creature that passed may move in a later pass; a creature with nowhere it can reach and afford isn't asked | `off_turn.order`, `off_turn.repeat_until_all_pass` | pending designer |
 | "Since the start of your last turn" before your first turn | Counts from the start of the fight | — | engine convention |
@@ -514,7 +514,7 @@ When a pending row is ruled, or a ruled row changes, the same commit updates the
 | Finesse below 0 and crit range | No widening (odd count of a negative value is 0); the +3 cap can't be passed at FIN ≤ 6 | — | engine convention |
 | Block solver and avoidable incapacitation | Lexicographic: avoid incapacitation first, then minimize w × injury + stamina (the review used a +1000 penalty, identical below 1000) | solver option | engine convention |
 | Initiative timing | Rolled once per fight (5e-like); the packet only says "roll initiative" | — | pending designer |
-| "No tiebreaker for now" | Tied creatures reroll 2d12 + bonus among themselves until untied; `higher_agility` and (for review-sim) `list_order` are the other values | `turn_order.tiebreak` | pending designer |
+| "No tiebreaker for now" | Tied creatures reroll 2d12 + bonus among themselves until untied; `higher_agility` and (for review-sim) `list_order` are the other values. Superseded in packet 0.11.2 (previous row) | `turn_order.tiebreak` | ruled 2026-11-17 (0.11.2); not implemented |
 | Recovery timing vs the off-turn window | Recover at the end of your own turn, before anyone's off-turn window (packet step 2, then step 3) | — | pending designer |
 | Recovery if you did nothing | Still recover | — | pending designer |
 | What "incapacitated" stops | No actions, blocks, stamina spending or recovery; only the start-of-turn dying roll. Attacks on incapacitated creatures aren't offered (coup de grâce is silent) | `resources.recovery`, `dying` | pending designer |
@@ -576,6 +576,8 @@ When a pending row is ruled, or a ruled row changes, the same commit updates the
 | A hold when its holder goes down | It ends; its tokens stay out until they'd come back. Under 0.11.1 any HP loss ends it anyway | — | engine convention |
 | Leaving the map from an exit square | Not leaving a threatened square: no price and no opportunity attack. The packet has no rules for leaving a fight; this only serves scenario objectives | — | engine convention |
 | The spear's reach only in two hands (0.11.1) | Not modelled: the equipment is v0.10.1's, and its spear builds (`l1_spear`, `l1_spear_fin0`) hold the spear one-handed with a shield and still reach 2 | — | ruled 2026-11-17; not implemented |
+| Helping the dying (0.11.2) | Not modelled: no creature tends a dying ally. `dying.stabilize` only records an outcome | — | ruled 2026-11-17; not implemented |
+| Great Weapon Training (0.11.2 candidate ability) | Not implemented. The earlier candidates the engine has (`abilities/candidates.py`) moved to the note Earlier Candidate Abilities | — | ruled 2026-11-17; not implemented |
 
 Off-turn order can move headline numbers on its own (it decides who ends adjacent to whom), so it gets a sensitivity run in the phase suite until it is decided.
 

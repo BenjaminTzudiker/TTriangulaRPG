@@ -125,4 +125,5 @@ Packet 0.11.2 adds two placeholders so a first playtest can run, and replaces th
 - **Phase 0, the initiative tiebreaker (F14)** has a placeholder: the higher Agility + Cunning, then a d12 roll-off. The dash phase's priority by initiative is now always defined.
 - **Helping the dying,** the readiness review's one blocker that needed a new rule, has a placeholder: an action with a base cost of 5, rolling 2d12 + Intelligence against 10 + the target's Shock.
 - **Phase 7 (content-facing gaps):** the candidate abilities are now one, Great Weapon Training (Fighter; +1 square of reach for heavy weapons). The earlier candidates moved to their own note.
+- **§5, loops (added 2026-11-18).** The stamina cap is shelved (Not in This Version; Ledger H-7). The re-check of holds that section 7 tied to a cap waits until one comes back.
 

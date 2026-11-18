@@ -4,7 +4,7 @@
 > - **PROPOSAL**, **UNCERTAIN** and **ABANDONED** entries are *not* rules; don't treat them as current design.
 > - The designer's rulings (logged verbatim in Part G) are folded into Parts A–D. **Part H (SHELVED)** holds ideas deliberately left out of the current rules; they are not rules.
 > - **Playtest Packet v0.9** is now the rules source and incorporates these rulings (through round 9). This ledger remains the record of where each rule came from and how firm it is.
-> - **Later packets:** the entries describe packet v0.9. `rules/CHANGELOG.md` records every change since then. Seven entries carry a **Later changes** line for what packet 0.11.0 changed (CB-2, CB-9, MV-1, MV-2, MV-4, MV-5 and CP-7; the reaction to a shot is under MV-2), five for packet 0.11.1 (CR-2, MV-3, MV-5, EQ-2 and H-4), and three for packet 0.11.2 (CB-9, IN-1 and CP-9). The rest have not been brought up to date, and neither have the summaries in Parts A to C.
+> - **Later packets:** the entries describe packet v0.9. `rules/CHANGELOG.md` records every change since then. Seven entries carry a **Later changes** line for what packet 0.11.0 changed (CB-2, CB-9, MV-1, MV-2, MV-4, MV-5 and CP-7; the reaction to a shot is under MV-2), five for packet 0.11.1 (CR-2, MV-3, MV-5, EQ-2 and H-4), and three for packet 0.11.2 (CB-9, IN-1 and CP-9). Part H gained H-7, the stamina cap, after 0.11.2. The rest have not been brought up to date, and neither have the summaries in Parts A to C.
 
 # Rules Reconciliation Ledger: Playtest Packet v0.8 vs. Design Transcript
 
@@ -1013,7 +1013,7 @@
 - **Packet:** Missing.
 - **Evidence:** "Some of the abilities I liked from before, with minor alterations" [p.856]
 - **Later changes:**
-  - *Packet 0.11.2 (your ruling, 2026-11-17):* these moved unchanged to the rules note Earlier Candidate Abilities. The candidate list is now one ability, Great Weapon Training: with the Fighter core ability, heavy melee weapons (base cost 3: greatswords, greataxes, halberds) get +1 square of reach. *Why: not recorded.*
+  - *Packet 0.11.2 (your ruling, 2026-11-17):* these moved unchanged to the rules note Earlier Candidate Abilities. The candidate list is now one ability, Great Weapon Training: with the Fighter core ability, heavy melee weapons (base cost 3: greatswords, greataxes, halberds) get +1 square of reach. *Why (your words, 2026-11-18):* none of the earlier candidates "actually reflected what I expect abilities to look like"; Great Weapon Training "feels like the right sort of enhancement of a particular set of weapons. Potentially powerful and meaningfully changes the style of using them, but not just by making the damage numbers better."
     - *Now in:* the rules notes Candidate Abilities and Earlier Candidate Abilities.
 
 ---
@@ -1463,6 +1463,30 @@ These ideas are deliberately **out of the current rules**, but they're strong en
   - About 3 attack/defense profiles per NPC, defaulting to the middle one, with stated triggers for switching.
   - Minions might reset stamina each turn or use fixed defense steps.
 - **The goal:** a balance-tested default that GMs can override [p.1294].
+
+### H-7 Stamina cap (hard flux)
+- **Why it's shelved:** your ruling (2026-11-17). It "might not be a bad mechanic and it might end up in the game", but it layers a new core mechanic on a system that already has enough of them, so it isn't right for the current version. You weren't sure whether something else needs simplifying to make room for it, or the cap itself needs to change. Packet 0.11.0 had already left it out.
+- **What it solves:**
+  - Pressure that sticks. Recovery returns everything a probe costs (a 1-step attack takes 3.1 stamina from the sample fighter at Melee Defense 3; recovery is 4), so nothing sits between "back next turn" and a wound, and only big commitments count.
+  - Stamina spent on offense and on defense would work differently, so a mis-tuned balance wouldn't tip into "whoever commits first wins" or "whoever is aggressive first dies". That's why you value hard flux in Starsector.
+  - Long, armor-backed duels at higher Melee Defense, and true stalemates.
+- **The idea (yours, 2026-11-15, offered as a first instinct to try):**
+  - Stamina spent on perfect blocks and on avoiding opportunity attacks also lowers a cap that recovery can't pass.
+  - The cap resets at the start of your turn if you made no perfect block and avoided no opportunity attack since your last turn.
+  - Grazing blocks neither lower the cap nor prevent the reset, so armor gets a niche.
+  - You wondered whether it could replace fluctuating maximum stamina, or bring back damage reducing maximum stamina (H-2), with an "overload" that downs you before 0 HP.
+- **What was tried** (packet 0.10.1; an exact solver for duels in contact with no movement, and engine fights for groups):
+  - *Your version:* under best play, 6.9 → 6.1 rounds at Melee Defense 4 and 15.7 → 14.2 at 5, with the first mover's share up about a point. It still shapes play: a fighter who ignores it gives up 7 points of win chance at Melee Defense 4 and 35–42 at 5. Engine agents, which ignore it, play duels of 3.3 rounds instead of 3.9, and 6.5 instead of 12.4 with one more point of guard.
+  - *No exemption* (every block locks; it clears only after a round with no block): 2.6 / 4.2 / 5.8 rounds at Melee Defense 3 / 4 / 5, against 2.7 / 6.9 / 15.7. It snowballs: a fighter 4 stamina behind wins 7% at Melee Defense 4 (15% without it) and 11% at 5 (29%), and the first mover's share goes from 64% to 68% at 4. An opening price of 2 stamina brings the first mover back to 51–52% at 4 and 5.
+  - *Partial clearing, decay, never clearing:* every version falls on one line, where a shorter fight comes with a bigger first-mover edge and a costlier deficit.
+  - *As a replacement for the rising price of perfect blocks:* no. At a flat 1 a block, a duel at Melee Defense 4 never ends without the lock and lasts about 50 rounds with it.
+  - *Stamina back for attacking* (your question about the other direction): favors the first attacker (73% → 86.5% at Melee Defense 3). Only a refund for attacks that draw no blood leaves first strike alone.
+  - *Group fights in the engine,* under 0.10.1's movement: no measurable change, because a creature was down in round 1 in 81% of three-a-side fights. With the movement proposal that led to 0.11.0, the no-exemption lock shortened fights by about half a round, and in two a side it raised the first actor's side from 56% to 72%.
+  - *A breather anyone may take,* in a duel: win-more. The fighter who uses it is the one who just went all in.
+- **Merits:** light pressure leaves something behind; true stalemates end; a pressed fighter has a reason to back off and catch its breath, and a hold has something to deny; a public cap shows who's under pressure.
+- **Why it stayed out:** a second number per creature, the GM's included, that changes on most blocks and is checked at every recovery; a small effect in fights of the 3–5 rounds you aim for; a strong form that snowballs; and a problem that 0.11.0's single escalation and 0.11.1's holds may now meet in other ways, unplayed.
+- **What would bring it back:** signs in play that pressure doesn't stick: nobody wants to step back and catch their breath; small attacks feel pointless; both sides wait for the other to commit. Lighter candidates: numbers in the existing rules, or a breather that recovers extra if you neither attacked nor were attacked since your last turn. A cap would need to make room for itself, for example as one that turns perfect against grazing blocks into a real trade-off.
+- **Sources:** C:2026-11-15, C:2026-11-17; `claude/Hard_Flux_First_Read_2026-11-15.md`, `claude/Cap_Duel_Study_2026-11-15.md`, `claude/Lock_Movement_Engine_Runs_2026-11-15.md` (claude.ai project). Now in the rules note Not in This Version.
 
 ---
 

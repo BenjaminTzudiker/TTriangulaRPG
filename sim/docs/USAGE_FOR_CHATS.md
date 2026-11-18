@@ -31,7 +31,7 @@ These are the simplifications most likely to matter to design advice. Name the r
 - **Scenarios are chosen, not representative.** Maps, rosters and builds come from a small library (mostly level 1, a few at 30 and 99). A result describes that scenario, not encounters in general.
 
 **Rules coverage**
-- **Packet 0.11.0's movement isn't implemented.** The dash, the single escalation, the dash phase (including the one before the first turn) and the one-step opportunity attack aren't in any preset. The baseline `v0.10.1` still plays 0.10.1: two cost tracks, flat extra movement on your turn, and off-turn movement after each turn (see Packet versions).
+- **Packets 0.11.0 and 0.11.1 are only experiment presets.** `exp-0.11.0` reads 0.11.0's movement (the dash, the single escalation, the dash phases) and its one-step opportunity attack; `exp-0.11.1` adds 0.11.1's holds and opportunity attack cap. No engine agent sets a hold, so holds come only from hand play (`sim/examples/exp_holds/`). The spear's reach only in two hands isn't modelled. The baseline `v0.10.1` still plays 0.10.1: two cost tracks, flat extra movement on your turn, and off-turn movement after each turn (see Packet versions).
 - **Out of scope:** spells and spell lists, conditions, grappling, extended contests, skill checks, out-of-combat rules, and advancement beyond derived numbers.
 - **Silent readings.** Where the packet is unclear, the engine picks a reading recorded in the Assumptions register (`sim/docs/ENGINE_PLAN.md`). A result can hinge on one; check the register before trusting a surprising number.
 

@@ -109,3 +109,13 @@ Packet 0.11.0 replaced both kinds of bought movement with one **dash**, and the 
 - **F9.** "Whether the off-turn track mirrors any surcharge change" no longer applies: there is one escalation. The opportunity attack cap went in packet 0.9.1, and making an opportunity attack is a one-step placeholder until it is redesigned.
 - **F14.** The order of simultaneous off-turn movement is ruled: in the dash phase before each turn, the highest in initiative of those who want to dash goes, and this repeats until nobody wants to. (The review suggested lowest first.) The Rogue's timing is ruled only as far as the dash phase goes: its core is declared just after a dash phase ends, and that is open to change. Where a moved turn sits in the next round is still unstated. The initiative tiebreaker (Phase 0) is still missing, and the dash phase now relies on initiative order.
 - **§5, Phase 4 → Phase 5** still holds, with one difference: the movement price was chosen for gang-ups, and kiting was knowingly left for the ranged work.
+
+## 7. After packet 0.11.1 (added 2026-11-17)
+
+Packet 0.11.1 adds **holds** and gives opportunity attacks a rule again. At the end of your turn you can put stamina on enemies as tokens; a creature you hold pays 1 + the tokens to leave your reach, and the tokens add to your opportunity attack against it. That touches four things above:
+
+- **F9.** Making an opportunity attack has a rule again: steps priced like an attack's, starting fresh, with a cap of 1 + 1 per odd Finesse (the cap 0.9.1 removed) plus a hold's tokens. Avoidance stays 1 per enemy per square, or 1 + the tokens for the first square left in a holder's reach. Both are Mechanism open.
+- **F6b (focus fire).** Holds make a close gang-up deadlier when an attacker acts before the lone fighter: three on one from 3 squares, 6% → 58% to go down in the first round (exact, one round; `claude/Hold_Rule_Study_2026-11-17.md`). That raises the stakes of the initiative work in Phase 0 (the tiebreaker) and of the bidding idea in Not in This Version. The designer: "another sign that we need to revamp initiative".
+- **Phase 0, stamina visibility.** Still undecided. It is now also in the packet's Open Questions, with how stamina is tracked when a creature has more than one pool, and the caveat that a band or a hidden number leaks if every attack and block is visible. Hold sizing depends on it.
+- **§5, loops.** Holds belong to the loop the 2026-11-15 notes drew between the stamina cap (hard flux), giving ground and tackle. Once a cap is tried, pressed fighters will want to break contact more often, so holds will matter more and should be re-checked with it.
+

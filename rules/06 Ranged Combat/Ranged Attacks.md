@@ -1,6 +1,6 @@
 ---
 up: "[[Playtest Packet]]"
-prev: "[[Opportunity Attacks]]"
+prev: "[[Holds]]"
 next: "[[Drawing Weapons]]"
 ---
 # Ranged Attacks
@@ -22,7 +22,7 @@ Ranged combat follows the same structure as melee wherever it can.
    - the aim limit caps the HP lost at the weapon's damage roll (see [[Aim]]);
    - if any damage is left, add 1 per critical die;
    - the target loses that much HP.
-7. **Opportunity attacks:** each enemy whose reach you were in when you declared the shot may now make an opportunity attack against you, if it still can: you must still be within its reach, and it can't be incapacitated (see [[Opportunity Attacks]]).
+7. **Opportunity attacks:** each enemy whose reach you were in when you declared the shot may now make an opportunity attack against you, if it still can: you must still be within its reach, and it can't be incapacitated (see [[Opportunity Attacks]]). An enemy that holds you can spend its tokens on that attack (see [[Holds]]).
 
 ![[Aim]]
 

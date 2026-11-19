@@ -29,6 +29,8 @@ def _view(
         status=c.status.value,
         trackers=c.trackers if own else None,
         pos=c.pos,
+        holds=dict(c.holds),
+        parked=c.parked,
         free_move_left=c.free_move_left if own else None,
         banked=c.banked if own else None,
     )

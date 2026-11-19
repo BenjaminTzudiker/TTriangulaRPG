@@ -298,6 +298,123 @@ def review_sim() -> RuleSet:
     )
 
 
+def exp_0_11_0() -> RuleSet:
+    """Not a baseline preset: an experiment's reading of packet 0.11.0's movement on 0.10.1
+    (exp/holds). One dash (an action on the one escalation, 1 square + 1 per odd Agility,
+    on or off your turn), the escalation reset when your turn ends, a dash phase before
+    every turn with the highest in initiative first, and the placeholder opportunity
+    attack: one step at the weapon's base cost, not an action, no cap."""
+    base = v0_10_1()
+    assert isinstance(base.movement, V09Movement)
+    assert isinstance(base.off_turn, Escalation)
+    assert isinstance(base.opportunity, V09Opportunity)
+    return base.with_(
+        name="exp-0.11.0",
+        movement=dataclasses.replace(
+            base.movement, extra_squares="agility", leftover="move", extra_action=True
+        ),
+        off_turn=dataclasses.replace(
+            base.off_turn,
+            order="descending_initiative",
+            track="unified",
+            restart=True,
+            opening=True,
+        ),
+        opportunity=dataclasses.replace(
+            base.opportunity, cap_rule="none", pricing="fresh", max_steps=1
+        ),
+    )
+
+
+def exp_holds() -> RuleSet:
+    """Not a baseline preset: exp-0.11.0 with the designer's hold rule of 2026-11-17. An
+    opportunity attack's steps cost base + 1 per earlier step of that attack, within a cap
+    of 1 + 1 per odd Finesse plus the tokens of a hold on that target; leaving costs 1 + a
+    hold's tokens for the first square."""
+    base = exp_0_11_0()
+    assert isinstance(base.opportunity, V09Opportunity)
+    return base.with_(
+        name="exp-holds",
+        opportunity=dataclasses.replace(
+            base.opportunity, cap_rule="flat", max_steps=0, holds=True
+        ),
+    )
+
+
+def exp_holds_per_square() -> RuleSet:
+    """exp-holds with the cap added again for each square the mover leaves within your
+    reach without paying you, pooled for one move."""
+    base = exp_holds()
+    assert isinstance(base.opportunity, V09Opportunity)
+    return base.with_(
+        name="exp-holds-per-square",
+        opportunity=dataclasses.replace(base.opportunity, per_square_cap=True),
+    )
+
+
+def exp_holds_next_turn() -> RuleSet:
+    """exp-holds with the designer's second timing (2026-11-17): holds are set at the end
+    of your turn before you recover, and the tokens stay out through your next turn, coming
+    back at its end right before you recover (when you may set new ones)."""
+    base = exp_holds()
+    assert isinstance(base.opportunity, V09Opportunity)
+    return base.with_(
+        name="exp-holds-next-turn",
+        opportunity=dataclasses.replace(
+            base.opportunity, hold_return="turn_end", hold_set="before_recovery"
+        ),
+    )
+
+
+def exp_holds_next_turn_break() -> RuleSet:
+    """exp-holds-next-turn, and a holder that loses HP drops its holds (tokens stay out)."""
+    base = exp_holds_next_turn()
+    assert isinstance(base.opportunity, V09Opportunity)
+    return base.with_(
+        name="exp-holds-next-turn-break",
+        opportunity=dataclasses.replace(base.opportunity, hold_breaks_on_injury=True),
+    )
+
+
+def exp_holds_placeholder() -> RuleSet:
+    """The designer's placeholder hold rules (2026-11-17): exp-holds-next-turn-break, and a
+    wound that lowers maximum stamina takes tokens before ready stamina."""
+    base = exp_holds_next_turn_break()
+    assert isinstance(base.opportunity, V09Opportunity)
+    return base.with_(
+        name="exp-holds-placeholder",
+        opportunity=dataclasses.replace(base.opportunity, hold_wound_clamp="tokens_first"),
+    )
+
+
+def exp_0_11_1() -> RuleSet:
+    """Not a baseline preset: an experiment's reading of packet 0.11.1 on 0.10.1. The
+    movement of exp-0.11.0 and the hold rules of exp-holds-placeholder, with holds allowed on
+    any enemy, in reach or not. Where the packet lets a creature choose what to lose when it
+    would go over its maximum stamina, the engine takes tokens first after a wound (always the
+    better choice once the wound has ended the holds) and keeps them when recovery would go
+    over. The spear's reach only in two hands isn't modelled: the equipment is v0.10.1's,
+    and its spear builds hold the spear one-handed with a shield and still reach 2."""
+    base = exp_holds_placeholder()
+    assert isinstance(base.opportunity, V09Opportunity)
+    return base.with_(
+        name="exp-0.11.1",
+        opportunity=dataclasses.replace(base.opportunity, hold_targets="any"),
+    )
+
+
+def exp_holds_next_turn_half() -> RuleSet:
+    """exp-holds-next-turn with holds set after recovering, at most half your ready stamina."""
+    base = exp_holds_next_turn()
+    assert isinstance(base.opportunity, V09Opportunity)
+    return base.with_(
+        name="exp-holds-next-turn-half",
+        opportunity=dataclasses.replace(
+            base.opportunity, hold_set="after_recovery", hold_max_percent=50
+        ),
+    )
+
+
 BASELINE = "v0.10.1"
 """The preset the engine's scenarios, suites and defaults use: the current packet. Moving the
 baseline to a new packet version is this one line (and the pinned hashes it moves)."""
@@ -314,6 +431,14 @@ PRESETS: dict[str, Callable[[], RuleSet]] = {
     "v0.10.0-crit-c": v0_10_0_crit_c,
     "review-candidate": review_candidate,
     "review-sim": review_sim,
+    "exp-0.11.0": exp_0_11_0,
+    "exp-holds": exp_holds,
+    "exp-holds-per-square": exp_holds_per_square,
+    "exp-holds-next-turn": exp_holds_next_turn,
+    "exp-holds-next-turn-break": exp_holds_next_turn_break,
+    "exp-holds-next-turn-half": exp_holds_next_turn_half,
+    "exp-holds-placeholder": exp_holds_placeholder,
+    "exp-0.11.1": exp_0_11_1,
 }
 
 

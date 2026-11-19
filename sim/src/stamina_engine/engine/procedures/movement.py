@@ -28,6 +28,7 @@ cites = (
     "Packet: Actions and Escalation",
     "Packet: Triggers",
     "Packet: Avoiding Opportunity Attacks",
+    "Packet: Holds",
     "Ledger MV-1",
     "Ledger MV-2",
     "Ledger MV-3",
@@ -138,9 +139,16 @@ def leave(b: Battle, mover: CombatantState, square: Cell, on_turn: bool, oa: OAC
         threatening = tuple(reversed(threatening))  # lowest initiative first
     b.ops.emit(OpportunityProvoked(mover.id, square, threatening))
     caps = tuple(reach_cap(b, b.state.get(e), square) for e in threatening)
-    paid = avoid(b, mover, square, threatening, caps, on_turn)
+    holds = b.rules.opportunity.holds_on()
+    # The hold rule: an enemy's tokens on the mover are added to its price for this square.
+    extras = tuple(b.state.get(e).holds.get(mover.id, 0) if holds else 0 for e in threatening)
+    paid = avoid(b, mover, square, threatening, caps, on_turn, extras)
     for eid, cap in zip(threatening, caps, strict=True):
         oa.left_within(eid, cap, paid=eid in paid)
+    if holds:  # a hold that is paid off ends
+        for eid in paid:
+            if mover.id in b.state.get(eid).holds:
+                b.ops.end_hold(b.state.get(eid), mover.id, "paid")
     for eid in threatening:
         if eid in paid:
             continue
@@ -149,6 +157,8 @@ def leave(b: Battle, mover: CombatantState, square: Cell, on_turn: bool, oa: OAC
         enemy = b.state.get(eid)
         if enemy.active:
             opportunity_attack(b, enemy, mover, square, oa)
+        if holds and mover.id in enemy.holds:  # its opportunity attack was triggered
+            b.ops.end_hold(enemy, mover.id, "triggered")
 
 
 def avoid(
@@ -158,10 +168,11 @@ def avoid(
     enemies: tuple[str, ...],
     caps: tuple[int | None, ...],
     on_turn: bool,
+    extras: tuple[int, ...] = (),
 ) -> tuple[str, ...]:
     """Ask the mover which enemies to pay off; charge it. Not asked if it can pay no one."""
     debt = b.rules.opportunity.allows_debt()
-    affordable = _affordable_subsets(b, mover, caps, on_turn)
+    affordable = _affordable_subsets(b, mover, caps, on_turn, extras)
     if affordable <= 1 and not debt:
         return ()
     request = AvoidOA(
@@ -175,13 +186,19 @@ def avoid(
         mover.trackers,
         mover.stamina,
         (2 ** len(enemies)) if debt else affordable,
+        extras if any(extras) else (),
     )
     answer = b.broker.avoid(request)
     if not answer.enemies:
         return ()
     paid_caps = [caps[enemies.index(e)] for e in answer.enemies]
+    paid_extras = [extras[enemies.index(e)] for e in answer.enemies] if any(extras) else None
     quote = b.pricing.avoid_opportunity(
-        len(paid_caps), caps=paid_caps, trackers=mover.trackers, on_turn=on_turn
+        len(paid_caps),
+        caps=paid_caps,
+        trackers=mover.trackers,
+        on_turn=on_turn,
+        extras=paid_extras,
     )
     b.ops.emit(OpportunityAvoided(mover.id, square, answer.enemies))
     b.ops.spend(mover, quote, "avoid", allow_debt=debt)
@@ -189,7 +206,11 @@ def avoid(
 
 
 def _affordable_subsets(
-    b: Battle, mover: CombatantState, caps: tuple[int | None, ...], on_turn: bool
+    b: Battle,
+    mover: CombatantState,
+    caps: tuple[int | None, ...],
+    on_turn: bool,
+    extras: tuple[int, ...] = (),
 ) -> int:
     """How many subsets of the threatening enemies the mover could pay off (F11). Prices
     don't depend on which enemies, only on their caps, so this checks every subset."""
@@ -197,8 +218,9 @@ def _affordable_subsets(
     count = 0
     for mask in range(2**n):
         chosen = [caps[i] for i in range(n) if mask >> i & 1]
+        added = [extras[i] for i in range(n) if mask >> i & 1] if any(extras) else None
         quote = b.pricing.avoid_opportunity(
-            len(chosen), caps=chosen, trackers=mover.trackers, on_turn=on_turn
+            len(chosen), caps=chosen, trackers=mover.trackers, on_turn=on_turn, extras=added
         )
         if quote.total <= mover.stamina:
             count += 1

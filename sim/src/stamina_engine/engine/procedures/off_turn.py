@@ -29,7 +29,7 @@ cites = (
     "Review F14",
 )
 
-MAX_PASSES = 100  # off-turn costs escalate, so a window settles long before this
+MAX_PASSES = 400  # off-turn costs escalate, so a window settles long before this
 
 
 def window_order(b: Battle) -> tuple[str, ...]:
@@ -39,10 +39,12 @@ def window_order(b: Battle) -> tuple[str, ...]:
     return order
 
 
-def off_turn_window(b: Battle, ended: CombatantState) -> None:
+def off_turn_window(b: Battle, ended: CombatantState | None) -> None:
+    """ended is None for the window before the first turn of the fight (0.11.0)."""
     if b.field is None or b.outcome is not None or not b.rules.off_turn.windows_open():
         return
-    with b.context.frame(f"off-turn after {ended.id}"):
+    label = f"off-turn after {ended.id}" if ended is not None else "off-turn before the fight"
+    with b.context.frame(label):
         for _ in range(MAX_PASSES):
             moved = False
             for cid in window_order(b):
@@ -68,8 +70,8 @@ def off_turn_window(b: Battle, ended: CombatantState) -> None:
                     moved = True
                 if b.outcome is not None:
                     return
+                if moved and b.rules.off_turn.restarts():
+                    break  # 0.11.0: after a dash, the highest in initiative is asked first again
             if not moved or not b.rules.off_turn.repeats():
                 return
-        raise EngineError(
-            f"the off-turn window after {ended.id} didn't settle in {MAX_PASSES} passes"
-        )
+        raise EngineError(f"the window ({label}) didn't settle in {MAX_PASSES} passes")

@@ -21,7 +21,7 @@ A weapon card lists its category, base stamina cost (a shot cost, for ranged wea
 | Dagger | 1 | 1d4 + (AGI or FIN) | One | Quick-draw |
 | Shortsword | 1 | 1d6 + (AGI or FIN) | One | Quick-draw |
 | Longsword | 2 | 1d10 + (STR or AGI) + FIN | Two | One-handed: 1d8 + STR + FIN (STR replaces AGI) |
-| Spear | 2 | 1d8 + STR + FIN | **TODO** | Reach: 1 extra square |
+| Spear | 2 | 1d8 + STR + FIN | One or two | Reach: 1 extra square, only in two hands |
 | Greatsword | 3 | 1d12 + 2×STR + FIN | Two | |
 | Greataxe | 3 | 2d6 + 3×STR | Two | |
 | Shortbow | 3 per shot | 1d4 + FIN | Two | Band width 2; Precise |
@@ -34,7 +34,7 @@ A weapon card lists its category, base stamina cost (a shot cost, for ranged wea
 - Aim works as described in [[Aim]], and range as described in [[Range Bands]].
 - **Strength N** is the bow's Strength requirement. Each point of Strength you're short shortens its band width by 1 square.
 
-**TODO:** confirm the hands for every weapon except the longsword.
+**TODO:** confirm the hands for every weapon except the longsword and the spear.
 
 **Draft weapons (TODO: base costs and details):** polearm 1d10 + 3×STR (reach 2); axe 1d10 + 2×STR (cleave); rapier 1d8 + AGI + FIN.
 

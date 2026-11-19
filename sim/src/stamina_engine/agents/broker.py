@@ -19,6 +19,8 @@ from stamina_engine.agents.decisions import (
     DrawOption,
     EndTurn,
     Flee,
+    HoldRequest,
+    Holds,
     Move,
     MoveAnswer,
     MoveOptions,
@@ -125,6 +127,34 @@ class Broker:
         )
         return answer
 
+    def holds(self, req: HoldRequest) -> Holds:
+        """Experiment (the hold rule). An agent without a holds method sets none."""
+        fn = getattr(self.agents[req.who], "holds", None)
+        answer = fn(req) if fn is not None else Holds()
+        if not isinstance(answer, Holds):
+            raise RulesError(f"{req.who} gave {answer!r} to a HoldRequest")
+        total = 0
+        for target, n in answer.tokens.items():
+            if target not in req.targets:
+                raise RulesError(f"{req.who} can't hold {target}; options {req.targets}")
+            if not isinstance(n, int) or isinstance(n, bool) or n < 0:
+                raise RulesError(f"{req.who}: {n!r} tokens on {target}")
+            total += n
+        if total > req.stamina:
+            raise RulesError(f"{req.who} set {total} tokens with {req.stamina} stamina")
+        text = " ".join(f"{t}:{n}" for t, n in answer.tokens.items() if n) or "none"
+        self._record(
+            req.observation.round,
+            req.who,
+            "holds",
+            req.option_count,
+            None,
+            text,
+            total > 0,
+            req.context,
+        )
+        return answer
+
     def commitment(self, req: Commitment) -> int:
         steps = self.agents[req.who].commitment(req)
         if not isinstance(steps, int) or isinstance(steps, bool) or not 0 <= steps <= req.max_steps:
@@ -212,8 +242,11 @@ class Broker:
             raise RulesError(f"{req.who}: list enemies in the request's order, {req.enemies}")
         if answer.enemies:
             caps = [req.caps[req.enemies.index(e)] for e in answer.enemies]
+            extras = (
+                [req.extras[req.enemies.index(e)] for e in answer.enemies] if req.extras else None
+            )
             quote = self.pricing.avoid_opportunity(
-                len(caps), caps=caps, trackers=req.trackers, on_turn=req.on_turn
+                len(caps), caps=caps, trackers=req.trackers, on_turn=req.on_turn, extras=extras
             )
             if quote.total > req.stamina and not self.pricing.rules.opportunity.allows_debt():
                 raise RulesError(f"{req.who} can't pay {quote.total} to avoid; has {req.stamina}")

@@ -184,6 +184,11 @@ class Pricing:
     def extra_movement(self, trackers: Trackers = FRESH) -> Quote:
         """Always flat; not an action and not an off-turn cost. Its track only counts
         purchases, for the variant that caps purchased movement."""
+        if self.rules.movement.extra_is_action():  # 0.11.0: a dash on your turn
+            cost = self.rules.movement.extra_movement_cost() + self.rules.surcharge.surcharge(
+                trackers.actions_this_turn
+            )
+            return Quote((cost,), Track.ON_TURN)
         return Quote((self.rules.movement.extra_movement_cost(),), Track.EXTRA_MOVE)
 
     def extra_purchase_squares(self, trackers: Trackers, movement: int, per_purchase: int) -> int:
@@ -195,6 +200,9 @@ class Pricing:
 
     def off_turn_purchase(self, trackers: Trackers, stamina: int | None = None) -> Quote:
         ot = self.rules.off_turn
+        if ot.unified():  # 0.11.0: a dash is an action on the one escalation
+            cost = ot.purchase_base() + self.rules.surcharge.surcharge(trackers.actions_this_turn)
+            return _ensure(Quote((cost,), Track.ON_TURN), stamina)
         return _ensure(
             Quote((ot.cost(ot.purchase_base(), trackers.off_turn_costs),), Track.OFF_TURN),
             stamina,
@@ -344,16 +352,31 @@ class Pricing:
         trackers: Trackers,
         cap: int | None,
         stamina: int | None = None,
+        tokens: int = 0,
     ) -> Quote:
         """Steps go on the off-turn track. The whole attack (base and escalation together)
-        must fit the cap; with no cap (None, from 0.9.1) only the stamina limits it."""
-        ot = self.rules.off_turn
-        earlier = trackers.off_turn_costs
-        parts = tuple(ot.cost(base, earlier + i) for i in range(steps))
-        quote = Quote(parts, Track.OFF_TURN)
-        if cap is not None and quote.total > cap:
-            raise Unaffordable(f"opportunity attack costs {quote.total}, cap is {cap}")
-        return _ensure(quote, stamina)
+        must fit the cap; with no cap (None, from 0.9.1) only the stamina limits it.
+
+        Experiment (0.11.0 and the hold rule): with fresh pricing the steps cost base + 1 per
+        earlier step of this OA and are on no track. tokens are a hold's stamina on this
+        target: they add to the cap and are spent before ready stamina."""
+        rule = self.rules.opportunity
+        limit = rule.step_limit()
+        if limit and steps > limit:
+            raise Unaffordable(f"an opportunity attack has at most {limit} step(s)")
+        if rule.fresh_pricing():
+            parts = tuple(base + self.rules.surcharge.surcharge(i) for i in range(steps))
+            quote = Quote(parts, Track.NONE)
+        else:
+            ot = self.rules.off_turn
+            earlier = trackers.off_turn_costs
+            parts = tuple(ot.cost(base, earlier + i) for i in range(steps))
+            quote = Quote(parts, Track.OFF_TURN)
+        if cap is not None and quote.total > cap + tokens:
+            raise Unaffordable(f"opportunity attack costs {quote.total}, cap is {cap + tokens}")
+        if stamina is not None and max(0, quote.total - tokens) > stamina:
+            raise Unaffordable(f"costs {quote.total}, {stamina + tokens} stamina available")
+        return quote
 
     def oa_cap(self, finesse: int, weapon_base: int) -> int | None:
         """The most stamina one opportunity attack may cost (before the per-square rule), or
@@ -368,13 +391,17 @@ class Pricing:
         caps: Sequence[int | None] | None = None,
         trackers: Trackers = FRESH,
         on_turn: bool = True,
+        extras: Sequence[int] | None = None,
     ) -> Quote:
-        """Deny `enemies` enemies their OA for the square being left: one part each. As
+        """Deny `enemies` enemies their OA for the square being left: one part each. extras
+        (the hold rule) adds a hold's tokens to that enemy's price. As
         written, 1 each, never escalating and on no track. Variants price each at that
         enemy's cap (caps, in the same order) and put avoidance on the off-turn track.
         With avoid_debt, a shortfall is allowed (StateOps takes it from the next recovery)."""
         rule = self.rules.opportunity
         bases = [rule.avoid_part(caps[i] if caps is not None else 0) for i in range(enemies)]
+        if extras is not None:
+            bases = [b + extras[i] for i, b in enumerate(bases)]
         if rule.avoid_on_track(on_turn):
             ot = self.rules.off_turn
             earlier = trackers.off_turn_costs

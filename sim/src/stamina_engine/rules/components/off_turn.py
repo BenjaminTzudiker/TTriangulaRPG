@@ -13,7 +13,10 @@ class OffTurnRule(Component):
         "Ledger MV-2",
         "Ledger MV-4",
     )
-    allowed = {"order": frozenset({"ascending_initiative", "descending_initiative"})}
+    allowed = {
+        "order": frozenset({"ascending_initiative", "descending_initiative"}),
+        "track": frozenset({"own", "unified"}),
+    }
 
     def cost(self, base: int, earlier_costs: int) -> int:
         raise NotImplementedError
@@ -35,6 +38,19 @@ class OffTurnRule(Component):
     def repeats(self) -> bool:
         raise NotImplementedError
 
+    def unified(self) -> bool:
+        """Packet 0.11.0: off-turn purchases (dashes) are actions on the one escalation, which
+        resets when your turn ends."""
+        return False
+
+    def restarts(self) -> bool:
+        """After any move, ask again from the top of the order (the 0.11.0 dash phase)."""
+        return False
+
+    def opens_fight(self) -> bool:
+        """A window before the first turn of the fight (0.11.0)."""
+        return False
+
 
 @register("off_turn", "escalation")
 @dataclass(frozen=True)
@@ -50,6 +66,11 @@ class Escalation(OffTurnRule):
     repeat_until_all_pass: bool = True
     enabled: bool = True
     purchase_cap: int = 0  # most purchases in one off-turn move; 0 means no cap (as written)
+    # Experiment (packet 0.11.0; exp/holds): one escalation, the dash phase's order, and a
+    # dash phase before the first turn.
+    track: str = "own"
+    restart: bool = False
+    opening: bool = False
 
     def cost(self, base: int, earlier_costs: int) -> int:
         return base + self.slope * earlier_costs
@@ -68,3 +89,12 @@ class Escalation(OffTurnRule):
 
     def repeats(self) -> bool:
         return self.repeat_until_all_pass
+
+    def unified(self) -> bool:
+        return self.track == "unified"
+
+    def restarts(self) -> bool:
+        return self.restart
+
+    def opens_fight(self) -> bool:
+        return self.opening

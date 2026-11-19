@@ -1,5 +1,5 @@
 > **⚠ STATUS: WORKING NOTES — NOT A FINISHED DESIGN BIBLE.**
-> This is raw source material for a future design bible. It was updated on 2026-11-01 for the designer's nine rounds of rulings on the reconciliation ledger. Entries citing [C:2026-11-05] were added from the attribute design chat of that date. Entries citing [C:2026-11-14], [C:2026-11-15] or [C:2026-11-16] were added with packet 0.11.0, from the design chats on aggression, gang-ups and movement.
+> This is raw source material for a future design bible. It was updated on 2026-11-01 for the designer's nine rounds of rulings on the reconciliation ledger. Entries citing [C:2026-11-05] were added from the attribute design chat of that date. Entries citing [C:2026-11-14], [C:2026-11-15] or [C:2026-11-16] were added with packet 0.11.0, from the design chats on aggression, gang-ups and movement. Entries citing [C:2026-11-17] were added with packet 0.11.1, from the design chat on holds.
 > - **What the rules currently are:** the rules notes in `rules/` are authoritative, and `rules/CHANGELOG.md` records every change since packet v0.9. The ledger is the record up to v0.9. These notes record *why*.
 > - **How current:** a line that says how a principle is applied was right when its entry was written, which for most entries means packet v0.9. Only lines that name a packet (such as "packet 0.11.0") have been brought up to date since.
 > - **Pillars:** the wordings in §2 are draft condensations, not adopted text.
@@ -21,7 +21,7 @@
 - *[p.N] is a transcript page, ±1.*
 - *[R1:A3] is your ruling round 1, item A3. All rulings are dated 2026-11-01 and logged verbatim in the ledger's Part G. Round 2's unnumbered items are cited as [R2].*
 - *[C:2026-11-05] is a design chat on that date (the attribute chat). Quotes are your messages in it.*
-- *[C:2026-11-14] is the design chat of that date on aggression, gang-ups and uncertainty. [C:2026-11-15] and [C:2026-11-16] are the chat that followed it, on hard flux, tackle and movement, which led to packet 0.11.0. Quotes are your messages. The 2026-11-14 quotes were copied from notes written in that chat (`claude/Handoff_Pressure_Escape_Tackle_2026-11-14.md` and `claude/Design_Pillars_Redraft_2026-11-14.md` in the claude.ai project), not from the transcript, so check their wording.*
+- *[C:2026-11-14] is the design chat of that date on aggression, gang-ups and uncertainty. [C:2026-11-15] and [C:2026-11-16] are the chat that followed it, on hard flux, tackle and movement, which led to packet 0.11.0. [C:2026-11-17] is the chat on holds that led to packet 0.11.1. Quotes are your messages. The 2026-11-14 quotes were copied from notes written in that chat (`claude/Handoff_Pressure_Escape_Tackle_2026-11-14.md` and `claude/Design_Pillars_Redraft_2026-11-14.md` in the claude.ai project), not from the transcript, so check their wording.*
 - *Where a principle evolved, the final form comes first and the history follows.*
 
 ---
@@ -202,18 +202,27 @@ Earlier form of the same goal:
 - *History:* until packet 0.11.0 the rule was kept with separate tracks. On-turn and off-turn costs each had their own ("Separate from on-turn, at least in the current rules" [R1:B4]). Off-turn movement and opportunity attacks shared the off-turn one, which reset at the start of your turn, "so off turn movement competes with opportunity attacks for stamina" [R1:B4, R1:A6]. Opportunity attacks are now outside the escalation (next entry).
 
 **Opportunity attacks are limited and not free, but exposure should be punishable.**
-- *Rule (the intent; the mechanism is being redesigned):*
+- *Rule (the intent):*
   - What one opportunity attack can do is limited.
   - Making one costs the attacker something.
   - An enemy that exposes itself for several squares should be punishable for more, even by someone who hasn't invested in Finesse.
 - *Source:* "mechanic to limit opportunity attack power" [R1:A8]. "The enemies don't get to opportunity attack for free" [R2:1]. "the intent being that it's still sometimes possible to opportunity attack for more than 1 stamina even if you don't invest in finesse as long as the enemy exposes themself enough" [R2:1].
 - **STATED** (intent locked, mechanism open)
-- *How it's applied now (packet 0.11.0):* a placeholder. Each trigger allows exactly one attack step, at the weapon's base cost whatever your escalation is. It isn't an action, and stamina is the only limit on how many you make. "This is a placeholder." The hold rules planned for a later version are named as one way to complete it [C:2026-11-16].
+- *How it's applied now (packet 0.11.1):*
+  - One opportunity attack can cost at most 1, +1 per odd Finesse, so Finesse is the stat for them again. Its steps cost the weapon's base +1 per earlier step of the same opportunity attack, and it isn't an action.
+  - Exposure is punished for more through a hold: tokens set at the end of your turn add to your cap against that enemy (rules note Holds). The attacker commits in advance and pays for it with its next turn.
+  - Big weapons have to commit, with Finesse or a hold, to make one at all [C:2026-11-17; paraphrased, so check the wording].
 - *History:*
   1. A cap on what you could spend on one opportunity attack: 1 stamina, +1 per odd Finesse, which made Finesse the stat for them. Their steps went on the attacker's off-turn track, so making one cost the attacker later options [R1:A8, R2:1].
   2. Packet 0.9.1 removed the cap and Finesse's bonus to it. The off-turn track was then the only limit.
-  3. Packet 0.11.0 removed the off-turn track (previous entry), which left opportunity attacks without a price rule. Hence the placeholder.
-- *My reading:* the placeholder keeps "limited" (one step) and "not free" (the base cost), and a longer exposure gives more triggers. It drops the cost to the attacker's later options: making one no longer raises the price of anything.
+  3. Packet 0.11.0 removed the off-turn track (previous entry), which left opportunity attacks without a price rule. It used a placeholder: exactly one step at the weapon's base cost, with stamina the only limit. "This is a placeholder." [C:2026-11-16]
+  4. Packet 0.11.1 brought back the cap, with a hold's tokens added to it.
+
+**Finishing a fight takes a commitment, and the size of that commitment follows the fight.**
+- *Rule:* the side that's ahead should have to commit to stop a beaten enemy getting away, and the creature in trouble shouldn't get extra chores for it. Small commitments press a small edge; big ones end a fight that's already decided. A big one shouldn't be the default for any small advantage, and against an enemy that can still hurt you it's a gamble.
+- *Source:* EVE's tackle "requires commitment/skill to capitalize on an advantage … without adding extra onus on the person in a bad position too" [C:2026-11-14]. "Big holds aren't meant to be the go-to as soon as you have a minor advantage. Hold strength should change with the fight state, with small holds sometimes used to gain minor stamina advantages when you have an advantage to press and big holds used to end a fight without dragging things out for several rounds of doomed retreat." [C:2026-11-17] You were "nervous that it being *fully* free is an issue", but liked "trying to break stamina recovery symmetry in your favor by gambling that you can temporarily survive with less stamina for a round" [C:2026-11-17].
+- **STATED**
+- *How it's applied now (packet 0.11.1):* holds (rules note Holds). The tokens are out through your next turn, so they come off that turn's attacks and blocks, and losing any HP ends the hold.
 
 **Using your fun abilities shouldn't cripple you afterwards.**
 - *Rule:* Prefer soft limits that tax the present turn (strain overage adds stamina cost) over lasting debuffs (max-stamina costs) or "bug the party for a rest" lockouts.
@@ -542,6 +551,15 @@ Earlier form of the same goal:
 - *Source:* "I worry the rule will either end up adding a new annoying thing to calculate or wind up forgotten." [p.1720]
 - **STATED**
 
+**A rule that adds a lot to think about should come up rarely, and saying nothing should mean "no".**
+- *Source:* "It's probably healthy for holds to not be happening constantly, since they sound like they'd add a meaningful amount of additional mental load to the game." On the end-of-turn question: "Hopefully the question won't need to be answered unless it's a yes, they'll just say 'I'm putting a hold on X' and that signals the end of their turn." [C:2026-11-17]
+- **STATED**
+
+**Where the player has an obvious best choice, let them make it; don't write the order into the rules.**
+- *Source:* on what comes off when you'd go over your maximum stamina with hold tokens out: "let's say it's up to you … That will be the universal rule - if there are rules that specify you take it out of the hold pool, then maybe you can drop that since it's assumed that the players can play optimally if they choose." [C:2026-11-17]
+- **STATED**
+- *How it's applied now (packet 0.11.1):* the rules note Stamina.
+
 **Mirror the existing attack engine rather than adding a second resolution system.**
 - *Source:* "I'm a bit nervous adding another resolution system like this - 5e's separation of attack roll vs saving throw comes to mind" [p.1909]. "The contested 2d12 rolls feel like they're rolling two sets of dice just to give each person something to do" [p.1878].
 - **STATED**
@@ -710,6 +728,7 @@ These are the threads you kept returning to. Most are unresolved. Item 1 is the 
 11. **Initiative fairness:** do higher-initiative characters suffer [p.249, p.255]? Standoffs at the start of combat [p.227].
     - The opposite worry is now the live one: fights decided by whoever acts first (§3.1, "Reward aggression, but don't let whoever attacks first decide the fight") [C:2026-11-14].
     - Packet 0.11.0's dash phase before the first turn answers a first strike from across a gap. A first strike from within free movement is unchanged. You've said the first-mover issue still needs addressing, after hard flux and tackle [C:2026-11-15; paraphrased]. Bidding for initiative is in the packet's Not in This Version.
+    - Holds make a close gang-up lean harder on turn order: in a three-on-one from 3 squares, one attacker acting before the lone fighter takes it from 6% to 58% to go down in the first round. "Not necessarily a problem, but another sign that we need to revamp initiative." [C:2026-11-17]
 12. **Whether there's a KO state before 0 HP** [p.112, p.339–343, p.603–611].
     - Below 0 HP is now settled: System Shock [R2, R4–R6].
     - Still open: an "out of the fight but alive" state above 0 HP. Your stated concern is characters only "going down" when they hit 0 HP [R1]. H-2 is the candidate.
@@ -718,7 +737,7 @@ These are the threads you kept returning to. Most are unresolved. Item 1 is the 
     - Also open: universal conditions vs self-describing effects [R1:A16].
 14. **Keeping Strength relevant at high levels without overpowering it early** [p.1156]. STR's +1 HP "scales poorly at higher levels" [R1:A15].
 15. **Rogue vs Fighter as movement-punishers** (OA identity) [p.1369].
-    - Making an opportunity attack is a placeholder since packet 0.11.0 (§3.1). The finished rule is open, and may come from the hold rules planned for a later version [C:2026-11-16].
+    - Packet 0.11.1 gives opportunity attacks a rule again: a cap of 1 + 1 per odd Finesse, raised by a hold's tokens (§3.1). Whether a class should be the movement-punisher on top of that is still open.
 16. **Combat as sport vs war;** pre- and post-fight phases [p.1567].
 17. **Ability selection that isn't obvious,** without abstract Slay the Spire-style mechanics [p.1587–1616].
 18. **Naming the on-turn step.** "Action" is provisional: it's misleading next to D&D and implies each attack step is a separate action [R7:CB-2].
@@ -764,7 +783,7 @@ Only cases where you drew a conclusion. Pure research asks are omitted.
 - **Starsector:** its flux-based combat is a source of inspiration for the stamina system, and a difficult one to carry over.
   - Hard flux is "a very important part of making Starsector combat work". It was "one of the first things I tried to bring over but couldn't work into the arithmetic properly", and "finding something to replace what it was doing in Starsector has been a challenge" [C:2026-11-14]. The stamina cap that the 0.11.0 changelog leaves for a later version is a first, untested idea for it.
   - One qualm: its skill system mixes in-combat and campaign bonuses (§3.4) [C:2026-11-05].
-- **EVE Online small-gang PvP:** tackle is "almost Eve's 'secret sauce' mechanic". "It requires commitment/skill to capitalize on an advantage (you need to hold tackle to prevent a mispositioned/dying ship from warping out) without adding extra onus on the person in a bad position too." [C:2026-11-14] The hold rules planned for a later version are the attempt to bring it over.
+- **EVE Online small-gang PvP:** tackle is "almost Eve's 'secret sauce' mechanic". "It requires commitment/skill to capitalize on an advantage (you need to hold tackle to prevent a mispositioned/dying ship from warping out) without adding extra onus on the person in a bad position too." [C:2026-11-14] Packet 0.11.1's holds are the attempt to bring it over (§3.1, "Finishing a fight takes a commitment").
 - **Both:** "Positioning is huge in games I like (Starsector, Eve Online smallgang PvP, etc)" [C:2026-11-14].
 - **Call of Cthulhu:** arbitrary skill granularity makes some concepts cheap and others expensive [p.22, p.1446].
 - **Game of Thrones named characters vs mooks:** the combat-feel model [p.1277].

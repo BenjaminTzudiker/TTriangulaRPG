@@ -26,7 +26,8 @@ These aren't actions. They don't add to your escalation, and your escalation doe
 - your **free movement** (see [[Free Movement]]);
 - **blocks**, whose costs rise only within one attack (see [[Blocking]]);
 - **the free aim die** that comes with every shot (see [[Aim]]);
-- **paying to avoid an opportunity attack** and, for now, **making one** (see [[Opportunity Attacks]]);
+- **paying to avoid an opportunity attack**, and **making one** (see [[Opportunity Attacks]]);
+- **setting a hold** (see [[Holds]]);
 - **drawing a weapon** (see [[Drawing Weapons]]).
 
 Outside your turn, the only action you can take is a dash.

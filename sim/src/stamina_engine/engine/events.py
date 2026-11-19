@@ -303,6 +303,38 @@ class ObjectiveResolved(Event):
 
 
 @dataclass(frozen=True)
+class HoldSet(Event):
+    """Experiment (the hold rule): stamina set aside as tokens on an enemy."""
+
+    who: str
+    target: str
+    tokens: int
+    stamina_after: int
+
+
+@dataclass(frozen=True)
+class HoldEnded(Event):
+    who: str
+    target: str
+    reason: str  # paid, triggered, spent
+    tokens_left: int
+
+
+@dataclass(frozen=True)
+class HoldSpent(Event):
+    who: str
+    target: str
+    tokens: int
+
+
+@dataclass(frozen=True)
+class HoldsReturned(Event):
+    who: str
+    tokens: int
+    stamina_after: int
+
+
+@dataclass(frozen=True)
 class BattleEnded(Event):
     reason: str  # side_out, round_cap, objective:<id>, objective_failed:<id>
     winner: str | None  # winning team, or None for a draw

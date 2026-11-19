@@ -16,6 +16,10 @@ from stamina_engine.engine.events import (
     DyingRolled,
     Event,
     Fled,
+    HoldEnded,
+    HoldSet,
+    HoldSpent,
+    HoldsReturned,
     Indebted,
     Injured,
     Moved,
@@ -45,6 +49,7 @@ from stamina_engine.rules.ruleset import RuleSet
 
 cites = (
     "Packet: Stamina",
+    "Packet: Holds",
     "Packet: Dying and Death",
     "Packet: Actions and Escalation",
     "Packet: Free Movement",
@@ -105,7 +110,7 @@ class StateOps:
         if paid:
             c.debt -= paid
             self._emit(DebtPaid(c.id, paid, c.debt))
-        gained = max(0, min(amount - paid, self.max_stamina(c) - c.stamina))
+        gained = max(0, min(amount - paid, self.max_stamina(c) - c.stamina - c.set_aside))
         c.stamina += gained
         self._emit(Recovered(c.id, gained, amount - paid - gained, c.stamina))
 
@@ -115,7 +120,36 @@ class StateOps:
             return
         c.dying = self.rules.dying.take_damage(c.dying, damage)
         c.damage_taken.append(damage)
-        c.stamina = min(c.stamina, self.max_stamina(c))
+        # Ready stamina and tokens together can't exceed the new maximum. By default the
+        # excess comes off ready stamina first, then ended holds, then live ones (exp/holds:
+        # an assumption); the tokens-first switch takes ended holds, live ones, then ready.
+        over = c.stamina + c.set_aside - self.max_stamina(c)
+        if over > 0:
+            tokens_first = self.rules.opportunity.wound_clamps_tokens_first()
+            if not tokens_first:
+                cut = min(over, c.stamina)
+                c.stamina -= cut
+                over -= cut
+            cut = min(over, c.parked)
+            c.parked -= cut
+            over -= cut
+            for target in sorted(c.holds, key=lambda t: -c.holds[t]):
+                cut = min(over, c.holds[target])
+                c.holds[target] -= cut
+                over -= cut
+            c.holds = {t: n for t, n in c.holds.items() if n > 0}
+            if tokens_first:
+                cut = min(over, c.stamina)
+                c.stamina -= cut
+                over -= cut
+        if c.holds and c.active and self.rules.opportunity.holds_break_on_injury():
+            for target in list(c.holds):  # a wounded holder drops its holds; tokens stay out
+                self.end_hold(c, target, "injured")
+        if not c.active and c.holds:  # a creature that goes down holds no one (assumption)
+            for target in list(c.holds):
+                left = c.holds.pop(target)
+                c.parked += left
+                self._emit(HoldEnded(c.id, target, "holder_down", left))
         self._emit(Injured(c.id, damage, c.hp, c.dying.shock, c.stamina, c.status.value))
 
     def dying_roll(self, c: CombatantState, total: int) -> None:
@@ -125,7 +159,13 @@ class StateOps:
     def start_turn(self, c: CombatantState) -> None:
         """The on-turn surcharge and the off-turn track both reset at the start of your turn,
         and your free movement is back. Squares bought last turn don't carry over."""
-        c.trackers = Trackers(0, 0, c.trackers.strain)
+        if self.rules.off_turn.unified():
+            # 0.11.0: the escalation carries into your turn; it resets when the turn ends.
+            c.trackers = Trackers(c.trackers.actions_this_turn, 0, c.trackers.strain)
+        else:
+            c.trackers = Trackers(0, 0, c.trackers.strain)
+        if not self.rules.opportunity.holds_return_at_turn_end():
+            self.return_holds(c)  # the hold rule: tokens come back at the start of your turn
         c.free_move_left = c.gear.movement
         c.banked = 0
         c.used_weapon = False
@@ -136,8 +176,53 @@ class StateOps:
         self._emit(TurnStarted(c.id, self.state.round))
 
     def end_turn(self, c: CombatantState) -> None:
+        if self.rules.off_turn.unified():
+            c.trackers = Trackers(0, 0, c.trackers.strain)
         self.state.turn_of = None
         self._emit(TurnEnded(c.id))
+
+    # --- holds (experiment) ----------------------------------------------------------
+
+    def return_holds(self, c: CombatantState) -> None:
+        """All of a holder's tokens come back to its ready stamina; its holds end."""
+        if not c.set_aside:
+            return
+        back = c.set_aside
+        c.holds = {}
+        c.parked = 0
+        c.stamina += back
+        self._emit(HoldsReturned(c.id, back, c.stamina))
+
+    def set_hold(self, c: CombatantState, target: str, tokens: int) -> None:
+        """Set ready stamina aside as tokens on an enemy."""
+        if tokens <= 0:
+            return
+        if not c.active:
+            raise RulesError(f"{c.id} is {c.status.value} and can't hold")
+        if tokens > c.stamina:
+            raise Unaffordable(f"{c.id}: a hold of {tokens}, has {c.stamina}")
+        c.stamina -= tokens
+        c.holds[target] = c.holds.get(target, 0) + tokens
+        self._emit(HoldSet(c.id, target, tokens, c.stamina))
+
+    def spend_hold(self, c: CombatantState, target: str, tokens: int) -> None:
+        """Pay part of an opportunity attack with a hold's tokens."""
+        if tokens <= 0:
+            return
+        have = c.holds.get(target, 0)
+        if tokens > have:
+            raise RulesError(f"{c.id} has {have} tokens on {target}, not {tokens}")
+        c.holds[target] = have - tokens
+        if c.holds[target] == 0:
+            del c.holds[target]
+        self._emit(HoldSpent(c.id, target, tokens))
+
+    def end_hold(self, c: CombatantState, target: str, reason: str) -> None:
+        """A hold ends (paid off, or its opportunity attack was triggered). Tokens left on
+        it stay set aside until the holder's next turn."""
+        left = c.holds.pop(target, 0)
+        c.parked += left
+        self._emit(HoldEnded(c.id, target, reason, left))
 
     def count_perfect_blocks(
         self, defender: CombatantState, attacker: str, round_: int, count: int
@@ -358,6 +443,10 @@ class StateOps:
             top = self.max_stamina(c)
             if not 0 <= c.stamina <= top:
                 raise EngineError(f"{c.id}: stamina {c.stamina} outside 0..{top}")
+            if c.active and c.stamina + c.set_aside > top:
+                raise EngineError(f"{c.id}: stamina {c.stamina} + {c.set_aside} set aside > {top}")
+            if c.parked < 0 or any(n <= 0 for n in c.holds.values()):
+                raise EngineError(f"{c.id}: bad holds {c.holds} / {c.parked}")
             if c.debt < 0:
                 raise EngineError(f"{c.id}: debt {c.debt} below 0")
             if c.dying.in_shock and c.dying.shock <= 0:

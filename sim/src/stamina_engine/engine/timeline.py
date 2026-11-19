@@ -8,6 +8,7 @@ from stamina_engine.agents.decisions import (
     Draw,
     EndTurn,
     Flee,
+    HoldRequest,
     Move,
     Shoot,
     Surrender,
@@ -34,6 +35,7 @@ cites = (
     "Packet: Free Movement",
     "Packet: Dash",
     "Packet: Stamina",
+    "Packet: Holds",
     "Packet: Dying and Death",
     "Ledger CB-9",
     "Ledger CR-3",
@@ -101,9 +103,45 @@ def take_turn(b: Battle, c: CombatantState) -> None:
             if b.outcome is not None:
                 return  # the fight ended mid-turn
         b.ops.end_turn(c)
+        opp = b.rules.opportunity
+        if opp.holds_on() and opp.holds_return_at_turn_end():
+            b.ops.return_holds(c)  # last turn's tokens come back now, before recovering
+        before = opp.holds_set_before_recovery()
+        if before:
+            set_holds(b, c)
         if c.active or b.rules.resources.recovers_while_incapacitated():
             b.ops.recover(c, c.profile.recovery)
+        if not before:
+            set_holds(b, c)
         off_turn_window(b, c)
+
+
+def set_holds(b: Battle, c: CombatantState) -> None:
+    """Experiment (the hold rule, designer 2026-11-17; Packet: Holds in 0.11.1): at the end
+    of your turn, before or after you recover (a switch), put ready stamina on enemies as
+    tokens: enemies within your reach, or any enemy (a switch; 0.11.1)."""
+    rule = b.rules.opportunity
+    if not rule.holds_on() or b.field is None or b.outcome is not None:
+        return
+    if not c.active or c.stamina <= 0:
+        return
+    targets = tuple(
+        o.id
+        for o in b.state.enemies_of(c)
+        if o.active
+        and o.pos is not None
+        and (rule.holds_any_enemy() or c.id in b.arena.threatening(b.state, o, o.pos))
+    )
+    if not targets:
+        return
+    limit = rule.hold_limit(c.stamina)
+    if limit <= 0:
+        return
+    answer = b.broker.holds(
+        HoldRequest(c.id, b.observe(c.id), b.context.path(), targets, limit)
+    )
+    for target, n in answer.tokens.items():
+        b.ops.set_hold(c, target, n)
 
 
 def command_loop(b: Battle, c: CombatantState) -> None:
@@ -233,6 +271,8 @@ def run_battle(b: Battle) -> BattleResult:
         b.ops.set_round(round_)
         b.ops.emit(RoundStarted(round_))
         with b.context.frame(f"round {round_}"):
+            if round_ == 1 and b.rules.off_turn.opens_fight():
+                off_turn_window(b, None)  # 0.11.0: a dash phase before the first turn
             play_round(b)
         b.end_of_round()
     winner, reason = b.outcome if b.outcome is not None else (None, "round_cap")

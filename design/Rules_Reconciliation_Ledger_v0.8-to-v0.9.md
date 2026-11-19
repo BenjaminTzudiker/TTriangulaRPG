@@ -4,7 +4,7 @@
 > - **PROPOSAL**, **UNCERTAIN** and **ABANDONED** entries are *not* rules; don't treat them as current design.
 > - The designer's rulings (logged verbatim in Part G) are folded into Parts A–D. **Part H (SHELVED)** holds ideas deliberately left out of the current rules; they are not rules.
 > - **Playtest Packet v0.9** is now the rules source and incorporates these rulings (through round 9). This ledger remains the record of where each rule came from and how firm it is.
-> - **Later packets:** the entries describe packet v0.9. `rules/CHANGELOG.md` records every change since then. Seven entries carry a **Later changes** line for what packet 0.11.0 changed (CB-2, CB-9, MV-1, MV-2, MV-4, MV-5 and CP-7; the reaction to a shot is under MV-2). The rest have not been brought up to date, and neither have the summaries in Parts A to C.
+> - **Later packets:** the entries describe packet v0.9. `rules/CHANGELOG.md` records every change since then. Seven entries carry a **Later changes** line for what packet 0.11.0 changed (CB-2, CB-9, MV-1, MV-2, MV-4, MV-5 and CP-7; the reaction to a shot is under MV-2), and five for packet 0.11.1 (CR-2, MV-3, MV-5, EQ-2 and H-4). The rest have not been brought up to date, and neither have the summaries in Parts A to C.
 
 # Rules Reconciliation Ledger: Playtest Packet v0.8 vs. Design Transcript
 
@@ -254,6 +254,9 @@
 - **History:**
   - current HP + ceil(level/10) [p.99] → four layers [p.105] → level only [p.334] → HP + STR + level [p.998] → 2×HP floated [p.1150] → final [p.1469].
 - **Evidence:** [p.1469]; confirmed (your ruling, 2026-11-01).
+- **Later changes:**
+  - *Packet 0.11.1 (your ruling, 2026-11-17):* hold tokens count toward the maximum. Whenever something would take you over it (a wound, your recovery, an ability), you lose the excess and choose where it comes from: current stamina, tokens, or some of each. "That will be the universal rule", with no special order for each case, "since it's assumed that the players can play optimally if they choose."
+    - *Now in:* the rules notes Stamina and Holds.
 
 ### CR-3 Stamina recovery (regen)
 - **Firmness:** Locked (timing) / Intent locked, numbers placeholder (amount). Timing restated with reasons three times [p.127, p.788, p.1275]. The formula 4 + round(level/10) is yours [p.1469]. Only its "placeholder" status was my inference, which you accepted (your ruling, 2026-11-01).
@@ -662,6 +665,10 @@
   - Avoidance is **always a flat 1 stamina** per enemy, per square left, on or off your turn. It doesn't escalate.
   - Example: leaving a square threatened by A and B costs 2. The next square, threatened only by C, costs 1. A further square also threatened by C costs 1 more, even though you already paid for C.
   - **For now, you can't pay to avoid the OAs that a point-blank ranged attack provokes** (not set in stone).
+- **Later changes:**
+  - *Packet 0.11.1 (your rulings, 2026-11-17):* an enemy that holds you charges 1 + its tokens on you for the first square you leave in its reach, and the hold then ends (see H-4 and the note Holds). An enemy that couldn't make even one step of an opportunity attack is owed nothing.
+    - *The intent above, as it stands:* "without making battlefields sticky" now also covers holds. They're opt-in, the holder pays for them with its next turn, and they were rare in the hand-played fights. "It's probably healthy for holds to not be happening constantly."
+    - *Now in:* the rules notes Opportunity Attacks (Avoiding Opportunity Attacks) and Holds.
 
 ### MV-4 Off-turn escalation
 - **Firmness:** Intent locked, mechanism open.
@@ -707,6 +714,12 @@
     - It stands in until opportunity attacks are redesigned. The hold rules planned for a later version are named as one way to complete them.
     - *The intent above, as it stands:* "limited in power but not free" is met by the single step and its base cost. More exposure means more triggers, at one step each. Finesse has not been the stat for them since packet 0.9.1.
     - *Now in:* the rules note Opportunity Attacks, under Making Opportunity Attacks (Exploratory).
+  - *Packet 0.11.1 (your rulings, 2026-11-17):* the placeholder is replaced.
+    - Steps cost the weapon's base +1 per earlier step of the same opportunity attack. Each opportunity attack starts fresh, and it still isn't an action.
+    - One can cost at most 1, +1 per odd Finesse value (this entry's cap, back from before 0.9.1), plus the attacker's hold tokens on the target, which are spent first.
+    - So a heavy weapon needs Finesse 3 or a hold to make one: big weapons have to commit (your ruling; paraphrased, so check the wording).
+    - *The intent above, as it stands:* "limited in power but not free" is met by the cap and the step prices. "Finesse is the OA stat" holds again. "An enemy who exposes themselves enough should sometimes be punishable for more than 1 stamina" now comes through a hold: the attacker commits tokens in advance, rather than gaining cap per square the enemy moves.
+    - *Now in:* the rules notes Opportunity Attacks (Making Opportunity Attacks, Mechanism open) and Holds.
 
 ---
 
@@ -825,6 +838,9 @@
 - **Status:** DECISION (placeholder numbers)
 - **Packet:** The longsword matches. Everything else is missing.
 - **Evidence:** [p.731], [p.1474], [p.1484] and your weapon rulings (your ruling, 2026-11-01). The greatsword was 2d6 briefly, then went back to 1d12.
+- **Later changes:**
+  - *Packet 0.11.1 (your ruling, 2026-11-17):* the spear is one- or two-handed, and has its reach (1 extra square) only in two hands, "so you can't pull this trick with a spear + shield": combining reach with a shield's defense, for example to hold a sword fighter 2 squares away.
+    - *Now in:* the rules note Weapons.
 
 ### EQ-3 Drawing weapons and occupied hands
 - **Firmness:** Exploratory.
@@ -1408,6 +1424,8 @@ These ideas are deliberately **out of the current rules**, but they're strong en
 - **Rejected:** opposed 2d12 rolls ("rolling two sets of dice just to give each person something to do"); defense = 1 + attribute (too swingy).
 - **Open:** which defense number, ideally with several sources like Melee and Ranged Defense.
 - **Sources:** [p.871, p.1276, p.1858–1979].
+- **Later changes:**
+  - *Packet 0.11.1 (2026-11-17):* the hold rule (rules note Holds) takes this idea's first rung, without the roll, for a different job: stopping a beaten enemy getting away. The holder pays (tokens set aside until the end of its next turn), the target resists with stamina (it pays 1 + the tokens to leave), and hurting the holder ends it. This entry stays shelved for grapples, Hold Person and charms.
 
 ### H-5 Spellcasting (overall ideas)
 - **Scope note:** you may move the design in a direction without magic; for now you expect something like the ideas below (round 8).

@@ -11,6 +11,7 @@ next: "[[Not in This Version]]"
 - Whether Dodge Defense stays in the game.
 - Area attacks, such as a fireball or dragon breath. One idea: measure cover from the blast's origin, and let a dive out of the area count as three-quarters cover.
 - An "out of the fight but alive" state above 0 HP.
+- Opportunity attacks at corners: should a diagonal step past a square an enemy threatens provoke, the way a wall's corner blocks the step (see [[Free Movement]])? Left out of 0.11.2, because threat would then reach farther than the weapon, and some steps into reach would provoke. Worth another look if creatures in play slip around guards too easily.
 - Whether stamina is public. Can players see an enemy's exact stamina, a rough band (such as above half, half to a quarter, under a quarter), or nothing? Choosing how much to commit and telegraphing a lethal threat both depend on it. If every attack and block is visible, a careful player can count an enemy's exact stamina anyway, so a band or a hidden number only holds if something else is hidden too.
 - How stamina is tracked at the table and on a virtual tabletop, especially with more than one pool per creature (such as hold tokens; see [[Holds]]).
 - The TODO details marked through this packet.

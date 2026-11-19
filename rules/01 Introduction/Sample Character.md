@@ -24,6 +24,6 @@ A level-1 **Fighter**, using the starting 5 Expertise and 1 Ability Point. Every
 | **Initiative** | 2d12 (CUN 0) |
 | **Critical range** | d8 crits on 7–8 |
 | **Attack** | Longsword: base 2, 1d8 + 3 per step |
-| **Opportunity attacks** | Cap 2 (1, +1 for FIN 1): one longsword step, more with hold tokens |
+| **Opportunity attacks** | Cap 2 (1, +1 for FIN 1): one longsword step, more with held stamina |
 | **Core ability** | Fighter (1 AP) |
 | **Skill Points** | 25 (skills TODO) |

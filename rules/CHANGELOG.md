@@ -29,7 +29,7 @@ A commit that only fixes typos can skip the entry by putting `[no changelog]` in
 
 ## 0.11.3 (2026-11-19)
 
-Dodge Defense is shelved for now: nothing in this version uses it, so there are two defense values, Melee and Ranged. Also records the stamina cap, which was never a rule, in [[Not in This Version]]. Nothing changes in the engine's fights.
+Dodge Defense is shelved for now: nothing in this version uses it, so there are two defense values, Melee and Ranged. Two wording changes match the playtest primer without changing a rule: hold tokens are now held stamina, and System Shock starts when damage takes you below 0 HP. Also records the stamina cap, which was never a rule, in [[Not in This Version]]. Nothing changes in the engine's fights.
 
 ### Rules
 
@@ -40,6 +40,8 @@ Dodge Defense is shelved for now: nothing in this version uses it, so there are 
 - [[Not in This Version]]: new entry, a stamina cap ("hard flux"): why it came up, the versions tried and what they did, its merits, why it's out, and what would bring it back. Why: the designer shelved it for this version, as a new core mechanic layered on a system that already has enough of them, and asked for the record. Source: design chats, 2026-11-15 and 2026-11-17/18; `claude/Hard_Flux_First_Read_2026-11-15.md`, `claude/Cap_Duel_Study_2026-11-15.md`, `claude/Lock_Movement_Engine_Runs_2026-11-15.md`; Ledger H-7.
 - [[Open Questions]]: "Whether Dodge Defense stays in the game" removed; for now it's in [[Not in This Version]]. Why: answered for this version. Source: design chat, 2026-11-19.
 - [[Playtest Packet]]: version line 0.11.2 → 0.11.3, and Dodge Defense leaves the reading order. Why: cutting 0.11.3. Source: designer's request, 2026-11-19.
+- [[Holds]], [[Opportunity Attacks]], [[Ranged Attacks]], [[Stamina]], [[Starting Combat and Turn Structure]], [[Sample Character]], [[Quick Reference]], [[Defined Terms]], [[Open Questions]]: hold "tokens" → **held stamina**, the stamina you put on an enemy to hold it, and the section "While Your Tokens Are Out" → "While Your Stamina Is Held". No rule changes. Why: the designer asked the playtest primer to stop calling it tokens, and the packet now matches. Source: design chat, 2026-11-19.
+- [[Dying and Death]], [[Defined Terms]]: "Below 0 HP, you enter System Shock" → "Taking damage that puts you below 0 HP puts you in System Shock". No rule change: a stabilized creature already stayed below 0 HP without being in System Shock. Why: the old wording read as being below 0 rather than taking the damage, which contradicted the stabilized rule; the designer asked for the clarification in the playtest primer, and the packet now matches. Source: design chat, 2026-11-19.
 
 ## 0.11.2 (2026-11-17)
 

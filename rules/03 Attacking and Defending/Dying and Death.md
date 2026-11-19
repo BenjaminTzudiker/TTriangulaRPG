@@ -11,7 +11,7 @@ next: "[[Weapons]]"
 
 **At 0 HP or below,** you're incapacitated, and you stay that way until rest brings you back to 1 HP or more (see [[Rest and Healing]]). At exactly 0 HP you're incapacitated but not in System Shock.
 
-**Below 0 HP,** you enter **System Shock**.
+**Taking damage that puts you below 0 HP** puts you in **System Shock**.
 - **Starting Shock:** equal to your negative HP. At −2 HP you have 2 Shock.
 - **More damage:** taking damage while in System Shock lowers your HP as normal and raises your Shock by the same amount.
 - **Dying roll:** at the start of each of your turns, roll **2d12 + Will**.

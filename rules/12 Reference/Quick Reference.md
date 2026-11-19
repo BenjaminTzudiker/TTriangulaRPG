@@ -26,9 +26,9 @@ next: "[[Defined Terms]]"
 | Aim step | 1 + escalation | Yes |
 | Dash | 1 + escalation | Yes |
 | Help the dying | 5 + escalation | Yes |
-| Opportunity attack | Weapon base, +1 per earlier step of that attack. At most 1 + 1 per odd Finesse, plus any hold tokens on the target | No |
-| Avoid an opportunity attack | 1 per enemy, per square; 1 + its tokens on you for the first square if it holds you | No |
-| Hold | Tokens set at the end of your turn, out until the end of your next turn | No |
+| Opportunity attack | Weapon base, +1 per earlier step of that attack. At most 1 + 1 per odd Finesse, plus any stamina you hold on the target | No |
+| Avoid an opportunity attack | 1 per enemy, per square; 1 + the stamina it holds on you for the first square, if it holds you | No |
+| Hold | Stamina put on enemies at the end of your turn, held until the end of your next turn | No |
 | Perfect block | 1, 2, 3… within one attack | No; resets every attack |
 | Grazing block | 1 | No |
 | Draw a normal weapon between turns | 1 | No |

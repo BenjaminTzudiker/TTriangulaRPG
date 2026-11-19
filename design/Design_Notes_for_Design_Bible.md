@@ -21,7 +21,7 @@
 - *[p.N] is a transcript page, ±1.*
 - *[R1:A3] is your ruling round 1, item A3. All rulings are dated 2026-11-01 and logged verbatim in the ledger's Part G. Round 2's unnumbered items are cited as [R2].*
 - *[C:2026-11-05] is a design chat on that date (the attribute chat). Quotes are your messages in it.*
-- *[C:2026-11-14] is the design chat of that date on aggression, gang-ups and uncertainty. [C:2026-11-15] and [C:2026-11-16] are the chat that followed it, on hard flux, tackle and movement, which led to packet 0.11.0. [C:2026-11-17] is the chat on holds that led to packets 0.11.1 and 0.11.2, and [C:2026-11-18] is its continuation. Quotes are your messages. The 2026-11-14 quotes were copied from notes written in that chat (`claude/Handoff_Pressure_Escape_Tackle_2026-11-14.md` and `claude/Design_Pillars_Redraft_2026-11-14.md` in the claude.ai project), not from the transcript, so check their wording.*
+- *[C:2026-11-14] is the design chat of that date on aggression, gang-ups and uncertainty. [C:2026-11-15] and [C:2026-11-16] are the chat that followed it, on hard flux, tackle and movement, which led to packet 0.11.0. [C:2026-11-17] is the chat on holds that led to packets 0.11.1 to 0.11.3, and [C:2026-11-18] and [C:2026-11-19] are its continuation. Quotes are your messages. The 2026-11-14 quotes were copied from notes written in that chat (`claude/Handoff_Pressure_Escape_Tackle_2026-11-14.md` and `claude/Design_Pillars_Redraft_2026-11-14.md` in the claude.ai project), not from the transcript, so check their wording.*
 - *Where a principle evolved, the final form comes first and the history follows.*
 
 ---
@@ -408,6 +408,7 @@ Earlier form of the same goal:
 - *Rule:* When two attributes feed the same thing, each needs a condition the other lacks. Otherwise the attribute with more bundled benefits wins.
 - *Source:* "AGI also gives dodge and works when disarmed while FIN works fine when wearing armor. AGI gives movement alongside initiative while CUN will get some other undecided bonus to go alongside initiative." [C:2026-11-05]
 - **STATED** (as the reasoning behind the current overlaps)
+- *Note:* packet 0.11.3 shelves Dodge Defense (H-8). Agility still differs from Finesse: its defense bonus works disarmed and adds to Ranged Defense.
 
 **Base attribute bonuses are simple, passive and quick to apply.**
 - *Rule:* What an attribute gives on its own should be a straightforward, non-active improvement that takes little table time and no arbitration. That usually means a number, a number-like change (a wider crit range on a die), or a simple grant (an AP). Effects that are specific, situational or active belong in abilities, even when they're keyed to an attribute.
@@ -704,6 +705,7 @@ These are deliberately out of the current rules, but they're candidate solutions
 - **H-5 Spellcasting:** overall ideas only [R2].
 - **H-6 NPC aggression profiles** [R2].
 - **H-7 Stamina cap (hard flux):** pressure that sticks, by keeping some stamina spent on defense from coming back. Shelved as "layering a new core mechanic on a system that already has enough core mechanics"; it "might end up in the game" [C:2026-11-17].
+- **H-8 Dodge Defense:** an avoid-only defense for what you can't block with a weapon or shield. Shelved "for now" in packet 0.11.3, since nothing in the game used it yet [C:2026-11-19].
 
 ---
 
@@ -756,7 +758,7 @@ These are the threads you kept returning to. Most are unresolved. Item 1 is the 
 16. **Combat as sport vs war;** pre- and post-fight phases [p.1567].
 17. **Ability selection that isn't obvious,** without abstract Slay the Spire-style mechanics [p.1587–1616].
 18. **Naming the on-turn step.** "Action" is provisional: it's misleading next to D&D and implies each attack step is a separate action [R7:CB-2].
-19. **Dodge's place in the system** is marked uncertain [R2:7].
+19. **Dodge's place in the system** was marked uncertain [R2:7]. Packet 0.11.3 shelves it for now (H-8) [C:2026-11-19].
 20. **Magic's scope.** You may take the design in a direction without magic; for now you expect something like the shelved spellcasting ideas (H-5) [R8].
 21. **Chasing and kiting under one escalation.** The price that lets a creature give ground also makes an archer harder to run down.
     - Earlier positions: melee characters need a way to catch archers who retreat off-turn [p.1706]; an escalating dash was rejected for its chase dynamics [p.1706–1712]; a fighter who starts far away should arrive low on stamina, not be kited for several turns (the reason recorded for packet 0.9.1's movement change).

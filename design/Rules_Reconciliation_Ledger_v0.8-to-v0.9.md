@@ -4,7 +4,7 @@
 > - **PROPOSAL**, **UNCERTAIN** and **ABANDONED** entries are *not* rules; don't treat them as current design.
 > - The designer's rulings (logged verbatim in Part G) are folded into Parts A–D. **Part H (SHELVED)** holds ideas deliberately left out of the current rules; they are not rules.
 > - **Playtest Packet v0.9** is now the rules source and incorporates these rulings (through round 9). This ledger remains the record of where each rule came from and how firm it is.
-> - **Later packets:** the entries describe packet v0.9. `rules/CHANGELOG.md` records every change since then. Seven entries carry a **Later changes** line for what packet 0.11.0 changed (CB-2, CB-9, MV-1, MV-2, MV-4, MV-5 and CP-7; the reaction to a shot is under MV-2), five for packet 0.11.1 (CR-2, MV-3, MV-5, EQ-2 and H-4), and four for packet 0.11.2 (CB-9, IN-1, CP-9 and MV-1). Part H gained H-7, the stamina cap, after 0.11.2. The rest have not been brought up to date, and neither have the summaries in Parts A to C.
+> - **Later packets:** the entries describe packet v0.9. `rules/CHANGELOG.md` records every change since then. Seven entries carry a **Later changes** line for what packet 0.11.0 changed (CB-2, CB-9, MV-1, MV-2, MV-4, MV-5 and CP-7; the reaction to a shot is under MV-2), five for packet 0.11.1 (CR-2, MV-3, MV-5, EQ-2 and H-4), and four for packet 0.11.2 (CB-9, IN-1, CP-9 and MV-1). Part H gained H-7, the stamina cap, after 0.11.2, and H-8, Dodge Defense, which packet 0.11.3 shelved (DF-3 has a **Later changes** line for it). The rest have not been brought up to date, and neither have the summaries in Parts A to C.
 
 # Rules Reconciliation Ledger: Playtest Packet v0.8 vs. Design Transcript
 
@@ -443,6 +443,9 @@
 - **Status:** DECISION (inclusion uncertain)
 - **Packet:** **Contradicts.** "1, plus Agility" reads as full Agility.
 - **Evidence:** [p.1470]. Ruling B2, clarification 7 (your ruling, 2026-11-01).
+- **Later changes:**
+  - *Packet 0.11.3 (your proposal, 2026-11-19):* shelved for now (H-8). Nothing in the game used it yet.
+    - *Now in:* the rules note Not in This Version.
 
 ---
 
@@ -1492,6 +1495,14 @@ These ideas are deliberately **out of the current rules**, but they're strong en
 - **Why it stayed out:** a second number per creature, the GM's included, that changes on most blocks and is checked at every recovery; a small effect in fights of the 3–5 rounds you aim for; a strong form that snowballs; and a problem that 0.11.0's single escalation and 0.11.1's holds may now meet in other ways, unplayed.
 - **What would bring it back:** signs in play that pressure doesn't stick: nobody wants to step back and catch their breath; small attacks feel pointless; both sides wait for the other to commit. Lighter candidates: numbers in the existing rules, or a breather that recovers extra if you neither attacked nor were attacked since your last turn. A cap would need to make room for itself, for example as one that turns perfect against grazing blocks into a real trade-off.
 - **Sources:** C:2026-11-15, C:2026-11-17; `claude/Hard_Flux_First_Read_2026-11-15.md`, `claude/Cap_Duel_Study_2026-11-15.md`, `claude/Lock_Movement_Engine_Runs_2026-11-15.md` (claude.ai project). Now in the rules note Not in This Version.
+
+### H-8 Dodge Defense
+- **Why it's shelved:** your proposal (2026-11-19), "for now". Nothing in packet 0.11.2 used it: there were no spells, monster stat blocks or rules for hazards, so it was a number on every sheet that never came up.
+- **What it was for** (DF-3, STATED): a rarely used, avoid-only defense for what you can't parry, such as a rolling boulder, a collapsing building or a touch spell; the equivalent of a Dexterity save in 5e. You marked its inclusion uncertain from the start [R2:7].
+- **The rule (packets v0.9 to 0.11.2):** 1 + 1 per even Agility value, reduced by armor through Agility's defense steps (EQ-1); the base 1 is lost if Agility is below 0.
+- **Overlap:** since packet 0.10.0, Ranged Defense also gains Agility's even values (Review F3, option 1), so Dodge matched Ranged Defense without the shield and the reaction bonus.
+- **What would bring it back:** spells, monsters or hazards that you can't block with a weapon or shield and that need a defense of their own.
+- **Sources:** DF-3; C:2026-11-19. Now in the rules note Not in This Version.
 
 ---
 

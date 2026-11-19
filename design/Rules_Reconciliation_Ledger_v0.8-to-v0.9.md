@@ -4,7 +4,7 @@
 > - **PROPOSAL**, **UNCERTAIN** and **ABANDONED** entries are *not* rules; don't treat them as current design.
 > - The designer's rulings (logged verbatim in Part G) are folded into Parts A–D. **Part H (SHELVED)** holds ideas deliberately left out of the current rules; they are not rules.
 > - **Playtest Packet v0.9** is now the rules source and incorporates these rulings (through round 9). This ledger remains the record of where each rule came from and how firm it is.
-> - **Later packets:** the entries describe packet v0.9. `rules/CHANGELOG.md` records every change since then. Seven entries carry a **Later changes** line for what packet 0.11.0 changed (CB-2, CB-9, MV-1, MV-2, MV-4, MV-5 and CP-7; the reaction to a shot is under MV-2), five for packet 0.11.1 (CR-2, MV-3, MV-5, EQ-2 and H-4), and three for packet 0.11.2 (CB-9, IN-1 and CP-9). Part H gained H-7, the stamina cap, after 0.11.2. The rest have not been brought up to date, and neither have the summaries in Parts A to C.
+> - **Later packets:** the entries describe packet v0.9. `rules/CHANGELOG.md` records every change since then. Seven entries carry a **Later changes** line for what packet 0.11.0 changed (CB-2, CB-9, MV-1, MV-2, MV-4, MV-5 and CP-7; the reaction to a shot is under MV-2), five for packet 0.11.1 (CR-2, MV-3, MV-5, EQ-2 and H-4), and four for packet 0.11.2 (CB-9, IN-1, CP-9 and MV-1). Part H gained H-7, the stamina cap, after 0.11.2. The rest have not been brought up to date, and neither have the summaries in Parts A to C.
 
 # Rules Reconciliation Ledger: Playtest Packet v0.8 vs. Design Transcript
 
@@ -619,6 +619,11 @@
       - "Melee characters need a way to catch archers who retreat off-turn" is not served by this version. A fighter chasing an archer is worse off than under packet 0.10.1 (the changelog's 0.11.0 entry gives the figures), and you left that to later changes on the ranged side.
     - *Why:* one rule for bought movement where there were two, and moving and attacking is taxed more than just moving.
     - *Now in:* the rules notes Free Movement (Locked for free movement; distances are placeholders) and Dash.
+  - *Packet 0.11.2 (your ruling, 2026-11-18):* you can't move diagonally past the corner of a wall or pillar. If either square beside the diagonal is one, you go around (2 squares, not 1), dashes included.
+    - Creatures and low obstacles (a crate, a low wall) don't block a diagonal, and you can still attack and threaten diagonally around a corner. That wording came from Claude's recommendation, which you accepted.
+    - *Why:* a body can't slip through a wall's corner (P3); the packet said nothing about it before a first playtest; doorways and corners become real positions (P2). It's D&D 3.5's rule.
+    - *Left out:* your second half, that a diagonal step past a square an enemy threatens provokes. It would make threat reach farther than the weapon and make some steps into reach provoke (the triggers are Locked: moving into reach doesn't provoke). It's now an open question.
+    - *Now in:* Free Movement (Corners; Locked). Engine: preset `exp-0.11.2`.
 
 ### MV-2 Off-turn movement
 - **Firmness:** Locked.

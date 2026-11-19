@@ -121,9 +121,10 @@ Packet 0.11.1 adds **holds** and gives opportunity attacks a rule again. At the 
 
 ## 8. After packet 0.11.2 (added 2026-11-17)
 
-Packet 0.11.2 adds two placeholders so a first playtest can run, and replaces the candidate abilities.
+Packet 0.11.2 adds two placeholders so a first playtest can run and a rule for moving past wall corners, and it replaces the candidate abilities.
 - **Phase 0, the initiative tiebreaker (F14)** has a placeholder: the higher Agility + Cunning, then a d12 roll-off. The dash phase's priority by initiative is now always defined.
 - **Helping the dying,** the readiness review's one blocker that needed a new rule, has a placeholder: an action with a base cost of 5, rolling 2d12 + Intelligence against 10 + the target's Shock.
+- **Grid movement (added 2026-11-18):** you can't move diagonally past the corner of a wall or pillar (Free Movement). It's the first grid reading the packet states; the engine's others (moving through creatures, reach past walls) are still its own readings. Its threat half, a diagonal step past a threatened square provoking, is an open question.
 - **Phase 7 (content-facing gaps):** the candidate abilities are now one, Great Weapon Training (Fighter; +1 square of reach for heavy weapons). The earlier candidates moved to their own note.
 - **§5, loops (added 2026-11-18).** The stamina cap is shelved (Not in This Version; Ledger H-7). The re-check of holds that section 7 tied to a cap waits until one comes back.
 

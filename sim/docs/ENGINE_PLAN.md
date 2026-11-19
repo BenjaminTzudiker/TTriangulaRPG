@@ -578,6 +578,7 @@ When a pending row is ruled, or a ruled row changes, the same commit updates the
 | The spear's reach only in two hands (0.11.1) | Not modelled: the equipment is v0.10.1's, and its spear builds (`l1_spear`, `l1_spear_fin0`) hold the spear one-handed with a shield and still reach 2 | — | ruled 2026-11-17; not implemented |
 | Helping the dying (0.11.2) | Not modelled: no creature tends a dying ally. `dying.stabilize` only records an outcome | — | ruled 2026-11-17; not implemented |
 | Great Weapon Training (0.11.2 candidate ability) | Not implemented. The earlier candidates the engine has (`abilities/candidates.py`) moved to the note Earlier Candidate Abilities | — | ruled 2026-11-17; not implemented |
+| Dodge Defense shelved (0.11.3) | No change in play: no fight the engine plays uses Dodge Defense, so 0.11.3 has no preset of its own. `derive` still computes it for the presets that read earlier packets, and the defenses component cites Not in This Version | `defenses` | ruled 2026-11-19 |
 
 Off-turn order can move headline numbers on its own (it decides who ends adjacent to whom), so it gets a sensitivity run in the phase suite until it is decided.
 

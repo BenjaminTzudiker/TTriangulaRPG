@@ -1,7 +1,7 @@
 ---
 up: "[[Playtest Packet]]"
 prev: "[[Ranged Attacks]]"
-next: "[[Dodge Defense]]"
+next: "[[Conditions and Control Effects]]"
 ---
 # Drawing Weapons
 

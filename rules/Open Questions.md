@@ -8,7 +8,6 @@ next: "[[Not in This Version]]"
 **Combat**
 - Ranged lethality under the 0.10.0 bows: untested at normal ranges. Two archers shooting one target back to back are the main risk.
 - A better name for "action".
-- Whether Dodge Defense stays in the game.
 - Area attacks, such as a fireball or dragon breath. One idea: measure cover from the blast's origin, and let a dive out of the area count as three-quarters cover.
 - An "out of the fight but alive" state above 0 HP.
 - Opportunity attacks at corners: should a diagonal step past a square an enemy threatens provoke, the way a wall's corner blocks the step (see [[Free Movement]])? Left out of 0.11.2, because threat would then reach farther than the weapon, and some steps into reach would provoke. Worth another look if creatures in play slip around guards too easily.

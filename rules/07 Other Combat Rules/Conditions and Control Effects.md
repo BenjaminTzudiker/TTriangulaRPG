@@ -1,6 +1,6 @@
 ---
 up: "[[Playtest Packet]]"
-prev: "[[Dodge Defense]]"
+prev: "[[Drawing Weapons]]"
 next: "[[Attributes]]"
 ---
 # Conditions and Control Effects

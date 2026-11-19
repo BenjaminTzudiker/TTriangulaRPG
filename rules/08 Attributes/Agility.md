@@ -14,9 +14,9 @@ Agility is whole-body movement: balance, speed, evasiveness and cardiovascular e
 - +1 square per dash (see [[Dash]]).
 
 **Even values (2, 4, 6):**
-- +1 Melee Defense, +1 Ranged Defense and +1 Dodge Defense.
+- +1 Melee Defense and +1 Ranged Defense.
 - Medium and heavy armor reduce this (see [[Armor]]).
 
-**Below 0** (for example, from armor penalties): you lose your base 1 Melee, Ranged and Dodge Defense.
+**Below 0** (for example, from armor penalties): you lose your base 1 Melee and Ranged Defense.
 
 **Initiative ties:** the higher Agility + Cunning goes first (see [[Starting Combat and Turn Structure]]).

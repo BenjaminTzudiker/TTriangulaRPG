@@ -66,7 +66,7 @@ The running totals for perfect blocks, attribute costs and skill ranks.
   - Intelligence: core abilities not counted toward the next core's cost.
 - **Even-value bonuses:**
   - Strength: +2 maximum HP each.
-  - Agility: Melee, Ranged and Dodge Defense. The medium and heavy armor columns apply here.
+  - Agility: Melee and Ranged Defense. The medium and heavy armor columns apply here.
   - Finesse: Melee Defense while wielding a proficient melee weapon. Armor doesn't change this.
   - Intelligence: extra Ability Points on a level schedule (see [[Intelligence]]).
 - **Every point:** Cunning adds 1 to initiative; Will adds 1 to the dying roll; Intelligence adds 1 to the roll to help the dying.

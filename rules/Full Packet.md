@@ -63,8 +63,6 @@ The whole packet in reading order, for reading straight through. Each section is
 
 # Other Combat Rules
 
-![[Dodge Defense]]
-
 ![[Conditions and Control Effects]]
 
 # Attributes

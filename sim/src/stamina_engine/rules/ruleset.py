@@ -403,6 +403,15 @@ def exp_0_11_1() -> RuleSet:
     )
 
 
+def exp_0_11_2() -> RuleSet:
+    """Not a baseline preset: exp-0.11.1 with packet 0.11.2's corner rule (Free Movement): no
+    diagonal step past the corner of a wall or pillar. The rest of 0.11.2 isn't modelled: the
+    initiative tiebreaker, helping the dying and Great Weapon Training."""
+    base = exp_0_11_1()
+    assert isinstance(base.grid, V09Grid)
+    return base.with_(name="exp-0.11.2", grid=dataclasses.replace(base.grid, corners="no_cut"))
+
+
 def exp_holds_next_turn_half() -> RuleSet:
     """exp-holds-next-turn with holds set after recovering, at most half your ready stamina."""
     base = exp_holds_next_turn()
@@ -439,6 +448,7 @@ PRESETS: dict[str, Callable[[], RuleSet]] = {
     "exp-holds-next-turn-half": exp_holds_next_turn_half,
     "exp-holds-placeholder": exp_holds_placeholder,
     "exp-0.11.1": exp_0_11_1,
+    "exp-0.11.2": exp_0_11_2,
 }
 
 

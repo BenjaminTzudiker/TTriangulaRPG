@@ -33,6 +33,12 @@ def test_presets_differ_where_intended() -> None:
     }
 
 
+def test_exp_0_11_2_adds_only_the_corner_rule() -> None:
+    old, new = preset("exp-0.11.1"), preset("exp-0.11.2")
+    assert {k for k in KINDS if getattr(old, k) != getattr(new, k)} == {"grid"}
+    assert new.grid.corner_mode() == "no_cut"
+
+
 def test_override_with_base() -> None:
     rules = from_toml(
         """

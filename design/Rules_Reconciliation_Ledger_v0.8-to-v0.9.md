@@ -1013,7 +1013,7 @@
 - **Packet:** Missing.
 - **Evidence:** "Some of the abilities I liked from before, with minor alterations" [p.856]
 - **Later changes:**
-  - *Packet 0.11.2 (your ruling, 2026-11-17):* these moved unchanged to the rules note Earlier Candidate Abilities. The candidate list is now one ability, Great Weapon Training: with the Fighter core ability, heavy melee weapons (base cost 3: greatswords, greataxes, halberds) get +1 square of reach. *Why (your words, 2026-11-18):* none of the earlier candidates "actually reflected what I expect abilities to look like"; Great Weapon Training "feels like the right sort of enhancement of a particular set of weapons. Potentially powerful and meaningfully changes the style of using them, but not just by making the damage numbers better."
+  - *Packet 0.11.2 (your ruling, 2026-11-17):* these moved unchanged to the rules note Earlier Candidate Abilities. The candidate list is now one ability, Great Weapon Training: with the Fighter core ability, heavy melee weapons (base cost 3: greatswords, greataxes, halberds) get +1 square of reach. *Why (your words, 2026-11-18):* none of the earlier candidates "actually reflected what I expect abilities to look like"; Great Weapon Training "feels like the right sort of enhancement of a particular set of weapons. Potentially powerful and meaningfully changes the style of using them, but not just by making the damage numbers better." Later the same day: "I don't plan on adding generic active abilities like 'Riposte' or 'Parry' as ability point costed abilities. The assumption is that those are already represented implicitly via an interpretation of the normal combat mechanics."
     - *Now in:* the rules notes Candidate Abilities and Earlier Candidate Abilities.
 
 ---

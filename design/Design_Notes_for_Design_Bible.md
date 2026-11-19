@@ -451,11 +451,15 @@ Earlier form of the same goal:
   - They also give a home to "fitting mechanics that people might not choose to unlock if given the choice to buy them normally" [R1:A14].
   - Unlocking a tree is just buying its first, core ability. There are no separate tier-tree unlocks [R1:B12, R2:8].
 
-**Abilities should change how something is used, not just make its numbers better.**
-- *Rule:* A good ability changes the way you use something, such as a set of weapons, and can be powerful in doing so. Better numbers alone aren't what abilities are for.
-- *Source:* on replacing the candidate abilities: "None of the existing abilities there actually reflected what I expect abilities to look like." Great Weapon Training "feels like the right sort of enhancement of a particular set of weapons. Potentially powerful and meaningfully changes the style of using them, but not just by making the damage numbers better." [C:2026-11-18]
+**Don't sell what the core mechanics already do.**
+- *Rule:* Generic active abilities such as "Riposte" or "Parry" aren't bought with Ability Points. The normal combat mechanics already represent them, read the right way.
+  - Abilities that change how a particular set of weapons is used fit (Great Weapon Training), but they should be few and handled with care. Weapon specializations aren't meant to be a full set of abilities.
+  - Where there's a choice, prefer an ability that helps broadly but helps some situations or builds more than others.
+  - Simple bonuses are fine too, as a way to balance trees against each other and shape how a tree progresses.
+- *Source:* "I can imagine adding abilities with simple bonuses as a way of adjusting balance between trees and shifting tree progression, so this isn't a universal principle. Maybe a better way to put it is that I don't plan on adding generic active abilities like 'Riposte' or 'Parry' as ability point costed abilities. The assumption is that those are already represented implicitly via an interpretation of the normal combat mechanics." Weapon-specific abilities: "I don't anticipate having this be a full set of abilities … but there will probably be other abilities that benefit specific weapons in certain ways (though I want to be very careful with how I do that, and when it's an option I prefer abilities that are broadly beneficial but are more beneficial in certain cases/for certain builds than for others)." On replacing the candidate abilities: "None of the existing abilities there actually reflected what I expect abilities to look like"; Great Weapon Training "feels like the right sort of enhancement of a particular set of weapons. Potentially powerful and meaningfully changes the style of using them, but not just by making the damage numbers better." [C:2026-11-18]
 - **STATED**
-- *Related:* the principle above asks for "an actual power boost rather than just being more versatile" [p.1054]. Read together: a real gain in power that shows up as a change in how you play.
+- *Related:* the principle above asks for "an actual power boost rather than just being more versatile" [p.1054].
+- *History:* first recorded on 2026-11-18 as "abilities should change how something is used, not just make its numbers better". You narrowed it the same day: simple bonuses have a place, so that isn't a universal rule.
 
 **Avoid "subclasses but more complicated" and GM-dependent builds.**
 - *Source:* "If the packages are too clearly defined or don't have much ability overlap then I've just made subclasses but more complicated." [p.1605]. On the ranger problem, and on GMs' enemy choices skewing builds [p.1605].

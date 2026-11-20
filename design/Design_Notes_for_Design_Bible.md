@@ -21,7 +21,7 @@
 - *[p.N] is a transcript page, ±1.*
 - *[R1:A3] is your ruling round 1, item A3. All rulings are dated 2026-11-01 and logged verbatim in the ledger's Part G. Round 2's unnumbered items are cited as [R2].*
 - *[C:2026-11-05] is a design chat on that date (the attribute chat). Quotes are your messages in it.*
-- *[C:2026-11-14] is the design chat of that date on aggression, gang-ups and uncertainty. [C:2026-11-15] and [C:2026-11-16] are the chat that followed it, on hard flux, tackle and movement, which led to packet 0.11.0. [C:2026-11-17] is the chat on holds that led to packet 0.11.1. Quotes are your messages. The 2026-11-14 quotes were copied from notes written in that chat (`claude/Handoff_Pressure_Escape_Tackle_2026-11-14.md` and `claude/Design_Pillars_Redraft_2026-11-14.md` in the claude.ai project), not from the transcript, so check their wording.*
+- *[C:2026-11-14] is the design chat of that date on aggression, gang-ups and uncertainty. [C:2026-11-15] and [C:2026-11-16] are the chat that followed it, on hard flux, tackle and movement, which led to packet 0.11.0. [C:2026-11-17] is the chat on holds that led to packets 0.11.1 and 0.11.2, and [C:2026-11-18] is its continuation. Quotes are your messages. The 2026-11-14 quotes were copied from notes written in that chat (`claude/Handoff_Pressure_Escape_Tackle_2026-11-14.md` and `claude/Design_Pillars_Redraft_2026-11-14.md` in the claude.ai project), not from the transcript, so check their wording.*
 - *Where a principle evolved, the final form comes first and the history follows.*
 
 ---
@@ -451,6 +451,16 @@ Earlier form of the same goal:
   - They also give a home to "fitting mechanics that people might not choose to unlock if given the choice to buy them normally" [R1:A14].
   - Unlocking a tree is just buying its first, core ability. There are no separate tier-tree unlocks [R1:B12, R2:8].
 
+**Don't sell what the core mechanics already do.**
+- *Rule:* Generic active abilities such as "Riposte" or "Parry" aren't bought with Ability Points. The normal combat mechanics already represent them, read the right way.
+  - Abilities that change how a particular set of weapons is used fit (Great Weapon Training), but they should be few and handled with care. Weapon specializations aren't meant to be a full set of abilities.
+  - Where there's a choice, prefer an ability that helps broadly but helps some situations or builds more than others.
+  - Simple bonuses are fine too, as a way to balance trees against each other and shape how a tree progresses.
+- *Source:* "I can imagine adding abilities with simple bonuses as a way of adjusting balance between trees and shifting tree progression, so this isn't a universal principle. Maybe a better way to put it is that I don't plan on adding generic active abilities like 'Riposte' or 'Parry' as ability point costed abilities. The assumption is that those are already represented implicitly via an interpretation of the normal combat mechanics." Weapon-specific abilities: "I don't anticipate having this be a full set of abilities … but there will probably be other abilities that benefit specific weapons in certain ways (though I want to be very careful with how I do that, and when it's an option I prefer abilities that are broadly beneficial but are more beneficial in certain cases/for certain builds than for others)." On replacing the candidate abilities: "None of the existing abilities there actually reflected what I expect abilities to look like"; Great Weapon Training "feels like the right sort of enhancement of a particular set of weapons. Potentially powerful and meaningfully changes the style of using them, but not just by making the damage numbers better." [C:2026-11-18]
+- **STATED**
+- *Related:* the principle above asks for "an actual power boost rather than just being more versatile" [p.1054].
+- *History:* first recorded on 2026-11-18 as "abilities should change how something is used, not just make its numbers better". You narrowed it the same day: simple bonuses have a place, so that isn't a universal rule.
+
 **Avoid "subclasses but more complicated" and GM-dependent builds.**
 - *Source:* "If the packages are too clearly defined or don't have much ability overlap then I've just made subclasses but more complicated." [p.1605]. On the ranger problem, and on GMs' enemy choices skewing builds [p.1605].
 - **STATED**
@@ -553,6 +563,10 @@ Earlier form of the same goal:
 
 **A rule that adds a lot to think about should come up rarely, and saying nothing should mean "no".**
 - *Source:* "It's probably healthy for holds to not be happening constantly, since they sound like they'd add a meaningful amount of additional mental load to the game." On the end-of-turn question: "Hopefully the question won't need to be answered unless it's a yes, they'll just say 'I'm putting a hold on X' and that signals the end of their turn." [C:2026-11-17]
+- **STATED**
+
+**Prefer changes that simplify a core mechanic while solving a problem. A new mechanic that comes up every turn has to earn a place among the core ones.**
+- *Source:* on a stamina cap: "I still have the sense that this is layering a new core mechanic on a system that already has enough core mechanics. I liked the movement/off-turn action change because it simplified a core mechanic (two action tracks) while solving a problem. Holds are a new mechanic, but they (hopefully) don't come up every turn." The cap "might not be a bad mechanic and it might end up in the game", but not in the current version: "Whether this is because something else needs to be simplified to make room for a stamina cap or the cap itself needs to be changed, I'm not sure." [C:2026-11-17]
 - **STATED**
 
 **Where the player has an obvious best choice, let them make it; don't write the order into the rules.**
@@ -689,6 +703,7 @@ These are deliberately out of the current rules, but they're candidate solutions
 - **H-4 Control effects / extended contests** [R2].
 - **H-5 Spellcasting:** overall ideas only [R2].
 - **H-6 NPC aggression profiles** [R2].
+- **H-7 Stamina cap (hard flux):** pressure that sticks, by keeping some stamina spent on defense from coming back. Shelved as "layering a new core mechanic on a system that already has enough core mechanics"; it "might end up in the game" [C:2026-11-17].
 
 ---
 

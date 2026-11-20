@@ -4,7 +4,7 @@
 > - **PROPOSAL**, **UNCERTAIN** and **ABANDONED** entries are *not* rules; don't treat them as current design.
 > - The designer's rulings (logged verbatim in Part G) are folded into Parts A–D. **Part H (SHELVED)** holds ideas deliberately left out of the current rules; they are not rules.
 > - **Playtest Packet v0.9** is now the rules source and incorporates these rulings (through round 9). This ledger remains the record of where each rule came from and how firm it is.
-> - **Later packets:** the entries describe packet v0.9. `rules/CHANGELOG.md` records every change since then. Seven entries carry a **Later changes** line for what packet 0.11.0 changed (CB-2, CB-9, MV-1, MV-2, MV-4, MV-5 and CP-7; the reaction to a shot is under MV-2), and five for packet 0.11.1 (CR-2, MV-3, MV-5, EQ-2 and H-4). The rest have not been brought up to date, and neither have the summaries in Parts A to C.
+> - **Later packets:** the entries describe packet v0.9. `rules/CHANGELOG.md` records every change since then. Seven entries carry a **Later changes** line for what packet 0.11.0 changed (CB-2, CB-9, MV-1, MV-2, MV-4, MV-5 and CP-7; the reaction to a shot is under MV-2), five for packet 0.11.1 (CR-2, MV-3, MV-5, EQ-2 and H-4), and four for packet 0.11.2 (CB-9, IN-1, CP-9 and MV-1). Part H gained H-7, the stamina cap, after 0.11.2. The rest have not been brought up to date, and neither have the summaries in Parts A to C.
 
 # Rules Reconciliation Ledger: Playtest Packet v0.8 vs. Design Transcript
 
@@ -586,6 +586,8 @@
     - The dash phase gives priority by initiative, and assumes a clear order. Ties are for the initiative rules to settle: "For now, tiebreaker is TBD - the entire initiative roll system is a known placeholder".
     - *Why a dash phase before the first turn:* without it, only the creature highest in initiative acts before anyone else can move.
     - *Now in:* the rules note Starting Combat and Turn Structure (Exploratory).
+  - *Packet 0.11.2 (your ruling, 2026-11-17):* a placeholder tiebreaker, "first tiebroken by who has a higher AGI + CUN, and then by opposed die rolls until all ties are broken". The packet makes the opposed rolls a d12 roll-off. It's there so a first playtest can run; you called the close gang-up result with holds "another sign that we need to revamp initiative".
+    - *Now in:* the rules note Starting Combat and Turn Structure; restated in Agility and Cunning.
 
 ---
 
@@ -617,6 +619,11 @@
       - "Melee characters need a way to catch archers who retreat off-turn" is not served by this version. A fighter chasing an archer is worse off than under packet 0.10.1 (the changelog's 0.11.0 entry gives the figures), and you left that to later changes on the ranged side.
     - *Why:* one rule for bought movement where there were two, and moving and attacking is taxed more than just moving.
     - *Now in:* the rules notes Free Movement (Locked for free movement; distances are placeholders) and Dash.
+  - *Packet 0.11.2 (your ruling, 2026-11-18):* you can't move diagonally past the corner of a wall or pillar. If either square beside the diagonal is one, you go around (2 squares, not 1), dashes included.
+    - Creatures and low obstacles (a crate, a low wall) don't block a diagonal, and you can still attack and threaten diagonally around a corner. That wording came from Claude's recommendation, which you accepted.
+    - *Why:* a body can't slip through a wall's corner (P3); the packet said nothing about it before a first playtest; doorways and corners become real positions (P2). It's D&D 3.5's rule.
+    - *Left out:* your second half, that a diagonal step past a square an enemy threatens provokes. It would make threat reach farther than the weapon and make some steps into reach provoke (the triggers are Locked: moving into reach doesn't provoke). It's now an open question.
+    - *Now in:* Free Movement (Corners; Locked). Engine: preset `exp-0.11.2`.
 
 ### MV-2 Off-turn movement
 - **Firmness:** Locked.
@@ -1010,6 +1017,9 @@
 - **Status:** DECISION as a kept candidate list. They aren't assigned to trees. Other ability lists are ChatGPT's.
 - **Packet:** Missing.
 - **Evidence:** "Some of the abilities I liked from before, with minor alterations" [p.856]
+- **Later changes:**
+  - *Packet 0.11.2 (your ruling, 2026-11-17):* these moved unchanged to the rules note Earlier Candidate Abilities. The candidate list is now one ability, Great Weapon Training: with the Fighter core ability, heavy melee weapons (base cost 3: greatswords, greataxes, halberds) get +1 square of reach. *Why (your words, 2026-11-18):* none of the earlier candidates "actually reflected what I expect abilities to look like"; Great Weapon Training "feels like the right sort of enhancement of a particular set of weapons. Potentially powerful and meaningfully changes the style of using them, but not just by making the damage numbers better." Later the same day: "I don't plan on adding generic active abilities like 'Riposte' or 'Parry' as ability point costed abilities. The assumption is that those are already represented implicitly via an interpretation of the normal combat mechanics."
+    - *Now in:* the rules notes Candidate Abilities and Earlier Candidate Abilities.
 
 ---
 
@@ -1078,6 +1088,9 @@
 - **Status:** DECISION (placeholder)
 - **Packet:** Missing.
 - **History:** ChatGPT's p.608–612 track (death at 3 Shock, +1 per round) → your thresholds, 10-Shock death and Shock tied to negative HP (your ruling, 2026-11-01).
+- **Later changes:**
+  - *Packet 0.11.2 (your ruling, 2026-11-17):* the Medicine roll gets a placeholder. As an action with a base cost of 5, a creature within 1 square (5 ft) of someone in System Shock rolls 2d12 + Intelligence; at 10 + the target's Shock or more, its Shock drops by 1. It's there so a first playtest can run.
+    - *Now in:* the rules note Dying and Death (Helping the Dying); restated in Actions and Escalation and Intelligence.
 
 ### IN-2 Lingering injuries → SHELVED
 - **Status:** SHELVED (Part H, H-3) (your ruling, 2026-11-01).
@@ -1455,6 +1468,30 @@ These ideas are deliberately **out of the current rules**, but they're strong en
   - About 3 attack/defense profiles per NPC, defaulting to the middle one, with stated triggers for switching.
   - Minions might reset stamina each turn or use fixed defense steps.
 - **The goal:** a balance-tested default that GMs can override [p.1294].
+
+### H-7 Stamina cap (hard flux)
+- **Why it's shelved:** your ruling (2026-11-17). It "might not be a bad mechanic and it might end up in the game", but it layers a new core mechanic on a system that already has enough of them, so it isn't right for the current version. You weren't sure whether something else needs simplifying to make room for it, or the cap itself needs to change. Packet 0.11.0 had already left it out.
+- **What it solves:**
+  - Pressure that sticks. Recovery returns everything a probe costs (a 1-step attack takes 3.1 stamina from the sample fighter at Melee Defense 3; recovery is 4), so nothing sits between "back next turn" and a wound, and only big commitments count.
+  - Stamina spent on offense and on defense would work differently, so a mis-tuned balance wouldn't tip into "whoever commits first wins" or "whoever is aggressive first dies". That's why you value hard flux in Starsector.
+  - Long, armor-backed duels at higher Melee Defense, and true stalemates.
+- **The idea (yours, 2026-11-15, offered as a first instinct to try):**
+  - Stamina spent on perfect blocks and on avoiding opportunity attacks also lowers a cap that recovery can't pass.
+  - The cap resets at the start of your turn if you made no perfect block and avoided no opportunity attack since your last turn.
+  - Grazing blocks neither lower the cap nor prevent the reset, so armor gets a niche.
+  - You wondered whether it could replace fluctuating maximum stamina, or bring back damage reducing maximum stamina (H-2), with an "overload" that downs you before 0 HP.
+- **What was tried** (packet 0.10.1; an exact solver for duels in contact with no movement, and engine fights for groups):
+  - *Your version:* under best play, 6.9 → 6.1 rounds at Melee Defense 4 and 15.7 → 14.2 at 5, with the first mover's share up about a point. It still shapes play: a fighter who ignores it gives up 7 points of win chance at Melee Defense 4 and 35–42 at 5. Engine agents, which ignore it, play duels of 3.3 rounds instead of 3.9, and 6.5 instead of 12.4 with one more point of guard.
+  - *No exemption* (every block locks; it clears only after a round with no block): 2.6 / 4.2 / 5.8 rounds at Melee Defense 3 / 4 / 5, against 2.7 / 6.9 / 15.7. It snowballs: a fighter 4 stamina behind wins 7% at Melee Defense 4 (15% without it) and 11% at 5 (29%), and the first mover's share goes from 64% to 68% at 4. An opening price of 2 stamina brings the first mover back to 51–52% at 4 and 5.
+  - *Partial clearing, decay, never clearing:* every version falls on one line, where a shorter fight comes with a bigger first-mover edge and a costlier deficit.
+  - *As a replacement for the rising price of perfect blocks:* no. At a flat 1 a block, a duel at Melee Defense 4 never ends without the lock and lasts about 50 rounds with it.
+  - *Stamina back for attacking* (your question about the other direction): favors the first attacker (73% → 86.5% at Melee Defense 3). Only a refund for attacks that draw no blood leaves first strike alone.
+  - *Group fights in the engine,* under 0.10.1's movement: no measurable change, because a creature was down in round 1 in 81% of three-a-side fights. With the movement proposal that led to 0.11.0, the no-exemption lock shortened fights by about half a round, and in two a side it raised the first actor's side from 56% to 72%.
+  - *A breather anyone may take,* in a duel: win-more. The fighter who uses it is the one who just went all in.
+- **Merits:** light pressure leaves something behind; true stalemates end; a pressed fighter has a reason to back off and catch its breath, and a hold has something to deny; a public cap shows who's under pressure.
+- **Why it stayed out:** a second number per creature, the GM's included, that changes on most blocks and is checked at every recovery; a small effect in fights of the 3–5 rounds you aim for; a strong form that snowballs; and a problem that 0.11.0's single escalation and 0.11.1's holds may now meet in other ways, unplayed.
+- **What would bring it back:** signs in play that pressure doesn't stick: nobody wants to step back and catch their breath; small attacks feel pointless; both sides wait for the other to commit. Lighter candidates: numbers in the existing rules, or a breather that recovers extra if you neither attacked nor were attacked since your last turn. A cap would need to make room for itself, for example as one that turns perfect against grazing blocks into a real trade-off.
+- **Sources:** C:2026-11-15, C:2026-11-17; `claude/Hard_Flux_First_Read_2026-11-15.md`, `claude/Cap_Duel_Study_2026-11-15.md`, `claude/Lock_Movement_Engine_Runs_2026-11-15.md` (claude.ai project). Now in the rules note Not in This Version.
 
 ---
 

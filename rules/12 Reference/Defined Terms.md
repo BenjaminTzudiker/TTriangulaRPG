@@ -7,7 +7,7 @@ next: "[[Open Questions]]"
 
 | Term | Meaning | Defined in |
 |---|---|---|
-| Action | A melee attack step, a ranged shot, an aim step or a dash. Each costs its base + your escalation. | [[Actions and Escalation]] |
+| Action | A melee attack step, a ranged shot, an aim step, a dash, or helping the dying. Each costs its base + your escalation. | [[Actions and Escalation]] |
 | Attack step | One unit of commitment in a melee attack, adding one weapon damage roll. | [[Melee Attacks]] |
 | Aim step | Adds 1d6 to a ranged attack's total; it's an action. Every shot also comes with one free aim die, also 1d6. | [[Aim]] |
 | Aim limit | The HP a shot takes can't exceed the weapon's damage roll; critical bonuses add on top. | [[Aim]] |

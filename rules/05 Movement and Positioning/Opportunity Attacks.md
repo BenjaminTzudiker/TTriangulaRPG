@@ -11,7 +11,7 @@ Slipping past an engaged enemy should cost something, without making the battlef
 
 ## Triggers
 
-**Leaving a threatened square:** you provoke an opportunity attack whenever you move out of a square an enemy threatens (one within its reach). That includes:
+**Leaving a threatened square:** you provoke an opportunity attack whenever you move out of a square an enemy threatens (one within its reach, usually the 8 squares around it). That includes:
 - moving sideways within its reach;
 - leaving its reach;
 - stepping closer to an enemy with a reach weapon.

@@ -5,7 +5,7 @@ next: "[[Starting Combat and Turn Structure]]"
 ---
 # Sample Character
 
-*Restates [[Character Creation]], [[Costs]], [[HP]], [[Stamina]], [[Strain]], [[Rest and Healing]], [[Defenses]], [[Ranged Defense]], [[Free Movement]], [[Dash]], [[Starting Combat and Turn Structure]], [[Critical Hits]], [[Weapons]], [[Armor]], [[Shields]], [[Opportunity Attacks]] and [[Core Abilities]].*
+*Restates [[Character Creation]], [[Costs]], [[HP]], [[Stamina]], [[Strain]], [[Rest and Healing]], [[Defenses]], [[Ranged Defense]], [[Free Movement]], [[Dying and Death]], [[Dash]], [[Starting Combat and Turn Structure]], [[Critical Hits]], [[Weapons]], [[Armor]], [[Shields]], [[Opportunity Attacks]] and [[Core Abilities]].*
 
 *Illustrative only*
 
@@ -22,6 +22,8 @@ A level-1 **Fighter**, using the starting 5 Expertise and 1 Ability Point. Every
 | **Ranged Defense** | 2: base 1 + shield 1; +1 against a shot it moves in reaction to |
 | **Movement** | 6 squares; 2 squares per dash |
 | **Initiative** | 2d12 (CUN 0) |
+| **Dying roll** | 2d12 (WIL 0) |
+| **Helping the dying** | 2d12 (INT 0) |
 | **Critical range** | d8 crits on 7–8 |
 | **Attack** | Longsword: base 2, 1d8 + 3 per step |
 | **Opportunity attacks** | Cap 2 (1, +1 for FIN 1): one longsword step, more with held stamina |

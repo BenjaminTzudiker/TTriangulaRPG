@@ -38,7 +38,7 @@ A weapon card lists its category, base stamina cost (a shot cost, for ranged wea
 
 **Draft weapons (TODO: base costs and details):** polearm 1d10 + 3×STR (reach 2); axe 1d10 + 2×STR (cleave); rapier 1d8 + AGI + FIN.
 
-**Reach:** the grid uses 5 ft squares. Most small and medium weapons reach 1 square.
+**Reach:** the grid uses 5 ft squares. Most small and medium weapons reach 1 square: the 8 squares around you, since a diagonal counts as 1 square.
 
 **Proficiency** (*Exploratory*):
 - **Sources:** your class core abilities, or Expertise spent on weapons outside your class.

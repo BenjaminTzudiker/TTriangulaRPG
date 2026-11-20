@@ -19,7 +19,7 @@ Armor shines when you're taking many attacks. Nimble, high-defense builds shine 
 | Medium | 2 | Every 3rd point (3, 6) | −1 Agility and −1 Finesse per point of Strength below 1 |
 | Heavy | 3 | Every 4th point (4) | −1 Agility and −1 Finesse per point of Strength below 3 |
 
-- **Agility's defense bonus** covers Melee, Ranged and Dodge Defense. The medium and heavy steps apply whatever your Strength.
+- **Agility's defense bonus** covers Melee and Ranged Defense. The medium and heavy steps apply whatever your Strength.
 - **Strength penalties** lower the attributes themselves.
   - Agility below 0 costs you your base defenses.
   - Finesse below 0 costs you the +1 for wielding a weapon.

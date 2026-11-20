@@ -1,4 +1,7 @@
-"""Melee, Ranged and Dodge Defense (Packet: Defenses)."""
+"""Melee, Ranged and Dodge Defense (Packet: Defenses).
+
+Packet 0.11.3 shelves Dodge Defense (Packet: Not in This Version). No fight the engine plays uses
+it; it stays derived for the presets that read earlier packets."""
 
 from dataclasses import dataclass
 
@@ -13,7 +16,7 @@ class DefenseRule(Component):
         "Packet: Defenses",
         "Packet: Melee Defense",
         "Packet: Ranged Defense",
-        "Packet: Dodge Defense",
+        "Packet: Not in This Version",
         "Ledger DF-1",
         "Ledger DF-2",
         "Ledger DF-3",

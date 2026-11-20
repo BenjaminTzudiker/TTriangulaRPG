@@ -87,7 +87,7 @@ These are cheap to change now and expensive once weapons, classes and spells ref
 - The crit shape (weapon identities are built on it).
 - The r discipline and the surcharge slope (every weapon base cost and attribute step is checked against them).
 - Where the level bonus goes (abilities will reference pool and recovery sizes).
-- Whether Dodge exists as a separate defense (spells and area attacks reference it).
+- Whether Dodge exists as a separate defense (spells and area attacks reference it). Packet 0.11.3 shelves it for now (Ledger H-8).
 - Stamina visibility (table procedure, telegraphing, Cunning's design space).
 - Max stamina's coupling to HP (injury rules, H-2, healing all hang off it).
 
@@ -128,3 +128,7 @@ Packet 0.11.2 adds two placeholders so a first playtest can run and a rule for m
 - **Phase 7 (content-facing gaps):** the candidate abilities are now one, Great Weapon Training (Fighter; +1 square of reach for heavy weapons). The earlier candidates moved to their own note.
 - **§5, loops (added 2026-11-18).** The stamina cap is shelved (Not in This Version; Ledger H-7). The re-check of holds that section 7 tied to a cap waits until one comes back.
 
+## 9. After packet 0.11.3 (added 2026-11-19)
+
+Packet 0.11.3 shelves Dodge Defense (Not in This Version; Ledger H-8), so there are two defense values.
+- **F3, Dodge's fate:** shelved for now. Since 0.10.0, Ranged Defense has carried Agility's even values (option 1). Dodge comes back if spells, monsters or hazards need a defense of their own; area attacks remain an open question.

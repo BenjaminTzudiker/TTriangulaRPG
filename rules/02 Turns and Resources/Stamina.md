@@ -13,7 +13,7 @@ Stamina is the effort immediately available to you: footwork, weapon control, co
 
 Levels run from 0 to 99 (see [[Character Advancement]]). Characters start at level 1, where both level bonuses in this note are 0.
 
-Because it uses *current* HP, injuries lower your maximum stamina. Your current stamina, plus any hold tokens you have out (see [[Holds]]), can never exceed your maximum. Whenever something would take you over it, such as a wound that lowers your maximum, your recovery, or an ability, you lose the excess. You choose where it comes from: your current stamina, your tokens, or some of each. Otherwise a wound doesn't change your current stamina.
+Because it uses *current* HP, injuries lower your maximum stamina. Your current stamina, plus any stamina you hold on enemies (see [[Holds]]), can never exceed your maximum. Whenever something would take you over it, such as a wound that lowers your maximum, your recovery, or an ability, you lose the excess. You choose where it comes from: your current stamina, your held stamina, or some of each. Otherwise a wound doesn't change your current stamina.
 
 **At the end of your own turn,** after setting any holds (see [[Holds]]), recover **4 + round(Level / 10)** stamina, up to your maximum.
 - Round halves up, so the bonus becomes +1 at level 5.

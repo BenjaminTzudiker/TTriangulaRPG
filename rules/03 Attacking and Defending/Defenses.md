@@ -9,10 +9,9 @@ next: "[[Armor]]"
 
 Every attack is blocked using exactly one defense value. Your base defenses represent a baseline ability to weakly avoid damage.
 
-There are three defense values:
+There are two defense values:
 - **Melee Defense**, in this note, against melee attacks and point-blank shots.
 - **Ranged Defense**, against other shots (see [[Ranged Defense]]).
-- **Dodge Defense**, against things you can't block with a weapon or shield (see [[Dodge Defense]]).
 
 ## Melee Defense
 

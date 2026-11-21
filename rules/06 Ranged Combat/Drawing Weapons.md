@@ -12,3 +12,4 @@ This mainly stops archers from shooting and then immediately switching to a mele
 - **Used hands:** a hand you used this turn for a bow shot or somatic spellcasting can't draw a normal weapon until the start of your next turn.
 - **Between turns:** drawing a normal weapon costs **1 stamina**.
 - **Exception:** quick-draw weapons are free to draw between turns, even into a hand you used this turn.
+- **Shooting in melee:** if you draw a weapon to block the opportunity attacks your shot provoked, you give up the shot (see [[Ranged Attacks#Procedure|Procedure]]).

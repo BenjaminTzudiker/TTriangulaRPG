@@ -27,6 +27,18 @@ A commit that only fixes typos can skip the entry by putting `[no changelog]` in
 
 ## Unreleased
 
+## 0.11.4 (2026-11-20)
+
+Shooting in melee provokes when you declare the target, before you pay, and you can then cancel the shot. The engine plays it as the experiment preset `exp-0.11.4`.
+
+### Rules
+
+- [[Ranged Attacks]], [[Opportunity Attacks]], [[Drawing Weapons]]: the opportunity attacks a shot in melee provokes happen after the shot resolves, from enemies threatening you both when you declared it and then → when you declare the target, before you pay anything, from every enemy threatening you then. Then you pay for the shot or cancel it; a cancelled shot costs nothing and isn't an action. You block those attacks with whatever you're holding; drawing a weapon to block them gives up the shot. The procedure is renumbered (paying is now step 2, and the old step 7 is gone), with a new example. Why: the old timing meant checking who threatened the shooter at declaration, carrying that through aim, the roll, the target's dash and blocks, then checking again, and a target that dashed in or out mid-shot made that fiddly. Resolving at once checks reach a single time, matches movement, where an opportunity attack comes when you provoke it, and is more plausible. The designer accepted that point-blank shots get harsher: the enemy next to you always swings first, even the target. A shooter dropped by those attacks loses nothing it had paid. Cancelling and the drawing line stop an archer from drawing a blade to block and then shooting anyway. Source: design chat, 2026-11-20. *Engine:* preset `exp-0.11.4` (`opportunity.point_blank_eligible = "at_declaration"`). The shooter blocks with what it holds, and cancels only when it's incapacitated or can't afford the shot; agents never cancel by choice or draw to block.
+
+### Editorial
+
+- [[Playtest Packet]]: version line 0.11.3 → 0.11.4. Why: cutting 0.11.4. Source: designer's request, 2026-11-20.
+
 ## 0.11.3 (2026-11-19)
 
 Dodge Defense is shelved for now: nothing in this version uses it, so there are two defense values, Melee and Ranged. Two wording changes match the playtest primer without changing a rule: hold tokens are now held stamina, and System Shock starts when damage takes you below 0 HP. Also records the stamina cap, which was never a rule, in [[Not in This Version]]. Nothing changes in the engine's fights.

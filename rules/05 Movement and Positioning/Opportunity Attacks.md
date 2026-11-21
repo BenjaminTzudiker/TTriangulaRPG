@@ -18,7 +18,7 @@ Slipping past an engaged enemy should cost something, without making the battlef
 
 Moving into reach doesn't provoke; only leaving a threatened square does.
 
-**Shooting in melee:** declaring a ranged attack while within an enemy's reach provokes from **every** enemy threatening you at that moment, whether or not it's the target. The opportunity attacks happen after your shot finishes resolving (see [[Ranged Attacks#Procedure|Procedure]]). An enemy must be able to make its opportunity attack both when you declare the shot and when the attacks happen. So an enemy that comes within reach during the shot doesn't get one, and neither does one that's no longer within reach, for example because it backed away in reaction to the shot.
+**Shooting in melee:** declaring the target of a ranged attack while within an enemy's reach provokes from **every** enemy threatening you at that moment, whether or not it's the target. The opportunity attacks happen right away, before you pay for the shot, and you can then cancel it (see [[Ranged Attacks#Procedure|Procedure]]). An enemy that comes within your reach later in the shot, such as a target that closes in on you, doesn't get one.
 
 ## Avoiding Opportunity Attacks
 

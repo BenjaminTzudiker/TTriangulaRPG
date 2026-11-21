@@ -196,6 +196,16 @@ class ShotDeclared(Event):
 
 
 @dataclass(frozen=True)
+class ShotCancelled(Event):
+    """A declared shot the shooter didn't make, after the opportunity attacks it provoked
+    (packet 0.11.4): nothing was paid for it."""
+
+    shooter: str
+    target: str
+    reason: str
+
+
+@dataclass(frozen=True)
 class ShotMissed(Event):
     shooter: str
     target: str

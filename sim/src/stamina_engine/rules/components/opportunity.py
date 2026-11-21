@@ -40,10 +40,13 @@ class OpportunityRule(Component):
         "hold_wound_clamp": frozenset({"ready_first", "tokens_first"}),
         # Which enemies a hold can go on: those within your reach, or any enemy (packet 0.11.1).
         "hold_targets": frozenset({"reach", "any"}),
-        # Which enemies a point-blank shot's OAs come from: those threatening the shooter
-        # once the shot resolves (v0.9's reading), or (0.10.0) only those threatening it both
-        # when the shot is declared and when the attacks happen.
-        "point_blank_eligible": frozenset({"at_resolution", "declared_and_resolution"}),
+        # Which enemies a point-blank shot's OAs come from, and when: those threatening the
+        # shooter once the shot resolves (v0.9's reading); (0.10.0) only those threatening it
+        # both when the shot is declared and when the attacks happen; or (0.11.4) those
+        # threatening it when it declares the target, attacking at once, before it pays.
+        "point_blank_eligible": frozenset(
+            {"at_resolution", "declared_and_resolution", "at_declaration"}
+        ),
         # How an OA's steps are priced: on the off-turn track (to 0.10.1), or "fresh"
         # (0.11.0 on): base + 1 per earlier step of this OA, on no track.
         "pricing": frozenset({"track", "fresh"}),
@@ -81,6 +84,11 @@ class OpportunityRule(Component):
         """Must an enemy have threatened the shooter when the shot was declared to get its
         point-blank OA?"""
         raise NotImplementedError
+
+    def point_blank_first(self) -> bool:
+        """Do a point-blank shot's OAs happen when the target is declared, before the shooter
+        pays (packet 0.11.4)?"""
+        return False
 
     def fresh_pricing(self) -> bool:
         return False
@@ -186,6 +194,9 @@ class V09Opportunity(OpportunityRule):
 
     def point_blank_needs_declared(self) -> bool:
         return self.point_blank_eligible == "declared_and_resolution"
+
+    def point_blank_first(self) -> bool:
+        return self.point_blank_eligible == "at_declaration"
 
     def fresh_pricing(self) -> bool:
         return self.pricing == "fresh"

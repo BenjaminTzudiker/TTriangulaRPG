@@ -579,6 +579,7 @@ When a pending row is ruled, or a ruled row changes, the same commit updates the
 | Helping the dying (0.11.2) | Not modelled: no creature tends a dying ally. `dying.stabilize` only records an outcome | — | ruled 2026-11-17; not implemented |
 | Great Weapon Training (0.11.2 candidate ability) | Not implemented. The earlier candidates the engine has (`abilities/candidates.py`) moved to the note Earlier Candidate Abilities | — | ruled 2026-11-17; not implemented |
 | Dodge Defense shelved (0.11.3) | No change in play: no fight the engine plays uses Dodge Defense, so 0.11.3 has no preset of its own. `derive` still computes it for the presets that read earlier packets, and the defenses component cites Not in This Version | `defenses` | ruled 2026-11-19 |
+| Shooting in melee at declaration (0.11.4) | `opportunity.point_blank_eligible = "at_declaration"`, preset `exp-0.11.4`: the enemies threatening the shooter when it declares the target make their opportunity attacks before it pays, and the shot then goes ahead or is cancelled (event `ShotCancelled`). Engine conventions: the shooter blocks with what it holds and never draws to block; it cancels only when incapacitated or unable to afford the shot, never by choice | `opportunity`, `ranged` procedure | ruled 2026-11-20; engine convention on cancelling |
 
 Off-turn order can move headline numbers on its own (it decides who ends adjacent to whom), so it gets a sensitivity run in the phase suite until it is decided.
 

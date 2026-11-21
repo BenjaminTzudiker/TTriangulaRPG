@@ -123,3 +123,9 @@ def test_random_overrides_round_trip(
         name="random",
     )
     assert from_toml(rules.to_toml()) == rules
+
+
+def test_exp_0_11_4_changes_only_shooting_in_melee() -> None:
+    old, new = preset("exp-0.11.2"), preset("exp-0.11.4")
+    assert {k for k in KINDS if getattr(old, k) != getattr(new, k)} == {"opportunity"}
+    assert new.opportunity.point_blank_first()

@@ -4,7 +4,7 @@
 > - **PROPOSAL**, **UNCERTAIN** and **ABANDONED** entries are *not* rules; don't treat them as current design.
 > - The designer's rulings (logged verbatim in Part G) are folded into Parts A–D. **Part H (SHELVED)** holds ideas deliberately left out of the current rules; they are not rules.
 > - **Playtest Packet v0.9** is now the rules source and incorporates these rulings (through round 9). This ledger remains the record of where each rule came from and how firm it is.
-> - **Later packets:** the entries describe packet v0.9. `rules/CHANGELOG.md` records every change since then. Seven entries carry a **Later changes** line for what packet 0.11.0 changed (CB-2, CB-9, MV-1, MV-2, MV-4, MV-5 and CP-7; the reaction to a shot is under MV-2), five for packet 0.11.1 (CR-2, MV-3, MV-5, EQ-2 and H-4), and four for packet 0.11.2 (CB-9, IN-1, CP-9 and MV-1). Part H gained H-7, the stamina cap, after 0.11.2, and H-8, Dodge Defense, which packet 0.11.3 shelved (DF-3 has a **Later changes** line for it). The rest have not been brought up to date, and neither have the summaries in Parts A to C.
+> - **Later packets:** the entries describe packet v0.9. `rules/CHANGELOG.md` records every change since then. Seven entries carry a **Later changes** line for what packet 0.11.0 changed (CB-2, CB-9, MV-1, MV-2, MV-4, MV-5 and CP-7; the reaction to a shot is under MV-2), five for packet 0.11.1 (CR-2, MV-3, MV-5, EQ-2 and H-4), and four for packet 0.11.2 (CB-9, IN-1, CP-9 and MV-1). Part H gained H-7, the stamina cap, after 0.11.2, and H-8, Dodge Defense, which packet 0.11.3 shelved (DF-3 has a **Later changes** line for it). MV-3 has one for packet 0.11.4, which moved the opportunity attacks a shot in melee provokes to the moment the target is declared. The rest have not been brought up to date, and neither have the summaries in Parts A to C.
 
 # Rules Reconciliation Ledger: Playtest Packet v0.8 vs. Design Transcript
 
@@ -679,6 +679,9 @@
   - *Packet 0.11.1 (your rulings, 2026-11-17):* an enemy that holds you charges 1 + its tokens on you for the first square you leave in its reach, and the hold then ends (see H-4 and the note Holds). An enemy that couldn't make even one step of an opportunity attack is owed nothing.
     - *The intent above, as it stands:* "without making battlefields sticky" now also covers holds. They're opt-in, the holder pays for them with its next turn, and they were rare in the hand-played fights. "It's probably healthy for holds to not be happening constantly."
     - *Now in:* the rules notes Opportunity Attacks (Avoiding Opportunity Attacks) and Holds.
+  - *Packet 0.11.4 (your ruling, 2026-11-20):* the opportunity attacks a shot in melee provokes happen when the shooter declares the target, before it pays, from every enemy threatening it then (not after the shot resolves). The shooter may then cancel, paying nothing. It blocks with what it holds; drawing a weapon to block gives up the shot.
+    - *The trigger above, as it stands:* "once the ranged attack finishes resolving" is replaced by "when the target is declared". You accepted that point-blank shots get harsher, since the enemy next to the shooter always swings first.
+    - *Now in:* the rules notes Ranged Attacks (Procedure), Opportunity Attacks (Triggers) and Drawing Weapons.
 
 ### MV-4 Off-turn escalation
 - **Firmness:** Intent locked, mechanism open.

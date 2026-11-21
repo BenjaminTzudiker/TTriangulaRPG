@@ -20,6 +20,13 @@ A shot, following the packet's steps (readings in the Assumptions register):
 7. If the shooter is within any enemy's reach, every enemy threatening it may make an
    opportunity attack, lowest initiative first (from 0.10.0, only those that also
    threatened it at step 1); these can't be avoided by paying (as written).
+
+From packet 0.11.4 (opportunity.point_blank_eligible = "at_declaration") step 7 moves to
+step 1: the enemies threatening the shooter when it declares the target make their
+opportunity attacks at once, before it pays anything, and the shooter may then cancel.
+Engine conventions: the shooter blocks with what it holds (it never draws a weapon to block,
+which would give up the shot), and it cancels only when it can no longer afford the shot or
+is incapacitated; agents never cancel by choice.
 """
 
 from collections.abc import Callable
@@ -32,6 +39,7 @@ from stamina_engine.engine.events import (
     Dived,
     OpportunityProvoked,
     RangePenalized,
+    ShotCancelled,
     ShotDeclared,
     ShotMissed,
 )
@@ -178,6 +186,14 @@ def shoot(b: Battle, shooter: CombatantState, target: CombatantState) -> None:
         if b.rules.opportunity.point_blank_needs_declared():
             declared = b.arena.threatening(b.state, shooter, shooter.pos)
         melee_at_declaration = point_blank(b, target, shooter)
+        if b.rules.opportunity.point_blank_first():
+            point_blank_oas(b, shooter)
+            if b.outcome is not None or not shooter.active:
+                b.ops.emit(ShotCancelled(shooter.id, target.id, "incapacitated"))
+                return
+            if b.pricing.ranged_attack(weapon.base, 0, shooter.trackers).total > shooter.stamina:
+                b.ops.emit(ShotCancelled(shooter.id, target.id, "can't afford the shot"))
+                return
         quotes: list[Quote] = []
         while True:
             q = b.pricing.ranged_attack(weapon.base, len(quotes), shooter.trackers)
@@ -257,7 +273,7 @@ def shoot(b: Battle, shooter: CombatantState, target: CombatantState) -> None:
                     b, shooter, target, attack, blocks, defense, pierce=weapon.piercing
                 )
                 lose_hp(b, target, outcome)
-    if b.outcome is None and shooter.active:
+    if b.outcome is None and shooter.active and not b.rules.opportunity.point_blank_first():
         point_blank_oas(b, shooter, declared)
 
 

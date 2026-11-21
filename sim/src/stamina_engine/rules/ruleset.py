@@ -412,6 +412,19 @@ def exp_0_11_2() -> RuleSet:
     return base.with_(name="exp-0.11.2", grid=dataclasses.replace(base.grid, corners="no_cut"))
 
 
+def exp_0_11_4() -> RuleSet:
+    """Not a baseline preset: exp-0.11.2 with packet 0.11.4's shooting in melee (Ranged
+    Attacks, Opportunity Attacks): the enemies threatening a shooter when it declares the
+    target make their opportunity attacks at once, before it pays, and it may then cancel.
+    Packet 0.11.3 changed nothing the engine plays."""
+    base = exp_0_11_2()
+    assert isinstance(base.opportunity, V09Opportunity)
+    return base.with_(
+        name="exp-0.11.4",
+        opportunity=dataclasses.replace(base.opportunity, point_blank_eligible="at_declaration"),
+    )
+
+
 def exp_holds_next_turn_half() -> RuleSet:
     """exp-holds-next-turn with holds set after recovering, at most half your ready stamina."""
     base = exp_holds_next_turn()
@@ -449,6 +462,7 @@ PRESETS: dict[str, Callable[[], RuleSet]] = {
     "exp-holds-placeholder": exp_holds_placeholder,
     "exp-0.11.1": exp_0_11_1,
     "exp-0.11.2": exp_0_11_2,
+    "exp-0.11.4": exp_0_11_4,
 }
 
 

@@ -27,6 +27,10 @@ A commit that only fixes typos can skip the entry by putting `[no changelog]` in
 
 ## Unreleased
 
+### Editorial
+
+- [[Not in This Version]]: new entry, recovery holds (held stamina with no target that comes back with extra recovery): why it came up, what was tried, its merits, why it's out, the best version found, and what would bring it back. The stamina cap's entry now points to it. It was never a rule. Why: the designer shelved it after the study: it mostly pays whoever can't be reached, the payoff where it works is small, and no play has shown the problem yet. Source: design chat, 2026-11-21; `claude/Rest_Hold_Sim_Study_2026-11-21.md`, `claude/Ranged_Pressure_By_Situation_2026-11-21.md`; Ledger H-9.
+
 ## 0.11.4 (2026-11-20)
 
 Shooting in melee provokes when you declare the target, before you pay, and you can then cancel the shot. The engine plays it as the experiment preset `exp-0.11.4`.

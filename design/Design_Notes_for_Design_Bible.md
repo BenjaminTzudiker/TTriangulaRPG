@@ -706,6 +706,7 @@ These are deliberately out of the current rules, but they're candidate solutions
 - **H-6 NPC aggression profiles** [R2].
 - **H-7 Stamina cap (hard flux):** pressure that sticks, by keeping some stamina spent on defense from coming back. Shelved as "layering a new core mechanic on a system that already has enough core mechanics"; it "might end up in the game" [C:2026-11-17].
 - **H-8 Dodge Defense:** an avoid-only defense for what you can't block with a weapon or shield. Shelved "for now" in packet 0.11.3, since nothing in the game used it yet [C:2026-11-19].
+- **H-9 Recovery holds:** held stamina with no target that comes back with extra recovery, as a way to let contact itself be the pressure. Shelved because it mostly pays whoever can't be reached, and "just isn't really doing what I want it to do" [C:2026-11-21]. Held stamina as a cost for abilities is not shelved with it.
 
 ---
 

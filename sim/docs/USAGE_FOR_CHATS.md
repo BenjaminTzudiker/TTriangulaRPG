@@ -356,7 +356,7 @@ A chat can push only if it has write access to this repo (in claude.ai, through 
 
 ## Rules for chats
 
-- Read `AGENTS.md` at the repo root before changing anything. Its ground rules apply to chats too.
+- Follow `design/Instructions_for_Design_Chats.md`. Read `AGENTS.md` at the repo root before changing anything; its ground rules apply to chats too.
 - Never change what a rule means. Experiments are new named variants, never edits to the baseline. If the packet is unclear, flag it and add it to the Assumptions register in `sim/docs/ENGINE_PLAN.md`.
 - Every simulated number is traceable: full stamp in the results file, short tag in prose (see Reporting results).
 - Run the engine only to test a stated claim, and name the limitations that could undercut the result (see Purpose and What the engine doesn't capture).

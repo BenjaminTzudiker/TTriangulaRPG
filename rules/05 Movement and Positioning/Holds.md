@@ -13,10 +13,12 @@ A hold commits some of your stamina to punishing one enemy if it gives you an op
 
 ## Setting Holds
 
-At the end of your turn, before you recover stamina:
+At the end of your turn, you hold from what you have left, and your recovery comes on top:
 1. **Your held stamina comes back.** What you held at the end of your last turn returns to your current stamina. Any of it you spent on opportunity attacks is gone.
-2. **Set new holds.** Put any amount of your stamina on enemies, split among as many enemies as you like. This is your **held stamina**. The enemies don't have to be within your reach.
+2. **Set new holds** from what you have now. Put any amount of it on enemies, split among as many enemies as you like. This is your **held stamina**. The enemies don't have to be within your reach.
 3. **Recover** stamina (see [[Stamina]]).
+
+So everything you hold is stamina you didn't spend this turn: a hold always competes with your attack, and you can't spend everything and then hold the stamina you're about to recover. Held stamina counts toward your maximum, so at or near full stamina a hold also costs you some or all of that turn's recovery.
 
 Setting holds is how you end your turn: say who you're holding and with how much stamina. If you say nothing, you're holding no one. Setting a hold isn't an action.
 

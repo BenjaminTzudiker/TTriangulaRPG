@@ -27,6 +27,10 @@ A commit that only fixes typos can skip the entry by putting `[no changelog]` in
 
 ## Unreleased
 
+### Clarified
+
+- [[Holds]], [[Starting Combat and Turn Structure]], [[Stamina]], [[Quick Reference]], [[Defined Terms]]: the end-of-turn order (held stamina back, set holds, recover) is now explained by what it does: you hold from what you have left and your recovery comes on top, so everything held is stamina you didn't spend this turn, a hold competes with your attack, and you can't spend everything and then hold your coming recovery. [[Holds]] also says that at or near full stamina a hold costs you some or all of that turn's recovery, which already followed from held stamina counting toward your maximum. No rule changes. Why: the three steps read as bookkeeping to optimize around rather than as the idea behind them; the designer asked for the rewording after deciding to keep this order (holding after recovering would let an attacker that spent everything hold its fresh recovery, which raised the lone fighter's chance of going down in round 1 of a close three-on-one from 41% to 60%). Source: design chat, 2026-11-21/22; `claude/Rest_Hold_Sim_Study_2026-11-21.md`.
+
 ### Editorial
 
 - [[Not in This Version]]: new entry, recovery holds (held stamina with no target that comes back with extra recovery): why it came up, what was tried, its merits, why it's out, the best version found, and what would bring it back. The stamina cap's entry now points to it. It was never a rule. Why: the designer shelved it after the study: it mostly pays whoever can't be reached, the payoff where it works is small, and no play has shown the problem yet. Source: design chat, 2026-11-21; `claude/Rest_Hold_Sim_Study_2026-11-21.md`, `claude/Ranged_Pressure_By_Situation_2026-11-21.md`; Ledger H-9.

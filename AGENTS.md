@@ -2,6 +2,8 @@
 
 A tactical fantasy TTRPG built on a regenerating stamina system, plus a Python rules engine (`sim/`) that measures how rule variants play on a 5 ft grid. The engine is a measuring instrument for the designer, not a playable product.
 
+This file is the working guide for anyone changing the repo: coding agents of any kind (most read `AGENTS.md` on their own), design chats and people.
+
 ## Where things are
 
 - `rules/` is the rules text, one Obsidian note per rule. It is authoritative for what the engine implements.
@@ -17,7 +19,9 @@ A tactical fantasy TTRPG built on a regenerating stamina system, plus a Python r
 - `sim/reports/` is where experiment write-ups for the designer go.
 - `sim/examples/` holds the worked plugin example design chats copy when they try a new mechanism (see `USAGE_FOR_CHATS.md`).
 
-`rules/`, `design/` and `sim/` sync into the claude.ai project "Tactical fantasy TTRPG", so design chats see what is pushed here.
+`rules/`, `design/` and `sim/` sync into the claude.ai project "Tactical fantasy TTRPG", so design chats there see what is pushed here. Other tools work from a clone of the repo.
+
+Paths that start with `claude/` (`claude/Hold_Rule_Study_2026-11-17.md`), cited throughout `design/`, `sim/docs/` and the changelog, are working docs in that claude.ai project, not files in this repo. If you can't open one, say so; never guess what it says.
 
 ## Ground rules
 
@@ -75,7 +79,7 @@ python3 tools/check_rules.py --nav                # regenerate prev/next/up and 
 
 ## Git workflow
 
-- Start every session with `git pull`. Design chats in the claude.ai project may push to this repo too.
+- Start every session with `git pull`. Design chats and other agents may push to this repo too.
 - Commit in small steps and push when tests pass, so chats always see current code.
 - Small, safe changes (scenarios, maps, builds, reports, bug fixes that keep tests green) can go straight to `main`. Changes to engine procedures or rule components go on a branch with a pull request.
 - Experiments from design chats live on `exp/<topic>` branches or as plugin files beside a report, never in the baseline. Promote one to a real component (with tests and citations) only when the designer asks; delete rejected variants unless a published result needs them for parity.

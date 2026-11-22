@@ -282,7 +282,7 @@ def review_candidate() -> RuleSet:
 
 
 def review_sim() -> RuleSet:
-    """The review simulator's quirks, for parity runs only (see CLAUDE.md, The oracle).
+    """The review simulator's quirks, for parity runs only (see AGENTS.md, The oracle).
 
     Initiative ties go to the first-listed combatant, duels have no off-turn movement or
     opportunity attacks, and there is no System Shock: a creature at 0 HP or below is out and

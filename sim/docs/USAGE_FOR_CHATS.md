@@ -1,6 +1,6 @@
 # Using the engine from a design chat
 
-For claude.ai chats in the "Tactical fantasy TTRPG" project. Claude Code keeps this file current.
+For design chats about this game: in the claude.ai project "Tactical fantasy TTRPG", or with any other assistant that can clone the repo and run Python. Whoever changes the engine's commands or install steps keeps this file current (see `AGENTS.md`).
 
 **Status:** milestones M0–M5 are done (tags `m0`–`m5`): the turn engine, maps and movement, opportunity attacks, ranged attacks, cover and diving, drawing weapons, equipment variant tables, NPC profiles, fleeing and surrendering, the full phase suite, class cores and candidate abilities with strain, playing a side yourself, and the load report. M5's gate still needs one session played by a person. Packet versions 0.9.1–0.10.1 are the presets `v0.9.1`, `v0.9.2`, `v0.9.3`, `v0.10.0` and `v0.10.1` (below).
 
@@ -77,7 +77,7 @@ python3 -m pytest                   # needs pytest; the property tests skip with
 
 Only `--out` (Parquet tables) needs a package, pyarrow; without it, `--out` says so and everything else runs. From Python, `invoke(["table", "1"]).output` (from `stamina_engine.cli`) runs any command and returns its output.
 
-In a claude.ai chat, attach the repo first if the clone is refused. To reproduce a quoted result, check out the tag or commit its stamp names (`git fetch --depth 1 origin tag m1 && git checkout m1`).
+If the clone is refused, the chat can't reach the repo: in claude.ai, attach the repo to the chat first; with other assistants, give it a copy of the repo. To reproduce a quoted result, check out the tag or commit its stamp names (`git fetch --depth 1 origin tag m1 && git checkout m1`).
 
 ## Commands
 
@@ -325,9 +325,9 @@ Never edit the baseline: not the v0.9 components, not the presets, not `rules/`.
 
    In Python, call `load_plugin("my_idea.py")` (from `stamina_engine.rules.plugins`) before loading a RuleSet that names its variants. Subclass the kind's base class (`CritRule`, `BlockRule`, `DefenseRule`...): it supplies the methods to implement and the packet citations. Taking a name that already exists is refused, so a plugin can't quietly replace a rule.
 
-3. **A change to a procedure or timing** (a new reaction window, a new kind of action): this needs engine code. Work in your clone, on a branch named `exp/<topic>`. Run the baseline from the same commit before your change, so both sides differ only by your diff. Say in the report that the idea needed a procedure change; Claude Code can then add a component for it, so the next idea like it fits tier 2.
+3. **A change to a procedure or timing** (a new reaction window, a new kind of action): this needs engine code. Work in your clone, on a branch named `exp/<topic>`. Run the baseline from the same commit before your change, so both sides differ only by your diff. Say in the report that the idea needed a procedure change; a coding agent or the designer can then add a component for it, so the next idea like it fits tier 2.
 
-If the designer wants to keep an idea, Claude Code moves it into the engine as a proper component with tests. Ideas the designer rejects are deleted, or kept for parity only if a published result depends on them.
+If the designer wants to keep an idea, a coding agent or the designer moves it into the engine as a proper component with tests. Ideas the designer rejects are deleted, or kept for parity only if a published result depends on them.
 
 ## Reporting results
 
@@ -350,13 +350,13 @@ Provenance lives in the results file, not the reply:
 
 ## Sharing changes
 
-A chat can push only if the Claude GitHub App has access to this repo.
+A chat can push only if it has write access to this repo (in claude.ai, through the Claude GitHub App).
 - With access: push experiments to `exp/<topic>` branches, never to `main`. Small, safe changes (scenarios, maps, builds, reports) can go to `main`. Engine procedure and rule component changes go on a branch with a pull request.
-- Without access: hand over the report, plus the plugin or RuleSet files or a patch, for Claude Code or the designer to commit.
+- Without access: hand over the report, plus the plugin or RuleSet files or a patch, for a coding agent or the designer to commit.
 
 ## Rules for chats
 
-- Read `CLAUDE.md` at the repo root before changing anything. Its ground rules apply to chats too.
+- Read `AGENTS.md` at the repo root before changing anything. Its ground rules apply to chats too.
 - Never change what a rule means. Experiments are new named variants, never edits to the baseline. If the packet is unclear, flag it and add it to the Assumptions register in `sim/docs/ENGINE_PLAN.md`.
 - Every simulated number is traceable: full stamp in the results file, short tag in prose (see Reporting results).
 - Run the engine only to test a stated claim, and name the limitations that could undercut the result (see Purpose and What the engine doesn't capture).

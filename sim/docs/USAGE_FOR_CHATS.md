@@ -350,7 +350,7 @@ Provenance lives in the results file, not the reply:
 
 ## Sharing changes
 
-A chat can push only if it has write access to this repo (in claude.ai, through the Claude GitHub App).
+A chat can push only if it has write access to this repo (in claude.ai, through the Claude GitHub App), and, like any agent, only after asking the designer unless they've already said to push (`AGENTS.md`, Git workflow).
 - With access: push experiments to `exp/<topic>` branches, never to `main`. Small, safe changes (scenarios, maps, builds, reports) can go to `main`. Engine procedure and rule component changes go on a branch with a pull request.
 - Without access: hand over the report, plus the plugin or RuleSet files or a patch, for a coding agent or the designer to commit.
 

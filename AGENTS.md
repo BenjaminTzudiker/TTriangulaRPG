@@ -11,7 +11,7 @@ This file is the working guide for anyone changing the repo: coding agents of an
   - `rules/CHANGELOG.md` records every rules change. Its Unreleased section is what has changed since the last packet version.
 - `design/` holds the supporting documents:
   - `Review_Playtest_Packet_v0.9.md`: the findings (F1–F14) the engine exists to test.
-  - `Fix_Order_and_Dependencies.md`: the order those findings get fixed (Phases 0–8).
+  - `Fix_Order_and_Dependencies.md`: what each finding depends on and ripples to, and the original fix order (Phases 0–8).
   - `Design_Notes_for_Design_Bible.md` and `Rules_Reconciliation_Ledger_v0.8-to-v0.9.md`: why the rules are the way they are. Ledger IDs (MV-3, CB-2…) are cited in code.
   - `Instructions_for_Design_Chats.md`: how any assistant helping with design (not code) should work. Read it before answering a design question.
 - `sim/docs/ENGINE_PLAN.md` is the engine's architecture and milestone plan. Follow it; propose changes to it rather than drifting from it.
@@ -81,10 +81,11 @@ python3 tools/check_rules.py --nav                # regenerate prev/next/up and 
 ## Git workflow
 
 - Start every session with `git pull`. Design chats and other agents may push to this repo too.
-- Commit in small steps and push when tests pass, so chats always see current code.
+- Ask the designer before your first push in a session, unless they've already said to push. Once you may push, commit in small steps and push when tests pass, so chats always see current code.
 - Small, safe changes (scenarios, maps, builds, reports, bug fixes that keep tests green) can go straight to `main`. Changes to engine procedures or rule components go on a branch with a pull request.
 - Experiments from design chats live on `exp/<topic>` branches or as plugin files beside a report, never in the baseline. Promote one to a real component (with tests and citations) only when the designer asks; delete rejected variants unless a published result needs them for parity.
-- Rules or design doc changes come from the designer. Update `rules/` in the same commit as the engine changes that implement a rules change.
+- Rules and design doc changes come from the designer: write a decision into `rules/` or `design/` only once the designer has made it, and commit it only with their go-ahead. Update `rules/` in the same commit as the engine changes that implement a rules change.
+- A packet version in progress lives on a `rules/v<version>` branch (for example `rules/v0.11.5`) until it's merged, so `main` can be behind the current rules.
 - **Every commit that changes `rules/` adds a line to `rules/CHANGELOG.md` under Unreleased, in the same commit**, in the format at the top of that file. This includes the designer's own edits you commit for them.
   - If a change alters what a rule means, it goes under Rules, never Clarified.
   - If you don't know why a change was made, write *Why: not recorded.* and ask the designer; never invent a reason.

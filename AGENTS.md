@@ -2,6 +2,8 @@
 
 A tactical fantasy TTRPG built on a regenerating stamina system, plus a Python rules engine (`sim/`) that measures how rule variants play on a 5 ft grid. The engine is a measuring instrument for the designer, not a playable product.
 
+This file is the working guide for anyone changing the repo: coding agents of any kind (most read `AGENTS.md` on their own), design chats and people.
+
 ## Where things are
 
 - `rules/` is the rules text, one Obsidian note per rule. It is authoritative for what the engine implements.
@@ -9,15 +11,18 @@ A tactical fantasy TTRPG built on a regenerating stamina system, plus a Python r
   - `rules/CHANGELOG.md` records every rules change. Its Unreleased section is what has changed since the last packet version.
 - `design/` holds the supporting documents:
   - `Review_Playtest_Packet_v0.9.md`: the findings (F1–F14) the engine exists to test.
-  - `Fix_Order_and_Dependencies.md`: the order those findings get fixed (Phases 0–8).
+  - `Fix_Order_and_Dependencies.md`: what each finding depends on and ripples to, and the original fix order (Phases 0–8).
   - `Design_Notes_for_Design_Bible.md` and `Rules_Reconciliation_Ledger_v0.8-to-v0.9.md`: why the rules are the way they are. Ledger IDs (MV-3, CB-2…) are cited in code.
+  - `Instructions_for_Design_Chats.md`: how any assistant helping with design (not code) should work. Read it before answering a design question.
 - `sim/docs/ENGINE_PLAN.md` is the engine's architecture and milestone plan. Follow it; propose changes to it rather than drifting from it.
 - `sim/docs/USAGE_FOR_CHATS.md` tells design chats how to install and run the engine, when a run is worth doing, and what the engine doesn't capture. Keep its "What the engine doesn't capture" section current when a milestone closes a gap (e.g. the campaign layer, packet 0.10.0, the search auditor).
 - `sim/tests/oracle/` holds the simulator from the original review. Never edit it. It is the parity oracle.
 - `sim/reports/` is where experiment write-ups for the designer go.
 - `sim/examples/` holds the worked plugin example design chats copy when they try a new mechanism (see `USAGE_FOR_CHATS.md`).
 
-`rules/`, `design/` and `sim/` sync into the claude.ai project "Tactical fantasy TTRPG", so design chats see what is pushed here.
+`rules/`, `design/` and `sim/` sync into the claude.ai project "Tactical fantasy TTRPG", so design chats there see what is pushed here. Other tools work from a clone of the repo.
+
+Paths that start with `claude/` (`claude/Hold_Rule_Study_2026-11-17.md`), cited throughout `design/`, `sim/docs/` and the changelog, are working docs in that claude.ai project, not files in this repo. If you can't open one, say so; never guess what it says.
 
 ## Ground rules
 
@@ -75,11 +80,12 @@ python3 tools/check_rules.py --nav                # regenerate prev/next/up and 
 
 ## Git workflow
 
-- Start every session with `git pull`. Design chats in the claude.ai project may push to this repo too.
-- Commit in small steps and push when tests pass, so chats always see current code.
+- Start every session with `git pull`. Design chats and other agents may push to this repo too.
+- Ask the designer before your first push in a session, unless they've already said to push. Once you may push, commit in small steps and push when tests pass, so chats always see current code.
 - Small, safe changes (scenarios, maps, builds, reports, bug fixes that keep tests green) can go straight to `main`. Changes to engine procedures or rule components go on a branch with a pull request.
 - Experiments from design chats live on `exp/<topic>` branches or as plugin files beside a report, never in the baseline. Promote one to a real component (with tests and citations) only when the designer asks; delete rejected variants unless a published result needs them for parity.
-- Rules or design doc changes come from the designer. Update `rules/` in the same commit as the engine changes that implement a rules change.
+- Rules and design doc changes come from the designer: write a decision into `rules/` or `design/` only once the designer has made it, and commit it only with their go-ahead. Update `rules/` in the same commit as the engine changes that implement a rules change.
+- A packet version in progress lives on a `rules/v<version>` branch (for example `rules/v0.11.5`) until it's merged, so `main` can be behind the current rules.
 - **Every commit that changes `rules/` adds a line to `rules/CHANGELOG.md` under Unreleased, in the same commit**, in the format at the top of that file. This includes the designer's own edits you commit for them.
   - If a change alters what a rule means, it goes under Rules, never Clarified.
   - If you don't know why a change was made, write *Why: not recorded.* and ask the designer; never invent a reason.

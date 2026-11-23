@@ -92,7 +92,7 @@ The engine still runs v0.9 rules where a campaign needs current ones (Packet v0.
 | Extra on-turn movement | 1 + odd Agility squares per purchase (`movement.extra_squares = "one"` exists, not in the preset) | 1 square |
 | Initiative | 2d12 + odd Agility + odd Cunning | 2d12 + Cunning |
 
-Each becomes a new component kind or value, never a changed default (CLAUDE.md: released defaults never change), under a new preset named for the packet version (`v0.9.3`). That's a rule-component change, so it goes on a branch with a pull request. It helps every suite, not only campaigns. The study's plugins (`exp_block_study.py`, the `cand-crit1-hp8` RuleSet) are the reference for matching its numbers.
+Each becomes a new component kind or value, never a changed default (AGENTS.md: released defaults never change), under a new preset named for the packet version (`v0.9.3`). That's a rule-component change, so it goes on a branch with a pull request. It helps every suite, not only campaigns. The study's plugins (`exp_block_study.py`, the `cand-crit1-hp8` RuleSet) are the reference for matching its numbers.
 
 ### Where it lives
 
@@ -260,7 +260,7 @@ Single-fight numbers don't show what they leave out, so part of the fix is docum
 
 ### Elsewhere
 
-- **`CLAUDE.md`:** the new commands, and one line under ground rules that cross-fight value is a campaign concern, so single-fight scenarios must not fake it (no raising `w` in a scenario to "account for" later fights).
+- **`AGENTS.md`:** the new commands, and one line under ground rules that cross-fight value is a campaign concern, so single-fight scenarios must not fake it (no raising `w` in a scenario to "account for" later fights).
 - **Report template:** a "Pacing" line beside the RuleSet digest and assumption switches in `sim/reports/`.
 - **Until carry-over lands,** one sentence in `USAGE_FOR_CHATS.md` can already say that every result is a fresh fight at strain 0 and so a best case for strain abilities.
 

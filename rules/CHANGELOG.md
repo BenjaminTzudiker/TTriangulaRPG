@@ -27,6 +27,10 @@ A commit that only fixes typos can skip the entry by putting `[no changelog]` in
 
 ## Unreleased
 
+### Editorial
+
+- [[README]]: points to `AGENTS.md` instead of `CLAUDE.md`, and says "ask your assistant" instead of "ask Claude". No rule changes. Why: the repo's working guide is now `AGENTS.md`, which coding agents other than Claude Code read too. Source: the designer's request, 2026-11-22.
+
 ## 0.11.4 (2026-11-20)
 
 Shooting in melee provokes when you declare the target, before you pay, and you can then cancel the shot. The engine plays it as the experiment preset `exp-0.11.4`.

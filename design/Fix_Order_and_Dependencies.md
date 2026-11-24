@@ -264,3 +264,38 @@ Checked against the 0.11.5 branch. Each is a one-line text fix or decision, and 
 - **Drawing Weapons:** "Used hands … can't draw a normal weapon until the start of your next turn" comes before "Between turns: drawing a normal weapon costs 1 stamina", and the second can never apply to a used hand. Ordering or wording could make that obvious.
 - **"Action":** a better name is wanted (Open Questions; the callout in Actions and Escalation). The review's suggestion was "beat" ("third beat costs base + 2").
 - Diving to half cover and the floor on maximum stamina: see 10.5.
+
+## 11. Findings from the 0.10.x assessments (added 2026-11-23)
+
+Assistant-written assessments of packets 0.10.0 and 0.10.1, kept as working docs in the claude.ai project. This section keeps what they found that is still open under the current rules and isn't recorded elsewhere. Everything here is the assessments' analysis and opinion, not the designer's, and every figure is for the packet named. Rules questions they raised went to Open Questions instead.
+
+### 11.1 The independent system read of 0.10.1
+
+Source: `claude/Independent_System_Read_0.10.1_2026-11-13.md`. Its figures are exact enumerations of the packet's attack and block arithmetic, with no movement, cover or terrain, and a defender that blocks with hindsight, so they're a floor on harm.
+
+**Its verdict.** The duel is sound. Three things stood between it and the party game the brief describes: nothing bounds how much offense lands on one defender between its recoveries; the 0.10.0 shield change reopened the opener guard (23%, now in §10's F1 row); and the day runs on HP, the one resource a player can't manage. It put about 65% on the direction reaching a good party game with two additions: a bound on concentrated offense, and a buffer in the day layer.
+
+**Findings still open:**
+- **Focus fire.** Two sample fighters making 3-step attacks before a fresh sample fighter's next recovery took it to 0 HP or below 64% of the time (19% at Melee Defense 4); three making 2-step attacks, 45%. If the target had just attacked for 9 stamina, 93%, half of those dead outright. 0.11.0's dash phase answers gang-ups that start apart, not ones that start in reach (§6; §10, F6).
+- **Overkill skips System Shock.** Death at −10 HP is about 20 damage from full, so concentrated attacks often kill outright instead of reaching the dying rules.
+- **Armor barely matters against an unblocked arrow.** Armor applies before the aim limit, so the free aim die absorbs it: armor 3 saved 0.45 HP against a plain Strength 1 longbow shot, and 0.02 HP once the archer bought one aim step. If plate should turn arrows, the order of armor and the aim limit in the procedure is the lever.
+- **Casters in the open.** A level-1 caster (8 HP, Ranged Defense 1) was down 22% of the time to one archer's two plain shots and 73% to three, and 73% to one three-step melee attack (§10, F13).
+- **The +1 for moving in reaction to a shot** is always worth its 1 stamina for a low-defense target, so it becomes a ritual on every shot, with a prompt each time.
+- **The level curve (F5).** Maximum all-in against a fresh sword-and-shield mirror: level 1, 23%; level 30, 22% for a defense-first build and 52% for an offense-first one; level 99, 49% and 95%. The builds were its own assumptions, so the sizes are an upper range; the direction stands.
+- **The day.** HP heals 1–2 a night for most level-1 characters, so one fight costs one to three nights. It suggested testing a partial recovery after each fight, for example graze leaks healing in full overnight.
+- **No way out.** At equal speed a retreating side can't break contact, so fights that turn bad can't be left. (The designer has kept ending a fight by leaving the map out of the rules for now; design chat, 2026-11-17.)
+- **What a GM needs** beyond what Open Questions lists: a default for how hard NPCs commit (it would pull the shelved NPC aggression profiles, Ledger H-6, forward); a cheap NPC, since the intro's mooks sit against "NPCs use the same rules as PCs"; and a "full strike" figure on stat blocks, so players can see the danger coming.
+
+**Tensions it found in the packet text:**
+- "Magic should be optional for anyone" (Magic) against casting in no armor and with no shield.
+- Skill Points buying "extra choices under an ability you already own" (Currencies) against the reason for the currency split.
+- A tier ability being "mostly an opportunity cost" against "An Ability Point purchase should be a real power boost" (both in Class Trees).
+- "Attacking should be somewhat more stamina-efficient than perfect blocking" (Blocking) against "Lasting harm is fair in this game because you control whether you take hits" (Rest and Healing).
+
+**Its guidance for abilities and magic** (its constraints, not adopted):
+- Lethality is the offense that lands between a defender's recoveries, so abilities that add offense inside one recovery window (extra or moved turns, refunds on your own turn) feed the weakest point.
+- Resistances should subtract once per attack, like armor, not add a defense value.
+- An ability may change a price or add an option, but not add a number computed on every attack.
+
+**A teaching shortcut it found:** the best block choice reduces to "blocks needed = damage ÷ defense, rounded up; one perfect block is free; armor soaks that many grazes; then buy back further wounds at 1, 2, 3 stamina". That's easier to teach than mixing perfect and grazing blocks freely.
+

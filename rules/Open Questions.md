@@ -20,6 +20,8 @@ next: "[[Not in This Version]]"
 - Doing something other than an action on your turn, such as picking up an item or opening a door: nothing says whether it costs stamina or counts toward escalation.
 - Attacking with a second weapon: one in your other hand adds to Melee Defense (see [[Defenses]]), but nothing says whether or how you attack with it.
 - What a creature threatens when it holds only a bow, or no weapon: [[Opportunity Attacks]] counts squares in reach, and neither has a stated reach.
+- Surprise: what a creature that hasn't noticed its attacker can do, in a game where acting first is worth this much.
+- What being incapacitated still allows, such as speaking, crawling, or being carried or dragged by an ally.
 - The TODO details marked through this packet.
 
 **Attributes**

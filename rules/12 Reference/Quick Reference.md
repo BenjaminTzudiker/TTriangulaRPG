@@ -11,7 +11,7 @@ next: "[[Defined Terms]]"
 
 **Melee:** Declare target → declare steps and pay → roll → blocks → armor (less Piercing and critical dice) → +1 per critical die if any damage is left → lose HP
 
-**Ranged:** Declare target and pay shot (provokes if you're in an enemy's reach) → buy aim → roll → target reacts (dive, close in, back away) → range penalty → blocks → armor (less Piercing and critical dice) → aim limit → +1 per critical die if any damage is left → lose HP → opportunity attacks
+**Ranged:** Declare target (if you're in an enemy's reach, its opportunity attacks come now, before you pay) → pay for the shot or cancel it → buy aim → roll → target reacts (dive, close in, back away) → range penalty → blocks → armor (less Piercing and critical dice) → aim limit → +1 per critical die if any damage is left → lose HP
 
 ## Stamina Costs
 

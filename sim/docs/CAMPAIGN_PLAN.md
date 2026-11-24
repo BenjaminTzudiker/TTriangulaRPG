@@ -8,7 +8,7 @@ Every simulated fight today starts fresh: full HP, stamina at maximum, strain 0 
 
 - **HP is the bridge.** Maximum stamina = 6 + *current* HP (Packet: Stamina), so a wound carries into the next fight as a smaller defense pool. HP comes back only by resting, 1 + odd-Strength per night, with no healing magic (Packet: Rest and Healing).
 - **Strain is a day budget.** It recovers only overnight, and each point over maximum adds stamina to every strain ability (Packet: Going Over Your Maximum Strain). The cores suite already says its numbers are "best cases for a day of several fights" (`sim/reports/cores_suite_notes.md`).
-- **Death and convalescence.** The review found a typical loser ends at −3 HP and needs 9–11 nights to be whole, and the winner is wounded 15–40% of the time (`design/Review_Playtest_Packet_v0.9.md:240`).
+- **Death and convalescence.** Under v0.9's HP and healing, the review found a typical loser ends at −3 HP and needs 9–11 nights to be whole, and the winner is wounded 15–40% of the time (`archive/design/Review_Playtest_Packet_v0.9.md:240`). HP and nightly recovery have changed since (0.9.1, 0.9.2), so those figures need re-measuring.
 
 Several open questions can only be answered across fights:
 
@@ -92,7 +92,7 @@ The engine still runs v0.9 rules where a campaign needs current ones (Packet v0.
 | Extra on-turn movement | 1 + odd Agility squares per purchase (`movement.extra_squares = "one"` exists, not in the preset) | 1 square |
 | Initiative | 2d12 + odd Agility + odd Cunning | 2d12 + Cunning |
 
-Each becomes a new component kind or value, never a changed default (CLAUDE.md: released defaults never change), under a new preset named for the packet version (`v0.9.3`). That's a rule-component change, so it goes on a branch with a pull request. It helps every suite, not only campaigns. The study's plugins (`exp_block_study.py`, the `cand-crit1-hp8` RuleSet) are the reference for matching its numbers.
+Each becomes a new component kind or value, never a changed default (AGENTS.md: released defaults never change), under a new preset named for the packet version (`v0.9.3`). That's a rule-component change, so it goes on a branch with a pull request. It helps every suite, not only campaigns. The study's plugins (`exp_block_study.py`, the `cand-crit1-hp8` RuleSet) are the reference for matching its numbers.
 
 ### Where it lives
 
@@ -260,7 +260,7 @@ Single-fight numbers don't show what they leave out, so part of the fix is docum
 
 ### Elsewhere
 
-- **`CLAUDE.md`:** the new commands, and one line under ground rules that cross-fight value is a campaign concern, so single-fight scenarios must not fake it (no raising `w` in a scenario to "account for" later fights).
+- **`AGENTS.md`:** the new commands, and one line under ground rules that cross-fight value is a campaign concern, so single-fight scenarios must not fake it (no raising `w` in a scenario to "account for" later fights).
 - **Report template:** a "Pacing" line beside the RuleSet digest and assumption switches in `sim/reports/`.
 - **Until carry-over lands,** one sentence in `USAGE_FOR_CHATS.md` can already say that every result is a fresh fight at strain 0 and so a best case for strain abilities.
 

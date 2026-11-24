@@ -46,7 +46,7 @@ Reach sets which squares you threaten, so this also widens your opportunity atta
 
 **Where:** Fighter Tier 1.
 
-While you're using a shield, a hold you set on an enemy also triggers when that enemy makes a melee attack on an ally next to you, if the enemy is within your reach. After that attack resolves, you may make the hold's opportunity attack against the enemy. The hold then ends (any unspent held stamina becomes locked; see [[Holds]]).
+While you're using a shield, a hold you set on an enemy also triggers when that enemy makes a melee attack on an ally next to you, if the enemy is within your reach. After that attack resolves, you may make the hold's opportunity attack against the enemy. The hold then ends (any unspent held stamina becomes returning stamina; see [[Holds]]).
 - "Next to you" means in one of the 8 squares around you when the attack is declared.
 - The opportunity attack works as usual: it can spend your cap plus the stamina you hold on that enemy, held stamina first (see [[Opportunity Attacks#Making Opportunity Attacks|Making Opportunity Attacks]]).
 - A shot at your ally from within your reach is already covered: shooting in melee provokes from you anyway (see [[Opportunity Attacks#Triggers|Triggers]]).
@@ -104,7 +104,7 @@ When you shoot a creature you hold, you may **spend** stamina you hold on it to 
 At the end of your turn, instead of holding individual creatures, you may hold your entire reach. That one hold applies to every enemy while it's within your reach.
 - An enemy that leaves a square in your reach pays 1 + the stamina you hold to avoid your opportunity attack, and an opportunity attack against it can spend that held stamina.
 - Any held stamina spent on an opportunity attack is gone; whatever remains keeps applying to every enemy in your reach.
-- As with [[#Hard to Shake]], the hold doesn't end when an enemy leaves a square in your reach. It ends when you lose HP (any unspent held stamina becomes locked).
+- As with [[#Hard to Shake]], the hold doesn't end when an enemy leaves a square in your reach. It ends when you lose HP (any unspent held stamina becomes returning stamina).
 
 > [!question] Hold the Line and Covering Hold
 > Whether a hold on your reach also triggers [[#Covering Hold]] is undecided. If it does, Covering Hold would end the whole hold.
@@ -113,7 +113,7 @@ At the end of your turn, instead of holding individual creatures, you may hold y
 
 **Where:** Fighter Tier 3.
 
-When an attack costs you HP no greater than your Will, it doesn't end your active holds. Instead, each of your active holds loses that much held stamina (which becomes locked until the end of your next turn; see [[Holds]]); a hold reduced to 0 ends.
+When an attack costs you HP no greater than your Will, it doesn't end your active holds. Instead, each of your active holds loses that much held stamina (which becomes returning stamina until the end of your next turn; see [[Holds]]); a hold reduced to 0 ends.
 - With Will 0, any HP loss still ends your holds as usual.
 - If a single attack costs you more HP than your Will, all your holds end as usual.
 
@@ -139,16 +139,25 @@ When you move, you pay each enemy at most once to avoid its opportunity attacks,
 
 **Where:** Rogue Tier 1.
 
-While you wield a light melee weapon (base cost 1) you're proficient with in each hand, each hand keeps its own escalation for melee attack steps.
-- Other actions (such as dashes or helping the dying) add to both hands' escalation as usual.
-- Each melee attack uses one hand (you can't combine steps from both hands into a single attack, so attacking with the second hand starts a new attack and resets the defender's block count).
-- If you make any attack with your off hand, you lose the +1 Melee Defense from carrying a second weapon (see [[Defenses]]) until the start of your next turn.
+While you wield a light melee weapon (base cost 1) you're proficient with in each hand, you keep a separate escalation counter for each hand (both reset when your turn ends).
+- **Melee steps:** a melee attack step uses and raises **that hand's** escalation counter.
+- **Other actions:** any other action (such as a dash or helping the dying) uses the **higher** of the two counters and raises **both** counters by 1.
+- **Separate attacks:** each melee attack uses one hand (you can't combine steps from both hands into a single attack, so attacking with the other hand starts a new attack and resets the defender's block count).
+- **Defense trade-off:** if you make melee attacks with **both** hands on the same turn, you lose the +1 Melee Defense from carrying a second weapon (see [[Defenses]]) until the start of your next turn.
+
+> [!example] Example: Dual Wielding
+> You hold a shortsword and a dagger (both base 1), starting at escalation (0, 0).
+> 1. You dash once: uses the higher (0) for **1** stamina; counters become (1, 1).
+> 2. You make a 2-step shortsword attack: uses the sword's counter (1, then 2) for **2 + 3** stamina; counters become (3, 1).
+> 3. You make a 1-step dagger attack (a separate attack): uses the dagger's counter (1) for **2** stamina; counters become (3, 2). Having attacked with both hands, you lose the second weapon's +1 Melee Defense until your next turn starts.
+> 4. You make a 1-step shortsword attack: uses the sword's counter (3) for **4** stamina; counters become (4, 2).
+> 5. You dash again: uses the higher (4) for **5** stamina; counters become (5, 3).
 
 ## Paired Blades
 
 **Where:** Rogue Tier 3. **Prerequisite:** [[#Dual Wielding]].
 
-Attacking with your off hand no longer costs you the +1 Melee Defense from carrying a second weapon.
+Attacking with both hands on the same turn no longer costs you the +1 Melee Defense from carrying a second weapon.
 
 ## Many Hands
 
@@ -175,7 +184,7 @@ Once per attack, when your melee attack deals HP damage to a creature whose **St
 
 When you pay to avoid opportunity attacks, you may pay some or all of it in HP. Each HP pays for **up to** your Strength in stamina.
 - That includes the extra stamina a hold adds.
-- It's losing HP, so it ends your holds (turning their held stamina locked) and lowers your maximum stamina (see [[Holds]] and [[Stamina]]). Blocks and armor don't apply to it.
+- It's losing HP, so it ends your holds (turning their held stamina into returning stamina) and lowers your maximum stamina (see [[Holds]] and [[Stamina]]). Blocks and armor don't apply to it.
 - It can't take you below 1 HP.
 - With Strength 0 it does nothing.
 
@@ -194,4 +203,4 @@ Once per turn, when you attack a creature that holds you, add one more step to t
 
 **Where:** Barbarian Tier 3. **Prerequisite:** [[#Shove]].
 
-When you move a creature with [[#Shove]], you may immediately step into the square it left. That step is free and doesn't provoke an opportunity attack from that creature (other enemies can still provoke as usual).
+When you move a creature with [[#Shove]], if the square it left is next to you, you may immediately step into it. That step is free and doesn't provoke an opportunity attack from that creature (other enemies can still provoke as usual).

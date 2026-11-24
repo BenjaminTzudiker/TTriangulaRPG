@@ -10,12 +10,12 @@ This file is the working guide for anyone changing the repo: coding agents of an
   - `rules/Playtest Packet.md` is the index and reading order; `rules/README.md` describes the layout and formatting.
   - `rules/CHANGELOG.md` records every rules change. Its Unreleased section is what has changed since the last packet version.
 - `design/` holds the supporting documents:
-  - `Review_Playtest_Packet_v0.9.md`: the findings (F1–F14) the engine exists to test.
-  - `Fix_Order_and_Dependencies.md`: what each finding depends on and ripples to, and the original fix order (Phases 0–8).
+  - `Fix_Order_and_Dependencies.md`: what each of the v0.9 review's findings (F1–F14) depends on and ripples to, the original fix order (Phases 0–8), and an index of the findings with where each stands now (section 10).
   - `Design_Notes_for_Design_Bible.md` and `Rules_Reconciliation_Ledger_v0.8-to-v0.9.md`: why the rules are the way they are. Ledger IDs (MV-3, CB-2…) are cited in code.
   - `Instructions_for_Design_Chats.md`: how any assistant helping with design (not code) should work. Read it before answering a design question.
 - `sim/docs/ENGINE_PLAN.md` is the engine's architecture and milestone plan. Follow it; propose changes to it rather than drifting from it.
 - `sim/docs/USAGE_FOR_CHATS.md` tells design chats how to install and run the engine, when a run is worth doing, and what the engine doesn't capture. Keep its "What the engine doesn't capture" section current when a milestone closes a gap (e.g. the campaign layer, packet 0.10.0, the search auditor).
+- `archive/` holds frozen records that don't sync to the claude.ai project. `archive/design/Review_Playtest_Packet_v0.9.md` is the v0.9 review, the findings the engine exists to test; `sim/tests/properties/test_traceability.py` reads it, so keep its finding and addendum headings unchanged.
 - `sim/tests/oracle/` holds the simulator from the original review. Never edit it. It is the parity oracle.
 - `sim/reports/` is where experiment write-ups for the designer go.
 - `sim/examples/` holds the worked plugin example design chats copy when they try a new mechanism (see `USAGE_FOR_CHATS.md`).

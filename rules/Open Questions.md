@@ -13,10 +13,13 @@ next: "[[Not in This Version]]"
 - Opportunity attacks at corners: should a diagonal step past a square an enemy threatens provoke, the way a wall's corner blocks the step (see [[Free Movement]])? Left out of 0.11.2, because threat would then reach farther than the weapon, and some steps into reach would provoke. Worth another look if creatures in play slip around guards too easily.
 - Whether stamina is public. Can players see an enemy's exact stamina, a rough band (such as above half, half to a quarter, under a quarter), or nothing? Choosing how much to commit and telegraphing a lethal threat both depend on it. If every attack and block is visible, a careful player can count an enemy's exact stamina anyway, so a band or a hidden number only holds if something else is hidden too.
 - How stamina is tracked at the table and on a virtual tabletop, especially with more than one pool per creature (such as held stamina; see [[Holds]]).
+- Diving into partial cover: [[Cover]] says a dive that ends fully behind cover counts as three-quarters cover, but not what a dive that ends in half cover gives.
+- Maximum stamina below 0 HP: 6 + current HP falls to 0 or below once HP is negative. Does the HP term stop at 0?
 - The TODO details marked through this packet.
 
 **Attributes**
 - More combat benefits for Will (beyond the dying roll) and Cunning (beyond initiative). Intelligence's in-play role, beyond helping the dying, is expected to come from abilities and spells.
+- Starting attributes against the attribute scale. With 5 Expertise and attributes starting at 0, a new character can raise at most one attribute to 2 (for example 2/1/1, or 1/1/1/1/1). The scale calls 2 "an average person" and 1 "below average", so every starting adventurer is below an average person in at least five attributes. Start attributes at 1, raise the budget, or re-anchor the scale?
 - Strength's nightly HP recovery: its value depends on how many fights fall between rests, and the Strength 0 character heals slowest.
 
 **Effects**

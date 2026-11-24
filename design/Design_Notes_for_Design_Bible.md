@@ -714,6 +714,7 @@ These are deliberately out of the current rules, but they're candidate solutions
 These are the threads you kept returning to. Most are unresolved. Item 1 is the problem you said you want to tackle first.
 
 1. **Ranged aim lethality.** Aim adds damage, and nothing currently stops that damage from wounding.
+   - *Since packet 0.10.0:* the aim limit stops it: a shot's HP loss can't exceed the weapon's damage roll, so aim dice never wound (rules note Aim). Ranged lethality at normal ranges is still untested (Open Questions).
    - You called this an unsolved problem and "one of the first I have Claude try to help me solve".
    - Max HP Damage (H-1) is your initial proposed fix [R2:11, R1:A2].
 2. **Arithmetic load of the core attack.** The tension at the heart of C1:

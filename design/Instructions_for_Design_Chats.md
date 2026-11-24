@@ -29,7 +29,7 @@ A tactical fantasy TTRPG built on a regenerating stamina system. It should:
 - Status markers matter (see "Reading the status markers" in `rules/Playtest Packet.md`). "Locked" means a deliberate current choice, not untouchable. Anything can be reopened with a compelling reason.
 - Don't change what a rule means on your own. Propose changes, explain them against the designer's intent, and let the designer decide.
 - Shelved ideas are in `rules/Not in This Version.md`; Part H of `design/Rules_Reconciliation_Ledger_v0.8-to-v0.9.md` keeps the history of the older ones. They are not rules, so don't critique them as rules, but they are candidate fixes when their problem comes up.
-- `design/Fix_Order_and_Dependencies.md` maps what each of the review's findings depends on and what changing it ripples to. Before working on a finding, check that map, and say when the work gets ahead of something unsettled, because its numbers will need re-checking once that is settled.
+- `design/Fix_Order_and_Dependencies.md` maps what each of the v0.9 review's findings depends on and what changing it ripples to, and its section 10 says where each finding stands now (the review itself is archived). Before working on a finding, check that map, and say when the work gets ahead of something unsettled, because its numbers will need re-checking once that is settled.
 
 ## Using the simulator
 

@@ -29,7 +29,8 @@ These ideas are deliberately left out of the current rules. They're strong candi
 - **NPC aggression profiles:** balance-tested defaults for how NPCs play.
 - **A Strength requirement for shields,** like armor's. A candidate for pricing the shield's defense (Review F4), to be decided with the rest of the equipment numbers.
 - **Initiative you have agency over,** rather than only a die roll. The leading idea is bidding: at the start of a fight, each creature may pay stamina from its starting pool to act earlier.
-  - Acting first is worth a lot (about 35 points of win rate in equal level-1 duels in the engine), and a bid would put a stamina price on that edge directly.
+  - Acting first is worth a lot, and a bid would put a stamina price on that edge directly. Between two sample fighters starting within 7 squares, the first to act wins 72.9% (exact duel solver, packet 0.11.0, no holds); from 8–9 squares, about 49%. The earlier figure of about 35 points was the v0.9 engine's.
+  - The designer's steer for a future rule (2026-11-20, as the chat's notes record it, not verbatim): initiative deciding an equal duel is acceptable, but it should change the shape of the fight, not only the odds; there should be agency beyond character building; the rule has to survive fights declared at very different distances, with creatures scattered or joining later; each creature keeps its own initiative; and initiative shouldn't often have to break dash-phase ties.
   - It's one decision per fight, so it adds little load.
   - It shouldn't overlap the Rogue's core ability, which sells turn-order control during a fight; bids would set only the opening order.
   - Cunning could set the bidding order (higher Cunning bids after seeing the others).

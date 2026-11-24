@@ -6,7 +6,7 @@ next: "[[Not in This Version]]"
 # Open Questions
 
 **Combat**
-- Ranged lethality under the 0.10.0 bows: untested at normal ranges. Two archers shooting one target back to back are the main risk.
+- Ranged lethality under the 0.10.0 bows. Measured since at 6–10 squares (design/Fix_Order_and_Dependencies.md §11.2): two level-1 longbow archers down an unarmored 8 HP target in one round most of the time even when it reacts, and a Strength 2 archer's three shots a turn drop a target as fast as melee. Still open: how much of that is acceptable, and what, if anything, changes.
 - A better name for "action".
 - Area attacks, such as a fireball or dragon breath. One idea: measure cover from the blast's origin, and let a dive out of the area count as three-quarters cover.
 - An "out of the fight but alive" state above 0 HP.
@@ -23,7 +23,8 @@ next: "[[Not in This Version]]"
 - Surprise: what a creature that hasn't noticed its attacker can do, in a game where acting first is worth this much.
 - What being incapacitated still allows, such as speaking, crawling, or being carried or dragged by an ally.
 - Shooting into a melee: whether a shot at an enemy fighting your ally risks hitting the ally. Today the only cost is the cover the ally gives.
-- Drawing Weapons' gaps: what each creature has in hand when a fight starts, and where a bow goes when you draw a blade between turns.
+- Drawing Weapons' gaps: what each creature has in hand when a fight starts; where a bow goes when you draw a blade between turns; whether you can draw on your own turn after using a weapon; whether a shield counts as a normal weapon to draw; whether a second quick-draw blade should add Melee Defense for free; and the same quick-draw exception for a hand used for somatic casting.
+- What a round is, and when a fight starts. The packet uses "round" without defining it and doesn't say when initiative is rolled. The designer's answers in the 2026-11-20 initiative chat (as the chat's notes record them, `claude/Initiative_Part1_2026-11-20.md`): a round is one pass through the initiative order, and a fight starts when the GM declares it, ideally only when something needs resolving in order. Not in the rules text yet.
 - The TODO details marked through this packet.
 
 **Attributes**

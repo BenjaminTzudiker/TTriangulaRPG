@@ -33,6 +33,7 @@ A commit that only fixes typos can skip the entry by putting `[no changelog]` in
 
 ### Editorial
 
+- [[Open Questions]]: five questions a playtest-readiness walkthrough of packet 0.10.0 found that the packet still doesn't answer: cover in detail, moving through other creatures' squares, non-action things done on a turn, attacking with a second weapon, and what a creature holding only a bow, or nothing, threatens. Each was checked against the current packet first. No rule changes. Why: so they're settled before a first playtest. Source: `claude/FableMax_Playtest_Readiness_2026-11-11.md`, checked 2026-11-23, with the designer's go-ahead.
 - [[Open Questions]]: three questions the v0.9 review raised (Review F12, F14) that the packet didn't list: starting attributes against the attribute scale, diving into partial cover, and maximum stamina below 0 HP. No rule changes. Why: so they stay visible once the review is archived. Source: design chat, 2026-11-23, with the designer's go-ahead.
 - [[README]] (Obsidian setup): `archive` joins the excluded folders. Why: it holds frozen records, such as the v0.9 review, that shouldn't crowd search. Source: design chat, 2026-11-23.
 - [[README]]: points to `AGENTS.md` instead of `CLAUDE.md`, and says "ask your assistant" instead of "ask Claude". No rule changes. Why: the repo's working guide is now `AGENTS.md`, which coding agents other than Claude Code read too. Source: the designer's request, 2026-11-22.

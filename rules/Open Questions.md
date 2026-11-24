@@ -15,6 +15,11 @@ next: "[[Not in This Version]]"
 - How stamina is tracked at the table and on a virtual tabletop, especially with more than one pool per creature (such as held stamina; see [[Holds]]).
 - Diving into partial cover: [[Cover]] says a dive that ends fully behind cover counts as three-quarters cover, but not what a dive that ends in half cover gives.
 - Maximum stamina below 0 HP: 6 + current HP falls to 0 or below once HP is negative. Does the HP term stop at 0?
+- Cover in detail: [[Cover]] defers to 5e. Unwritten here: that creatures give half cover (the engine records this as ruled), what "fully behind" means for a low wall, total cover, and line of sight.
+- Moving through other creatures' squares: allies, enemies and downed creatures. Nothing says whether you can, or what it costs.
+- Doing something other than an action on your turn, such as picking up an item or opening a door: nothing says whether it costs stamina or counts toward escalation.
+- Attacking with a second weapon: one in your other hand adds to Melee Defense (see [[Defenses]]), but nothing says whether or how you attack with it.
+- What a creature threatens when it holds only a bow, or no weapon: [[Opportunity Attacks]] counts squares in reach, and neither has a stated reach.
 - The TODO details marked through this packet.
 
 **Attributes**

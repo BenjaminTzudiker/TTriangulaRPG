@@ -225,8 +225,8 @@ Earlier form of the same goal:
 - *How it's applied now (packet 0.11.1):* holds (rules note Holds). The tokens are out through your next turn, so they come off that turn's attacks and blocks, and losing any HP ends the hold.
 
 **Using your fun abilities shouldn't cripple you afterwards.**
-- *Rule:* Prefer soft limits that tax the present turn (strain overage adds stamina cost) over lasting debuffs (max-stamina costs) or "bug the party for a rest" lockouts.
-- *Applied:* overexertion (lowering max stamina to gain stamina) is abandoned [R3:8].
+- *Rule:* Prefer soft limits that tax the present turn (escalation, held stamina, or earlier: strain overage) over lasting debuffs (max-stamina costs) or "bug the party for a rest" lockouts.
+- *Applied:* overexertion (lowering max stamina to gain stamina) is abandoned [R3:8]. Strain itself was shelved in packet 0.12.0 (H-10); the principle still governs in-fight ability costs.
 - *Source:* "Should I really have players spend max stamina on normal abilities? That seems pretty punishing" [p.446]. "I don't want casters crippled outside of their leveled spell casting ability for using their abilities, and the tradeoff of 'you can keep casting... but each time you're making yourself more vulnerable the turn you do' sounds interesting." [p.474]. "I want to avoid people blowing all of their strain on one or two big flashy fun abilities only to then bug the party for a rest… (feels like maybe an unfun type of punishment for using fun abilities?)" [p.1041].
 - **STATED**
 
@@ -469,7 +469,8 @@ Earlier form of the same goal:
 
 **Multiclassing shouldn't inflate resources, nor feel bad.**
 - *Source:* Strain as "a shared resource pool… so you don't get more total ability usage by multiclassing" [p.998]. On a main-tree-only rule: "That'd make multiclassing kinda suck more than I want it to" [p.588].
-- **STATED**
+- *How it's applied now (packet 0.12.0):* with strain shelved (H-10), cores no longer share a nightly pool; instead, core designs aim to compete for existing in-fight bottlenecks (ready stamina, held stamina, escalation, loadout/posture) so dipping buys tactical mode-switching rather than free orthogonal stacking (design chat, 2026-11-24; assistant framing endorsed in direction, not verbatim).
+- **STATED** (original principle)
 
 **Keep core-economy parameters uniform across characters.**
 - *Rule:* Roles come from *efficiency*, not pool size.
@@ -498,7 +499,7 @@ Earlier form of the same goal:
 - **STATED**
 
 **Choices that aren't fun to make shouldn't be build choices.**
-- *Rule:* Strain capacity is level-only. That's not because choosing it would be too strong; it's because the choice isn't fun.
+- *Rule:* Strain capacity was level-only (now moot since strain is shelved in packet 0.12.0, H-10). The principle still stands: don't turn unfun maintenance stats into build choices.
 - *Source:* "I think that strain will probably be solely level dependent. Not necessarily because it's too powerful to be given as a choice, but because that sort of choice is not very fun." [C:2026-11-05]
 - **STATED**
 
@@ -636,12 +637,12 @@ Earlier form of the same goal:
 | Start-of-turn regen | Lets players zero their defense; wastes first regen; rewards going second | End of turn | p.127, p.788 |
 | Full refresh / "do nothing" turn | Doing nothing sucks | Partial regen | p.221 |
 | Four layers of max stamina; separate max-stamina damage track | Too much tracking | Max stamina = 6 + current HP + round(level/5). Damage reducing max stamina is shelved (H-2), not rejected | p.105, p.998, p.1277; R1; R3:11 |
-| Max-stamina costs on ordinary abilities / as the casting limit | Cripples you after using abilities | Strain with stamina overage | p.446, p.474 |
-| Overexertion (lower max stamina to gain stamina) | Superseded | Strain overage | p.334; R3:8 |
-| Per-rest or per-fight uses for class cores | Rest-frequency imbalance; dislikes "X fights per rest" | Strain-cost cores | p.464, p.585 |
+| Max-stamina costs on ordinary abilities / as the casting limit | Cripples you after using abilities | Strain with stamina overage (later shelved, H-10) | p.446, p.474 |
+| Overexertion (lower max stamina to gain stamina) | Superseded | Strain overage (later shelved, H-10) | p.334; R3:8 |
+| Per-rest or per-fight uses for class cores | Rest-frequency imbalance; dislikes "X fights per rest" | Strain-cost cores (later shelved, H-10; replaced by in-fight trade-off cores in 0.12.0) | p.464, p.585 |
 | Graze leaks bypassing armor, to end stalemates (the review-era Phase 1 lead) | Your reasons: grazing hits are exactly what armor should soak best, which is why armor values are small (0–3); you're wary of taking damage before armor is used up; and you want armor relevant throughout an attack, not a tacked-on step | Grazes stay soaked by armor. Packet 0.9.2's critical rule (+1 per critical die when anything gets past) and HP change took on the stalemates | [C:2026-11-06]; `claude/Crit_Rule_Alternatives.md`, `claude/Engine_Assessment_m5.md` |
 | Swing-by-swing resolution: each attack step rolled and blocked in turn, perfect blocks priced by the swing they answer, armor as a pool for the whole attack | Your reasons: you liked that the defender sees less before blocking, but doubted it was worth the extra resolution time, and you had accepted rising block costs because blocks compounded across attack steps. The analysis behind it: pricing blocks by swing dropped the rising perfect-block cost that kept fights moving, and a hybrid that kept it worked but was slow at the table | All-at-once resolution (one total, one block declaration), with +1 per critical die and the HP raise (packet 0.9.2) | [C:2026-11-06] to [C:2026-11-08]; `claude/Exchange_Rules_Tentative.md`, `claude/Exchange_Proposal_Optimal_Play.md` |
-| Per-tree strain pools with stat-keyed recovery | Multiclass inflation; non-integer math | Single shared pool | p.588–598, p.998 |
+| Per-tree strain pools with stat-keyed recovery | Multiclass inflation; non-integer math | Single shared pool (later shelved, H-10) | p.588–598, p.998 |
 | Fractional "commitment coefficient" for heavy weapons | Needs per-die tables; later steps cost more and give less | Base cost + stat multiples | p.517 |
 | Stat applied once per attack (not per step) | Breaks multi-target attacks | Stat per step | p.522 |
 | 5e double-damage crits; reroll-chain crits | Doesn't fit; infinite damage at high FIN | Armor ignore + HP doubling after cap | p.751, p.754 |
@@ -653,8 +654,8 @@ Earlier form of the same goal:
 | Paying stamina for normal on-turn movement; aim penalty for moving | Don't discourage movement | Free on-turn movement | p.1274 |
 | Facing; "maneuver" keyword; free disengagement | Facing is a new concept used nowhere else | Pay stamina to deny OAs (now per enemy per square; see §4.1) | p.1349, p.1355, p.1361 |
 | Main-hand shield rule | "not important enough to need a rule" | One shield, +2/+2 | p.1481 |
-| Extra strain for buying school ranks early | Wrong resource | Stamina surcharge | p.1059 |
-| Stamina-cost reductions on mastered spells | Growing pools cover it | Strain reductions only | p.1059 |
+| Extra strain for buying school ranks early | Wrong resource | Stamina surcharge (strain later shelved, H-10) | p.1059 |
+| Stamina-cost reductions on mastered spells | Growing pools cover it | Strain reductions only (strain later shelved, H-10) | p.1059 |
 | Percentage surcharges | Mentally taxing | Flat surcharges | p.1066 |
 | Stamina refund next turn for big spells/shots | Bookkeeping | (dropped "for now") | p.1072, p.1142 |
 | Blanket spell discount for gishes | Too broad | Specific hybrid abilities | p.1090 |
@@ -710,6 +711,8 @@ These are deliberately out of the current rules, but they're candidate solutions
 - **H-7 Stamina cap (hard flux):** pressure that sticks, by keeping some stamina spent on defense from coming back. Shelved as "layering a new core mechanic on a system that already has enough core mechanics"; it "might end up in the game" [C:2026-11-17].
 - **H-8 Dodge Defense:** an avoid-only defense for what you can't block with a weapon or shield. Shelved "for now" in packet 0.11.3, since nothing in the game used it yet [C:2026-11-19].
 - **H-9 Recovery holds:** held stamina with no target that comes back with extra recovery, as a way to let contact itself be the pressure. Shelved because it mostly pays whoever can't be reached, and "just isn't really doing what I want it to do" [C:2026-11-21]. Held stamina as a cost for abilities is not shelved with it.
+- **H-10 Strain:** a rest-recovered pool for class cores and spells. Shelved in packet 0.12.0 because gating class cores on a nightly pool made class balance depend on GM fights-per-day pacing, added a second tracked pool in a one-pool system, and HP already carries lasting cost between fights [C:2026-11-22 to 2026-11-24].
+- *Working guardrails noted during 0.12.0 core design (assistant analysis, not adopted pillars):* (1) At level-1 max stamina 16 (vs. 18 for 4 heavy steps), giving ≥2 upfront offensive stamina on Turn 1 unlocks Turn-1 heavy one-shots (`Reckless −2`: 80.4% greatsword / 99.3% greataxe down on a fresh sample fighter `[exact]`); prefer post-attack refunds or mid-fight triggers instead. (2) Any free in-fight turn-order jump without permanently shifting your slot creates round-boundary double-turns.
 
 ---
 
@@ -738,10 +741,11 @@ These are the threads you kept returning to. Most are unresolved. Item 1 is the 
    - Two kinds of the same attribute (Expertise vs Skill Points) [p.1409].
    - Skill value depends on how skills are split and how often they come up [p.1446].
 7. **Rest and long-term resources:**
+   - *Since packet 0.12.0:* strain is shelved (H-10), so HP (slow nightly recovery, no HP-restoring magic) is currently the only between-fights resource. Magic's cross-fight limit remains TODO (H-5).
    - Should rests be tied to a night? [p.441, p.553]
    - Should long-term resources exist at all? [p.726, p.998]
    - Per-rest parity between martials and casters [p.472, p.1128].
-   - Strain recovery: per night, or 1 per 6 hours of rest [R1:B14, R2:9].
+   - Strain recovery: per night, or 1 per 6 hours of rest [R1:B14, R2:9] (moot while H-10 is shelved).
 8. **Breadth vs depth** for casters and trees:
    - Spell variety without slots [p.354, p.530]. Spellcasting as a whole is shelved for now (H-5).
    - Tier-unlock nodes, multiclass cost [p.1644–1697].

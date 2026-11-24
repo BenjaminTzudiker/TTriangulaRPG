@@ -375,3 +375,12 @@ Its engine runs to do later, once their phases land: an attribute-spread sweep a
   - Clarified stamina and hold states (`ready`, `held`, `locked`, `spent`) across `Stamina`, `Holds`, `Starting Combat and Turn Structure`, `Quick Reference` and `Defined Terms` (aids F11 table tracking).
   - Added `Forced Movement` (exploratory) and six martial candidates (`Shove` comparing Strength instead of adding creature sizes, `Drive Through`, `Unshaken`, `Many Hands`, `Dual Wielding`, `Paired Blades`), revised `Sweep`, `Tumble`, `Riposte`, `Hold the Line`, `Tear Free` and `Cornered`, and shelved `Quick Reflexes` and the remaining unplaced 0.11.6 candidates.
   - All candidate abilities remain `Exploratory` taste anchors pending first table playtesting; F1, F4, F5, F6 (close start), F8 and F12 remain open underneath.
+
+## 13. After packet 0.12.0 (added 2026-11-24)
+
+Packet 0.12.0 removes and shelves **Strain** (Not in This Version; Ledger H-10) and replaces all four martial class cores with `Exploratory`, strain-free placeholders (`Second Wind`, `Opportunist`, `Press the Wound`, `Poised Guard`), plus two core-upgrade candidates (`Patient Opportunist`, `Relentless Fury`).
+- **F5 (level scaling):** strain growth lines (`+1 maximum strain`, `+1 strain recovery`) are gone; stamina pool growth vs. flat HP/defense remains open.
+- **F11 (d) (Fighter strain-overage oddity):** gone with strain.
+- **F13 (class cores):** all four martial cores are rewritten as exploratory placeholders paid inside the fight (ready stamina, held stamina, escalation or dash-phase timing); multiclass balance now leans on cores competing for in-fight bottlenecks rather than a shared nightly strain pool.
+- **F14 (Rogue turn-order timing):** the old turn-moving Rogue core's next-round slot ambiguity is gone; `Opportunist` acts inside the existing initiative-ordered dash phase, keeping opening initiative separate from class cores.
+- **Engine:** existing presets keep strain so earlier reports reproduce; a 0.12.0 preset is deferred until after 0.12.0 is released.

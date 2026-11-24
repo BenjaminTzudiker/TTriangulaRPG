@@ -26,7 +26,7 @@ cites = (
     "Packet: Making Opportunity Attacks",
     "Packet: Blocking",
     "Packet: Drawing Weapons",
-    "Packet: Going Over Your Maximum Strain",
+    "Packet: Not in This Version",
     "Packet: Stamina Costs",
     "Ledger CB-2",
     "Ledger CB-3",

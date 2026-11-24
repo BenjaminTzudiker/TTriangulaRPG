@@ -22,6 +22,7 @@ Abilities being tried out before they're settled. Where each one sits is part of
 | [[#Riposte]] | | Tier 1 | | Tier 2 |
 | [[#Tumble]] | | Tier 1 | | Tier 1 |
 | [[#Dual Wielding]] | | Tier 1 | | |
+| [[#Patient Opportunist]] | | Tier 2 | | |
 | [[#Paired Blades]] | | Tier 3 | | |
 | [[#Many Hands]] | | | | Tier 1 |
 | [[#Long Stride]] | | | Tier 2 | Tier 1 |
@@ -29,6 +30,7 @@ Abilities being tried out before they're settled. Where each one sits is part of
 | [[#Tear Free]] | | | Tier 2 ability | |
 | [[#Cornered]] | | | Tier 3 ability | |
 | [[#Drive Through]] | | | Tier 3 | |
+| [[#Relentless Fury]] | | | Tier 3 | |
 
 [[#Tear Free]] is the Barbarian's **Tier 2 ability** and [[#Cornered]] is the Barbarian's **Tier 3 ability**: the pieces you buy to reach those tiers, not standalone tier features.
 
@@ -144,6 +146,13 @@ While you wield a light melee weapon (base cost 1) you're proficient with in eac
 - Each melee attack uses one hand (you can't combine steps from both hands into a single attack, so attacking with the second hand starts a new attack and resets the defender's block count).
 - If you make any attack with your off hand, you lose the +1 Melee Defense from carrying a second weapon (see [[Defenses]]) until the start of your next turn.
 
+## Patient Opportunist
+
+**Where:** Rogue Tier 2.
+
+You may split your Rogue core ability (**Opportunist**; see [[Core Abilities]]) across any number of dash phases between each of your turns, as long as your total stamina spent and held through Opportunist stays within **1 + your Cunning**.
+- You may also use that same limit to **hold** ready stamina on enemies during a dash phase (each point of stamina held counts as 1 toward the limit, isn't an action, and stays held until it returns at the end of your next turn; see [[Holds]]).
+
 ## Paired Blades
 
 **Where:** Rogue Tier 3. **Prerequisite:** [[#Dual Wielding]].
@@ -195,3 +204,9 @@ Once per turn, when you attack a creature that holds you, add one more step to t
 **Where:** Barbarian Tier 3. **Prerequisite:** [[#Shove]].
 
 When you move a creature with [[#Shove]], you may immediately step into the square it left. That step is free and doesn't provoke an opportunity attack from that creature (other enemies can still provoke as usual).
+
+## Relentless Fury
+
+**Where:** Barbarian Tier 3.
+
+Your Barbarian core ability (**Press the Wound**; see [[Core Abilities]]) recovers stamina equal to the stamina cost of the **most expensive step** of that attack (including escalation) instead of the weapon's base cost.

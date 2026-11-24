@@ -8,8 +8,7 @@ next: "[[Running the Game]]"
 *Status: Mechanism open (rest); Locked (no HP-restoring magic, for now)*
 
 **Each night of rest:**
-- recover **1 HP, +1 per odd Strength value** (see [[HP]]), the same amount below 0 HP;
-- recover **4 + round(Level / 10) strain** (or see the alternative under [[Strain]]).
+- recover **1 HP, +1 per odd Strength value** (see [[HP]]), the same amount below 0 HP.
 
 At 0 HP or below you're incapacitated, so you can't fight again until rest brings you back to 1 HP or more (see [[Dying and Death]]).
 

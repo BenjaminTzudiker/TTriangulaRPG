@@ -4,7 +4,7 @@
 > - **PROPOSAL**, **UNCERTAIN** and **ABANDONED** entries are *not* rules; don't treat them as current design.
 > - The designer's rulings (logged verbatim in Part G) are folded into Parts A–D. **Part H (SHELVED)** holds ideas deliberately left out of the current rules; they are not rules.
 > - **Playtest Packet v0.9** is now the rules source and incorporates these rulings (through round 9). This ledger remains the record of where each rule came from and how firm it is.
-> - **Later packets:** the entries describe packet v0.9. `rules/CHANGELOG.md` records every change since then. Seven entries carry a **Later changes** line for what packet 0.11.0 changed (CB-2, CB-9, MV-1, MV-2, MV-4, MV-5 and CP-7; the reaction to a shot is under MV-2), five for packet 0.11.1 (CR-2, MV-3, MV-5, EQ-2 and H-4), and four for packet 0.11.2 (CB-9, IN-1, CP-9 and MV-1). Part H gained H-7, the stamina cap, after 0.11.2, and H-8, Dodge Defense, which packet 0.11.3 shelved (DF-3 has a **Later changes** line for it). It gained H-9, recovery holds, after 0.11.4. MV-3 has one for packet 0.11.4, which moved the opportunity attacks a shot in melee provokes to the moment the target is declared. The rest have not been brought up to date, and neither have the summaries in Parts A to C.
+> - **Later packets:** the entries describe packet v0.9. `rules/CHANGELOG.md` records every change since then. Seven entries carry a **Later changes** line for what packet 0.11.0 changed (CB-2, CB-9, MV-1, MV-2, MV-4, MV-5 and CP-7; the reaction to a shot is under MV-2), five for packet 0.11.1 (CR-2, MV-3, MV-5, EQ-2 and H-4), and four for packet 0.11.2 (CB-9, IN-1, CP-9 and MV-1). Part H gained H-7, the stamina cap, after 0.11.2, and H-8, Dodge Defense, which packet 0.11.3 shelved (DF-3 has a **Later changes** line for it). It gained H-9, recovery holds, after 0.11.4, and H-10, strain, in packet 0.12.0 (CR-4, CR-5, MG-2, CP-1, CP-7 and CP-8 have **Later changes** lines for 0.12.0). MV-3 has one for packet 0.11.4, which moved the opportunity attacks a shot in melee provokes to the moment the target is declared. The rest have not been brought up to date, and neither have the summaries in Parts A to C.
 
 # Rules Reconciliation Ledger: Playtest Packet v0.8 vs. Design Transcript
 
@@ -285,6 +285,8 @@
   - Abandoned along the way: overexertion; an INT-based strain limit; per-tree pools; stat-keyed recovery [p.130–598].
   - Settled on a single pool [p.998, p.1469].
 - **Evidence:** [p.1469]. Ruling B14 + clarification 9 (your ruling, 2026-11-01).
+- **Later changes:**
+  - *Packet 0.12.0 (your call, 2026-11-22 to 2026-11-24):* strain is removed from the current rules and shelved as **H-10** (see Part H and the rules note `Not in This Version`).
 
 ### CR-5 Exceeding maximum strain
 - **Firmness:** Locked. Stated with worked examples, then explicitly confirmed ("Yes, we are going with…") [p.1135, p.1469].
@@ -297,6 +299,8 @@
   - Extended to all strain abilities [p.1135].
   - Confirmed at p.1469.
 - **Evidence:** "max strain is 11… The 6th time their strain is 12 which is 1 over max, so it costs 7 stamina instead. The seventh fireball costs 9 stamina" [p.1135]. "Yes, we are going with the 'over max strain -> extra stamina on all strain abilities, including the one currently being used.'" [p.1469]
+- **Later changes:**
+  - *Packet 0.12.0:* shelved with strain as **H-10**.
 
 ### CR-6 Damage reducing max stamina → SHELVED
 - **Firmness:** n/a. Moved to Part H (SHELVED, H-2).
@@ -899,6 +903,8 @@
 - **Status:** DECISION
 - **Packet:** **Contradicts / incomplete:** the packet has armor as TODO and nothing about shields.
 - **Evidence:** [p.1472–1473] and your spellcasting ruling (your ruling, 2026-11-01).
+- **Later changes:**
+  - *Packet 0.12.0:* spells no longer list a strain cost or strain overage (strain shelved as **H-10**); limits across fights or outside combat are **TODO**.
 
 ---
 
@@ -925,6 +931,8 @@
 - **Status:** DECISION
 - **Packet:** **Contradicts:** the packet's "Tier advancement" at level 0 is gone, and starting level 1 is new.
 - **Evidence:** [p.1277]. Rulings A7, A14, B12, clarification 8; starting level (your ruling, 2026-11-01).
+- **Later changes:**
+  - *Packet 0.12.0:* "+1 max strain" (digits 3 and 8) and "+1 strain regen" (digit 5) removed when strain was shelved (**H-10**).
 
 ### CP-2 Class trees: core abilities and tier abilities
 - **Firmness:** Intent locked, mechanism open. This is the current implementation to test.
@@ -996,6 +1004,7 @@
 - **Evidence:** [p.942], [p.957–960] and your Monk ruling (your ruling, 2026-11-01).
 - **Later changes:**
   - *Packet 0.11.0 (your rulings, 2026-11-16):* the Rogue's core is declared **just after a dash phase ends** (it was "between anyone's turns"), and the turn that follows starts with no new dash phase. So nobody can dash in answer to the announcement. Marked as open to change if that makes the ability degenerate.
+  - *Packet 0.12.0 (your calls, 2026-11-22 to 2026-11-24):* with strain shelved (**H-10**), all four martial cores are replaced by exploratory, strain-free placeholders: Fighter (**Second Wind**: off-turn `recovery − 1`, skips next recovery, counts as an action), Rogue (**Opportunist**: once between turns, act in a dash phase up to `1 + Cunning` stamina), Barbarian (**Press the Wound**: once/turn on melee HP damage, recover weapon base cost), and Monk (**Poised Guard**: unarmored/no shield, spend up to 2 held stamina on an enemy that started its turn in reach for non-escalating perfect blocks).
 
 ### CP-8 Martial vs caster tree structure
 - **Firmness:** Locked (as principle).
@@ -1007,6 +1016,8 @@
 - **Status:** DECISION
 - **Packet:** Missing.
 - **Evidence:** "Martials would get a higher portion of flat buff passives and no strain active abilities. Casters would get abilities that aren't just 'increase a spell specialization rank' but that would be where casters are expected to invest a lot of their ability points" [p.1121]
+- **Later changes:**
+  - *Packet 0.12.0:* reworded after shelving strain (**H-10**): martial trees have one defining core ability (sometimes upgraded by later features) plus passives and actives paid inside the fight (ready stamina, held stamina, escalation or timing).
 
 ### CP-9 Candidate abilities you kept
 - **Firmness:** Exploratory. A candidate list.
@@ -1535,6 +1546,16 @@ These ideas are deliberately **out of the current rules**, but they're strong en
 - **What would bring it back:** play showing worn-out fighters who step back with nothing useful to do, or parties that want to rotate and find it pointless. A candidate form is an ability in a melee tree (a second wind) instead of a core rule. Whether the unanswered shooter is too strong is a separate question about shot numbers.
 - **Not shelved:** held stamina as a cost for abilities ("hold 2 stamina to do X"; holding is worth roughly half of spending the same amount).
 - **Sources:** C:2026-11-21; `claude/Held_Stamina_As_Core_2026-11-21.md`, `claude/Rest_Hold_Arithmetic_and_Timing_2026-11-21.md`, `claude/Rest_Hold_Sim_Study_2026-11-21.md`, `claude/Ranged_Pressure_By_Situation_2026-11-21.md`, and the engine experiment's diff in `claude/rest_hold_study/bundle_sim_2026-11-21.txt` (claude.ai project; engine branch `exp/rest-hold`, not merged). Now in the rules note Not in This Version.
+
+### H-10 Strain
+- **Why it's shelved:** your call (2026-11-22 to 2026-11-24), implemented in packet 0.12.0.
+- **What it was for:** one shared rest-recovered pool (`6 + round(Level / 5)`, recovering `4 + round(Level / 10)` per night) replacing per-day uses and spell slots, so multiclassing didn't inflate total uses; overage (+1 stamina per point over max, counted after adding the ability's strain) as a soft limit taxing the present turn rather than locking players out.
+- **What was found:**
+  - Because cores ran on a nightly pool (6 strain at level 1, while the old Monk core always on was worth ~+43 points in a contact duel and one extra recovery ~+20), class balance swung sharply with how many fights per day the GM ran—recreating the pacing-dependent balance problem strain was meant to avoid.
+  - It was a second tracked pool in a one-pool system (maximum, recovery rate, two advancement lines and an overage rule), while HP already carries lasting between-fight cost.
+  - Exploratory strain-free cores can instead pay inside the fight (through ready stamina, held stamina, escalation or timing).
+- **What would bring it back:** magic that needs a limit across fights that time, rituals, materials or HP can't provide, or abilities that truly need a per-day budget.
+- **Sources:** CR-4, CR-5, CP-7, CP-8, MG-2; `claude/Dropping_Strain_2026-11-21.md`; design chats 2026-11-21 to 2026-11-24. Now in the rules note Not in This Version.
 
 ---
 

@@ -37,7 +37,7 @@ from stamina_engine.rules.ruleset import BASELINE
 cites = (
     "Packet: Core Abilities",
     "Packet: Earlier Candidate Abilities",
-    "Packet: Strain",
+    "Packet: Not in This Version",
     "Review F13",
 )
 

@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from stamina_engine.engine.battle import Battle
     from stamina_engine.model.state import CombatantState
 
-cites = ("Packet: Core Abilities", "Packet: Strain", "Review F13", "Review F14")
+cites = ("Packet: Core Abilities", "Packet: Not in This Version", "Review F13", "Review F14")
 
 
 def _below_max(b: "Battle", c: "CombatantState", window: str, facts: Facts) -> bool:

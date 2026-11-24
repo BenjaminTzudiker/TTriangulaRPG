@@ -15,7 +15,7 @@ next: "[[Defined Terms]]"
 
 ## Stamina Costs
 
-*Restates [[Melee Attacks]], [[Actions and Escalation]], [[Ranged Attacks]], [[Aim]], [[Dash]], [[Opportunity Attacks]], [[Holds]], [[Dying and Death]], [[Blocking]], [[Drawing Weapons]] and [[Going Over Your Maximum Strain]].*
+*Restates [[Melee Attacks]], [[Actions and Escalation]], [[Ranged Attacks]], [[Aim]], [[Dash]], [[Opportunity Attacks]], [[Holds]], [[Dying and Death]], [[Blocking]] and [[Drawing Weapons]].*
 
 **Escalation:** +1 per action you've taken since your last turn ended. It resets when your turn ends.
 
@@ -32,7 +32,6 @@ next: "[[Defined Terms]]"
 | Perfect block | 1, 2, 3… within one attack | No; resets every attack |
 | Grazing block | 1 | No |
 | Draw a normal weapon between turns | 1 | No |
-| Strain ability over maximum strain | +1 per point over, counted after paying | No |
 
 ## Triangular Numbers
 

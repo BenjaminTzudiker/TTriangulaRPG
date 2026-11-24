@@ -20,8 +20,8 @@ next: "[[Open Questions]]"
 | Threatened square | A square within an enemy's melee reach. | [[Opportunity Attacks]] |
 | Opportunity attack cap | The most one opportunity attack can cost: 1, +1 per odd Finesse, plus any stamina you hold on the target. | [[Opportunity Attacks]] |
 | Ready stamina | Stamina in your active pool, available to spend now. Unqualified "stamina" means ready stamina. | [[Stamina]] |
-| Hold / held stamina | Ready stamina placed on an enemy (or reach/effect) at the end of your turn, before you recover. Leaving a square in your reach costs the enemy 1 + held stamina, and it adds to your opportunity attack cap. Returns at the end of your next turn unless spent. | [[Holds]] |
-| Locked stamina | Unspent stamina left over from a hold that ended (or a target that went down). No longer attached to any effect and can't be used, but counts toward your maximum and returns at the end of your next turn. | [[Holds]] |
+| Hold / held stamina | Ready stamina placed on an enemy or your reach at the end of your turn, before you recover. Leaving a square in your reach costs the enemy 1 + held stamina, and it adds to your opportunity attack cap. Returns at the end of your next turn unless spent. | [[Holds]] |
+| Returning stamina | Unspent stamina left over from a hold that ended (or a target that went down). No longer attached to any hold and can't be used, but counts toward your maximum and returns at the end of your next turn. | [[Holds]] |
 | Forced movement | Moving a creature against its will (1 square, empty, not closer to the mover, wall corners apply). Doesn't provoke opportunity attacks or trigger/end holds. | [[Forced Movement]] |
 | Dash | Movement you buy: on your turn, in a dash phase, or when targeted by a ranged attack. It's an action. | [[Dash]] |
 | Dash phase | The moment before each turn starts, when anyone may dash. | [[Dash]] |

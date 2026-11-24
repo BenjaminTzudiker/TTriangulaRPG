@@ -712,7 +712,6 @@ These are deliberately out of the current rules, but they're candidate solutions
 - **H-8 Dodge Defense:** an avoid-only defense for what you can't block with a weapon or shield. Shelved "for now" in packet 0.11.3, since nothing in the game used it yet [C:2026-11-19].
 - **H-9 Recovery holds:** held stamina with no target that comes back with extra recovery, as a way to let contact itself be the pressure. Shelved because it mostly pays whoever can't be reached, and "just isn't really doing what I want it to do" [C:2026-11-21]. Held stamina as a cost for abilities is not shelved with it.
 - **H-10 Strain:** a rest-recovered pool for class cores and spells. Shelved in packet 0.12.0 because gating class cores on a nightly pool made class balance depend on GM fights-per-day pacing, added a second tracked pool in a one-pool system, and HP already carries lasting cost between fights [C:2026-11-22 to 2026-11-24].
-- *Working guardrails noted during 0.12.0 core design (assistant analysis, not adopted pillars):* (1) At level-1 max stamina 16 (vs. 18 for 4 heavy steps), giving ≥2 upfront offensive stamina on Turn 1 unlocks Turn-1 heavy one-shots (`Reckless −2`: 80.4% greatsword / 99.3% greataxe down on a fresh sample fighter `[exact]`); prefer post-attack refunds or mid-fight triggers instead. (2) Any free in-fight turn-order jump without permanently shifting your slot creates round-boundary double-turns.
 
 ---
 

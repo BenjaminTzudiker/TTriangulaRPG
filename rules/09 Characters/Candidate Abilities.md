@@ -143,7 +143,7 @@ While you wield a light melee weapon (base cost 1) you're proficient with in eac
 - **Melee steps:** a melee attack step uses and raises **that hand's** escalation counter.
 - **Other actions:** any other action (such as a dash or helping the dying) uses the **higher** of the two counters and raises **both** counters by 1.
 - **Separate attacks:** each melee attack uses one hand (you can't combine steps from both hands into a single attack, so attacking with the other hand starts a new attack and resets the defender's block count).
-- **Defense trade-off:** if you make melee attacks with **both** hands on the same turn, you lose the +1 Melee Defense from carrying a second weapon (see [[Defenses]]) until the start of your next turn.
+- **Defense trade-off:** if you make melee attacks with **both** hands between the end of your last turn and the end of this one (or since the fight began, on your first turn—the same window your escalation counters track), you lose the +1 Melee Defense from carrying a second weapon (see [[Defenses]]) until the start of your next turn.
 
 > [!example] Example: Dual Wielding
 > You hold a shortsword and a dagger (both base 1), starting at escalation (0, 0).
@@ -157,7 +157,7 @@ While you wield a light melee weapon (base cost 1) you're proficient with in eac
 
 **Where:** Rogue Tier 3. **Prerequisite:** [[#Dual Wielding]].
 
-Attacking with both hands on the same turn no longer costs you the +1 Melee Defense from carrying a second weapon.
+Attacking with both hands no longer costs you the +1 Melee Defense from carrying a second weapon.
 
 ## Many Hands
 

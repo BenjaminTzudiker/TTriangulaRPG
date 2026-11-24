@@ -1409,6 +1409,9 @@ These ideas are deliberately **out of the current rules**, but they're strong en
   - Everything else is pressure that costs the defender stamina but can't wound.
   - It applies after armor, before crit doubling.
 - **Sources:** [p.183, p.207, p.1178, p.1200, p.1471]; questioned at [p.1720]; shelved by your ruling A2.
+- **Later changes:**
+  - *Packet 0.10.0:* the aim limit is a cap of this kind for shots: a shot's HP loss can't exceed the weapon's damage roll, so ranged aiming lethality has its fix, and the melee half stays shelved until melee shows it needs one.
+    - *Now in:* the rules notes Aim and Not in This Version.
 
 ### H-2 Damage reducing max stamina
 - **Why it's shelved:** excluded for its complexity, but worth serious consideration.

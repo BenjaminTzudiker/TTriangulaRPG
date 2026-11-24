@@ -17,13 +17,13 @@ PACKET = "\n".join(
     if p.name not in ("README.md", "CHANGELOG.md")
 )
 LEDGER = (REPO / "design" / "Rules_Reconciliation_Ledger_v0.8-to-v0.9.md").read_text()
-# The v0.9 review left the repo (git history: 1a8f768). Its finding IDs live on in the index in
-# Fix_Order_and_Dependencies.md, section 10, one table row per finding or addendum.
-REVIEW_INDEX = (REPO / "design" / "Fix_Order_and_Dependencies.md").read_text()
+REVIEW = (REPO / "archive" / "design" / "Review_Playtest_Packet_v0.9.md").read_text()
 
 HEADINGS = {m.group(1).strip() for m in re.finditer(r"^#+\s+(.+)$", PACKET, re.M)}
 LEDGER_IDS = set(re.findall(r"^### ([A-Z]{1,2}-\d+)", LEDGER, re.M))
-REVIEW_IDS = set(re.findall(r"^\| \*\*(F\d+|Addendum(?: \d+)?)\*\* \|", REVIEW_INDEX, re.M))
+REVIEW_IDS = set(re.findall(r"^### (F\d+)\.", REVIEW, re.M)) | set(
+    re.findall(r"^## (Addendum(?: \d+)?)\b", REVIEW, re.M)
+)
 
 
 def check_cites(owner: str, cites: tuple[str, ...]) -> list[str]:

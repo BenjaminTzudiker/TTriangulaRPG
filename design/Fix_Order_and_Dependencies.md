@@ -1,6 +1,6 @@
 # Fix order and dependency map (companion to the v0.9 review)
 
-Findings are numbered as in the v0.9 review, which is no longer in the repo (read it in git history: `git show 1a8f768:design/Review_Playtest_Packet_v0.9.md`). Section 10 indexes its findings. "Ripples to" means: if this changes, that finding's numbers or conclusions must be re-measured.
+Findings are numbered as in the v0.9 review (`archive/design/Review_Playtest_Packet_v0.9.md`, archived; its findings are indexed in section 10). "Ripples to" means: if this changes, that finding's numbers or conclusions must be re-measured.
 
 ## 1. Dependency table
 
@@ -135,7 +135,7 @@ Packet 0.11.3 shelves Dodge Defense (Not in This Version; Ledger H-8), so there 
 
 ## 10. Index of the v0.9 review (added 2026-11-23)
 
-The v0.9 review is no longer in the repo; git history has it (`git show 1a8f768:design/Review_Playtest_Packet_v0.9.md`). This section keeps what's still useful: one row per finding with where it stands now, the keys that engine docs and reports use ("F3 option 1", "Table 5", "Addendum 2"), and the review's own views that no other live doc holds. Statuses are as of the `rules/v0.11.5` branch (2026-11-23).
+The v0.9 review (`archive/design/Review_Playtest_Packet_v0.9.md`) is archived, so design chats can't open it. This section keeps what's still useful: one row per finding with where it stands now, the keys that engine docs and reports use ("F3 option 1", "Table 5", "Addendum 2"), and the review's own views that no other live doc holds. Statuses are as of the `rules/v0.11.5` branch (2026-11-23).
 
 **Reading it.** Everything in this section is a record of the review's analysis, written by an assistant against packet v0.9. It argued from the design notes' draft pillars (P1–P4, C1), so its "stakes" and recommendations are its reading, not the designer's. The review's figures are for v0.9's rules (HP 6 + Strength, crits doubling, shield +2/+2, flat-priced movement). The engine reproduces them (`se table 1|5|8 --ruleset v0.9`, `se suite parity`).
 

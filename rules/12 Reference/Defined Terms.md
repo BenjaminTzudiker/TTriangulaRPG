@@ -19,7 +19,7 @@ next: "[[Open Questions]]"
 | Critical die | A weapon damage die (never an aim die) rolling within its critical range; ignores 1 armor; adds 1 damage if any gets past blocks and armor. | [[Critical Hits]] |
 | Threatened square | A square within an enemy's melee reach. | [[Opportunity Attacks]] |
 | Opportunity attack cap | The most one opportunity attack can cost: 1, +1 per odd Finesse, plus any stamina you hold on the target. | [[Opportunity Attacks]] |
-| Hold | Stamina you put on an enemy at the end of your turn: your held stamina. Leaving a square in your reach costs it 1 + that stamina, and it adds to your opportunity attack against it. It stays held until the end of your next turn. | [[Holds]] |
+| Hold | Stamina you put on an enemy at the end of your turn, from what you have left before you recover: your held stamina. Leaving a square in your reach costs it 1 + that stamina, and it adds to your opportunity attack against it. It stays held until the end of your next turn. | [[Holds]] |
 | Dash | Movement you buy: on your turn, in a dash phase, or when targeted by a ranged attack. It's an action. | [[Dash]] |
 | Dash phase | The moment before each turn starts, when anyone may dash. | [[Dash]] |
 | Cover | Half +1, three-quarters +2, to the defense used against a ranged attack. | [[Cover]] |

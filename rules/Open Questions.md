@@ -22,6 +22,8 @@ next: "[[Not in This Version]]"
 - What a creature threatens when it holds only a bow, or no weapon: [[Opportunity Attacks]] counts squares in reach, and neither has a stated reach.
 - Surprise: what a creature that hasn't noticed its attacker can do, in a game where acting first is worth this much.
 - What being incapacitated still allows, such as speaking, crawling, or being carried or dragged by an ally.
+- Shooting into a melee: whether a shot at an enemy fighting your ally risks hitting the ally. Today the only cost is the cover the ally gives.
+- Drawing Weapons' gaps: what each creature has in hand when a fight starts, and where a bow goes when you draw a blade between turns.
 - The TODO details marked through this packet.
 
 **Attributes**

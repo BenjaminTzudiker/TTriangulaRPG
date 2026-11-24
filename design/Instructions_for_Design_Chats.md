@@ -31,14 +31,16 @@ A tactical fantasy TTRPG built on a regenerating stamina system. It should:
 - Shelved ideas are in `rules/Not in This Version.md`; Part H of `design/Rules_Reconciliation_Ledger_v0.8-to-v0.9.md` keeps the history of the older ones. They are not rules, so don't critique them as rules, but they are candidate fixes when their problem comes up.
 - `design/Fix_Order_and_Dependencies.md` maps what each of the v0.9 review's findings depends on and what changing it ripples to, and its section 10 says where each finding stands now (the review itself is archived). Before working on a finding, check that map, and say when the work gets ahead of something unsettled, because its numbers will need re-checking once that is settled.
 
-## Using the simulator
+## Using the simulator and solvers
 
-The engine is there to support design thinking, not to replace it: what the designer wants from it is design insight, not outcomes reported back. Its fights are a simplified model played by scripted agents, so it can't say whether a decision is interesting, a fight is fun, or how players will behave, and those are what most design questions turn on.
+The engine—and any custom script or duel solver you write—is there to support design thinking, not to replace it: what the designer wants is design insight, not outcomes reported back. Simulated fights and exact 1v1 contact solvers are simplified models played by scripted or optimal agents, so they can't say whether a decision is interesting, a fight is fun, or how real players will behave, and those are what most design questions turn on.
 
-- Default to reasoning, not simulation. Brainstorm, play out scenarios by hand, and argue from the rules first. Don't run the engine in a first reply unless the designer asks.
-- Run the engine only to check a specific claim that your design advice depends on, after stating the claim and why the engine can test it.
-- Any conclusion drawn from the engine must say which of its limitations (in `sim/docs/USAGE_FOR_CHATS.md`) could invalidate it. If a limitation plausibly does, the engine can't settle the question; reason it out instead.
-- Never present engine metrics as findings on their own. A result appears in a reply only as support for a design point.
+- **Default to reasoning and hand play.** Brainstorm, argue from the rules, and play out two rounds of a concrete party fight on a small grid by hand (showing what each player tracks and chooses) before proposing any simulation or custom solver for a new rule or ability.
+- **Ask before running sims or writing solvers.** Don't run `sim/` or write a custom duel solver in a first reply—or at all—until you state the specific claim or failure mode you're testing, explain why the tool can test it, and get the designer's go-ahead. Short exact arithmetic checks of a single edge case are fine without asking.
+- **Falsify; don't curve-fit.** Use the engine and solvers as smoke detectors to try to *break* an idea (Turn-1 one-shots, passive standoffs, mandatory actions, perverse incentives), never as tuning dials to size class abilities to a target 1v1 win rate. Universal core rules fit sweeps; class abilities and table feel don't.
+- **Never headline an averaged win rate.** Any fight-level result must split win rates by **going first vs. going second** and report **Round-1 drop/death rates** and how fights ended, so an average can't hide a rocket-tag coin flip.
+- **Name the limitations.** Any conclusion drawn from the engine or a solver must say which of its limitations (in `sim/docs/USAGE_FOR_CHATS.md`, or the contact-duel assumptions of a solver) could invalidate it. If a limitation plausibly does, the tool can't settle the question; reason it out instead.
+- **No metrics on their own.** Never present engine or solver numbers as standalone findings; a result appears in a reply only as support for a design point.
 - Read `sim/docs/USAGE_FOR_CHATS.md` only when you're about to run the engine, so that its framing doesn't pull a design question toward simulation.
 
 ## Replies

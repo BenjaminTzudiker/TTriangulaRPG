@@ -5,6 +5,9 @@ up: "[[Class Trees]]"
 
 *Status: Exploratory*
 
+> [!note] Placeholder drafts
+> All abilities in this note are exploratory placeholders and taste anchors for future design. Don't micro-tune their numbers or add new supporting subsystems for them until playtesting tests the core combat loop.
+
 Abilities being tried out before they're settled. Where each one sits is part of the candidate. A Tier 1 feature needs the tree's core ability, and a Tier N feature needs the tree's Tier N ability (see [[Class Trees]]). An ability listed in two trees can be bought through either. The earlier candidates are in [[Earlier Candidate Abilities]].
 
 | Ability | Fighter | Rogue | Barbarian | Monk |
@@ -15,14 +18,19 @@ Abilities being tried out before they're settled. Where each one sits is part of
 | [[#Hard to Shake]] | Tier 2 | | | |
 | [[#Steady Aim]] | Tier 2 | Tier 1 | | |
 | [[#Hold the Line]] | Tier 3 | | | |
-| [[#Quick Reflexes]] | Tier 3 | Tier 2 | | |
-| [[#Riposte]] | | Tier 2 | | Tier 1 |
-| [[#Tumble]] | | Tier 2 | | Tier 1 |
+| [[#Unshaken]] | Tier 3 | | | |
+| [[#Riposte]] | | Tier 1 | | Tier 2 |
+| [[#Tumble]] | | Tier 1 | | Tier 1 |
+| [[#Dual Wielding]] | | Tier 1 | | |
+| [[#Paired Blades]] | | Tier 3 | | |
+| [[#Many Hands]] | | | | Tier 1 |
 | [[#Long Stride]] | | | Tier 2 | Tier 1 |
-| [[#Cornered]] | | | Tier 2 | |
+| [[#Shove]] | | | Tier 1 | Tier 2 |
 | [[#Tear Free]] | | | Tier 2 ability | |
+| [[#Cornered]] | | | Tier 3 ability | |
+| [[#Drive Through]] | | | Tier 3 | |
 
-[[#Tear Free]] is the Barbarian's **Tier 2 ability**: the piece you buy to reach Tier 2, not a Tier 2 feature.
+[[#Tear Free]] is the Barbarian's **Tier 2 ability** and [[#Cornered]] is the Barbarian's **Tier 3 ability**: the pieces you buy to reach those tiers, not standalone tier features.
 
 ## Great Weapon Training
 
@@ -38,7 +46,7 @@ Reach sets which squares you threaten, so this also widens your opportunity atta
 
 **Where:** Fighter Tier 1.
 
-While you're using a shield, a hold you set on an enemy also triggers when that enemy makes a melee attack on an ally next to you, if the enemy is within your reach. After that attack resolves, you may make the hold's opportunity attack against the enemy. The hold then ends.
+While you're using a shield, a hold you set on an enemy also triggers when that enemy makes a melee attack on an ally next to you, if the enemy is within your reach. After that attack resolves, you may make the hold's opportunity attack against the enemy. The hold then ends (any unspent held stamina becomes locked; see [[Holds]]).
 - "Next to you" means in one of the 8 squares around you when the attack is declared.
 - The opportunity attack works as usual: it can spend your cap plus the stamina you hold on that enemy, held stamina first (see [[Opportunity Attacks#Making Opportunity Attacks|Making Opportunity Attacks]]).
 - A shot at your ally from within your reach is already covered: shooting in melee provokes from you anyway (see [[Opportunity Attacks#Triggers|Triggers]]).
@@ -47,69 +55,71 @@ While you're using a shield, a hold you set on an enemy also triggers when that 
 
 **Where:** Fighter Tier 2 and Barbarian Tier 1.
 
-With a heavy melee weapon (base cost 3), the first step of an attack can be a **sweep** that hits several enemies.
-- **Targets:** your target, plus any other enemies within your reach that you add. You must be able to trace one path through all of them, each square to an adjacent one, using only squares within your reach that are empty or hold one of your targets. So a sweep can cross empty squares, but not an ally, an enemy you leave out, or a wall.
-- **Cost:** the step's usual cost, +1 stamina for each enemy after the first. The extra stamina isn't an action.
-- **Rolling:** roll the step once. Each enemy blocks it separately, and its own armor applies.
-- **Later steps** of the attack add to the total against your target alone. The other enemies face only the sweep.
+With a heavy melee weapon (base cost 3), you can make the **first step** of a normal melee attack a **sweep** that swings across several squares in one arc. It is still part of that attack, not a separate ability.
+- **Arc:** start at your primary target's square (within your reach) and sweep clockwise or counterclockwise through consecutive adjacent squares **at the same distance from you** (for example, along the 8-square ring 1 square away, or along the outer ring 2 squares away with a reach-2 weapon).
+  - You can add at most **your Strength** extra squares (so none at Strength 0), and you can never sweep into the same square twice.
+  - The sweep stops if it hits a wall or pillar.
+  - Every creature in the swept squares—**enemies and allies alike**—is hit by the sweep.
+- **Cost:** the step's usual cost, **+2 stamina for each extra square** in the sweep (whether empty or occupied). The extra stamina isn't an action.
+- **Rolling:** roll the first step once. Each creature in the sweep blocks it separately, and its own armor applies.
+- **Later steps** of the attack add to the total against your primary target alone. Every other creature hit by the sweep faces only the first step.
 
 > [!example] Example: A Sweep
 > ```text
-> . a b
+> a b c
 > . F A
 > . d .
 > ```
-> F has a greatsword (reach 1); a, b and d are enemies and A is an ally. F can sweep all three enemies: the path runs b, a, then the three empty squares on the left, then d. As F's first action that costs 3 + 2 = 5.
+> F has Strength 2 and a greatsword (reach 1); a, b, c and d are enemies and A is an ally. F declares a 2-step attack with b as its primary target, making the first step a sweep of 2 extra squares clockwise: b → c → A would hit ally A, so F sweeps counterclockwise instead—b → a (1 extra square, +2 stamina). As F's first action, the two steps cost (3 + 2) + 4 = 9. Both a and b face the first step; b faces the second step too.
 >
-> The path can't go through A. If the square to F's left held another ally, F could sweep a and b, or d, but not all three.
+> With [[#Great Weapon Training]] (reach 2), F could instead start at a target 2 squares away and sweep up to 2 extra consecutive squares along that distance-2 ring.
 
 ## Hard to Shake
 
 **Where:** Fighter Tier 2.
 
-Your hold on a creature doesn't end when it leaves a square in your reach. Every square it leaves in your reach costs it 1 + the stamina you still hold on it to avoid your opportunity attack, and an opportunity attack you make there can still use that held stamina.
+Your hold on a creature doesn't end when it leaves a square in your reach. Every square it leaves in your reach costs it 1 + the stamina you still hold on it to avoid your opportunity attack, and an opportunity attack you make there can still spend that held stamina.
 - A hold still ends when you lose HP (see [[Holds#When a Hold Ends|When a Hold Ends]]).
 - This only changes leaving. A hold that ends for another reason, such as [[#Covering Hold]], still ends.
-- If the creature leaves your reach, the hold stays on it until your held stamina comes back. If it returns and leaves a square in your reach again, it pays again.
+- If the creature leaves your reach, the hold stays on it until your held stamina returns. If it returns and leaves a square in your reach again, it pays again.
 
 ## Steady Aim
 
 **Where:** Rogue Tier 1 and Fighter Tier 2.
 
-When you shoot a creature you hold, you may pay for aim steps with the stamina you hold on it. This is an exception to the rule that held stamina never pays for your own shots (see [[Holds]]).
+When you shoot a creature you hold, you may **spend** stamina you hold on it to pay for aim steps. This is an exception to the rule that held stamina never pays for your own shots (see [[Holds]]).
 - An aim step paid entirely with held stamina doesn't add to your escalation. So each one costs 1 + your escalation as it stands after the shot: 2 if the shot was your first action since your last turn ended, 3 if you'd taken one action before it, and so on.
 - Aim steps you pay for normally work as usual, counting from that same escalation (see [[Aim]]).
-- Held stamina spent this way is gone, as when it pays for an opportunity attack. The hold is smaller by that much, and doesn't end.
+- Held stamina spent this way is gone, as when it pays for an opportunity attack. The hold is smaller by that much, and doesn't end unless you spend all of it.
 
 > [!example] Example: Steady Aim
 > You hold 6 on an orc. On your turn you shoot it with a longbow as your first action: 4 for the shot, and your escalation is now 1.
-> - Three aim steps paid from the hold cost 2 each and use all 6.
-> - A fourth aim step, paid normally, also costs 2, and a fifth costs 3.
+> - Three aim steps paid from the hold cost 2 each and spend all 6 held stamina.
+> - A fourth aim step, paid from ready stamina, also costs 2, and a fifth costs 3.
 
 ## Hold the Line
 
-**Where:** Fighter Tier 3.
+**Where:** Fighter Tier 3. **Prerequisite:** [[#Hard to Shake]].
 
-At the end of your turn, instead of holding creatures, you may hold your reach. That one hold applies to every enemy while it's within your reach.
-- An enemy that leaves a square in your reach pays 1 + the stamina you hold to avoid your opportunity attack, and an opportunity attack against it can use that held stamina.
-- An opportunity attack spends held stamina as usual. Whatever is left keeps applying to every enemy.
-- The hold doesn't end when an enemy leaves a square in your reach. It ends when you lose HP.
+At the end of your turn, instead of holding individual creatures, you may hold your entire reach. That one hold applies to every enemy while it's within your reach.
+- An enemy that leaves a square in your reach pays 1 + the stamina you hold to avoid your opportunity attack, and an opportunity attack against it can spend that held stamina.
+- Any held stamina spent on an opportunity attack is gone; whatever remains keeps applying to every enemy in your reach.
+- As with [[#Hard to Shake]], the hold doesn't end when an enemy leaves a square in your reach. It ends when you lose HP (any unspent held stamina becomes locked).
 
 > [!question] Hold the Line and Covering Hold
 > Whether a hold on your reach also triggers [[#Covering Hold]] is undecided. If it does, Covering Hold would end the whole hold.
 
-## Quick Reflexes
+## Unshaken
 
-**Where:** Fighter Tier 3 and Rogue Tier 2.
+**Where:** Fighter Tier 3.
 
-At any time, you may take 2 stamina off a hold you have on a creature and get 1 stamina back now. The other 1 is gone. You can do this as often as you like, 2 at a time.
-- For example, after seeing an attack's roll and before you block, to pay for blocks with stamina you'd held.
-- Once a hold has ended, for example because you lost HP, its stamina can't be taken back this way.
-- It isn't an action.
+When an attack costs you HP no greater than your Will, it doesn't end your active holds. Instead, each of your active holds loses that much held stamina (which becomes locked until the end of your next turn; see [[Holds]]); a hold reduced to 0 ends.
+- With Will 0, any HP loss still ends your holds as usual.
+- If a single attack costs you more HP than your Will, all your holds end as usual.
 
 ## Riposte
 
-**Where:** Monk Tier 1 and Rogue Tier 2.
+**Where:** Rogue Tier 1 and Monk Tier 2.
 
 When you stop all the damage of an enemy's melee attack with perfect blocks alone, your next melee attack step against that enemy, before the end of your next turn, isn't an action: it costs the weapon's base cost, and it doesn't add to your escalation.
 - "Perfect blocks alone" means no grazing blocks and no damage left for armor.
@@ -118,12 +128,34 @@ When you stop all the damage of an enemy's melee attack with perfect blocks alon
 
 ## Tumble
 
-**Where:** Monk Tier 1 and Rogue Tier 2.
+**Where:** Rogue Tier 1 and Monk Tier 1.
 
 When you move, you pay each enemy at most once to avoid its opportunity attacks, however many of its squares you leave in that move. A hold still adds its stamina to that payment.
 - A **move** is all the moving you do, free or dashing, without doing anything else in between. An attack, a shot, an aim step, helping the dying, the end of your turn and the end of a dash phase all end it.
 - The first time you pay an enemy during a move covers every later square of that move. Until you pay, it can make an opportunity attack for each square as usual.
 - Against [[#Hard to Shake]], you still pay that enemy only once per move.
+
+## Dual Wielding
+
+**Where:** Rogue Tier 1.
+
+While you wield a light melee weapon (base cost 1) you're proficient with in each hand, each hand keeps its own escalation for melee attack steps.
+- Other actions (such as dashes or helping the dying) add to both hands' escalation as usual.
+- Each melee attack uses one hand (you can't combine steps from both hands into a single attack, so attacking with the second hand starts a new attack and resets the defender's block count).
+- If you make any attack with your off hand, you lose the +1 Melee Defense from carrying a second weapon (see [[Defenses]]) until the start of your next turn.
+
+## Paired Blades
+
+**Where:** Rogue Tier 3. **Prerequisite:** [[#Dual Wielding]].
+
+Attacking with your off hand no longer costs you the +1 Melee Defense from carrying a second weapon.
+
+## Many Hands
+
+**Where:** Monk Tier 1.
+
+On your turn, the first melee attack step you make against each enemy after the first enemy you attack this turn doesn't add to your escalation, at most twice a turn.
+- Each such step still costs its normal stamina (weapon base + your current escalation); it simply doesn't raise your escalation for what comes after.
 
 ## Long Stride
 
@@ -131,23 +163,35 @@ When you move, you pay each enemy at most once to avoid its opportunity attacks,
 
 Your Movement is 1 square more (see [[Free Movement]]). This can take it past 8.
 
-## Cornered
+## Shove
 
-**Where:** Barbarian Tier 2.
+**Where:** Barbarian Tier 1 and Monk Tier 2.
 
-Once per turn, when you attack a creature that holds you, add one more step to the end of the attack for free. It rolls and adds like any other step, but costs no stamina.
-- You must pay for at least one other step of that attack.
-- It's still an action, so it adds to your escalation for whatever you do after the attack.
+Once per attack, when your melee attack deals HP damage to a creature whose **Strength is no higher than yours**, you may move it 1 square (see [[Forced Movement]]).
 
 ## Tear Free
 
 **Where:** the Barbarian's Tier 2 ability.
 
-When you pay to avoid opportunity attacks, you may pay some or all of it in HP. Each HP pays for stamina equal to your Strength.
-- That includes the extra a hold adds.
-- It's losing HP, so it ends your holds and lowers your maximum stamina (see [[Holds]] and [[Stamina]]). Blocks and armor don't apply to it.
+When you pay to avoid opportunity attacks, you may pay some or all of it in HP. Each HP pays for **up to** your Strength in stamina.
+- That includes the extra stamina a hold adds.
+- It's losing HP, so it ends your holds (turning their held stamina locked) and lowers your maximum stamina (see [[Holds]] and [[Stamina]]). Blocks and armor don't apply to it.
 - It can't take you below 1 HP.
 - With Strength 0 it does nothing.
 
 > [!example] Example: Tear Free
-> Your Strength is 2, and an orc holds you with 3. Stepping out of its reach costs 1 + 3 = 4. You can pay 2 HP, or 1 HP and 2 stamina, or 4 stamina.
+> Your Strength is 2, and an orc holds you with 3. Stepping out of its reach costs 1 + 3 = 4. You can pay 2 HP, or 1 HP and 2 stamina, or 4 stamina. If you owed only 1 stamina instead, 1 HP still covers it.
+
+## Cornered
+
+**Where:** the Barbarian's Tier 3 ability.
+
+Once per turn, when you attack a creature that holds you, add one more step to the end of the attack for free. It rolls and adds like any other step, but costs no stamina.
+- You must pay for at least one other step of that attack.
+- It's still an action, so it adds to your escalation for whatever you do after the attack.
+
+## Drive Through
+
+**Where:** Barbarian Tier 3. **Prerequisite:** [[#Shove]].
+
+When you move a creature with [[#Shove]], you may immediately step into the square it left. That step is free and doesn't provoke an opportunity attack from that creature (other enemies can still provoke as usual).

@@ -12,13 +12,13 @@ next: "[[Not in This Version]]"
 - An "out of the fight but alive" state above 0 HP.
 - Opportunity attacks at corners: should a diagonal step past a square an enemy threatens provoke, the way a wall's corner blocks the step (see [[Free Movement]])? Left out of 0.11.2, because threat would then reach farther than the weapon, and some steps into reach would provoke. Worth another look if creatures in play slip around guards too easily.
 - Whether stamina is public. Can players see an enemy's exact stamina, a rough band (such as above half, half to a quarter, under a quarter), or nothing? Choosing how much to commit and telegraphing a lethal threat both depend on it. If every attack and block is visible, a careful player can count an enemy's exact stamina anyway, so a band or a hidden number only holds if something else is hidden too.
-- How stamina is tracked at the table and on a virtual tabletop, especially with more than one pool per creature (such as held stamina; see [[Holds]]).
+- How stamina is tracked at the table and on a virtual tabletop, especially with multiple states per creature (ready, held and locked stamina; see [[Stamina]] and [[Holds]]).
 - Diving into partial cover: [[Cover]] says a dive that ends fully behind cover counts as three-quarters cover, but not what a dive that ends in half cover gives.
 - Maximum stamina below 0 HP: 6 + current HP falls to 0 or below once HP is negative. Does the HP term stop at 0?
 - Cover in detail: [[Cover]] defers to 5e. Unwritten here: that creatures give half cover (the engine records this as ruled), what "fully behind" means for a low wall, total cover, and line of sight.
 - Moving through other creatures' squares: allies, enemies and downed creatures. Nothing says whether you can, or what it costs.
 - Doing something other than an action on your turn, such as picking up an item or opening a door: nothing says whether it costs stamina or counts toward escalation.
-- Attacking with a second weapon: one in your other hand adds to Melee Defense (see [[Defenses]]), but nothing says whether or how you attack with it.
+- Attacking with a second weapon: one in your other hand adds to Melee Defense (see [[Defenses]]), and [[Candidate Abilities#Dual Wielding|Dual Wielding]] (exploratory, Rogue Tier 1) proposes an off-hand escalation rule that forfeits that bonus when used, but general off-hand attacking without that ability is still unwritten.
 - What a creature threatens when it holds only a bow, or no weapon: [[Opportunity Attacks]] counts squares in reach, and neither has a stated reach.
 - Surprise: what a creature that hasn't noticed its attacker can do, in a game where acting first is worth this much.
 - What being incapacitated still allows, such as speaking, crawling, or being carried or dragged by an ally.

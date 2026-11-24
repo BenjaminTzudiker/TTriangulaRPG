@@ -77,4 +77,4 @@ CI (the `rules` workflow) runs the check on every push that touches `rules/`, an
 - Open the repo root as the vault, so notes in `design/` can link to rules too.
 - Appearance → Show inline title: off. Each note already starts with its title.
 - Files and links → `Use [[Wikilinks]]`: on. Automatically update internal links: on.
-- Files and links → Excluded files: `sim/src`, `sim/tests` and `archive`, to keep search and the graph to the documents.
+- Files and links → Excluded files: `sim/src` and `sim/tests`, to keep search and the graph to the documents.

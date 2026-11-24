@@ -1,6 +1,6 @@
 # design
 
-The documents behind the rules: why they are the way they are, what's still open, and how design work is done. The rules themselves are in `rules/`. Frozen records that no longer need to sync to the claude.ai project are in `archive/`.
+The documents behind the rules: why they are the way they are, what's still open, and how design work is done. The rules themselves are in `rules/`. Documents that are no longer current are removed; git history keeps them.
 
 | File | What it is | Live or frozen |
 |---|---|---|
@@ -9,4 +9,4 @@ The documents behind the rules: why they are the way they are, what's still open
 | `Rules_Reconciliation_Ledger_v0.8-to-v0.9.md` | Where each v0.9 rule came from and how firm it is. Engine code cites its IDs (MV-3, CB-2…). | **Mixed.** Parts A–D (the v0.9 entries) and G (the designer's verbatim rulings) are frozen at v0.9, apart from "Later changes" lines. Part H (shelved ideas) is live; the rules note Not in This Version is the current list. |
 | `Instructions_for_Design_Chats.md` | How any assistant helping with design should work. The claude.ai project carries a copy as its instructions. | **Live.** The master copy. |
 
-The v0.9 review is archived at `archive/design/Review_Playtest_Packet_v0.9.md`. Section 10 of the fix-order doc keeps what's still useful from it.
+The v0.9 review was removed; read it in git history (`git show 1a8f768:design/Review_Playtest_Packet_v0.9.md`). Section 10 of the fix-order doc keeps what's still useful from it.

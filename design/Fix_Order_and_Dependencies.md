@@ -326,3 +326,11 @@ Source: `claude/FableMax_Combat_Assessment_2026-11-11.md`, the synthesis of elev
 
 **What it said only a table can answer:** whether positioning answers the gang-up; whether blocks feel like decisions (watch for players asking for a chart); time per attack and per shot; duel length by feel at Melee Defense 3 and 4; whether a GM can run enemy commitment from a one-line profile; how a table takes a first drop in round 1; whether players react to every shot; whether anyone fires three shots a turn; whether the quick-draw ritual gets forgotten; the tracking load.
 
+### 11.3 Skill, uncertainty and positioning (2026-11-14)
+
+Source: `claude/Skill_Uncertainty_Positioning_Notes_2026-11-14.md`, an argued note on packet 0.10.1 (nothing run for it). The principle it proposed is in the design notes (§3.2, agency through foresight, marked UNCERTAIN). What else it argued:
+- **Where uncertainty should sit.** Hiding the die buys little: a longsword step against Melee Defense 3 is uncertain by about one block, while whether the next enemy commits nothing or four steps is about ten. So the exchange can stay all-at-once and fast, and the uncertainty worth having is what other creatures will commit, and when. Bounding that (with reach, and with enemy commitment stated on stat blocks) is what would make holding stamina back a real bet.
+- **The numbers carry skill when the best choice sits in the middle and moves with the state.** By that test commitment passes at Melee Defense 4 and fails at 3 with the Fighter core, blocks fail (one price fits), and movement failed before 0.11.0.
+- **For abilities:** the core loop has to hold with none (characters with no tree, GM creatures). Abilities should bend one fight state for one class, gated by that state rather than usable "at any time", and should change the situation (break contact, deny reach, swap places) rather than postpone it (refills, soak).
+- Its section 4 compares how other games handle the same jobs (Exalted 3e, The Riddle of Steel, Mythras, GURPS, Shadow of the Demon Lord, BattleTech, Into the Breach, Gloomhaven, 13th Age, Draw Steel, Starsector), with sources.
+

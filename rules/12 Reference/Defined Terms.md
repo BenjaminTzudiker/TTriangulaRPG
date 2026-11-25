@@ -27,6 +27,5 @@ next: "[[Open Questions]]"
 | Dash phase | The moment before each turn starts, when anyone may dash. | [[Dash]] |
 | Cover | Half +1, three-quarters +2, to the defense used against a ranged attack. | [[Cover]] |
 | System Shock | The dying track you enter when damage takes you below 0 HP. | [[Dying and Death]] |
-| Strain | The rest-recovered pool for abilities and spells. | [[Strain]] |
 | Core ability | The first purchase in a class tree. | [[Class Trees]] |
 | Tier ability | The 1-AP purchase that opens a tree's next tier. | [[Class Trees]] |

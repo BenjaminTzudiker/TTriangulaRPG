@@ -3,17 +3,17 @@ up: "[[Class Trees]]"
 ---
 # Core Abilities
 
-*Status: Numbers placeholder (Fighter, Rogue, Barbarian); Exploratory (Monk)*
+*Status: Exploratory*
 
-Each core ability is simple, powerful and defining.
+> [!note] Placeholder drafts
+> All four martial cores below are exploratory placeholders replacing the earlier strain-based cores. Don't micro-tune their numbers until playtesting tests the core combat loop.
+
+Each core ability is simple, defining and paid for inside the fight (through ready stamina, held stamina, escalation or timing).
 
 | Class | Core ability |
 |---|---|
-| Fighter | Gain 3 strain to recover your normal stamina recovery amount now. You can do this at any time. |
-| Rogue | Gain 3 strain to take your turn now, skipping it later in the round. Or skip your turn and take it after a later turn. You declare this just after a dash phase ends, as long as you haven't taken your turn this round. The turn that follows starts right away, with no new dash phase. |
-| Barbarian | Gain 1 strain to recover the biggest stamina expenditure you spent on an attack step. You can do this at any time on your turn. |
-| Monk | Gain 1 strain: your perfect block costs don't escalate for the current attack. |
-| Wizard (and other casters) | Grants spellcasting (**TODO**). |
-
-> [!question] The Rogue and the dash phase
-> The Rogue declares after the dash phase (see [[Dash#The Dash Phase|The Dash Phase]]), so nobody can dash in answer to the announcement. This may change if it makes the ability degenerate. Moving your turn doesn't change your place in initiative for later dash phases.
+| **Fighter** — Second Wind | When it isn't your turn, you may recover your normal recovery amount now. If you do, skip your next end-of-turn recovery, and you can't use Second Wind again until you've skipped it. This costs no stamina, but counts as an action (raising your escalation by 1 until your next turn ends). |
+| **Rogue** — Opportunist | Once between each of your turns—including in the **opening dash phase** before the first turn of a fight—you may act in a dash phase (see [[Dash#The Dash Phase]]) in the same initiative order as dashing: instead of dashing, make a melee attack or a ranged shot (with any aim steps), spending at most **1 + your Cunning** stamina in total (including escalation). Every action you take counts toward your escalation as usual until your next turn ends. |
+| **Barbarian** — Press the Wound | Once on your turn, when a melee attack you make deals at least 1 HP damage to an enemy (after blocks and armor), recover stamina equal to your weapon's base cost (up to your maximum). |
+| **Monk** — Poised Guard | While you wear no armor and carry no shield, when an enemy you hold makes a melee attack on you (including an opportunity attack), you may **spend** up to **2** of the stamina you hold on it. Each point you spend pays for one perfect block against that attack (instead of its escalating cost) and doesn't raise the cost of your remaining perfect blocks. |
+| **Wizard** (and other casters) | Grants spellcasting (**TODO**). |

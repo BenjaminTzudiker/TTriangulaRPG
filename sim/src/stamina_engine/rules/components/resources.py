@@ -12,8 +12,7 @@ class ResourceRule(Component):
     cites = (
         "Packet: HP",
         "Packet: Stamina",
-        "Packet: Strain",
-        "Packet: Going Over Your Maximum Strain",
+        "Packet: Not in This Version",
         "Packet: Costs",
         "Packet: Character Advancement",
         "Packet: Strength",

@@ -45,7 +45,7 @@ When the change is made, in the same commit:
    - [[Quick Reference]], whose sections each name what they restate on their *Restates* line;
    - [[Sample Character]], which has a *Restates* line of its own;
    - [[Defined Terms]];
-   - notes that state the same rule from both sides: the attribute notes and the [[Defenses]] tables; [[Stamina]], [[Strain]], [[Rest and Healing]] and [[Character Advancement]].
+   - notes that state the same rule from both sides: the attribute notes and the [[Defenses]] tables; [[Stamina]], [[Rest and Healing]] and [[Character Advancement]].
 3. Add the [[CHANGELOG]] line.
 4. Run `python3 tools/check_rules.py`. If the engine implements the rule, its change goes in the same commit (see `AGENTS.md`).
 

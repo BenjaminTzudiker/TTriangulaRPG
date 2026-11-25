@@ -34,8 +34,7 @@ cites = (
     "Packet: Core Abilities",
     "Packet: Candidate Abilities",
     "Packet: Earlier Candidate Abilities",
-    "Packet: Strain",
-    "Packet: Going Over Your Maximum Strain",
+    "Packet: Not in This Version",
 )
 
 WINDOWS = frozenset(

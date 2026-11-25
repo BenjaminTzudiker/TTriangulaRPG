@@ -1,6 +1,6 @@
 ---
 up: "[[Playtest Packet]]"
-prev: "[[Strain]]"
+prev: "[[Character Advancement]]"
 next: "[[Magic]]"
 ---
 # Class Trees
@@ -24,7 +24,7 @@ There are no separately unlocked tiers, and tiers don't come from levelling. The
 **Other rules:**
 - Some features belong to no tree, such as languages and weapon proficiencies. It's possible to own no tree at all.
 - If a later feature grants something you already bought, the earlier purchase is refunded.
-- **Martial trees** have one defining strain ability that stays roughly the same but scales, plus mostly flat passives and active abilities that cost no strain.
+- **Martial trees** have one defining core ability that stays roughly the same (sometimes upgraded by later features), plus mostly passives and active abilities whose costs are paid inside the fight: ready stamina, held stamina, escalation, or what you can do this turn.
 - **Caster trees** put many Ability Points into spell ranks.
 - An Ability Point purchase should be a real power boost, not just more versatility.
 

@@ -95,8 +95,6 @@ The whole packet in reading order, for reading straight through. Each section is
 
 ![[Character Advancement]]
 
-![[Strain]]
-
 ![[Class Trees]]
 
 ![[Magic]]

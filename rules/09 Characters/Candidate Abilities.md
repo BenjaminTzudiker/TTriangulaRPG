@@ -22,6 +22,7 @@ Abilities being tried out before they're settled. Where each one sits is part of
 | [[#Riposte]] | | Tier 1 | | Tier 2 |
 | [[#Tumble]] | | Tier 1 | | Tier 1 |
 | [[#Dual Wielding]] | | Tier 1 | | |
+| [[#Patient Opportunist]] | | Tier 2 | | |
 | [[#Paired Blades]] | | Tier 3 | | |
 | [[#Many Hands]] | | | | Tier 1 |
 | [[#Long Stride]] | | | Tier 2 | Tier 1 |
@@ -29,6 +30,7 @@ Abilities being tried out before they're settled. Where each one sits is part of
 | [[#Tear Free]] | | | Tier 2 ability | |
 | [[#Cornered]] | | | Tier 3 ability | |
 | [[#Drive Through]] | | | Tier 3 | |
+| [[#Relentless Fury]] | | | Tier 3 | |
 
 [[#Tear Free]] is the Barbarian's **Tier 2 ability** and [[#Cornered]] is the Barbarian's **Tier 3 ability**: the pieces you buy to reach those tiers, not standalone tier features.
 
@@ -153,6 +155,13 @@ While you wield a light melee weapon (base cost 1) you're proficient with in eac
 > 4. You make a 1-step shortsword attack: uses the sword's counter (3) for **4** stamina; counters become (4, 2).
 > 5. You dash again: uses the higher (4) for **5** stamina; counters become (5, 3).
 
+## Patient Opportunist
+
+**Where:** Rogue Tier 2.
+
+You may split your Rogue core ability (**Opportunist**; see [[Core Abilities]]) across any number of dash phases between each of your turns, as long as your total stamina spent and held through Opportunist stays within **1 + your Cunning**.
+- You may also use that same limit to **hold** ready stamina on enemies during a dash phase (each point of stamina held counts as 1 toward the limit, isn't an action, and stays held until it returns at the end of your next turn; see [[Holds]]).
+
 ## Paired Blades
 
 **Where:** Rogue Tier 3. **Prerequisite:** [[#Dual Wielding]].
@@ -204,3 +213,9 @@ Once per turn, when you attack a creature that holds you, add one more step to t
 **Where:** Barbarian Tier 3. **Prerequisite:** [[#Shove]].
 
 When you move a creature with [[#Shove]], if the square it left is next to you, you may immediately step into it. That step is free and doesn't provoke an opportunity attack from that creature (other enemies can still provoke as usual).
+
+## Relentless Fury
+
+**Where:** Barbarian Tier 3.
+
+Your Barbarian core ability (**Press the Wound**; see [[Core Abilities]]) recovers stamina equal to the stamina cost of the **most expensive step** of that attack (including escalation) instead of the weapon's base cost.

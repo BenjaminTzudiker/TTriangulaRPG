@@ -437,7 +437,81 @@ def exp_holds_next_turn_half() -> RuleSet:
     )
 
 
-BASELINE = "v0.10.1"
+def v0_11_0() -> RuleSet:
+    """Packet 0.11.0: one dash (action on the unified escalation, 1 + odd AGI squares),
+    escalation reset when your turn ends, dash phase before every turn (highest initiative
+    first, restarting after each dash), and the one-step fresh-priced OA placeholder."""
+    return exp_0_11_0().with_(name="v0.11.0")
+
+
+def v0_11_1() -> RuleSet:
+    """Packet 0.11.1: 0.11.0 with holds (set before recovery on any enemy, returning at turn
+    end, breaking on injury, wounds clamping tokens first), the flat OA cap (1 + odd FIN +
+    held stamina), skipping OA avoidance when an enemy can't make even 1 step, and spear
+    reach only in two hands (equipment table v0_12)."""
+    base = exp_0_11_1()
+    assert isinstance(base.opportunity, V09Opportunity)
+    return base.with_(
+        name="v0.11.1",
+        opportunity=dataclasses.replace(base.opportunity, avoid_skip_unable=True),
+    )
+
+
+def v0_11_2() -> RuleSet:
+    """Packet 0.11.2: 0.11.1 with no-cut wall corners (grid.corners = 'no_cut'), initiative
+    tiebreak by Agility + Cunning then d12 roll-off, and Helping the Dying (base-5 action)."""
+    base = v0_11_1()
+    assert isinstance(base.grid, V09Grid)
+    assert isinstance(base.turn_order, V09Initiative)
+    assert isinstance(base.dying, SystemShock)
+    return base.with_(
+        name="v0.11.2",
+        grid=dataclasses.replace(base.grid, corners="no_cut"),
+        turn_order=dataclasses.replace(base.turn_order, tiebreak="agility_cunning_d12"),
+        dying=dataclasses.replace(base.dying, help_enabled=True),
+    )
+
+
+def v0_11_3() -> RuleSet:
+    """Packet 0.11.3: shelves Dodge Defense (no fight impact); same components as 0.11.2."""
+    return v0_11_2().with_(name="v0.11.3")
+
+
+def v0_11_4() -> RuleSet:
+    """Packet 0.11.4: 0.11.3 with shooting in melee provoking at target declaration, before
+    paying for the shot."""
+    base = v0_11_3()
+    assert isinstance(base.opportunity, V09Opportunity)
+    return base.with_(
+        name="v0.11.4",
+        opportunity=dataclasses.replace(base.opportunity, point_blank_eligible="at_declaration"),
+    )
+
+
+def v0_11_5() -> RuleSet:
+    """Packet 0.11.5: same core fight rules as 0.11.4 (exploratory candidate abilities are not
+    part of the base engine yet)."""
+    return v0_11_4().with_(name="v0.11.5")
+
+
+def v0_11_6() -> RuleSet:
+    """Packet 0.11.6: 0.11.5 with ending 0-stamina holds, Forced Movement, and ready/held/
+    returning stamina terminology (exploratory candidate abilities deferred)."""
+    return v0_11_5().with_(name="v0.11.6")
+
+
+def v0_12_0() -> RuleSet:
+    """Packet 0.12.0: 0.11.6 with Strain shelved (Ledger H-10) and the four in-fight martial
+    class cores (Second Wind, Opportunist, Press the Wound, Poised Guard)."""
+    base = v0_11_6()
+    assert isinstance(base.resources, V09Resources)
+    return base.with_(
+        name="v0.12.0",
+        resources=dataclasses.replace(base.resources, strain_enabled=False, cores_mode="in_fight"),
+    )
+
+
+BASELINE = "v0.12.0"
 """The preset the engine's scenarios, suites and defaults use: the current packet. Moving the
 baseline to a new packet version is this one line (and the pinned hashes it moves)."""
 
@@ -451,6 +525,14 @@ PRESETS: dict[str, Callable[[], RuleSet]] = {
     "v0.10.0-cover-only": v0_10_0_cover_only,
     "v0.10.0-crit-c-prime": v0_10_0_crit_c_prime,
     "v0.10.0-crit-c": v0_10_0_crit_c,
+    "v0.11.0": v0_11_0,
+    "v0.11.1": v0_11_1,
+    "v0.11.2": v0_11_2,
+    "v0.11.3": v0_11_3,
+    "v0.11.4": v0_11_4,
+    "v0.11.5": v0_11_5,
+    "v0.11.6": v0_11_6,
+    "v0.12.0": v0_12_0,
     "review-candidate": review_candidate,
     "review-sim": review_sim,
     "exp-0.11.0": exp_0_11_0,

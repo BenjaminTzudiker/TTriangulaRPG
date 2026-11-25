@@ -1,0 +1,5 @@
+# Two-handed spearman for packet 0.11.1+ (reach 2 requires two hands, no shield). OA cap 2.
+level = 1
+attributes = { STR = 2, AGI = 1, FIN = 1 }
+cores = ["fighter"]
+loadouts.main = { weapon = "spear", grip = "two", armor = "medium" }

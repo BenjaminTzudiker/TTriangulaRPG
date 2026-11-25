@@ -30,6 +30,8 @@ from stamina_engine.agents.decisions import (
     DiveRequest,
     EndTurn,
     Flee,
+    HoldRequest,
+    Holds,
     Move,
     MoveAnswer,
     MoveOptions,
@@ -273,24 +275,31 @@ def avoid_choice(request: AvoidOA, rules: RuleSet, w: Fraction, mode: str) -> Av
     board = Board(request.observation, rules)
     pricing = Pricing(rules)
     rule = rules.opportunity
-    chosen: list[tuple[Fraction, str, int | None]] = []
-    for enemy, cap in zip(request.enemies, request.caps, strict=True):
+    extras = request.extras or (0,) * len(request.enemies)
+    chosen: list[tuple[Fraction, str, int | None, int]] = []
+    for enemy, cap, extra in zip(request.enemies, request.caps, extras, strict=True):
         view = request.observation.view(enemy)
         if not board.oa_options(view, request.leaving):
             continue  # it couldn't make an OA anyway
         value = board.oa_value(view, request.leaving, w)
-        if mode == "always" or value > rule.avoid_part(cap):
-            chosen.append((value, enemy, cap))
+        if mode == "always" or value > rule.avoid_part(cap) + extra:
+            chosen.append((value, enemy, cap, extra))
     debt = rule.allows_debt()
     while chosen:
-        caps = [c for _, e, c in sorted(chosen, key=lambda t: request.enemies.index(t[1]))]
+        ordered = sorted(chosen, key=lambda t: request.enemies.index(t[1]))
+        caps = [c for _, _, c, _ in ordered]
+        paid_extras = [ex for _, _, _, ex in ordered] if any(extras) else None
         quote = pricing.avoid_opportunity(
-            len(caps), caps=caps, trackers=request.trackers, on_turn=request.on_turn
+            len(caps),
+            caps=caps,
+            trackers=request.trackers,
+            on_turn=request.on_turn,
+            extras=paid_extras,
         )
         if quote.total <= request.stamina or (debt and mode != "never"):
             break
         chosen.remove(min(chosen))
-    names = {e for _, e, _ in chosen}
+    names = {e for _, e, _, _ in chosen}
     return Avoid(tuple(e for e in request.enemies if e in names))
 
 
@@ -364,7 +373,7 @@ class ScriptedAgent:
     abilities: AbilityPolicy | None = None  # None: pass every ability window
     objective: str = "kill"  # or "first" (agents/objective_play.py)
     _pending: int = field(default=0, init=False)
-    _shot_round: int = field(default=-1, init=False)
+    _acted_round: int = field(default=-1, init=False)
 
     def turn_command(self, request: TurnCommand) -> TurnAnswer:
         """The policy is consulted every turn, even when no step is affordable, as the
@@ -375,8 +384,8 @@ class ScriptedAgent:
             use = self.abilities.on_turn(obs, request.abilities)
             if use is not None:
                 return use
-        if obs.me.trackers.actions_this_turn > 0 or self._shot_round == obs.round:
-            return EndTurn()  # one attack per turn
+        if self._acted_round == obs.round:
+            return EndTurn()  # one attack or shot per turn
         g = goal(obs) if self.objective == "first" else None
         if g is not None and g.pursue and g.counts:
             return self._pursue(request, g)
@@ -386,7 +395,7 @@ class ScriptedAgent:
                 shots = tuple(denier_order(obs, self.rules, g, shots))[:1]
             tid = self.target(obs, shots)
             if tid is not None:
-                self._shot_round = obs.round
+                self._acted_round = obs.round
                 return Shoot(tid)
         candidates = request.targets or tuple(v.id for v in obs.enemies() if v.status == "active")
         if g is not None and not g.pursue and candidates:
@@ -403,6 +412,7 @@ class ScriptedAgent:
         if steps <= 0 or tid not in request.targets:
             return EndTurn()
         self._pending = steps
+        self._acted_round = obs.round
         return Attack(tid)
 
     def _pursue(self, request: TurnCommand, g: Goal) -> TurnAnswer:
@@ -425,6 +435,7 @@ class ScriptedAgent:
         if steps <= 0:
             return EndTurn()
         self._pending = steps
+        self._acted_round = obs.round
         return Attack(tid)
 
     def commitment(self, request: Commitment) -> int:
@@ -436,7 +447,21 @@ class ScriptedAgent:
         return solver_blocks(request, self.rules, self.w)
 
     def off_turn_move(self, request: OffTurnMove) -> MoveAnswer:
+        if self.abilities is not None:
+            opp = self.abilities.opportunist(request)
+            if opp is not None:
+                action, steps = opp
+                self._pending = steps
+                return action
         return Pass()  # scripted agents never move off-turn
+
+    def holds(self, request: HoldRequest) -> Holds:
+        """Scripted agents stay hold-free, except a 0.12.0 Monk with abilities = 'use'."""
+        if self.abilities is not None:
+            h = self.abilities.holds(request)
+            if h is not None:
+                return h
+        return Holds()
 
     def avoid(self, request: AvoidOA) -> Avoid:
         return avoid_choice(request, self.rules, self.w, self.avoid_mode)
@@ -492,6 +517,7 @@ TACTICAL_FIELDS = {
     "surrender_below",
     "profile",
     "description",
+    "holds",
 }
 
 
@@ -581,6 +607,7 @@ def make_agent(
             Fraction(str(table.get("surrender_below", "0"))),
             uses,
             objective,
+            str(table.get("holds", "auto")),
         )
     if target not in TARGETS:
         raise ConfigError(f"unknown target policy {target!r}; known: {sorted(TARGETS)}")

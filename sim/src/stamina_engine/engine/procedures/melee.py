@@ -3,6 +3,8 @@
 An opportunity attack (M2) is this procedure with off-turn pricing and the OA cap.
 """
 
+from collections.abc import Callable
+
 from stamina_engine.abilities import framework as abilities
 from stamina_engine.agents.decisions import BlocksRequest, Commitment
 from stamina_engine.engine.battle import Battle
@@ -36,26 +38,49 @@ cites = (
 )
 
 
-def melee_attack(b: Battle, attacker: CombatantState, target: CombatantState) -> None:
-    """Step 1, declaring the target, came with the TurnCommand."""
+def melee_attack(
+    b: Battle,
+    attacker: CombatantState,
+    target: CombatantState,
+    max_spend: int | None = None,
+    on_commit: Callable[[], None] | None = None,
+) -> bool:
+    """Step 1, declaring the target, came with the TurnCommand (or OffTurnMove for Rogue's
+    Opportunist). Returns True if the attack was declared and paid, False if withdrawn."""
     weapon = attacker.gear.weapon
     assert weapon is not None
     with b.context.frame(f"attack {attacker.id}->{target.id}"):
         heavy = abilities.window(b, attacker, "declare_attack", {"target": target.id})
         extra = 1 if heavy == "heavy_swing" else 0
-        steps = declare_steps(b, attacker, target, weapon, extra)
+        steps = declare_steps(
+            b, attacker, target, weapon, extra, max_spend=max_spend, on_commit=on_commit
+        )
         if steps is None:
-            return
+            return False
         attack = roll(b, attacker, weapon, steps)
         if reactions(b, attacker, target, attack, weapon):
-            return  # the target got out of reach
+            return True  # the target got out of reach
         blocks = declare_blocks(b, attacker, target, attack, armor=faced_armor(target, weapon))
         outcome = armor_and_crits(
             b, attacker, target, attack, blocks, pierce=2 * extra + weapon.piercing
         )
         lose_hp(b, target, outcome)
+        if (
+            b.outcome is None
+            and outcome.injury >= 1
+            and attacker.active
+            and b.state.turn_of == attacker.id
+            and target.team != attacker.team
+        ):
+            abilities.window(
+                b,
+                attacker,
+                "on_melee_wound",
+                {"target": target.id, "weapon_base": weapon.base, "injury": outcome.injury},
+            )
         if blocks.perfect and b.outcome is None:
             riposte(b, target, attacker)
+        return True
 
 
 def declare_steps(
@@ -64,14 +89,17 @@ def declare_steps(
     target: CombatantState,
     weapon: WeaponProfile,
     extra: int = 0,
+    max_spend: int | None = None,
+    on_commit: Callable[[], None] | None = None,
 ) -> int | None:
-    """Step 2: declare every step before rolling, and pay base + the on-turn surcharge each."""
+    """Step 2: declare every step before rolling, and pay base + escalation each."""
+    limit = attacker.stamina if max_spend is None else min(attacker.stamina, max_spend)
     quotes: list[Quote] = []
     while True:
         quote = b.pricing.melee_attack(
             weapon.base, len(quotes) + 1, attacker.trackers, light=weapon.light, extra=extra
         )
-        if quote.total > attacker.stamina:
+        if quote.total > limit:
             break
         quotes.append(quote)
     request = Commitment(
@@ -84,10 +112,13 @@ def declare_steps(
     steps = b.broker.commitment(request)
     if steps == 0:
         return None  # declaration withdrawn
+    if on_commit is not None:
+        on_commit()
     b.ops.emit(AttackDeclared(attacker.id, target.id, steps))
     b.ops.spend(attacker, quotes[steps - 1], "attack")
-    b.ops.use_weapon(attacker)
-    b.ops.record_steps(attacker, quotes[steps - 1].parts)
+    if b.state.turn_of == attacker.id:
+        b.ops.use_weapon(attacker)
+        b.ops.record_steps(attacker, quotes[steps - 1].parts)
     return steps
 
 
@@ -194,6 +225,7 @@ def declare_blocks(
     }
     used = abilities.window(b, target, "before_blocks", facts)
     flat = used == "monk_core"
+    free_perfect = 1 if used == "poised_guard_1" else (2 if used == "poised_guard_2" else 0)
     if not target.active:
         return Blocks()
     prior = prior_perfect(b, target, attacker)
@@ -208,6 +240,7 @@ def declare_blocks(
         ranged,
         flat,
         limit,
+        free_perfect,
     )
     request = BlocksRequest(
         target.id,
@@ -226,15 +259,23 @@ def declare_blocks(
         cover,
         flat,
         limit,
+        free_perfect,
     )
     blocks = b.broker.blocks(request)
     b.ops.emit(BlocksDeclared(target.id, blocks.perfect, blocks.grazing, prior))
     quote = b.pricing.blocks(
-        blocks.perfect, blocks.grazing, prior_perfect=prior, ranged=ranged, flat=flat
+        blocks.perfect,
+        blocks.grazing,
+        prior_perfect=prior,
+        ranged=ranged,
+        flat=flat,
+        free_perfect=free_perfect,
     )
     if quote.total:
         b.ops.spend(target, quote, "block")
-    b.ops.count_perfect_blocks(target, attacker.id, b.state.round, blocks.perfect)
+    b.ops.count_perfect_blocks(
+        target, attacker.id, b.state.round, max(0, blocks.perfect - free_perfect)
+    )
     return blocks
 
 

@@ -41,12 +41,14 @@ AWAITING, OVER, INVALID = 10, 0, 11  # se play --step's exit codes
 
 ANSWER_HELP = {
     "turn": "a [ID] attack, s [ID] shoot, m X,Y move there (the cheapest path), or m X,Y X,Y "
-    "... for an exact path, d NAME draw, u NAME use an ability, f flee, surrender, e end "
-    "the turn",
+    "... for an exact path, d NAME draw, u NAME use an ability, h [ID] help the dying, f flee, "
+    "surrender, e end the turn",
     "steps": "a number of attack steps (0 withdraws)",
     "aim": "a number of aim steps",
     "blocks": "a listed option's number, or two numbers, perfect then grazing",
-    "off_turn": "m X,Y (or an exact path m X,Y X,Y ...), d NAME, u NAME, or p to pass",
+    "off_turn": "m X,Y (or an exact path m X,Y X,Y ...), d NAME, u NAME, a [ID] / s [ID] "
+    "(Opportunist), or p to pass",
+    "holds": "ID:N ... (or ID N), or none / p",
     "avoid": "ids to pay off, all, or none",
     "take_oa": "a number of steps (0 declines), optionally after the weapon (off_hand 1)",
     "react": "m X,Y (or an exact path m X,Y X,Y ...), or p to stay",
@@ -148,6 +150,7 @@ _AGENT_METHODS = frozenset(
         "aim",
         "dive",
         "ability",
+        "holds",
     }
 )
 

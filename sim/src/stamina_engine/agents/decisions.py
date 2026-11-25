@@ -131,8 +131,8 @@ class UseAbility:
 
 @dataclass(frozen=True)
 class TurnCommand:
-    """Each loop of a creature's own turn: move, attack a target in reach, shoot, draw, or
-    end the turn."""
+    """Each loop of a creature's own turn: move, attack a target in reach, shoot, draw,
+    help a dying creature, or end the turn."""
 
     who: str
     observation: Observation
@@ -144,16 +144,29 @@ class TurnCommand:
     can_flee: bool = False  # standing on an exit square (M4)
     can_surrender: bool = False  # on a map, any active creature may (M4)
     abilities: tuple[AbilityOption, ...] = ()  # usable on its turn now (M5)
+    help_targets: tuple[str, ...] = ()  # creatures in System Shock within 1 sq (0.11.2)
 
     @property
     def option_count(self) -> int:
         moves = self.moves.option_count if self.moves else 0
-        extra = int(self.can_flee) + int(self.can_surrender) + len(self.abilities)
+        extra = (
+            int(self.can_flee)
+            + int(self.can_surrender)
+            + len(self.abilities)
+            + len(self.help_targets)
+        )
         return len(self.targets) + 1 + moves + len(self.shots) + len(self.draws) + extra
 
 
 @dataclass(frozen=True)
 class Attack:
+    target: str
+
+
+@dataclass(frozen=True)
+class HelpDying:
+    """Helping the Dying (packet 0.11.2): tend a creature in System Shock within 1 square."""
+
     target: str
 
 
@@ -192,13 +205,14 @@ class Surrender:
     pass
 
 
-TurnAnswer = Attack | Move | Shoot | Draw | Flee | Surrender | UseAbility | EndTurn
-MoveAnswer = Move | Draw | UseAbility | Pass
+TurnAnswer = Attack | Move | Shoot | Draw | Flee | Surrender | UseAbility | HelpDying | EndTurn
+MoveAnswer = Move | Draw | UseAbility | Attack | Shoot | Pass
 
 
 @dataclass(frozen=True)
 class OffTurnMove:
-    """In an off-turn window: move (with off-turn purchases), draw another loadout, or pass."""
+    """In an off-turn window / dash phase: move (dash), draw another loadout, use an
+    off-turn ability, make an Opportunist attack/shot (0.12.0 Rogue core), or pass."""
 
     who: str
     observation: Observation
@@ -206,11 +220,21 @@ class OffTurnMove:
     moves: MoveOptions | None
     draws: tuple[DrawOption, ...] = ()
     abilities: tuple[AbilityOption, ...] = ()  # usable between turns (M5)
+    targets: tuple[str, ...] = ()  # Opportunist (0.12.0 Rogue core): melee targets in reach
+    shots: tuple[str, ...] = ()  # Opportunist (0.12.0 Rogue core): ranged targets
+    opportunist_budget: int | None = None  # 1 + Cunning total spend cap
 
     @property
     def option_count(self) -> int:
         moves = self.moves.option_count if self.moves else 0
-        return moves + len(self.draws) + len(self.abilities) + 1
+        return (
+            moves
+            + len(self.draws)
+            + len(self.abilities)
+            + len(self.targets)
+            + len(self.shots)
+            + 1
+        )
 
 
 @dataclass(frozen=True)
@@ -405,8 +429,9 @@ class BlocksRequest:
     nondominated: int
     ranged: bool = False  # against a ranged attack (prices perfect blocks: blocks.ranged_flat)
     cover: int = 0  # the cover bonus included in defense
-    flat_perfect: bool = False  # perfect blocks don't escalate for this attack (Monk core)
+    flat_perfect: bool = False  # perfect blocks don't escalate for this attack (legacy Monk core)
     limit: int | None = None  # a shot's aim limit: the most HP it can take before crits
+    free_perfect: int = 0  # perfect blocks already paid by held stamina (0.12.0 Poised Guard)
 
     @property
     def option_count(self) -> int:

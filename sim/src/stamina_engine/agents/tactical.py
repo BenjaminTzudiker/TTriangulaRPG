@@ -46,6 +46,8 @@ from stamina_engine.agents.decisions import (
     Draw,
     EndTurn,
     Flee,
+    HoldRequest,
+    Holds,
     Move,
     MoveAnswer,
     MoveOptions,
@@ -93,6 +95,7 @@ cites = (
 )
 
 TARGET_MODES = frozenset({"lowest_stamina", "nearest", "first", "focus"})
+HOLD_MODES = frozenset({"auto", "none"})
 
 
 @dataclass
@@ -108,12 +111,16 @@ class TacticalAgent:
     surrender_below: Fraction = Fraction(0)  # ...and surrender when engaged (0: never)
     abilities: AbilityPolicy | None = None  # None: pass every ability window
     objective: str = "kill"  # or "first" (agents/objective_play.py)
+    hold_mode: str = "auto"  # "auto" (tactical hold heuristic) or "none"
     _pending: int = field(default=0, init=False)
     _plan: tuple[int, str] = field(default=(-1, ""), init=False)  # (round, stage) this turn
+    _acted_round: int = field(default=-1, init=False)  # round it already attacked or shot in
 
     def __post_init__(self) -> None:
         if self.target_mode not in TARGET_MODES:
             raise ConfigError(f"tactical target must be one of {sorted(TARGET_MODES)}")
+        if self.hold_mode not in HOLD_MODES:
+            raise ConfigError(f"tactical holds must be one of {sorted(HOLD_MODES)}")
         self.pricing = Pricing(self.rules)
 
     # --- helpers ---------------------------------------------------------------------
@@ -177,9 +184,17 @@ class TacticalAgent:
                     return step
         return None
 
-    def _steps_with(self, obs: Observation, target: str, spend: int) -> int:
-        """The commitment if `spend` stamina goes on movement first."""
-        me = replace(obs.me, stamina=obs.me.stamina - spend)
+    def _steps_with(
+        self, obs: Observation, target: str, spend: int, extra_actions: int = 0
+    ) -> int:
+        """The commitment if `spend` stamina goes on movement first (and `extra_actions` dashes
+        advance escalation under 0.11.0+ unified escalation)."""
+        trackers = obs.me.trackers
+        if trackers is not None and extra_actions:
+            trackers = replace(
+                trackers, actions_this_turn=trackers.actions_this_turn + extra_actions
+            )
+        me = replace(obs.me, stamina=obs.me.stamina - spend, trackers=trackers)
         return self.commit.steps(me, obs.view(target))
 
     # --- its turn --------------------------------------------------------------------
@@ -204,7 +219,7 @@ class TacticalAgent:
             return self._pursue(board, request, g, stage)
         if is_shooter(me):
             return self._archer_turn(board, request, stage)
-        if me.trackers.actions_this_turn > 0:
+        if self._acted_round == obs.round:
             if stage != "after" and request.moves is not None:
                 self._plan = (obs.round, "after")
                 step = self._contest(board, request.moves, g) or self._after_attack(
@@ -243,7 +258,7 @@ class TacticalAgent:
         assert me.trackers is not None
         if g.view.kind == "escape" and request.can_flee:
             return Flee()
-        if me.trackers.actions_this_turn > 0 or stage == "shot":
+        if self._acted_round == obs.round or stage == "shot":
             return EndTurn()
         holding = g.view.kind == "hold" and in_goal(obs, g)
         if stage == "" and request.moves is not None and not holding:
@@ -315,7 +330,7 @@ class TacticalAgent:
             shot_base = bow_weapon.base if bow_weapon is not None else 0
             if free_bow and me.stamina >= shot_base:
                 return Draw(free_bow[0].loadout)
-            if request.targets and me.trackers is not None and not me.trackers.actions_this_turn:
+            if request.targets and self._acted_round != obs.round:
                 return self._attack(obs, request.targets[0], request)  # fight with the blade
             return EndTurn()
         shots = request.shots
@@ -336,6 +351,7 @@ class TacticalAgent:
                     return step
             return EndTurn()
         self._plan = (obs.round, "shot")
+        self._acted_round = obs.round
         return Shoot(tid)
 
     def _target_of(self, board: Board, shots: tuple[str, ...]) -> str | None:
@@ -387,7 +403,7 @@ class TacticalAgent:
     def _attack_in_place(self, request: TurnCommand) -> TurnAnswer:
         obs = request.observation
         assert obs.me.trackers is not None
-        if obs.me.trackers.actions_this_turn > 0 or not request.targets:
+        if self._acted_round == obs.round or not request.targets:
             return EndTurn()
         return self._attack(
             obs, min(request.targets, key=lambda t: (obs.view(t).stamina, obs.view(t).hp)), request
@@ -398,6 +414,7 @@ class TacticalAgent:
         if steps <= 0 or tid not in request.targets:
             return EndTurn()
         self._pending = steps
+        self._acted_round = obs.round
         return Attack(tid)
 
     def _move_to_attack(self, board: Board, tid: str, request: TurnCommand) -> Move | None:
@@ -412,12 +429,22 @@ class TacticalAgent:
         if here:
             best = ((board.engagers(me.pos), 0, 0), None, ())
         if moves is not None:
+            free = (me.free_move_left or 0) + (me.banked or 0)
+            per_dash = max(1, me.gear.extra_squares_per_purchase)
+            dash_is_action = self.rules.movement.extra_is_action()
             for s in sorted(spots & set(moves.destinations)):
                 route = board.route(moves, [s], moves.max_squares)
                 if route is None:
                     continue
                 price = moves.price_by_length[len(route.path)]
-                if self._steps_with(board.obs, tid, int(price) + int(route.exposure)) <= 0:
+                extra_sq = max(0, len(route.path) - free)
+                dashes = -(-extra_sq // per_dash) if (dash_is_action and extra_sq > 0) else 0
+                if (
+                    self._steps_with(
+                        board.obs, tid, int(price) + int(route.exposure), extra_actions=dashes
+                    )
+                    <= 0
+                ):
                     continue
                 key = (board.engagers(s, moved=True), route.exposure + price, len(route.path))
                 if best is None or key < best[0]:
@@ -518,6 +545,14 @@ class TacticalAgent:
 
     def off_turn_move(self, request: OffTurnMove) -> MoveAnswer:
         obs = request.observation
+        if self.abilities is not None:
+            opp = self.abilities.opportunist(request)
+            if opp is not None:
+                action, steps = opp
+                self._pending = steps
+                return action
+        if obs.field is None:
+            return Pass()
         board = Board(obs, self.rules)
         me = obs.me
         assert me.pos is not None
@@ -548,6 +583,53 @@ class TacticalAgent:
         if best is not None:
             return Move(best[1])
         return blade if blade is not None else Pass()
+
+    def holds(self, request: HoldRequest) -> Holds:
+        """Simple hold heuristic for tactical agents (Assumptions register):
+        - If a 0.12.0 Monk has Poised Guard active, hold up to 2 on the nearest enemy.
+        - Otherwise (when hold_mode == 'auto'), a melee combatant pins the most pressured
+          enemy within its melee reach (stamina <= half max or hurt), keeping at least 6
+          ready stamina after recovery, sizing the hold to unlock its 1st or 2nd OA step
+          (or 2 stamina to tax escape)."""
+        if self.abilities is not None:
+            poised = self.abilities.holds(request)
+            if poised is not None:
+                return poised
+        if self.hold_mode != "auto" or not request.targets:
+            return Holds()
+        obs = request.observation
+        me = obs.me
+        weapon = me.gear.weapon
+        if weapon is None or weapon.ranged:
+            return Holds()
+        spare = min(request.stamina, max(0, request.stamina + me.profile.recovery - 6))
+        if spare <= 0:
+            return Holds()
+        if obs.field is not None and me.pos is not None:
+            in_reach_cells = reach_cells(obs.field, me.pos, weapon.reach, self.rules.grid)
+            candidates = [
+                obs.view(t)
+                for t in request.targets
+                if obs.view(t).pos is not None and obs.view(t).pos in in_reach_cells
+            ]
+        else:
+            candidates = [obs.view(t) for t in request.targets]
+        pressured = [
+            v
+            for v in candidates
+            if v.stamina <= v.max_stamina // 2 or v.hp < v.profile.hp_max
+        ]
+        if not pressured:
+            return Holds()
+        target = min(pressured, key=lambda v: (v.stamina, v.hp))
+        cap = me.gear.oa_cap if me.gear.oa_cap is not None else 0
+        if weapon.base > cap and weapon.base - cap <= spare:
+            amount = weapon.base - cap
+        elif 2 * weapon.base + 1 > cap and (2 * weapon.base + 1) - cap <= spare:
+            amount = (2 * weapon.base + 1) - cap
+        else:
+            amount = min(spare, 2)
+        return Holds({target.id: amount}) if amount > 0 else Holds()
 
     def _blade(self, request: OffTurnMove) -> Draw | None:
         """A shooter holding its bow readies a free melee loadout (a quick-draw blade)."""

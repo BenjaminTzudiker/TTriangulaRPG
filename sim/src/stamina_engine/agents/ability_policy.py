@@ -27,16 +27,21 @@ from functools import cached_property
 from stamina_engine.agents.decisions import (
     AbilityOption,
     AbilityRequest,
+    Attack,
     DiveRequest,
+    HoldRequest,
+    Holds,
     Move,
     Observation,
+    OffTurnMove,
     Pass,
+    Shoot,
     UseAbility,
 )
 from stamina_engine.agents.grid_view import Board
 from stamina_engine.core.errors import ConfigError, Unaffordable
 from stamina_engine.grid.battlefield import Cell
-from stamina_engine.grid.geometry import reach_cells
+from stamina_engine.grid.geometry import distance, reach_cells
 from stamina_engine.grid.pathing import Passage, reachable
 from stamina_engine.grid.threat import melee_weapons
 from stamina_engine.rules.block_solver import best_block
@@ -74,6 +79,10 @@ class AbilityPolicy:
 
     def at_window(self, request: AbilityRequest, pending: int = 0) -> UseAbility | Pass:
         """pending: the attack steps the agent plans (for Heavy Swing's check)."""
+        if request.window == "before_blocks":
+            poised = self._poised_guard(request)
+            if poised is not None:
+                return poised
         for option in request.options:
             if self._wants(request, option, pending):
                 return UseAbility(option.name)
@@ -83,6 +92,10 @@ class AbilityPolicy:
         window, name = request.window, option.name
         if window == "before_blocks" and name == "fighter_core":
             return self._fighter_blocks(request, option)
+        if window == "before_blocks" and name == "second_wind":
+            return self._second_wind_blocks(request)
+        if window == "on_melee_wound" and name == "press_the_wound":
+            return True
         if window == "before_blocks" and name == "monk_core":
             return fits(request.observation, option) and self._monk(request, option)
         if window == "between_turns" and name == "rogue_core":
@@ -93,7 +106,9 @@ class AbilityPolicy:
             return self._withdraw(request, option)
         return False
 
-    def _score(self, request: AbilityRequest, stamina: int, flat: bool = False) -> Fraction:
+    def _score(
+        self, request: AbilityRequest, stamina: int, flat: bool = False, free_perfect: int = 0
+    ) -> Fraction:
         """Blocking the roll in the request: stamina + w x injury, plus a big penalty for
         going down (as the block solver ranks it)."""
         me, facts = request.observation.me, request.facts
@@ -109,6 +124,8 @@ class AbilityPolicy:
             0,
             bool(facts.get("ranged", 0)),
             flat,
+            None,
+            free_perfect,
         )
         return choice.score + (100 * self.w if choice.incapacitated else 0)
 
@@ -118,6 +135,93 @@ class AbilityPolicy:
         now = self._score(request, me.stamina)
         after = self._score(request, me.stamina - option.quote.total + gain)
         return now - after >= self.w
+
+    def _second_wind_blocks(self, request: AbilityRequest) -> bool:
+        """0.12.0 Fighter (Second Wind): recover before blocks when it saves at least w (one
+        HP's worth) or prevents going down."""
+        me = request.observation.me
+        set_aside = sum(me.holds.values()) + me.parked
+        gain = max(0, min(me.profile.recovery, me.max_stamina - me.stamina - set_aside))
+        if gain <= 0:
+            return False
+        now = self._score(request, me.stamina)
+        after = self._score(request, me.stamina + gain)
+        return now - after >= self.w
+
+    def _poised_guard(self, request: AbilityRequest) -> UseAbility | None:
+        """0.12.0 Monk (Poised Guard): compare spending 0, 1 or 2 held stamina on the attacker;
+        value each spent held point at 1 stamina, and use it if it strictly lowers total cost."""
+        offered = {o.name for o in request.options}
+        choices = [
+            (n, f"poised_guard_{n}") for n in (1, 2) if f"poised_guard_{n}" in offered
+        ]
+        if not choices:
+            return None
+        me = request.observation.me
+        best_score = self._score(request, me.stamina)
+        best_name: str | None = None
+        for n, name in choices:
+            score = Fraction(n) + self._score(request, me.stamina, free_perfect=n)
+            if score < best_score:
+                best_score = score
+                best_name = name
+        return UseAbility(best_name) if best_name is not None else None
+
+    def opportunist(
+        self, request: OffTurnMove
+    ) -> tuple[Attack | Shoot, int] | None:
+        """0.12.0 Rogue (Opportunist): in a dash phase, take a melee attack or ranged shot
+        within the 1 + Cunning budget when a target is available."""
+        budget = request.opportunist_budget
+        if budget is None:
+            return None
+        obs = request.observation
+        me = obs.me
+        if request.targets:
+            weapon = me.gear.weapon
+            if weapon is None or weapon.ranged or me.trackers is None:
+                return None
+            cap = min(me.stamina, budget)
+            steps = self.pricing.max_steps(weapon.base, cap, me.trackers, light=weapon.light)
+            if steps <= 0:
+                return None
+            tid = min(request.targets, key=lambda t: (obs.view(t).stamina, obs.view(t).hp))
+            return Attack(tid), steps
+        if request.shots:
+            tid = min(request.shots, key=lambda t: (obs.view(t).stamina, obs.view(t).hp))
+            return Shoot(tid), 0
+        return None
+
+    def holds(self, request: HoldRequest) -> Holds | None:
+        """0.12.0 Monk (Poised Guard): hold up to 2 stamina on the nearest active enemy when
+        unarmored with no shield, leaving at least 4 ready stamina after recovery."""
+        obs = request.observation
+        me = obs.me
+        if (
+            self.rules.resources.core_abilities_mode() != "in_fight"
+            or "monk_core" not in me.profile.abilities
+            or me.gear.armor > 0
+            or me.gear.shield is not None
+        ):
+            return None
+        if not request.targets:
+            return None
+        # Keep at least 4 ready stamina after recovery so blocking remains comfortable.
+        spare = min(2, request.stamina, max(0, request.stamina + me.profile.recovery - 4))
+        if spare <= 0:
+            return None
+        if obs.field is not None and me.pos is not None:
+            here = me.pos
+            tid = min(
+                request.targets,
+                key=lambda t: (
+                    distance(here, obs.view(t).pos or here, self.rules.grid),
+                    obs.view(t).stamina,
+                ),
+            )
+        else:
+            tid = min(request.targets, key=lambda t: (obs.view(t).stamina, obs.view(t).hp))
+        return Holds({tid: spare})
 
     def _monk(self, request: AbilityRequest, option: AbilityOption) -> bool:
         me = request.observation.me

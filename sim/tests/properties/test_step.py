@@ -32,6 +32,7 @@ def first_answer(report: dict[str, Any]) -> str:
         "avoid": "none",
         "take_oa": "0",
         "ability": "p",
+        "holds": "none",
     }[kind]
 
 
@@ -73,7 +74,8 @@ def test_a_fight_played_through_the_answers_file(tmp_path: Path) -> None:
 
 def test_the_same_answers_reach_the_same_request() -> None:
     s = load_scenario(ARCHER)
-    answers = [Answer("p"), Answer("s F")]
+    # Under v0.12.0: opening dash phase (p), post-F dash phase (p), then A's turn (s F).
+    answers = [Answer("p"), Answer("p"), Answer("s F")]
     first = step(s, ("A",), 0, answers)
     second = step(s, ("A",), 0, answers)
     assert first.code == AWAITING and first.report["decision"]["kind"] == "aim"
@@ -95,13 +97,14 @@ def test_a_bad_answer_is_reported_and_not_appended(tmp_path: Path) -> None:
     assert report["status"] == "invalid" and report["answer"] == "s nobody"
     assert not answers.exists() or answers.read_text() == ""
     assert invoke([*args, "--answer", "p"]).exit_code == AWAITING
+    assert invoke([*args, "--answer", "p"]).exit_code == AWAITING
     out = invoke([*args, "--answer", "s F"])
     assert out.exit_code == AWAITING
     out = invoke([*args, "--answer", "99"])  # more aims than it can afford
     assert (
         out.exit_code == INVALID and "isn't one of the options" in json.loads(out.output)["reason"]
     )
-    assert len(answers.read_text().splitlines()) == 2
+    assert len(answers.read_text().splitlines()) == 3
 
 
 def test_a_bad_line_in_the_file_is_reported_by_number(tmp_path: Path) -> None:

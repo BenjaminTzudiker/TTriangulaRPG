@@ -27,7 +27,8 @@ grips.one = "1d8 + STR + FIN"
 [weapons.spear]
 base = 2
 reach = 2  # 1 extra square
-grips.one = "1d8 + STR + FIN"  # hands TODO in the packet; one-handed per the register
+grips.one = "1d8 + STR + FIN"  # hands TODO in v0.9; one-handed allowed per the register
+grips.two = "1d8 + STR + FIN"
 
 [weapons.greatsword]
 base = 3

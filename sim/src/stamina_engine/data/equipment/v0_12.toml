@@ -1,0 +1,12 @@
+# Packet 0.11.1–0.12.0: Weapon Table and Shields.
+# Extends v0_10 (0.10.0's bows and +1 / +1 shield) with packet 0.11.1's spear rule:
+# one or two hands, with its reach (1 extra square, reach 2) only in two hands.
+[table]
+weapons = "v0_10"
+
+[weapons.spear]
+base = 2
+reach = 1
+grip_reach = { one = 1, two = 2 }
+grips.one = "1d8 + STR + FIN"
+grips.two = "1d8 + STR + FIN"

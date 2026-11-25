@@ -11,7 +11,7 @@ from stamina_engine.rules.registry import Component, register
 class TurnOrderRule(Component):
     cites = ("Packet: Starting Combat and Turn Structure", "Packet: Cunning", "Ledger CB-9")
     allowed = {
-        "tiebreak": frozenset({"reroll", "list_order", "higher_agility"}),
+        "tiebreak": frozenset({"reroll", "list_order", "higher_agility", "agility_cunning_d12"}),
         # + 1 per odd Agility + 1 per odd Cunning (v0.9), or + Cunning, every point (0.9.1).
         "bonus": frozenset({"odd_agility_cunning", "cunning"}),
     }

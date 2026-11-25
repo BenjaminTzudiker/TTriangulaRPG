@@ -46,6 +46,10 @@ class CombatantState:
     bow_hands: bool = (
         False  # shot a bow this turn: no normal weapon into those hands until your next turn
     )
+    # Packet 0.12.0 martial class core trackers:
+    skip_next_recovery: bool = False  # Fighter (Second Wind): skip next end-of-turn recovery
+    opportunist_used: bool = False  # Rogue (Opportunist): used since last turn ended
+    press_wound_used: bool = False  # Barbarian (Press the Wound): used this turn
 
     @property
     def hp(self) -> int:

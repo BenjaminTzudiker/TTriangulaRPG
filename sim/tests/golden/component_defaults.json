@@ -51,6 +51,7 @@
     "bleed_below": 10,
     "death_hp": -10,
     "death_shock": 10,
+    "help_enabled": false,
     "roll_attribute": "strength",
     "roll_count": 2,
     "roll_size": 12,
@@ -92,6 +93,7 @@
     "avoid_cost_each": 1,
     "avoid_debt": false,
     "avoid_price": "flat",
+    "avoid_skip_unable": false,
     "avoid_track": "none",
     "cap_base": 1,
     "cap_per_odd_finesse": 1,
@@ -138,6 +140,7 @@
     "attribute_max": 6,
     "bonus_ap": "none",
     "core_discount": "none",
+    "cores_mode": "strain",
     "expertise_base": 4,
     "expertise_digits": "1469",
     "floor_hp_term": true,
@@ -152,6 +155,7 @@
     "start_stamina": "max",
     "start_strain": 0,
     "strain_base": 6,
+    "strain_enabled": true,
     "strain_level_div": 5
   },
   "surcharge/linear": {

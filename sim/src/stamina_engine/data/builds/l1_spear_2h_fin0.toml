@@ -1,0 +1,5 @@
+# Two-handed spearman with FIN 0 for packet 0.11.1+ (reach 2, OA cap 1 < spear base 2).
+level = 1
+attributes = { STR = 2, AGI = 1, FIN = 0 }
+cores = ["fighter"]
+loadouts.main = { weapon = "spear", grip = "two", armor = "medium" }

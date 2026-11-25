@@ -8,11 +8,12 @@ beats, with their cost and injury. Seconds measured here are a lower bound on ta
 
 Answers (? at any prompt prints this):
 - your turn: a [ID] attack, s [ID] shoot, m X,Y move there (the cheapest path), or
-  m X,Y X,Y ... for an exact path, d NAME draw, u NAME use an ability, f flee,
-  surrender, e end the turn;
+  m X,Y X,Y ... for an exact path, d NAME draw, u NAME use an ability, h [ID] help the dying,
+  f flee, surrender, e end the turn;
 - steps or aims: a number;
 - blocks: a listed option's number, or two numbers, perfect then grazing;
-- off-turn: m X,Y, d NAME, u NAME, or p to pass;
+- off-turn / dash phase: m X,Y, d NAME, u NAME, a [ID] / s [ID] (Opportunist), or p to pass;
+- holds: ID:N ... (or ID N), or none / p;
 - avoiding OAs: ids to pay off, all, or none;
 - taking an OA: a number of steps (0 declines), optionally after the weapon (off_hand 1);
 - an ability window: u NAME, or p.
@@ -38,6 +39,9 @@ from stamina_engine.agents.decisions import (
     DrawOption,
     EndTurn,
     Flee,
+    HelpDying,
+    HoldRequest,
+    Holds,
     Move,
     MoveAnswer,
     MoveOptions,
@@ -166,21 +170,34 @@ class HumanAgent:
 
     def _status(self, obs: Observation) -> str:
         me = obs.me
-        strain = me.trackers.strain if me.trackers is not None else 0
         where = f" at {me.pos}" if me.pos is not None else ""
+        extra = ""
+        if self.rules.resources.uses_strain():
+            strain = me.trackers.strain if me.trackers is not None else 0
+            extra += f", strain {strain}/{me.profile.strain_max}"
+        if me.holds:
+            held = ", ".join(f"{t}:{n}" for t, n in sorted(me.holds.items()))
+            extra += f", held {{{held}}}"
+        if me.parked:
+            extra += f", returning {me.parked}"
         lines = [
             f"Round {obs.round}. You are {me.id} ({me.team}){where}: HP {me.hp}/"
-            f"{me.profile.hp_max}, stamina {me.stamina}/{me.max_stamina}, strain {strain}/"
-            f"{me.profile.strain_max}."
+            f"{me.profile.hp_max}, stamina {me.stamina}/{me.max_stamina}{extra}."
         ]
         letters = {}
         for i, v in enumerate(obs.others):
             letters[v.id] = ascii_uppercase[i % 26]
             est = "" if v.stamina_exact else "~"
             at = f" at {v.pos}" if v.pos is not None else ""
+            v_extra = ""
+            if v.holds:
+                held = ", ".join(f"{t}:{n}" for t, n in sorted(v.holds.items()))
+                v_extra += f", held {{{held}}}"
+            if v.parked:
+                v_extra += f", returning {v.parked}"
             lines.append(
                 f"  {letters[v.id]} {v.id} ({v.team}, {v.status}){at}: HP {v.hp}, stamina "
-                f"{est}{v.stamina}/{v.max_stamina}"
+                f"{est}{v.stamina}/{v.max_stamina}{v_extra}"
             )
         for o in obs.objectives:
             lines.append(_objective_line(o))
@@ -227,10 +244,17 @@ class HumanAgent:
     def _draws_lines(draws: tuple[DrawOption, ...]) -> list[str]:
         return [f"  d {d.loadout:<9} draw ({d.quote.total} stamina)" for d in draws]
 
-    @staticmethod
-    def _ability_lines(options: tuple[AbilityOption, ...]) -> list[str]:
+    def _ability_lines(self, options: tuple[AbilityOption, ...]) -> list[str]:
+        if self.rules.resources.uses_strain():
+            return [
+                f"  u {o.name:<9} use ({o.quote.total} stamina, +{o.strain} strain)"
+                for o in options
+            ]
         return [
-            f"  u {o.name:<9} use ({o.quote.total} stamina, +{o.strain} strain)" for o in options
+            f"  u {o.name:<9} use ({o.quote.total} stamina"
+            + (", action" if o.quote.advances else "")
+            + ")"
+            for o in options
         ]
 
     def _ability(self, words: list[str], options: tuple[AbilityOption, ...]) -> UseAbility:
@@ -245,6 +269,7 @@ class HumanAgent:
         lines += [f"  s {t:<9} shoot" for t in request.shots]
         lines += self._moves_line(request.moves)
         lines += self._draws_lines(request.draws) + self._ability_lines(request.abilities)
+        lines += [f"  h {t:<9} help the dying" for t in request.help_targets]
         if request.can_flee:
             lines.append("  f          flee the fight")
         if request.can_surrender:
@@ -266,6 +291,8 @@ class HumanAgent:
                 return Draw(_pick(arg, [d.loadout for d in request.draws]))
             if cmd == "u":
                 return self._ability(words, request.abilities)
+            if cmd == "h":
+                return HelpDying(_pick(arg, request.help_targets))
             if cmd == "f" and request.can_flee:
                 return Flee()
             if cmd == "surrender" and request.can_surrender:
@@ -294,17 +321,19 @@ class HumanAgent:
     def _block_frontier(self, r: BlocksRequest) -> list[tuple[Blocks, int, int]]:
         """Every affordable (perfect, grazing) pair no other beats on cost and injury."""
         points: list[tuple[Blocks, int, int]] = []
-        p = 0
+        p = r.free_perfect
         while True:
             try:
-                self.pricing.blocks(p, 0, r.stamina, r.prior_perfect, r.ranged, r.flat_perfect)
+                self.pricing.blocks(
+                    p, 0, r.stamina, r.prior_perfect, r.ranged, r.flat_perfect, r.free_perfect
+                )
             except Unaffordable:
                 break
             g = 0
             while True:
                 try:
                     cost = self.pricing.blocks(
-                        p, g, r.stamina, r.prior_perfect, r.ranged, r.flat_perfect
+                        p, g, r.stamina, r.prior_perfect, r.ranged, r.flat_perfect, r.free_perfect
                     ).total
                 except Unaffordable:
                     break
@@ -337,6 +366,11 @@ class HumanAgent:
                 else ""
             )
             + (" (perfect blocks don't escalate)" if request.flat_perfect else "")
+            + (
+                f" ({request.free_perfect} perfect block(s) prepaid by Poised Guard)"
+                if request.free_perfect
+                else ""
+            )
             + ". Blocks worth considering:",
         ]
         for n, (b, cost, injury) in enumerate(frontier, 1):
@@ -352,10 +386,12 @@ class HumanAgent:
                 return frontier[int(words[0]) - 1][0]
             if len(words) == 2:
                 p, g = int(words[0]), int(words[1])
-                if p < 0 or g < 0:
+                if p < request.free_perfect or g < 0:
                     raise _Invalid
                 r = request
-                self.pricing.blocks(p, g, r.stamina, r.prior_perfect, r.ranged, r.flat_perfect)
+                self.pricing.blocks(
+                    p, g, r.stamina, r.prior_perfect, r.ranged, r.flat_perfect, r.free_perfect
+                )
                 return Blocks(p, g)
             raise _Invalid
 
@@ -366,33 +402,91 @@ class HumanAgent:
         lines = [self._status(obs), f"Off-turn window {self._context(request.context)}:"]
         lines += self._moves_line(request.moves)
         lines += self._draws_lines(request.draws) + self._ability_lines(request.abilities)
+        if request.opportunist_budget is not None:
+            lines += [
+                f"  a {t:<9} opportunist melee attack (max {request.opportunist_budget} stamina)"
+                for t in request.targets
+            ]
+            lines += [
+                f"  s {t:<9} opportunist shot (max {request.opportunist_budget} stamina)"
+                for t in request.shots
+            ]
         lines.append("  p          pass")
 
         def parse(line: str) -> MoveAnswer:
             words = line.split() or ["p"]
             cmd = words[0]
+            arg = words[1] if len(words) > 1 else None
             if cmd == "m" and request.moves is not None:
                 return self._route(obs, request.moves, words[1:])
             if cmd == "d":
-                return Draw(
-                    _pick(words[1] if len(words) > 1 else None, [d.loadout for d in request.draws])
-                )
+                return Draw(_pick(arg, [d.loadout for d in request.draws]))
             if cmd == "u":
                 return self._ability(words, request.abilities)
+            if cmd == "a" and request.targets:
+                return Attack(_pick(arg, request.targets))
+            if cmd == "s" and request.shots:
+                return Shoot(_pick(arg, request.shots))
             if cmd in ("p", "pass"):
                 return Pass()
             raise _Invalid
 
         return self._read("\n".join(lines), "off-turn> ", parse)
 
+    def holds(self, request: HoldRequest) -> Holds:
+        lines = [
+            self._status(request.observation),
+            f"Set holds {self._context(request.context)}: up to {request.stamina} ready stamina "
+            f"on {', '.join(request.targets)}. Enter ID:N ... (or none / p).",
+        ]
+
+        def parse(line: str) -> Holds:
+            words = line.replace(",", " ").split()
+            if not words or words in (["none"], ["p"], ["pass"]):
+                return Holds()
+            tokens: dict[str, int] = {}
+            i = 0
+            while i < len(words):
+                w = words[i]
+                if ":" in w:
+                    t, n_str = w.split(":", 1)
+                    i += 1
+                elif i + 1 < len(words):
+                    t, n_str = w, words[i + 1]
+                    i += 2
+                else:
+                    raise _Invalid
+                if t not in request.targets:
+                    raise _Invalid
+                n = int(n_str)
+                if n < 0:
+                    raise _Invalid
+                tokens[t] = tokens.get(t, 0) + n
+            if sum(tokens.values()) > request.stamina:
+                raise _Invalid
+            return Holds({t: n for t, n in tokens.items() if n > 0})
+
+        return self._read("\n".join(lines), "holds> ", parse)
+
     def avoid(self, request: AvoidOA) -> Avoid:
+        extras = request.extras or (0,) * len(request.enemies)
+        first_extra = [extras[0]] if request.extras else None
         one = self.pricing.avoid_opportunity(
-            1, caps=request.caps[:1], trackers=request.trackers, on_turn=request.on_turn
+            1,
+            caps=request.caps[:1],
+            trackers=request.trackers,
+            on_turn=request.on_turn,
+            extras=first_extra,
+        )
+        hold_note = (
+            f" (held stamina: {dict(zip(request.enemies, extras, strict=True))})"
+            if any(extras)
+            else ""
         )
         text = (
             f"Leaving {request.leaving} {self._context(request.context)}: "
-            f"{', '.join(request.enemies)} threaten it (OA caps {list(request.caps)}). Pay any "
-            f"off? (the first costs {one.total}; you have {request.stamina})"
+            f"{', '.join(request.enemies)} threaten it (OA caps {list(request.caps)}){hold_note}. "
+            f"Pay any off? (the first costs {one.total}; you have {request.stamina})"
         )
 
         def parse(line: str) -> Avoid:
@@ -404,8 +498,15 @@ class HumanAgent:
                 raise _Invalid
             ordered = tuple(e for e in request.enemies if e in chosen)
             caps = [request.caps[request.enemies.index(e)] for e in ordered]
+            paid_extras = (
+                [extras[request.enemies.index(e)] for e in ordered] if request.extras else None
+            )
             quote = self.pricing.avoid_opportunity(
-                len(caps), caps=caps, trackers=request.trackers, on_turn=request.on_turn
+                len(caps),
+                caps=caps,
+                trackers=request.trackers,
+                on_turn=request.on_turn,
+                extras=paid_extras,
             )
             if quote.total > request.stamina and not self.rules.opportunity.allows_debt():
                 raise _Invalid
@@ -414,9 +515,11 @@ class HumanAgent:
         return self._read(text, "avoid> ", parse)
 
     def take_oa(self, request: TakeOA) -> OATake:
+        held = f", +{request.tokens} held" if request.tokens else ""
         lines = [
             f"{request.target} leaves {request.leaving} {self._context(request.context)}: "
-            f"opportunity attack? ({'no cap' if request.cap is None else f'cap {request.cap}'})"
+            f"opportunity attack? ({'no cap' if request.cap is None else f'cap {request.cap}'}"
+            f"{held})"
         ]
         for o in request.options:
             prices = ", ".join(f"{k}: {q.total}" for k, q in enumerate(o.quotes, 1))

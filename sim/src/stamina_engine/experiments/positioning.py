@@ -91,7 +91,7 @@ ROWS: list[SuiteRow] = [
         "Reach at a door (F9)",
         f"{BASELINE}, FIN 0 spear",
         "reach_chokepoint.toml",
-        builds={"S": "l1_spear_fin0"},
+        builds={"S": "l1_spear_2h_fin0"},
         side="spear",
     ),
     SuiteRow(
@@ -99,7 +99,7 @@ ROWS: list[SuiteRow] = [
         "cap = weapon base + odd FIN, FIN 0 spear",
         "reach_chokepoint.toml",
         {"base": BASELINE, "opportunity": {"cap_rule": "weapon_base"}},
-        builds={"S": "l1_spear_fin0"},
+        builds={"S": "l1_spear_2h_fin0"},
         side="spear",
     ),
     SuiteRow(

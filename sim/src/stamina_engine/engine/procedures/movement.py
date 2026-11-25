@@ -17,7 +17,12 @@ from stamina_engine.agents.decisions import AvoidOA, MoveOptions
 from stamina_engine.engine.arena import bodies
 from stamina_engine.engine.battle import Battle
 from stamina_engine.engine.events import OpportunityAvoided, OpportunityProvoked
-from stamina_engine.engine.procedures.opportunity import OAContext, opportunity_attack, reach_cap
+from stamina_engine.engine.procedures.opportunity import (
+    OAContext,
+    can_make_oa,
+    opportunity_attack,
+    reach_cap,
+)
 from stamina_engine.grid.battlefield import Cell
 from stamina_engine.grid.pathing import Passage, reachable
 from stamina_engine.model.state import CombatantState
@@ -142,7 +147,23 @@ def leave(b: Battle, mover: CombatantState, square: Cell, on_turn: bool, oa: OAC
     holds = b.rules.opportunity.holds_on()
     # The hold rule: an enemy's tokens on the mover are added to its price for this square.
     extras = tuple(b.state.get(e).holds.get(mover.id, 0) if holds else 0 for e in threatening)
-    paid = avoid(b, mover, square, threatening, caps, on_turn, extras)
+    if b.rules.opportunity.skips_unable_avoid():
+        # Packet 0.11.1: if an enemy couldn't make even 1 step of an OA, you owe it nothing.
+        idx = [
+            i
+            for i, e in enumerate(threatening)
+            if can_make_oa(b, b.state.get(e), mover, square, oa)
+        ]
+        avoid_enemies = tuple(threatening[i] for i in idx)
+        avoid_caps = tuple(caps[i] for i in idx)
+        avoid_extras = tuple(extras[i] for i in idx)
+        paid = (
+            avoid(b, mover, square, avoid_enemies, avoid_caps, on_turn, avoid_extras)
+            if avoid_enemies
+            else ()
+        )
+    else:
+        paid = avoid(b, mover, square, threatening, caps, on_turn, extras)
     for eid, cap in zip(threatening, caps, strict=True):
         oa.left_within(eid, cap, paid=eid in paid)
     if holds:  # a hold that is paid off ends

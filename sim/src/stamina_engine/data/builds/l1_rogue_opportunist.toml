@@ -1,0 +1,7 @@
+# Rogue built for packet 0.12.0's Opportunist (1 + CUN budget in dash phases, light weapon).
+# 5 EP: STR 2 (3), FIN 1 (1), CUN 1 (1). Budget 2 allows a 1-step shortsword attack (base 1).
+level = 1
+attributes = { STR = 2, FIN = 1, CUN = 1 }
+cores = ["rogue"]
+proficiencies = ["shortsword"]
+loadouts.main = { weapon = "shortsword", grip = "one", off_hand = "shield", armor = "medium" }

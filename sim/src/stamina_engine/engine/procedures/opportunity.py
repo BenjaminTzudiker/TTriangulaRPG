@@ -103,6 +103,31 @@ def _largest(caps: Iterable[int | None]) -> int | None:
     return None if None in values else max(c for c in values if c is not None)
 
 
+def can_make_oa(
+    b: Battle, attacker: CombatantState, target: CombatantState, square: Cell, oa: OAContext
+) -> bool:
+    """Can attacker make at least 1 step of an OA on square? Under public stamina, checks
+    both cap and stamina; under hidden stamina, checks cap only (so avoidance never leaks
+    hidden stamina)."""
+    if not attacker.active:
+        return False
+    per_square = b.rules.opportunity.per_square()
+    fin = attacker.gear.attributes.FIN
+    tokens = attacker.holds.get(target.id, 0) if b.rules.opportunity.holds_on() else 0
+    public = b.rules.information.stamina_visibility() == "public"
+    stam = attacker.stamina if public else None
+    for _, w in _reaching(b, attacker, square):
+        cap = oa.available(attacker.id, b.pricing.oa_cap(fin, w.base), per_square)
+        try:
+            b.pricing.opportunity_attack(
+                w.base, 1, attacker.trackers, cap, stamina=stam, tokens=tokens
+            )
+            return True
+        except Unaffordable:
+            continue
+    return False
+
+
 def opportunity_attack(
     b: Battle, attacker: CombatantState, target: CombatantState, square: Cell, oa: OAContext
 ) -> None:

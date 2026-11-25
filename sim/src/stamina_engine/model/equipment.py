@@ -77,12 +77,19 @@ class Weapon:
     band_width: int = 0  # squares per range band (0.10.0 bows); v0.9 bows use ranges
     strength: int = 0  # Strength N: the bow's Strength requirement (shortens its bands)
     piercing: int = 0  # Piercing N: ignores N armor (Hammer is Piercing 1)
+    grip_reaches: tuple[tuple[str, int], ...] = ()  # per-grip reach override (0.11.1 spear)
 
     def damage(self, grip: str) -> DamageExpr:
         for name, expr in self.grips:
             if name == grip:
                 return expr
         raise ConfigError(f"{self.name} has no {grip!r} grip; it has {[g for g, _ in self.grips]}")
+
+    def reach_for(self, grip: str) -> int:
+        for name, value in self.grip_reaches:
+            if name == grip:
+                return value
+        return self.reach
 
     @property
     def quick_draw(self) -> bool:
@@ -149,10 +156,11 @@ def _weapon(name: str, data: dict[str, Any]) -> Weapon:
     properties = frozenset(data.get("properties", ()))
     unknown = set(data) - {
         "base", "reach", "ranged", "ranges", "properties", "grips", "band_width", "strength",
-        "piercing",
+        "piercing", "grip_reach",
     }  # fmt: skip
     if unknown:
         raise ConfigError(f"weapon {name}: unknown fields {sorted(unknown)}")
+    grip_reach = data.get("grip_reach", {})
     return Weapon(
         name=name,
         base=int(data["base"]),
@@ -165,6 +173,7 @@ def _weapon(name: str, data: dict[str, Any]) -> Weapon:
         strength=int(data.get("strength", 0)),
         # Packet: Weapon Properties: Hammer is Piercing 1.
         piercing=int(data.get("piercing", 1 if "hammer" in properties else 0)),
+        grip_reaches=tuple((str(g), int(r)) for g, r in grip_reach.items()),
     )
 
 

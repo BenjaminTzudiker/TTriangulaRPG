@@ -45,8 +45,8 @@ ABILITIES: tuple[tuple[str, str, str], ...] = (
     # (label, build with it, duel opponent)
     ("Fighter core", "l1_sample", "l1_sample"),
     ("Barbarian core", "l1_barbarian", "l1_sample"),
-    ("Monk core", "l1_monk", "l1_sample"),
-    ("Rogue core", "l1_rogue", "l1_sample"),
+    ("Monk core", "l1_monk_unarmored", "l1_sample"),
+    ("Rogue core", "l1_rogue_opportunist", "l1_sample"),
     ("Heavy Swing (v heavy armor)", "l1_heavy_swing", "l1_heavy"),
     ("Tactical Withdrawal", "l1_withdrawal", "l1_sample"),
     ("Riposte", "l1_riposte", "l1_sample"),

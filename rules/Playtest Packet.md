@@ -3,7 +3,7 @@ next: "[[What This Game Is Trying To Do]]"
 ---
 # Playtest Packet
 
-Consolidated Prototype · Version 0.11.5 · Changes since this version: [[CHANGELOG]]
+Consolidated Prototype · Version 0.11.6 · Changes since this version: [[CHANGELOG]]
 
 > [!info] Purpose
 > This is the current implementation of the game, written for internal playtesting rather than publication. Treat everything here as the current rules unless it's marked **TODO**.
@@ -63,6 +63,7 @@ To read it all in one scroll, open [[Full Packet]]. To go note by note, use the 
 	- [[Dash]]
 - [[Opportunity Attacks]]
 - [[Holds]]
+- [[Forced Movement]]
 
 ### Ranged Combat
 

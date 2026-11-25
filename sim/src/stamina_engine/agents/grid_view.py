@@ -133,6 +133,7 @@ class Board:
             return []
         out = []
         fin = enemy.gear.attributes.FIN
+        tokens = enemy.holds.get(self.me.id, 0) if self.rules.opportunity.holds_on() else 0
         for w in melee_weapons(enemy.gear):
             if square not in reach_cells(self.field, enemy.pos, w.reach, self.rules.grid):
                 continue
@@ -141,7 +142,7 @@ class Board:
             while True:
                 try:
                     self.pricing.opportunity_attack(
-                        w.base, k + 1, FRESH, cap, stamina=enemy.stamina
+                        w.base, k + 1, FRESH, cap, stamina=enemy.stamina, tokens=tokens
                     )
                 except Unaffordable:
                     break

@@ -8,6 +8,7 @@ from stamina_engine.agents.decisions import (
     Draw,
     EndTurn,
     Flee,
+    HelpDying,
     HoldRequest,
     Move,
     Shoot,
@@ -15,7 +16,7 @@ from stamina_engine.agents.decisions import (
     TurnCommand,
     UseAbility,
 )
-from stamina_engine.core.dice import roll
+from stamina_engine.core.dice import Dice, roll
 from stamina_engine.engine.battle import Battle, BattleResult
 from stamina_engine.engine.events import (
     BattleEnded,
@@ -28,6 +29,7 @@ from stamina_engine.engine.procedures.melee import melee_attack
 from stamina_engine.engine.procedures.movement import move, move_options
 from stamina_engine.engine.procedures.off_turn import off_turn_window
 from stamina_engine.engine.procedures.ranged import draw, draw_options, shoot, shot_targets
+from stamina_engine.grid.geometry import distance
 from stamina_engine.model.state import CombatantState, Status
 
 cites = (
@@ -37,6 +39,7 @@ cites = (
     "Packet: Stamina",
     "Packet: Holds",
     "Packet: Dying and Death",
+    "Packet: Helping the Dying",
     "Ledger CB-9",
     "Ledger CR-3",
     "Ledger IN-1",
@@ -44,9 +47,10 @@ cites = (
 
 
 def roll_initiative(b: Battle) -> tuple[str, ...]:
-    """2d12 (placeholder) + 1 per odd Agility + 1 per odd Cunning, rolled once per fight.
+    """2d12 + bonus, rolled once per fight.
 
-    The packet has no tiebreaker; turn_order.tiebreak picks one (Assumptions register).
+    turn_order.tiebreak selects how ties break: reroll, list_order, higher_agility, or
+    agility_cunning_d12 (packet 0.11.2: higher Agility + Cunning, then d12 roll-off).
     """
     rule = b.rules.turn_order
     dice = rule.initiative_dice()
@@ -58,6 +62,24 @@ def roll_initiative(b: Battle) -> tuple[str, ...]:
         rolls.append((c.id, total))
         return total
 
+    def roll_d12(c: CombatantState) -> int:
+        total = sum(roll(Dice(1, 12), source))
+        rolls.append((c.id, total))
+        return total
+
+    def break_by_d12(group: list[CombatantState]) -> list[CombatantState]:
+        if len(group) <= 1:
+            return group
+        totals = {c.id: roll_d12(c) for c in group}
+        ranked = sorted(group, key=lambda c: -totals[c.id])
+        out: list[CombatantState] = []
+        i = 0
+        while i < len(ranked):
+            tied = [c for c in ranked[i:] if totals[c.id] == totals[ranked[i].id]]
+            out.extend(break_by_d12(tied) if len(tied) > 1 else tied)
+            i += len(tied)
+        return out
+
     def ordered(group: list[CombatantState], totals: dict[str, int]) -> list[CombatantState]:
         # sorted() is stable: equal totals keep listed order.
         ranked = sorted(group, key=lambda c: -totals[c.id])
@@ -68,6 +90,22 @@ def roll_initiative(b: Battle) -> tuple[str, ...]:
         i = 0
         while i < len(ranked):
             tied = [c for c in ranked[i:] if totals[c.id] == totals[ranked[i].id]]
+            if len(tied) > 1 and tiebreak == "agility_cunning_d12":
+                # Packet 0.11.2: higher Agility + Cunning first, then d12 roll-off.
+                by_stat = sorted(
+                    tied, key=lambda c: -(c.gear.attributes.AGI + c.gear.attributes.CUN)
+                )
+                j = 0
+                while j < len(by_stat):
+                    def _stat(c: CombatantState) -> int:
+                        return c.gear.attributes.AGI + c.gear.attributes.CUN
+
+                    val = _stat(by_stat[j])
+                    sub = [c for c in by_stat[j:] if _stat(c) == val]
+                    out.extend(break_by_d12(sub) if len(sub) > 1 else sub)
+                    j += len(sub)
+                i += len(tied)
+                continue
             if len(tied) > 1 and tiebreak == "higher_agility":
                 by_agi = sorted(tied, key=lambda c: -c.gear.attributes.AGI)
                 agis = [c.gear.attributes.AGI for c in by_agi]
@@ -109,7 +147,9 @@ def take_turn(b: Battle, c: CombatantState) -> None:
         before = opp.holds_set_before_recovery()
         if before:
             set_holds(b, c)
-        if c.active or b.rules.resources.recovers_while_incapacitated():
+        if c.skip_next_recovery:
+            b.ops.skip_recovery(c, "second_wind")
+        elif c.active or b.rules.resources.recovers_while_incapacitated():
             b.ops.recover(c, c.profile.recovery)
         if not before:
             set_holds(b, c)
@@ -117,31 +157,57 @@ def take_turn(b: Battle, c: CombatantState) -> None:
 
 
 def set_holds(b: Battle, c: CombatantState) -> None:
-    """Experiment (the hold rule, designer 2026-11-17; Packet: Holds in 0.11.1): at the end
-    of your turn, before or after you recover (a switch), put ready stamina on enemies as
-    tokens: enemies within your reach, or any enemy (a switch; 0.11.1)."""
+    """Packet: Holds (0.11.1+): at the end of your turn, before or after you recover (a
+    switch), put ready stamina on enemies as held stamina: enemies within your reach, or any
+    enemy (a switch; 0.11.1)."""
     rule = b.rules.opportunity
-    if not rule.holds_on() or b.field is None or b.outcome is not None:
+    if not rule.holds_on() or b.outcome is not None:
+        return
+    if b.field is None and b.rules.resources.core_abilities_mode() != "in_fight":
         return
     if not c.active or c.stamina <= 0:
         return
-    targets = tuple(
+    targets_ = tuple(
         o.id
         for o in b.state.enemies_of(c)
         if o.active
-        and o.pos is not None
-        and (rule.holds_any_enemy() or c.id in b.arena.threatening(b.state, o, o.pos))
+        and (
+            b.field is None
+            or (
+                o.pos is not None
+                and (rule.holds_any_enemy() or c.id in b.arena.threatening(b.state, o, o.pos))
+            )
+        )
     )
-    if not targets:
+    if not targets_:
         return
     limit = rule.hold_limit(c.stamina)
     if limit <= 0:
         return
     answer = b.broker.holds(
-        HoldRequest(c.id, b.observe(c.id), b.context.path(), targets, limit)
+        HoldRequest(c.id, b.observe(c.id), b.context.path(), targets_, limit)
     )
     for target, n in answer.tokens.items():
         b.ops.set_hold(c, target, n)
+
+
+def help_dying_targets(b: Battle, c: CombatantState) -> tuple[str, ...]:
+    """Creatures in System Shock within 1 square that c can afford to tend (packet 0.11.2)."""
+    if not b.rules.dying.helps_dying() or not c.active:
+        return ()
+    if b.pricing.help_dying(c.trackers).total > c.stamina:
+        return ()
+    out = []
+    for o in b.state.combatants:
+        if o.id == c.id or not o.dying.in_shock or o.dying.dead:
+            continue
+        if b.field is None or (
+            c.pos is not None
+            and o.pos is not None
+            and distance(c.pos, o.pos, b.rules.grid) <= 1
+        ):
+            out.append(o.id)
+    return tuple(out)
 
 
 def command_loop(b: Battle, c: CombatantState) -> None:
@@ -160,6 +226,7 @@ def command_loop(b: Battle, c: CombatantState) -> None:
                 b.field is not None and c.pos is not None and b.field.is_exit(c.pos),
                 b.field is not None,
                 abilities.options(b, c, "turn"),
+                help_dying_targets(b, c),
             )
         )
         if isinstance(answer, EndTurn):
@@ -174,6 +241,13 @@ def command_loop(b: Battle, c: CombatantState) -> None:
             draw(b, c, answer.loadout, on_turn=True)
         elif isinstance(answer, UseAbility):
             abilities.use(b, c, answer.name, "turn")
+        elif isinstance(answer, HelpDying):
+            quote = b.pricing.help_dying(c.trackers)
+            b.ops.spend(c, quote, "help_dying")
+            total = sum(roll(b.rules.dying.help_dice(), b.dice.dice("dying"))) + (
+                c.gear.attributes.INT
+            )
+            b.ops.tend(c, b.state.get(answer.target), total)
         elif isinstance(answer, Flee | Surrender):
             if isinstance(answer, Flee):
                 b.ops.flee(c)
@@ -185,13 +259,14 @@ def command_loop(b: Battle, c: CombatantState) -> None:
             return
 
 
-def targets(b: Battle, c: CombatantState) -> tuple[str, ...]:
+def targets(b: Battle, c: CombatantState, max_spend: int | None = None) -> tuple[str, ...]:
     """Active enemies in the main weapon's reach (everyone, in the all-adjacent arena), if a
     step is affordable. On-turn attacks use the main weapon, as in M1."""
     weapon = c.gear.weapon
     if weapon is None or weapon.ranged:
         return ()
-    if b.pricing.melee_attack(weapon.base, 1, c.trackers, light=weapon.light).total > c.stamina:
+    limit = c.stamina if max_spend is None else min(c.stamina, max_spend)
+    if b.pricing.melee_attack(weapon.base, 1, c.trackers, light=weapon.light).total > limit:
         return ()
     return tuple(
         o.id for o in b.state.enemies_of(c) if o.active and b.arena.in_reach(b.state, c, o, weapon)

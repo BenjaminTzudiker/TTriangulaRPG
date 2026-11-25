@@ -20,7 +20,7 @@ from stamina_engine.core.errors import ConfigError
 from stamina_engine.grid.battlefield import Battlefield, Cell
 from stamina_engine.rules.components.grid import GridRule
 
-cites = ("Packet: Weapon Table", "Packet: Free Movement", "Ledger MV-1")
+cites = ("Packet: Weapon Table", "Packet: Free Movement", "Packet: Forced Movement", "Ledger MV-1")
 
 # Orthogonal steps first, then diagonals, clockwise from north: a fixed order keeps every
 # search deterministic.
@@ -74,6 +74,23 @@ def neighbour_table(field: Battlefield, rule: GridRule) -> dict[Cell, tuple[Cell
     """neighbours() for every square at once, for searches that visit many squares."""
     _check_metric(rule)
     return _neighbour_table(field, rule.corner_mode())
+
+
+def forced_move_squares(
+    field: Battlefield,
+    rule: GridRule,
+    mover: Cell,
+    target: Cell,
+    occupied: frozenset[Cell],
+) -> tuple[Cell, ...]:
+    """Legal 1-square destinations for Forced Movement (packet 0.11.6): adjacent, walkable,
+    respects wall corners, empty, and no closer to mover than target is."""
+    before = distance(mover, target, rule)
+    return tuple(
+        cell
+        for cell in neighbours(field, target, rule)
+        if cell not in occupied and distance(mover, cell, rule) >= before
+    )
 
 
 def crosses_inside(p: Cell, q: Cell, box: tuple[int, int, int, int]) -> bool:

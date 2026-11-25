@@ -100,6 +100,36 @@ class DyingRolled(Event):
 
 
 @dataclass(frozen=True)
+class DyingHelped(Event):
+    """Helping the Dying (packet 0.11.2): 2d12 + INT against 10 + Shock."""
+
+    helper: str
+    target: str
+    total: int
+    succeeded: bool
+    shock_after: int
+    status_after: str
+
+
+@dataclass(frozen=True)
+class ForcedMoved(Event):
+    """Forced Movement (packet 0.11.6): 1 square, no OA, doesn't trigger or end holds."""
+
+    who: str
+    frm: tuple[int, int]
+    to: tuple[int, int]
+    by: str
+
+
+@dataclass(frozen=True)
+class RecoverySkipped(Event):
+    """End-of-turn recovery skipped (0.12.0 Fighter core Second Wind)."""
+
+    who: str
+    reason: str
+
+
+@dataclass(frozen=True)
 class AttackDeclared(Event):
     attacker: str
     target: str

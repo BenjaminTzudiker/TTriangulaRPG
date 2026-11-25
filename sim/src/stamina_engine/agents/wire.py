@@ -29,6 +29,7 @@ KINDS = {
     "AimRequest": "aim",
     "DiveRequest": "react",
     "AbilityRequest": "ability",
+    "HoldRequest": "holds",
 }
 
 
@@ -93,6 +94,10 @@ def view(v: CombatantView) -> dict[str, Any]:
     if weapon is not None and weapon.ranged:
         out["band_width"] = weapon.band_width
         out["piercing"] = weapon.piercing
+    if v.holds:
+        out["holds"] = dict(v.holds)
+    if v.parked:
+        out["returning"] = v.parked
     if v.trackers is not None:
         out["counters"] = to_wire(v.trackers)
         out["free_move_left"] = v.free_move_left

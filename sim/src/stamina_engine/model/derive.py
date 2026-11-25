@@ -166,7 +166,7 @@ def _weapon_profile(
         name=weapon.name,
         grip=grip,
         base=weapon.base,
-        reach=weapon.reach,
+        reach=weapon.reach_for(grip),
         ranged=weapon.ranged,
         quick_draw=weapon.quick_draw,
         proficient=weapon.name in proficient,
@@ -242,10 +242,14 @@ def _loadout_profile(
 
 
 def equipment_for(rules: RuleSet) -> str:
-    """The packet's equipment table for a RuleSet's range bands: 0.10.0's bows (with band
-    widths, and the +1 / +1 shield) under linear bands, v0.9's (three ranges) otherwise.
+    """The packet's equipment table for a RuleSet:
+    - v0_9 whenever v0.9's three-range bows are used (v0.9–v0.9.3, minus_d6 variants);
+    - v0_12 from packet 0.11.1 on (0.10.0's bows and shield, plus spear reach only in two hands);
+    - v0_10 under linear range bands through 0.10.1 (and exp-0.11.*).
     What a scenario or table uses when it names none."""
-    return "v0_10" if rules.ranged.uses_band_width() else "v0_9"
+    if not rules.ranged.uses_band_width():
+        return "v0_9"
+    return "v0_12" if rules.opportunity.skips_unable_avoid() else "v0_10"
 
 
 def derive(build: Build, rules: RuleSet, table: EquipmentTable | None = None) -> CombatProfile:

@@ -31,6 +31,14 @@ PRESET_DIGESTS = {
     "v0.10.0-cover-only": "820505340da8",
     "v0.10.0-crit-c-prime": "b7690db2f629",
     "v0.10.0-crit-c": "6a1c7e8b7971",
+    "v0.11.0": "b9abde5434ec",
+    "v0.11.1": "6654300688d4",
+    "v0.11.2": "00546438502a",
+    "v0.11.3": "00546438502a",  # 0.11.3 shelves Dodge Defense (no fight impact)
+    "v0.11.4": "33253258d2da",
+    "v0.11.5": "33253258d2da",  # 0.11.5 exploratory candidates deferred
+    "v0.11.6": "33253258d2da",  # 0.11.6 forced movement / 0-hold ending / candidates deferred
+    "v0.12.0": "4d5aa8ebda7a",  # 0.12.0 shelves strain, new in-fight martial cores
     "review-candidate": "d99bdcba96f4",
     "review-sim": "4179c8ac37bc",
 }

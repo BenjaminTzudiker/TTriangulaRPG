@@ -122,6 +122,10 @@ class OpportunityRule(Component):
         """Most tokens a creature with this much ready stamina may set."""
         return stamina
 
+    def skips_unable_avoid(self) -> bool:
+        """Packet 0.11.1: if an enemy couldn't make even one step of an OA, nothing is owed."""
+        return False
+
 
 @register("opportunity", "v0_9")
 @dataclass(frozen=True)
@@ -152,6 +156,7 @@ class V09Opportunity(OpportunityRule):
     hold_max_percent: int = 100  # tokens set at most this % of ready stamina (rounded down)
     hold_wound_clamp: str = "ready_first"
     hold_targets: str = "reach"
+    avoid_skip_unable: bool = False  # packet 0.11.1: omit enemies unable to make 1 OA step
 
     def __post_init__(self) -> None:
         super().__post_init__()
@@ -224,3 +229,6 @@ class V09Opportunity(OpportunityRule):
 
     def hold_limit(self, stamina: int) -> int:
         return stamina * self.hold_max_percent // 100
+
+    def skips_unable_avoid(self) -> bool:
+        return self.avoid_skip_unable

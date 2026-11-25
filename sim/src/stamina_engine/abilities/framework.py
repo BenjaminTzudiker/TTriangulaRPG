@@ -24,6 +24,7 @@ from typing import TYPE_CHECKING
 
 from stamina_engine.agents.decisions import AbilityOption, AbilityRequest, UseAbility
 from stamina_engine.core.errors import ConfigError
+from stamina_engine.rules.pricing import Quote, Track
 
 if TYPE_CHECKING:
     from stamina_engine.engine.battle import Battle
@@ -46,6 +47,7 @@ WINDOWS = frozenset(
         "turn_start",
         "declare_attack",
         "reactions",
+        "on_melee_wound",
     }
 )
 
@@ -61,10 +63,32 @@ class Ability:
     usable: Callable[["Battle", "CombatantState", str, Facts], bool]
     apply: Callable[["Battle", "CombatantState", str, Facts], None]
     cites: tuple[str, ...] = field(default=())
+    action: bool = False  # True: counts as an action (advances escalation by 1)
 
     def __post_init__(self) -> None:
         if not self.windows <= WINDOWS:
             raise ConfigError(f"{self.name}: unknown windows {sorted(self.windows - WINDOWS)}")
+
+
+IN_FIGHT_CORES: dict[str, tuple[str, ...]] = {
+    "fighter_core": ("second_wind",),
+    "barbarian_core": ("press_the_wound",),
+    "monk_core": ("poised_guard_1", "poised_guard_2"),
+    "rogue_core": (),  # Opportunist is offered in OffTurnMove (dash phases)
+}
+
+
+def effective_abilities(b: "Battle", c: "CombatantState") -> tuple[str, ...]:
+    """Resolve a combatant's core ability names for the active ruleset's cores_mode."""
+    if b.rules.resources.core_abilities_mode() != "in_fight":
+        return c.profile.abilities
+    out: list[str] = []
+    for name in c.profile.abilities:
+        if name in IN_FIGHT_CORES:
+            out.extend(IN_FIGHT_CORES[name])
+        else:
+            out.append(name)
+    return tuple(out)
 
 
 REGISTRY: dict[str, Ability] = {}
@@ -89,6 +113,14 @@ def _load() -> None:
     from stamina_engine.abilities import candidates, cores  # noqa: F401  (registers them)
 
 
+def _quote(b: "Battle", c: "CombatantState", a: Ability, strain: int) -> Quote:
+    if a.action:
+        return Quote((a.stamina,), Track.ON_TURN)
+    if not b.rules.resources.uses_strain():
+        return Quote((a.stamina,)) if a.stamina else Quote(())
+    return b.pricing.strain_ability(a.stamina, strain, c.trackers, c.profile.strain_max)
+
+
 def options(
     b: "Battle", c: "CombatantState", window: str, facts: Facts | None = None
 ) -> tuple[AbilityOption, ...]:
@@ -98,12 +130,12 @@ def options(
     out = []
     if not c.active:
         return ()
-    for name in c.profile.abilities:
+    for name in effective_abilities(b, c):
         a = REGISTRY.get(name)
         if a is None or window not in a.windows or not a.usable(b, c, window, facts):
             continue
-        strain = _strain(b, c, a)
-        quote = b.pricing.strain_ability(a.stamina, strain, c.trackers, c.profile.strain_max)
+        strain = _strain(b, c, a) if b.rules.resources.uses_strain() else 0
+        quote = _quote(b, c, a, strain)
         if quote.total <= c.stamina:
             out.append(AbilityOption(a.name, quote, strain))
     return tuple(out)
@@ -121,10 +153,10 @@ def use(
 ) -> None:
     """Pay for and apply an ability the broker has already allowed."""
     a = known(name)
-    strain = _strain(b, c, a)
-    quote = b.pricing.strain_ability(a.stamina, strain, c.trackers, c.profile.strain_max)
+    strain = _strain(b, c, a) if b.rules.resources.uses_strain() else 0
+    quote = _quote(b, c, a, strain)
     with b.context.frame(f"ability {c.id} {name}"):
-        if quote.total:
+        if quote.total or quote.advances:
             b.ops.spend(c, quote, f"ability:{name}")
         b.ops.ability_used(c, name, window, strain)
         a.apply(b, c, window, facts or {})

@@ -13,9 +13,11 @@ from stamina_engine.engine.events import (
     ControlChanged,
     DebtPaid,
     Drew,
+    DyingHelped,
     DyingRolled,
     Event,
     Fled,
+    ForcedMoved,
     HoldEnded,
     HoldSet,
     HoldSpent,
@@ -29,13 +31,14 @@ from stamina_engine.engine.events import (
     OrderChanged,
     Placed,
     Recovered,
+    RecoverySkipped,
     Spent,
     Surrendered,
     TurnEnded,
     TurnStarted,
 )
 from stamina_engine.grid.battlefield import Battlefield, Cell
-from stamina_engine.grid.geometry import step_allowed
+from stamina_engine.grid.geometry import distance, step_allowed
 from stamina_engine.grid.threat import Body, can_pass
 from stamina_engine.model.state import (
     OBJECTIVE_DONE,
@@ -50,7 +53,9 @@ from stamina_engine.rules.ruleset import RuleSet
 cites = (
     "Packet: Stamina",
     "Packet: Holds",
+    "Packet: Forced Movement",
     "Packet: Dying and Death",
+    "Packet: Helping the Dying",
     "Packet: Actions and Escalation",
     "Packet: Free Movement",
     "Packet: Dash",
@@ -156,6 +161,21 @@ class StateOps:
         c.dying = self.rules.dying.dying_roll(c.dying, total)
         self._emit(DyingRolled(c.id, total, c.dying.shock, c.status.value))
 
+    def tend(self, helper: CombatantState, target: CombatantState, total: int) -> bool:
+        """Helping the Dying (packet 0.11.2): roll 2d12 + INT against 10 + target's Shock."""
+        if not helper.active:
+            raise RulesError(f"{helper.id} is {helper.status.value} and can't tend")
+        if not target.dying.in_shock or target.dying.dead:
+            raise RulesError(f"{target.id} isn't in System Shock")
+        new_state, succeeded = self.rules.dying.tend(target.dying, total)
+        target.dying = new_state
+        self._emit(
+            DyingHelped(
+                helper.id, target.id, total, succeeded, target.dying.shock, target.status.value
+            )
+        )
+        return succeeded
+
     def start_turn(self, c: CombatantState) -> None:
         """The on-turn surcharge and the off-turn track both reset at the start of your turn,
         and your free movement is back. Squares bought last turn don't carry over."""
@@ -171,6 +191,7 @@ class StateOps:
         c.used_weapon = False
         c.bow_hands = False
         c.step_costs = []
+        c.press_wound_used = False
         self.state.turn_of = c.id
         self.state.acted = self.state.acted | {c.id}
         self._emit(TurnStarted(c.id, self.state.round))
@@ -178,10 +199,11 @@ class StateOps:
     def end_turn(self, c: CombatantState) -> None:
         if self.rules.off_turn.unified():
             c.trackers = Trackers(0, 0, c.trackers.strain)
+        c.opportunist_used = False
         self.state.turn_of = None
         self._emit(TurnEnded(c.id))
 
-    # --- holds (experiment) ----------------------------------------------------------
+    # --- holds (packet 0.11.1+) ------------------------------------------------------
 
     def return_holds(self, c: CombatantState) -> None:
         """All of a holder's tokens come back to its ready stamina; its holds end."""
@@ -206,16 +228,20 @@ class StateOps:
         self._emit(HoldSet(c.id, target, tokens, c.stamina))
 
     def spend_hold(self, c: CombatantState, target: str, tokens: int) -> None:
-        """Pay part of an opportunity attack with a hold's tokens."""
+        """Pay part of an opportunity attack (or Poised Guard) with a hold's held stamina.
+        Spending all of a hold's held stamina ends the hold (packet 0.11.6)."""
         if tokens <= 0:
             return
         have = c.holds.get(target, 0)
         if tokens > have:
             raise RulesError(f"{c.id} has {have} tokens on {target}, not {tokens}")
         c.holds[target] = have - tokens
-        if c.holds[target] == 0:
+        ended = c.holds[target] == 0
+        if ended:
             del c.holds[target]
         self._emit(HoldSpent(c.id, target, tokens))
+        if ended:
+            self._emit(HoldEnded(c.id, target, "spent", 0))
 
     def end_hold(self, c: CombatantState, target: str, reason: str) -> None:
         """A hold ends (paid off, or its opportunity attack was triggered). Tokens left on
@@ -281,6 +307,26 @@ class StateOps:
     def delay(self, c: CombatantState, waiting: bool) -> None:
         """A Rogue waits to take its turn after a later one (or stops waiting)."""
         self.state.delayed = self.state.delayed | {c.id} if waiting else self.state.delayed - {c.id}
+        self._bump()
+
+    def set_skip_recovery(self, c: CombatantState, skip: bool) -> None:
+        """0.12.0 Fighter core (Second Wind): mark that next end-of-turn recovery is skipped."""
+        c.skip_next_recovery = skip
+        self._bump()
+
+    def skip_recovery(self, c: CombatantState, reason: str = "second_wind") -> None:
+        """Consume a pending skipped end-of-turn recovery (0.12.0 Second Wind)."""
+        c.skip_next_recovery = False
+        self._emit(RecoverySkipped(c.id, reason))
+
+    def mark_opportunist(self, c: CombatantState) -> None:
+        """0.12.0 Rogue core (Opportunist): used between turns."""
+        c.opportunist_used = True
+        self._bump()
+
+    def mark_press_wound(self, c: CombatantState) -> None:
+        """0.12.0 Barbarian core (Press the Wound): used this turn."""
+        c.press_wound_used = True
         self._bump()
 
     # --- control effects (stub) ------------------------------------------------------
@@ -410,6 +456,28 @@ class StateOps:
             others = [o.id for o in self.state.at(c.pos) if o is not c]
             raise RulesError(f"{c.id} can't end its move on {others[0]}'s square {c.pos}")
         self._bump()
+
+    def force_move(self, target: CombatantState, dest: Cell, by: str) -> None:
+        """Forced Movement (packet 0.11.6): move target 1 adjacent empty square, respecting
+        wall corners and not closer to the mover. Doesn't use Movement, provoke OAs, or
+        trigger/end holds."""
+        if self.field is None or target.pos is None:
+            raise EngineError("the all-adjacent arena has no squares")
+        if not step_allowed(self.field, target.pos, dest, self.rules.grid.corner_mode()):
+            raise RulesError(f"{target.id} can't be forced from {target.pos} to {dest}")
+        if self.state.at(dest):
+            raise RulesError(f"{target.id} can't be forced into occupied square {dest}")
+        mover = self.state.get(by)
+        if mover.pos is not None:
+            before = distance(mover.pos, target.pos, self.rules.grid)
+            after = distance(mover.pos, dest, self.rules.grid)
+            if after < before:
+                raise RulesError(
+                    f"forced movement to {dest} is closer to {by} ({after} < {before})"
+                )
+        frm = target.pos
+        target.pos = dest
+        self._emit(ForcedMoved(target.id, frm, dest, by))
 
     def set_round(self, round_: int) -> None:
         self.state.round = round_

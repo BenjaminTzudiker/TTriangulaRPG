@@ -18,6 +18,8 @@ from stamina_engine.agents.decisions import (
     Commitment,
     DiveRequest,
     EndTurn,
+    HoldRequest,
+    Holds,
     MoveAnswer,
     OATake,
     OffTurnMove,
@@ -43,6 +45,7 @@ class Listed:
     aims: list[int] = field(default_factory=list)
     dives: list[MoveAnswer] = field(default_factory=list)
     uses: list[UseAbility | Pass] = field(default_factory=list)  # ability windows
+    hold_answers: list[Holds] = field(default_factory=list)
     seen: list[str] = field(default_factory=list)  # each request's context, for tests
     requests: list[object] = field(default_factory=list)  # every request, for tests
 
@@ -86,3 +89,8 @@ class Listed:
     def ability(self, request: AbilityRequest) -> UseAbility | Pass:
         self.requests.append(request)
         return self.uses.pop(0) if self.uses else Pass()
+
+    def holds(self, request: HoldRequest) -> Holds:
+        self.requests.append(request)
+        self.seen.append(" > ".join(request.context))
+        return self.hold_answers.pop(0) if self.hold_answers else Holds()

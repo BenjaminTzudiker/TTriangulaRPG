@@ -52,21 +52,23 @@ def best_block(
     ranged: bool = False,
     flat: bool = False,
     limit: int | None = None,
+    free_perfect: int = 0,
 ) -> BlockChoice:
     """ranged prices perfect blocks as against a ranged attack (blocks.ranged_flat); flat
-    stops their escalation (the Monk core); limit is a shot's aim limit."""
+    stops their escalation (the legacy Monk core); limit is a shot's aim limit; free_perfect
+    is perfect blocks already paid by held stamina (0.12.0 Monk Poised Guard)."""
     pricing = Pricing(rules)
     graze = rules.blocks.graze_cost
     needed = _needed(damage, defense)
     best: BlockChoice | None = None
-    p = 0
+    p = free_perfect
     perfect_cost = 0
     while perfect_cost <= stamina:
         g = 0
         while perfect_cost + g * graze <= stamina:
             blocks = Blocks(p, g)
             out = resolve(damage, crit_dice, defense, armor, blocks, rules, limit)
-            cost = perfect_cost + g * graze  # == pricing.blocks(p, g, prior_perfect=...).total
+            cost = perfect_cost + g * graze  # == pricing.blocks(p, g, ...).total
             choice = BlockChoice(blocks, cost, out.injury, out.injury >= hp, w * out.injury + cost)
             if best is None or choice.key() < best.key():
                 best = choice
@@ -75,8 +77,8 @@ def best_block(
                 break
             g += 1
         p += 1
-        perfect_cost += pricing.perfect_block(prior_perfect + p, ranged, flat)
-    assert best is not None  # (0, 0) is always affordable
+        perfect_cost += pricing.perfect_block(prior_perfect + p - free_perfect, ranged, flat)
+    assert best is not None  # (free_perfect, 0) is always affordable
     return best
 
 
@@ -163,13 +165,14 @@ def block_options(
     ranged: bool = False,
     flat: bool = False,
     limit: int | None = None,
+    free_perfect: int = 0,
 ) -> BlockOptions:
     pricing = Pricing(rules)
     graze = rules.blocks.graze_cost
     affordable = 0
     points: list[tuple[int, int]] = []  # (cost, injury)
     needed = _needed(damage, defense)
-    p, perfect_cost = 0, 0
+    p, perfect_cost = free_perfect, 0
     while perfect_cost <= stamina:
         affordable += (stamina - perfect_cost) // graze + 1
         g = 0
@@ -180,7 +183,7 @@ def block_options(
                 break  # the rest of this row costs more for no less injury
             g += 1
         p += 1
-        perfect_cost += pricing.perfect_block(prior_perfect + p, ranged, flat)
+        perfect_cost += pricing.perfect_block(prior_perfect + p - free_perfect, ranged, flat)
     distinct = set(points)
     frontier = {
         (c, i)

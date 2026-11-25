@@ -39,7 +39,7 @@ class _Board:
         kind = d["event"]
         if kind == "Placed":
             self.pos[d["who"]] = (d["pos"][0], d["pos"][1])
-        elif kind == "Moved":
+        elif kind in ("Moved", "ForcedMoved"):
             self.pos[d["who"]] = (d["to"][0], d["to"][1])
         elif kind in ("Injured", "DyingRolled"):
             self.status[d["who"]] = d["status_after"]

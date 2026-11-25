@@ -1,0 +1,7 @@
+# Unarmored, unshielded Monk for packet 0.12.0's Poised Guard (requires no armor and no shield).
+# Same 5 EP budget as the sample fighter; longsword two-handed (1d10 + STR + FIN).
+level = 1
+attributes = { STR = 2, AGI = 1, FIN = 1 }
+cores = ["monk"]
+proficiencies = ["longsword"]
+loadouts.main = { weapon = "longsword", grip = "two", armor = "none" }

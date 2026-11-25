@@ -35,6 +35,8 @@ class ResourceRule(Component):
         "core_discount": frozenset({"none", "odd_intelligence"}),
         # Extra Ability Points from even Intelligence at levels 10/40/70, 20/50/80, 30/60/90.
         "bonus_ap": frozenset({"none", "even_intelligence"}),
+        # Martial class cores: strain-based (v0.9 to v0.11.6) or in-fight trade-offs (0.12.0).
+        "cores_mode": frozenset({"strain", "in_fight"}),
     }
 
     def hp_max(self, strength: int) -> int:
@@ -48,6 +50,15 @@ class ResourceRule(Component):
 
     def strain_max(self, level: int) -> int:
         raise NotImplementedError
+
+    def uses_strain(self) -> bool:
+        """Whether the strain pool exists (shelved in packet 0.12.0, Ledger H-10)."""
+        return True
+
+    def core_abilities_mode(self) -> str:
+        """'strain' (v0.9–v0.11.6) or 'in_fight' (0.12.0: Second Wind, Opportunist,
+        Press the Wound, Poised Guard)."""
+        return "strain"
 
     def expertise_budget(self, level: int) -> int:
         raise NotImplementedError
@@ -87,6 +98,8 @@ class V09Resources(ResourceRule):
     hp_per_even: int = 2
     core_discount: str = "none"
     bonus_ap: str = "none"
+    strain_enabled: bool = True  # shelved in packet 0.12.0 (Ledger H-10)
+    cores_mode: str = "strain"  # "in_fight" in packet 0.12.0
 
     def hp_max(self, strength: int) -> int:
         """v0.9: 6 + Strength. 0.9.1: 6 + 2 per even Strength; 0.9.2: 8 + 2 per even."""
@@ -102,7 +115,15 @@ class V09Resources(ResourceRule):
         return self.recovery_base + round_half_up(Fraction(level, self.recovery_level_div))
 
     def strain_max(self, level: int) -> int:
+        if not self.strain_enabled:
+            return 0
         return self.strain_base + round_half_up(Fraction(level, self.strain_level_div))
+
+    def uses_strain(self) -> bool:
+        return self.strain_enabled
+
+    def core_abilities_mode(self) -> str:
+        return self.cores_mode
 
     def expertise_budget(self, level: int) -> int:
         """4 + levels 1..L whose last digit grants Expertise (L1 gives 5)."""

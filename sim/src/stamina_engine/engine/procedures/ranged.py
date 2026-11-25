@@ -91,12 +91,15 @@ def cover_from(
     return cover(b.field, b.rules.grid, shooter.pos, spot, _others(b, shooter, target))
 
 
-def shot_targets(b: Battle, c: CombatantState) -> tuple[str, ...]:
+def shot_targets(
+    b: Battle, c: CombatantState, max_spend: int | None = None
+) -> tuple[str, ...]:
     """Enemies its ranged weapon can target now, if the shot itself is affordable."""
     weapon = c.gear.weapon
     if b.field is None or c.pos is None or weapon is None or not weapon.ranged:
         return ()
-    if b.pricing.ranged_attack(weapon.base, 0, c.trackers).total > c.stamina:
+    limit = c.stamina if max_spend is None else min(c.stamina, max_spend)
+    if b.pricing.ranged_attack(weapon.base, 0, c.trackers).total > limit:
         return ()
     out = []
     for o in b.state.enemies_of(c):
@@ -170,7 +173,13 @@ def _purchases(target: CombatantState, squares: int) -> int:
     return -(-squares // per)
 
 
-def shoot(b: Battle, shooter: CombatantState, target: CombatantState) -> None:
+def shoot(
+    b: Battle,
+    shooter: CombatantState,
+    target: CombatantState,
+    max_spend: int | None = None,
+    on_commit: Callable[[], None] | None = None,
+) -> bool:
     weapon = shooter.gear.weapon
     assert (
         weapon is not None and weapon.ranged and shooter.pos is not None and target.pos is not None
@@ -190,14 +199,18 @@ def shoot(b: Battle, shooter: CombatantState, target: CombatantState) -> None:
             point_blank_oas(b, shooter)
             if b.outcome is not None or not shooter.active:
                 b.ops.emit(ShotCancelled(shooter.id, target.id, "incapacitated"))
-                return
-            if b.pricing.ranged_attack(weapon.base, 0, shooter.trackers).total > shooter.stamina:
+                return False
+            limit_now = (
+                shooter.stamina if max_spend is None else min(shooter.stamina, max_spend)
+            )
+            if b.pricing.ranged_attack(weapon.base, 0, shooter.trackers).total > limit_now:
                 b.ops.emit(ShotCancelled(shooter.id, target.id, "can't afford the shot"))
-                return
+                return False
+        limit = shooter.stamina if max_spend is None else min(shooter.stamina, max_spend)
         quotes: list[Quote] = []
         while True:
             q = b.pricing.ranged_attack(weapon.base, len(quotes), shooter.trackers)
-            if q.total > shooter.stamina:
+            if q.total > limit:
                 break
             quotes.append(q)
         request = AimRequest(
@@ -212,9 +225,12 @@ def shoot(b: Battle, shooter: CombatantState, target: CombatantState) -> None:
             r.range_penalty(at_declaration, weapon.band_width),
         )
         aims = b.broker.aim(request)
+        if on_commit is not None:
+            on_commit()
         b.ops.emit(ShotDeclared(shooter.id, target.id, aims, band, int(level)))
         b.ops.spend(shooter, quotes[aims], "shot")
-        b.ops.use_weapon(shooter, bow=True)
+        if b.state.turn_of == shooter.id:
+            b.ops.use_weapon(shooter, bow=True)
         if aims < required:
             b.ops.emit(ShotMissed(shooter.id, target.id, f"{band} range needs {required} aims"))
         else:
@@ -275,6 +291,7 @@ def shoot(b: Battle, shooter: CombatantState, target: CombatantState) -> None:
                 lose_hp(b, target, outcome)
     if b.outcome is None and shooter.active and not b.rules.opportunity.point_blank_first():
         point_blank_oas(b, shooter, declared)
+    return True
 
 
 def dive(

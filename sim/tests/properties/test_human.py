@@ -22,6 +22,7 @@ ANSWERS = {  # tried in order until one is accepted
     "oa> ": ["0"],
     "aims> ": ["3", "2", "1", "0"],
     "move> ": ["p"],
+    "holds> ": ["none"],
 }
 REFUSED = "  That isn't one of the options"
 

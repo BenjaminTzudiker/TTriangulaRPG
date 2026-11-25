@@ -161,6 +161,13 @@ class Pricing:
             k += 1
         return k
 
+    def help_dying(self, trackers: Trackers = FRESH, stamina: int | None = None) -> Quote:
+        """Helping the Dying (packet 0.11.2): an action with base cost 5 + escalation."""
+        cost = self.rules.dying.help_cost_base() + self.rules.surcharge.surcharge(
+            trackers.actions_this_turn
+        )
+        return _ensure(Quote((cost,), Track.ON_TURN), stamina)
+
     def aim_step(self, prior_actions: int) -> int:
         return self.rules.ranged.aim_base() + self.rules.surcharge.surcharge(prior_actions)
 
@@ -430,16 +437,20 @@ class Pricing:
         prior_perfect: int = 0,
         ranged: bool = False,
         flat: bool = False,
+        free_perfect: int = 0,
     ) -> Quote:
         """Escalation applies within this attack only; it isn't part of any track.
 
         prior_perfect is how many perfect blocks already count toward the escalation. It is
         0 in v0.9, where the count resets every attack; block-reset variants carry it over.
+        free_perfect is perfect blocks already paid by held stamina (0.12.0 Monk Poised
+        Guard): they cost 0 ready stamina and don't raise the cost of remaining perfect blocks.
         """
         b = self.rules.blocks
+        paid_perfect = max(0, perfect - free_perfect)
         first = prior_perfect + 1
         perfect_parts = tuple(
-            self.perfect_block(i, ranged, flat) for i in range(first, first + perfect)
+            self.perfect_block(i, ranged, flat) for i in range(first, first + paid_perfect)
         )
         return _ensure(Quote(perfect_parts + (b.graze_cost,) * grazing), stamina)
 

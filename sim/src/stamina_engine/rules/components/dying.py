@@ -25,7 +25,13 @@ class DyingState:
 
 @dataclass(frozen=True)
 class DyingRule(Component):
-    cites = ("Packet: Dying and Death", "Packet: Will", "Ledger IN-1")
+    cites = (
+        "Packet: Dying and Death",
+        "Packet: Helping the Dying",
+        "Packet: Will",
+        "Packet: Intelligence",
+        "Ledger IN-1",
+    )
 
     def roll_dice(self) -> Dice | None:
         """The dice of the start-of-turn dying roll, or None."""
@@ -34,6 +40,22 @@ class DyingRule(Component):
     def roll_bonus(self, strength: int, will: int) -> int:
         """What the dying roll adds to its dice."""
         return 0
+
+    def helps_dying(self) -> bool:
+        """Can an ally tend a creature in System Shock on its turn (packet 0.11.2)?"""
+        return False
+
+    def help_cost_base(self) -> int:
+        """Base stamina cost of Helping the Dying (5 in packet 0.11.2)."""
+        return 5
+
+    def help_dice(self) -> Dice:
+        """Dice rolled to help a dying creature (2d12 in packet 0.11.2)."""
+        return Dice(2, 12)
+
+    def tend(self, state: DyingState, total: int) -> tuple[DyingState, bool]:
+        """Apply a Helping the Dying roll (2d12 + INT); returns (new_state, succeeded)."""
+        return state, False
 
     def take_damage(self, state: DyingState, damage: int) -> DyingState:
         raise NotImplementedError
@@ -49,7 +71,8 @@ class DyingRule(Component):
 @dataclass(frozen=True)
 class SystemShock(DyingRule):
     """Shock from negative HP; a 2d12 + STR (v0.9) or + WIL (0.9.1) roll each turn; death at
-    10 Shock or -10 HP."""
+    10 Shock or -10 HP. From 0.11.2 (help_enabled), an ally within 1 square can tend a creature
+    in System Shock as a base-5 action (2d12 + INT >= 10 + Shock drops Shock by 1)."""
 
     # The attribute the dying roll adds: Strength (v0.9) or Will (0.9.1).
     allowed = {"roll_attribute": frozenset({"strength", "will"})}
@@ -61,12 +84,24 @@ class SystemShock(DyingRule):
     death_shock: int = 10
     death_hp: int = -10
     roll_attribute: str = "strength"
+    help_enabled: bool = False  # packet 0.11.2: Helping the Dying action
 
     def roll_dice(self) -> Dice | None:
         return Dice(self.roll_count, self.roll_size)
 
     def roll_bonus(self, strength: int, will: int) -> int:
         return will if self.roll_attribute == "will" else strength
+
+    def helps_dying(self) -> bool:
+        return self.help_enabled
+
+    def tend(self, state: DyingState, total: int) -> tuple[DyingState, bool]:
+        if not state.in_shock or state.dead:
+            return state, False
+        if total >= self.bleed_below + state.shock:
+            shock = state.shock - 1
+            return replace(state, shock=shock, in_shock=shock > 0), True
+        return state, False
 
     def _check_death(self, state: DyingState) -> DyingState:
         if state.shock >= self.death_shock or state.hp <= self.death_hp:

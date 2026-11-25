@@ -78,47 +78,46 @@ def test_pinned_log_hashes(
 
 
 GRID_PINNED = [
-    ("archer_wall.toml", 2, "677e547e76b94ff25500147db2573ca31a7037b0da80c8a4e32708461340282f"),
+    ("archer_wall.toml", 2, "2d28d2f43ed73678980c72a60c3dfb777ae4717935e3bf1db13f35135f043588"),
     (
         "one_v_three_corridor.toml",
         0,
-        "3c3430b6e246418702232e1c555414187ec289bae004b2f7d8b409d0df5189ef",
+        "cc63f31fbaca6935bcf0fff17cd489aed2f3e5e0b66c037fbe1fb92c7356391d",
     ),
     (
         "reach_chokepoint.toml",
         3,
-        "f72c8277589662bcde08a9d540d8279e70dceb95edf5cf085edf3f612600cc78",
+        "7645928eb84a2779845001cb6a702a59acec11203c1923d912984ead6a9b4d0c",
     ),
     (
         "extraction_3v3.toml",  # objectives (O1)
         0,
-        "0b80a3db02b3e04fef511f7ddfa0644232bb6c76ae562d4d0c2bdb97864c0e07",
+        "cb657eed5197dfd7bb177a58226e51c5d1b9e360e3a851c023c99061f3a805b9",
     ),
     (
         "breakthrough_3v3.toml",  # objectives (O1)
         0,
-        "bbf696370297289cdbfffde260e3f6a1d5b77b390a960cc03cfa6f331db630c1",
+        "2326ac1978974cae314cd27fc7697392acac1d407286fb36ba9f73889ef19864",
     ),
     (
         "hold_hill_3v3.toml",  # objectives (O1)
         0,
-        "ff837c011f45dcf67e5a607c46038e66a0a6d9ecfa1925dbc5cab62f658d05b2",
+        "4a96c482bb3adff25994c2a3905e4d36b450ac18b534b2922d41a5b21aea2ff5",
     ),
     (
         "hold_the_door_1v3.toml",  # objectives (O1)
         0,
-        "b04abe9615b2d4afeeb39aacf60940e381abb6cd85c033be7138d5d363550adb",
+        "b2e485fb2869415d0ca4b9a028a0e691cacf456e77495db79808a2ab24f36ea3",
     ),
 ]
 
 
 @pytest.mark.parametrize(("scenario", "trial", "expected"), GRID_PINNED)
 def test_pinned_grid_log_hashes(scenario: str, trial: int, expected: str) -> None:
-    """Grid battles (tactical and scripted agents, OAs and off-turn windows), under each
-    scenario's own ruleset: the baseline (now v0.10.1). The hashes moved with the baseline
-    from v0.10.0 only because a log's first event names the RuleSet and its digest: the
-    fights themselves are the same, event for event (all bundled scenarios, 25 trials
-    each, 2026-11-13)."""
+    """Grid battles (tactical and scripted agents, OAs, holds and dash phases), under each
+    scenario's own ruleset: the baseline (now v0.12.0). The hashes moved with the baseline
+    from v0.10.1 to v0.12.0 (unified escalation, dashes, holds, corners, two-handed spear,
+    point-blank OAs at declaration, and 0.12.0 cores)."""
     from pathlib import Path
 
     from stamina_engine.experiments.runner import run_trial

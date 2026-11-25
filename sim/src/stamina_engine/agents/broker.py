@@ -19,6 +19,7 @@ from stamina_engine.agents.decisions import (
     DrawOption,
     EndTurn,
     Flee,
+    HelpDying,
     HoldRequest,
     Holds,
     Move,
@@ -103,6 +104,12 @@ class Broker:
         elif isinstance(answer, UseAbility):
             self._check_ability(req.who, req.abilities, answer)
             text, acted = f"ability {answer.name}", True
+        elif isinstance(answer, HelpDying):
+            if answer.target not in req.help_targets:
+                raise RulesError(
+                    f"{req.who} can't help {answer.target}; options {req.help_targets}"
+                )
+            text, acted = f"help {answer.target}", True
         elif isinstance(answer, Flee):
             if not req.can_flee:
                 raise RulesError(f"{req.who} can't flee from here")
@@ -173,7 +180,11 @@ class Broker:
 
     def blocks(self, req: BlocksRequest) -> Blocks:
         answer = self.agents[req.who].blocks(req)
-        if not isinstance(answer, Blocks) or answer.perfect < 0 or answer.grazing < 0:
+        if (
+            not isinstance(answer, Blocks)
+            or answer.perfect < req.free_perfect
+            or answer.grazing < 0
+        ):
             raise RulesError(f"{req.who} gave {answer!r} to a Blocks request")
         cost = self.pricing.blocks(
             answer.perfect,
@@ -181,6 +192,7 @@ class Broker:
             prior_perfect=req.prior_perfect,
             ranged=req.ranged,
             flat=req.flat_perfect,
+            free_perfect=req.free_perfect,
         )
         if cost.total > req.stamina:
             raise RulesError(f"{req.who}'s blocks cost {cost.total}, has {req.stamina}")
@@ -213,6 +225,18 @@ class Broker:
         elif isinstance(answer, UseAbility):
             self._check_ability(req.who, req.abilities, answer)
             text, acted = f"ability {answer.name}", True
+        elif isinstance(answer, Attack):
+            if answer.target not in req.targets:
+                raise RulesError(
+                    f"{req.who} can't opportunist-attack {answer.target}; options {req.targets}"
+                )
+            text, acted = f"attack {answer.target}", True
+        elif isinstance(answer, Shoot):
+            if answer.target not in req.shots:
+                raise RulesError(
+                    f"{req.who} can't opportunist-shoot {answer.target}; options {req.shots}"
+                )
+            text, acted = f"shoot {answer.target}", True
         elif isinstance(answer, Pass):
             text, acted = "pass", False
         else:

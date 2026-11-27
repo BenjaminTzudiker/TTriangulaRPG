@@ -16,7 +16,7 @@ This is the whole sequence for one attack, melee or ranged. All offensive steps 
 
 **Defense**
 
-4. Reactions, such as diving for cover against a ranged attack (see [[Cover]]).
+4. Reactions, such as diving for cover against a ranged attack (see [[Cover]]) or drawing a weapon (see [[Drawing Weapons]]).
 5. Declare perfect and grazing blocks.
 
 **Resolution**

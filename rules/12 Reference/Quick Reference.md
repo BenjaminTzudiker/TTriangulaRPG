@@ -15,7 +15,7 @@ next: "[[Defined Terms]]"
 
 ## Stamina Costs
 
-*Restates [[Melee Attacks]], [[Actions and Escalation]], [[Ranged Attacks]], [[Aim]], [[Dash]], [[Opportunity Attacks]], [[Holds]], [[Dying and Death]], [[Blocking]] and [[Drawing Weapons]].*
+*Restates [[Melee Attacks]], [[Actions and Escalation]], [[Ranged Attacks]], [[Aim]], [[Dash]], [[Opportunity Attacks]], [[Holds]], [[Dying and Death]], [[Blocking]], [[Drawing Weapons]] and [[Shields]].*
 
 **Escalation:** +1 per action you've taken since your last turn ended. It resets when your turn ends.
 
@@ -26,12 +26,14 @@ next: "[[Defined Terms]]"
 | Aim step | 1 + escalation | Yes |
 | Dash | 1 + escalation | Yes |
 | Help the dying | 5 + escalation | Yes |
+| Draw a normal weapon (after acting or off-turn) | Weapon base + escalation (unused hand(s)) | Yes |
+| Draw a quick-draw weapon (after acting or off-turn) | 1 (unused hand); 1 + escalation (used hand) | Used hand only |
+| Equip / remove a shield (on your turn) | 5 + escalation / 1 + escalation | Yes |
 | Opportunity attack | Weapon base, +1 per earlier step of that attack. At most 1 + 1 per odd Finesse, plus any stamina you hold on the target | No |
 | Avoid an opportunity attack | 1 per enemy, per square; 1 + the stamina it holds on you for the first square, if it holds you | No |
 | Hold | Ready stamina placed on enemies at the end of your turn, before you recover; held or returning stamina returns at the end of your next turn | No |
 | Perfect block | 1, 2, 3… within one attack | No; resets every attack |
 | Grazing block | 1 | No |
-| Draw a normal weapon between turns | 1 | No |
 
 ## Triangular Numbers
 
@@ -66,7 +68,7 @@ The running totals for perfect blocks, attribute costs and skill ranks.
 - **Even-value bonuses:**
   - Strength: +2 maximum HP each.
   - Agility: Melee and Ranged Defense. The medium and heavy armor columns apply here.
-  - Finesse: Melee Defense while wielding a proficient melee weapon. Armor doesn't change this.
+  - Finesse: Melee Defense while wielding a melee weapon. Armor doesn't change this.
   - Intelligence: extra Ability Points on a level schedule (see [[Intelligence]]).
 - **Every point:** Cunning adds 1 to initiative; Will adds 1 to the dying roll; Intelligence adds 1 to the roll to help the dying.
 - **Initiative ties:** the higher Agility + Cunning goes first.

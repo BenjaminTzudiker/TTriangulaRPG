@@ -14,14 +14,16 @@ An **action** is one of:
 - a **ranged shot** (see [[Ranged Attacks]]);
 - an **aim step** on a ranged attack (see [[Aim]]);
 - a **dash** (see [[Dash]]);
-- **helping the dying** (see [[Dying and Death#Helping the Dying|Helping the Dying]]).
+- **helping the dying** (see [[Dying and Death#Helping the Dying|Helping the Dying]]);
+- **drawing a weapon** after acting on your turn or outside your turn, except drawing a quick-draw weapon into an unused hand (see [[Drawing Weapons]]);
+- **equipping or removing a shield** (see [[Shields]]).
 
 Each action costs its base **+1 stamina for every action you've taken since your last turn ended**. That number is your **escalation**.
-- There's one escalation. It counts dashes you take outside your turn as well as everything you do on it, so dashing between turns makes your own turn more expensive.
+- There's one escalation. It counts actions you take outside your turn (dashes and off-turn weapon draws) as well as everything you do on it, so acting between turns makes your own turn more expensive.
 - **Reset:** it goes back to 0 when your turn ends, as you recover stamina and before the next dash phase. Nothing else resets it.
 - Before your first turn of a fight, it counts every action you've taken since the fight began.
 
-**Bases:** a melee attack step costs the weapon's base cost; a shot costs its shot cost; an aim step and a dash cost 1; helping the dying costs 5.
+**Bases:** a melee attack step costs the weapon's base cost; a shot costs its shot cost; an aim step, a dash, drawing a quick-draw weapon into a used hand, and removing a shield cost 1; drawing a normal weapon costs its base cost; helping the dying and equipping a shield cost 5.
 
 These aren't actions. They don't add to your escalation, and your escalation doesn't add to their cost:
 - your **free movement** (see [[Free Movement]]);
@@ -29,9 +31,9 @@ These aren't actions. They don't add to your escalation, and your escalation doe
 - **the free aim die** that comes with every shot (see [[Aim]]);
 - **paying to avoid an opportunity attack**, and **making one** (see [[Opportunity Attacks]]);
 - **setting a hold** (see [[Holds]]);
-- **drawing a weapon** (see [[Drawing Weapons]]).
+- **free drawing** on your turn before acting, and drawing a **quick-draw weapon** into an unused hand (see [[Drawing Weapons]]).
 
-Outside your turn, the only action you can take is a dash.
+Outside your turn, the only actions you can take are a dash and drawing a weapon (see [[Drawing Weapons]]).
 
 **Spells** each say how they work, including how they interact with escalation.
 

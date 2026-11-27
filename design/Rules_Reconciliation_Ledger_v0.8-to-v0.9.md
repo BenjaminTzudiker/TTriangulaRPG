@@ -423,6 +423,8 @@
 - **Packet:** Matches. **Missing:** the below-0 Agility rule.
 - **Wording note:** you prefer "you have a base 1… which you lose if your Agility goes below 0" over "nonnegative Agility grants +1".
 - **Evidence:** [p.1469–1470]. Ruling B2 (your ruling, 2026-11-01).
+- **Later changes:**
+  - *Packet 0.12.1 (your calls, 2026-11-25 and 2026-11-26):* weapon proficiencies (**H-11**) and dual wielding (**H-12**) shelved; the melee weapon and even-Finesse Melee Defense bonuses apply to any melee weapon, and a second melee weapon no longer adds +1 Melee Defense.
 
 ### DF-2 Ranged Defense
 - **Firmness:** Locked (structure). Intent locked, numbers placeholder (cover values).
@@ -870,6 +872,8 @@
 - **Status:** DECISION (exploratory)
 - **Packet:** **Contradicts:** the packet has a global "hands occupied" rule and lacks the dagger/shortsword exception.
 - **Evidence:** [p.1480], [p.1484]. Ruling B7 and your weapon ruling (your ruling, 2026-11-01).
+- **Later changes:**
+  - *Packet 0.12.1 (your call, 2026-11-26):* unified **used hands** (attacking, shooting, casting, equipping/removing a shield or interacting with an object commits that hand to that thing until the start of your next turn; blocking doesn't); post-action drawing on your turn follows the same rules as off-turn drawing (in a dash phase or in step 4, Reactions, of an attack); normal off-turn/post-action drawing is an action costing weapon base + escalation (requiring unused drawing hand(s)); Quick-draw costs a flat 1 stamina (not an action) in an unused hand, or 1 + escalation (an action) in a used hand.
 
 ### EQ-4 Dagger/shortsword quick-draw → merged into EQ-3
 - **Status:** Superseded. The earlier rule (draw when attacked for 1 stamina [p.1480]) is replaced by EQ-3's "free to draw between turns".
@@ -881,6 +885,9 @@
 - **Status:** DECISION
 - **Packet:** Matches.
 - **History:** Main-hand shield rule scrapped [p.1481].
+- **Later changes:**
+  - *Packet 0.10.0 (your ruling, 2026-11-11):* lowered from +2/+2 to +1 Melee Defense and +1 Ranged Defense.
+  - *Packet 0.12.1 (your call, 2026-11-26):* added a Strength 2 requirement (−1 AGI and −1 FIN per STR short, applied separately from armor's), made equipping a shield a base-5 action and removing one a base-1 action (both on your turn only; can't be dropped freely), and removed the blanket ban on casting spells while using a shield.
 
 ---
 
@@ -905,6 +912,7 @@
 - **Evidence:** [p.1472–1473] and your spellcasting ruling (your ruling, 2026-11-01).
 - **Later changes:**
   - *Packet 0.12.0:* spells no longer list a strain cost or strain overage (strain shelved as **H-10**); limits across fights or outside combat are **TODO**.
+  - *Packet 0.12.1 (your call, 2026-11-26):* removed the blanket ban on casting spells while using a shield (shields now require Strength 2 and occupy one hand). Added exploratory directions for 1H vs. 2H spells, multi-action spellcasting, and exploring an armor-casting stamina surcharge.
 
 ---
 
@@ -953,6 +961,8 @@
 - **Status:** DECISION (mechanism open)
 - **Packet:** **Contradicts:** the packet has 10-level tiers and free tree selection.
 - **Evidence:** [p.1665], [p.1673], [p.1687]. Rulings A14, B9, B12 (your ruling, 2026-11-01).
+- **Later changes:**
+  - *Packet 0.12.1 (your call, 2026-11-25):* weapon proficiencies shelved (**H-11**); core abilities no longer grant weapon proficiencies.
 
 ### CP-3 Additional trees (multiclassing) → merged into CP-2
 - **Status:** Superseded by CP-2. Each owned core ability makes other core abilities cost +1 AP.
@@ -988,6 +998,8 @@
 - **Status:** DECISION
 - **Packet:** Mostly matches. **Missing:** which currency buys what, and the tier gating.
 - **Evidence:** "Many of these will be purchased with ability points, but some might be purchased with expertise points (like weapon proficiencies that aren't part of your class) or skill points (ribbon abilities, and abilities that buy versatility under an already purchased ability…)" [p.1473]. "spend one or more ability points to buy a 'battlemaster maneuver die' ability + a small number of maneuver choices, and then you could spend skill points to buy extra maneuver choices" [p.1054]
+- **Later changes:**
+  - *Packet 0.12.1 (your call, 2026-11-25):* weapon proficiencies shelved (**H-11**); Expertise now buys attributes only.
 
 ### CP-7 Class core abilities
 - **Firmness:**
@@ -1556,6 +1568,20 @@ These ideas are deliberately **out of the current rules**, but they're strong en
   - Exploratory strain-free cores can instead pay inside the fight (through ready stamina, held stamina, escalation or timing).
 - **What would bring it back:** magic that needs a limit across fights that time, rituals, materials or HP can't provide, or abilities that truly need a per-day budget.
 - **Sources:** CR-4, CR-5, CP-7, CP-8, MG-2; `claude/Dropping_Strain_2026-11-21.md`; design chats 2026-11-21 to 2026-11-24. Now in the rules note Not in This Version.
+
+### H-11 Weapon proficiencies
+- **Why it's shelved:** your call (2026-11-25), implemented in packet 0.12.1.
+- **What it was for:** gating which weapons a character was trained with (granted by class core abilities, or bought with Expertise outside your class; proficiency lists were TODO, A12). In packet 0.12.0, proficiency gated Melee Defense's weapon, second-weapon and even-Finesse bonuses, plus the exploratory Rogue Tier-1 candidate Dual Wielding, while leaving attacks, ranged weapons, armor and shields untouched.
+- **What replaces it:** treating weapon competence as investing Expertise in the attributes a weapon scales with, alongside weapon requirements (such as bow Strength requirements) and weapon-style class abilities. Holding any melee weapon now grants Melee Defense's weapon bonuses (subject to Finesse below 0), and Expertise buys attributes only.
+- **What would bring it back:** exotic or technical weapons that attributes and class abilities can't cleanly differentiate, or playtesting showing that ungated weapon access blurs martial and non-martial roles.
+- **Sources:** A12, DF-1, CP-2, CP-6; design chat 2026-11-25. Now in the rules note Not in This Version.
+
+### H-12 Dual wielding
+- **Why it's shelved:** your call (2026-11-26), implemented in packet 0.12.1. You noted that dual wielding has a reasonable chance of returning in some form (possibly in a different shape than the shelved version).
+- **What it was for:** a universal +1 Melee Defense from carrying a second melee weapon in your other hand (no bonus to Ranged Defense, DF-1), plus the exploratory Rogue Tier-1 Dual Wielding (separate escalation counters per light melee weapon, forfeiting the +1 Melee Defense when attacking with both hands) and Tier-3 Paired Blades (keeping the +1 Melee Defense) candidates.
+- **What was found:** without general off-hand attacking rules, a second melee weapon acted mostly as a passive +1 Melee Defense stat stick. After 0.10.0 cut shields from +2/+2 to +1/+1, that matched a shield's Melee Defense with none of a shield's restrictions, creating several exploits and distortions: (1) Monks hitting MD 4 alongside Poised Guard (which only banned armor and shields); (2) casters bypassing the no-shield rule via a second quick-draw blade between turns or holding two blades on non-casting turns; (3) versatile 2H users (longsword, reach-2 spear) and archers pulling a free second quick-draw blade between turns for MD 3; (4) 1H longsword + off-hand shortsword matching shield MD while also granting FIN 0 opportunity attacks and bypassing any future Shield Strength requirement; and (5) strictly penalizing single-blade concepts with an empty off hand.
+- **What would bring it back:** a dedicated two-weapon fighting design (possibly quite different from this version) that gives holding a second weapon a clear tactical role without bypassing shields, Monk limits or casting restrictions.
+- **Sources:** DF-1; design chat 2026-11-26. Now in the rules notes Not in This Version and Earlier Candidate Abilities.
 
 ---
 

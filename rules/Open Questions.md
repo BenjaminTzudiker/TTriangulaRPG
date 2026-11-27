@@ -19,12 +19,11 @@ next: "[[Not in This Version]]"
 - Cover in detail: [[Cover]] defers to 5e. Unwritten here: that creatures give half cover (the engine records this as ruled), what "fully behind" means for a low wall, total cover, and line of sight.
 - Moving through other creatures' squares: allies, enemies and downed creatures. Nothing says whether you can, or what it costs.
 - Doing something other than an action on your turn, such as picking up an item or opening a door: nothing says whether it costs stamina or counts toward escalation.
-- Attacking with a second weapon: one in your other hand adds to Melee Defense (see [[Defenses]]), and [[Candidate Abilities#Dual Wielding|Dual Wielding]] (exploratory, Rogue Tier 1) proposes an off-hand escalation rule that forfeits that bonus when used, but general off-hand attacking without that ability is still unwritten.
 - What a creature threatens when it holds only a bow, or no weapon: [[Opportunity Attacks]] counts squares in reach, and neither has a stated reach.
 - Surprise: what a creature that hasn't noticed its attacker can do, in a game where acting first is worth this much.
 - What being incapacitated still allows, such as speaking, crawling, or being carried or dragged by an ally.
 - Shooting into a melee: whether a shot at an enemy fighting your ally risks hitting the ally. Today the only cost is the cover the ally gives.
-- Drawing Weapons' gaps: what each creature has in hand when a fight starts; where a bow goes when you draw a blade between turns; whether you can draw on your own turn after using a weapon; whether a shield counts as a normal weapon to draw; whether a second quick-draw blade should add Melee Defense for free; and the same quick-draw exception for a hand used for somatic casting.
+- Drawing Weapons' gaps: what each creature has in hand when a fight starts; whether off-turn drawing should move earlier (for example, to when targeted rather than after seeing the roll); and whether quick-draw into a used hand should still apply to somatic casting once two-handed spells exist.
 - What a round is, and when a fight starts. The packet uses "round" without defining it and doesn't say when initiative is rolled. The designer's answers in the 2026-11-20 initiative chat (as the chat's notes record them, `claude/Initiative_Part1_2026-11-20.md`): a round is one pass through the initiative order, and a fight starts when the GM declares it, ideally only when something needs resolving in order. Not in the rules text yet.
 - The TODO details marked through this packet.
 
@@ -39,7 +38,6 @@ next: "[[Not in This Version]]"
 
 **Characters**
 - Skills and their list.
-- Proficiency lists.
 - The remaining weapons, and armor tables.
 - Class trees and their abilities.
 - Magic: its scope, spells and progression.

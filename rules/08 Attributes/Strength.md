@@ -17,4 +17,4 @@ Strength is physical power.
 
 **Every point:**
 - Adds to damage on weapons that use it.
-- Reduces armor penalties (see [[Armor]]).
+- Reduces armor and shield penalties (see [[Armor]] and [[Shields]]).

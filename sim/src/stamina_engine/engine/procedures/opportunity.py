@@ -180,9 +180,16 @@ def opportunity_attack(
                 b.ops.spend(attacker, Quote((quote.total - used,), quote.track), "opportunity")
         else:
             b.ops.spend(attacker, quote, "opportunity")
+        tag = f"weapon:{weapon.name}"
+        if answer.weapon == "off_hand":
+            b.ops.use_hands(attacker, off=tag)
+        else:
+            b.ops.use_hands(
+                attacker, main=tag, off=tag if weapon.grip == "two" else None
+            )
         oa.spend(attacker.id, quote.total - used)
         attack = roll(b, attacker, weapon, answer.steps)
-        reactions(b, attacker, target)
+        reactions(b, attacker, target, attack, weapon, allow_withdrawal=False)
         blocks = declare_blocks(b, attacker, target, attack, armor=faced_armor(target, weapon))
         outcome = armor_and_crits(b, attacker, target, attack, blocks, pierce=weapon.piercing)
         lose_hp(b, target, outcome)

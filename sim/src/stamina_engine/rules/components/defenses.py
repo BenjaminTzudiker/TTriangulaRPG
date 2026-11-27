@@ -20,9 +20,14 @@ class DefenseRule(Component):
         "Ledger DF-1",
         "Ledger DF-2",
         "Ledger DF-3",
+        "Ledger H-11",
+        "Ledger H-12",
         "Review F3",
         "Review F4",
     )
+
+    def requires_proficiency(self) -> bool:
+        return True
 
     def melee(
         self,
@@ -64,6 +69,12 @@ class V09Defenses(DefenseRule):
     # unarmored or in light armor, every 2nd in medium, every 3rd in heavy).
     two_hander_bonus: int = 0
     agility_split: bool = False
+    # Packet 0.12.1 (Ledger H-11): weapon proficiencies shelved; any melee weapon grants
+    # the weapon and even-Finesse Melee Defense bonuses. Default True keeps earlier digests.
+    require_proficiency: bool = True
+
+    def requires_proficiency(self) -> bool:
+        return self.require_proficiency
 
     def melee(
         self,

@@ -511,7 +511,27 @@ def v0_12_0() -> RuleSet:
     )
 
 
-BASELINE = "v0.12.0"
+def v0_12_1() -> RuleSet:
+    """Packet 0.12.1: 0.12.0 with weapon proficiencies shelved (Ledger H-11), dual wielding
+    shelved (Ledger H-12, no second-weapon +1 Melee Defense), shields requiring Strength 2
+    (equipment table v0_12_1) with base-5 equip and base-1 remove actions on your turn, and
+    unified used-hand drawing rules (off-turn / post-action normal draws as actions costing
+    weapon base + escalation into unused hands; Quick-draw flat 1 stamina in unused hands or
+    1 + escalation as an action in used hands; off-turn drawing in dash phases and step 4
+    Reactions)."""
+    base = v0_12_0()
+    assert isinstance(base.defenses, V09Defenses)
+    assert isinstance(base.ranged, V09Ranged)
+    return base.with_(
+        name="v0.12.1",
+        defenses=dataclasses.replace(
+            base.defenses, require_proficiency=False, second_weapon_bonus=0
+        ),
+        ranged=dataclasses.replace(base.ranged, draw_mode="v0_12_1", draw_in_reactions=True),
+    )
+
+
+BASELINE = "v0.12.1"
 """The preset the engine's scenarios, suites and defaults use: the current packet. Moving the
 baseline to a new packet version is this one line (and the pinned hashes it moves)."""
 
@@ -533,6 +553,7 @@ PRESETS: dict[str, Callable[[], RuleSet]] = {
     "v0.11.5": v0_11_5,
     "v0.11.6": v0_11_6,
     "v0.12.0": v0_12_0,
+    "v0.12.1": v0_12_1,
     "review-candidate": review_candidate,
     "review-sim": review_sim,
     "exp-0.11.0": exp_0_11_0,

@@ -28,6 +28,7 @@ from stamina_engine.agents.decisions import (
     OATake,
     OffTurnMove,
     Pass,
+    ReactDrawRequest,
     Shoot,
     Surrender,
     TakeOA,
@@ -366,6 +367,29 @@ class Broker:
             req.observation.round,
             req.who,
             "dive",
+            req.option_count,
+            None,
+            text,
+            acted,
+            req.context,
+        )
+        return answer
+
+    def react_draw(self, req: ReactDrawRequest) -> Draw | Pass:
+        """Step 4 (Reactions) off-turn draw (packet 0.12.1). Agents without react_draw pass."""
+        fn = getattr(self.agents[req.who], "react_draw", None)
+        answer = fn(req) if fn is not None else Pass()
+        if isinstance(answer, Draw):
+            self._check_draw(req.who, req.draws, answer)
+            text, acted = f"draw {answer.loadout}", True
+        elif isinstance(answer, Pass):
+            text, acted = "pass", False
+        else:
+            raise RulesError(f"{req.who} gave {answer!r} to a ReactDrawRequest")
+        self._record(
+            req.observation.round,
+            req.who,
+            "react_draw",
             req.option_count,
             None,
             text,

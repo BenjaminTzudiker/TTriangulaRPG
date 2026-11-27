@@ -52,6 +52,7 @@ ANSWER_HELP = {
     "avoid": "ids to pay off, all, or none",
     "take_oa": "a number of steps (0 declines), optionally after the weapon (off_hand 1)",
     "react": "m X,Y (or an exact path m X,Y X,Y ...), or p to stay",
+    "react_draw": "d NAME draw, or p to pass",
     "ability": "u NAME, or p",
 }
 
@@ -149,6 +150,7 @@ _AGENT_METHODS = frozenset(
         "take_oa",
         "aim",
         "dive",
+        "react_draw",
         "ability",
         "holds",
     }

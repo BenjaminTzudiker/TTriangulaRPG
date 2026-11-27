@@ -2,7 +2,7 @@
 
 For design chats about this game: in the claude.ai project "Tactical fantasy TTRPG", or with any other assistant that can clone the repo and run Python. Whoever changes the engine's commands or install steps keeps this file current (see `AGENTS.md`).
 
-**Status:** milestones M0–M5 are done (tags `m0`–`m5`): the turn engine, maps and movement, opportunity attacks, holds, forced movement, ranged attacks, cover and diving, drawing weapons, equipment variant tables, NPC profiles, fleeing and surrendering, the full phase suite, the 0.12.0 strain-free class cores (plus legacy strain cores for earlier presets), playing a side yourself, and the load report. M5's gate still needs one session played by a person. Packet versions 0.9.1 through 0.12.0 are presets (`v0.9.1` … `v0.12.0`), with **`v0.12.0`** as the baseline (below).
+**Status:** milestones M0–M5 are done (tags `m0`–`m5`): the turn engine, maps and movement, opportunity attacks, holds, forced movement, ranged attacks, cover and diving, drawing weapons and step-4 reaction draws, equipment variant tables, NPC profiles, fleeing and surrendering, the full phase suite, the 0.12.0 strain-free class cores (plus legacy strain cores for earlier presets), playing a side yourself, and the load report. M5's gate still needs one session played by a person. Packet versions 0.9.1 through 0.12.1 are presets (`v0.9.1` … `v0.12.1`), with **`v0.12.1`** as the baseline (below).
 
 ## Purpose: evidence, not the answer
 
@@ -31,9 +31,9 @@ These are the simplifications most likely to matter to design advice. Name the r
 - **Scenarios are chosen, not representative.** Maps, rosters and builds come from a small library (mostly level 1, a few at 30 and 99). A result describes that scenario, not encounters in general.
 
 **Rules coverage**
-- **Packet 0.12.0 core rules are implemented and are the baseline (`v0.12.0`).** Unified escalation, dashes and dash phases (`0.11.0`), holds, OA caps, skipping avoidance for unable enemies and two-handed spear reach (`0.11.1`), no-cut wall corners, `AGI + CUN` then `d12` initiative tiebreak and Helping the Dying (`0.11.2`), shooting in melee provoking at declaration (`0.11.4`), 0-stamina hold ending and Forced Movement (`0.11.6`), and shelving Strain with the four new martial class cores (`Second Wind`, `Opportunist`, `Press the Wound`, `Poised Guard`, `0.12.0`) are all in `v0.12.0`.
-- **Exploratory candidate abilities (0.11.2–0.12.0) are deferred:** the 19 exploratory candidates in `Candidate Abilities` aren't implemented yet. The three earlier candidates (`heavy_swing`, legacy `riposte`, `tactical_withdrawal`) remain for earlier-version parity.
-- **Engine conventions on 0.11.x–0.12.0:** shooters cancel a point-blank shot only when incapacitated or unable to afford it (never by choice or by drawing to block); engine agents don't tend dying allies mid-fight; tactical agents use a simple hold heuristic (`holds = "auto"`, opt-out with `holds = "none"`) while scripted agents stay hold-free except for a 0.12.0 Monk with `abilities = "use"`.
+- **Packet 0.12.1 core rules are implemented and are the baseline (`v0.12.1`).** Unified escalation, dashes and dash phases (`0.11.0`), holds, OA caps, skipping avoidance for unable enemies and two-handed spear reach (`0.11.1`), no-cut wall corners, `AGI + CUN` then `d12` initiative tiebreak and Helping the Dying (`0.11.2`), shooting in melee provoking at declaration (`0.11.4`), 0-stamina hold ending and Forced Movement (`0.11.6`), shelving Strain with the four new martial class cores (`Second Wind`, `Opportunist`, `Press the Wound`, `Poised Guard`, `0.12.0`), and shelving weapon proficiencies and dual wielding, shield Strength 2 and equip/remove actions, unified used hands, paid post-action / off-turn drawing, and step-4 reaction draws (`0.12.1`) are all in `v0.12.1`.
+- **Exploratory candidate abilities (0.11.2–0.12.0) are deferred:** the 17 exploratory candidates in `Candidate Abilities` aren't implemented yet. The three earlier candidates (`heavy_swing`, legacy `riposte`, `tactical_withdrawal`) remain for earlier-version parity.
+- **Engine conventions on 0.11.x–0.12.1:** shooters cancel a point-blank shot when incapacitated, unable to afford it, or after drawing a weapon in step 4 of a point-blank OA (never by choice); `TacticalAgent` draws in step 4 reactions when higher defense saves more on the rolled attack than the draw cost + escalation; engine agents don't tend dying allies mid-fight; tactical agents use a simple hold heuristic (`holds = "auto"`, opt-out with `holds = "none"`) while scripted agents stay hold-free except for a 0.12.0+ Monk with `abilities = "use"`.
 - **Out of scope:** spells and spell lists, conditions, grappling, extended contests, skill checks, out-of-combat rules, and advancement beyond derived numbers.
 - **Silent readings.** Where the packet is unclear, the engine picks a reading recorded in the Assumptions register (`sim/docs/ENGINE_PLAN.md`). A result can hinge on one; check the register before trusting a surprising number.
 
@@ -42,7 +42,7 @@ These are the simplifications most likely to matter to design advice. Name the r
 
 ## Packet versions
 
-Each packet version is a preset. **`v0.12.0` (packet 0.12.0: unified escalation, dashes, holds, corners, point-blank OAs at declaration, strain shelved, and the four in-fight martial class cores) is the baseline**: the library's scenarios and the milestone suites name it, and it's what a scenario without a ruleset, a sweep without rulesets and `se table` use. Its equipment is the `v0_12` table (0.10.0's bows and +1 / +1 shield, plus 0.11.1's spear reach only in two hands): a scenario that names no `equipment` gets its RuleSet's own (`v0_12` from `v0.11.1` on, `v0_10` for `v0.10.0`–`v0.10.1` and `exp-0.11.*`, `v0_9` for earlier presets or `minus_d6` range bands), and the engine refuses to mix 0.10.0's linear bands with v0.9's bows, or the reverse. Earlier presets (`v0.9` through `v0.10.1`, `exp-0.11.*`, `review-sim`, `review-candidate`) keep their exact rules and digests so earlier results reproduce. Name an earlier preset to reproduce an older result: `se table 5 --ruleset v0.9`, or `se compare scenario.toml --a v0.10.1 --b v0.12.0`. Every report in `sim/reports/` names the preset it ran under in its stamp.
+Each packet version is a preset. **`v0.12.1` (packet 0.12.1: unified escalation, dashes, holds, corners, point-blank OAs at declaration, strain shelved, the four in-fight martial class cores, weapon proficiencies and dual wielding shelved, shield Strength 2 and equip/remove actions, and unified hand-use drawing with step-4 reaction draws) is the baseline**: the library's scenarios and the milestone suites name it, and it's what a scenario without a ruleset, a sweep without rulesets and `se table` use. Its equipment is the `v0_12_1` table (`v0_12` plus shield Strength 2 requirement): a scenario that names no `equipment` gets its RuleSet's own (`v0_12_1` from `v0.12.1` on, `v0_12` for `v0.11.1`–`v0.12.0`, `v0_10` for `v0.10.0`–`v0.10.1` and `exp-0.11.*`, `v0_9` for earlier presets or `minus_d6` range bands), and the engine refuses to mix 0.10.0's linear bands with v0.9's bows, or the reverse. Earlier presets (`v0.9` through `v0.12.0`, `exp-0.11.*`, `review-sim`, `review-candidate`) keep their exact rules and digests so earlier results reproduce. Name an earlier preset to reproduce an older result: `se table 5 --ruleset v0.9`, or `se compare scenario.toml --a v0.12.0 --b v0.12.1`. Every report in `sim/reports/` names the preset it ran under in its stamp.
 
 | Preset | Rules (see `rules/CHANGELOG.md`) |
 |---|---|
@@ -57,7 +57,8 @@ Each packet version is a preset. **`v0.12.0` (packet 0.12.0: unified escalation,
 | `v0.11.3` | Same fight rules as 0.11.2 (shelves Dodge Defense) |
 | `v0.11.4` | 0.11.3, with shooting in melee provoking at target declaration, before paying (`opportunity.point_blank_eligible = "at_declaration"`) |
 | `v0.11.5`, `v0.11.6` | Same core fight rules as 0.11.4 (0-stamina hold ending and Forced Movement built in; exploratory candidate abilities deferred) |
-| `v0.12.0` | 0.11.6, with Strain shelved (`resources.strain_enabled = false`) and the four in-fight martial class cores (`resources.cores_mode = "in_fight"`: `Second Wind`, `Opportunist`, `Press the Wound`, `Poised Guard`). **The baseline** |
+| `v0.12.0` | 0.11.6, with Strain shelved (`resources.strain_enabled = false`) and the four in-fight martial class cores (`resources.cores_mode = "in_fight"`: `Second Wind`, `Opportunist`, `Press the Wound`, `Poised Guard`) |
+| `v0.12.1` | 0.12.0, with weapon proficiencies shelved (`defenses.require_proficiency = false`), universal second-weapon `+1` Melee Defense shelved (`defenses.second_weapon_bonus = 0`), shield Strength 2 requirement (`equipment = "v0_12_1"`), on-turn base-5 shield equip / base-1 shield remove actions, unified per-hand use, paid post-action / off-turn drawing (`ranged.draw_mode = "v0_12_1"`), and step-4 reaction draws (`ranged.draw_in_reactions = true`). **The baseline** |
 | `v0.10.0-cover-only` | Not a packet version: the "reaction changes cover only" package. 0.10.0, with the range penalty and Melee vs Ranged Defense judged where the target was when the shot was declared (`ranged.range_measured = "declaration"`, `ranged.defense_timing = "declaration"`); a reaction still earns cover and the +1 |
 | `v0.10.0-crit-c-prime`, `v0.10.0-crit-c` | Not packet versions: the solver study's crit rules C′ (aim dice crit only on a 6, at most one critical die a shot) and C (every die can crit, Finesse-widened, at most one a shot). 0.10.0 itself is rule A |
 
@@ -145,7 +146,7 @@ The engine measures whatever fight you give it. An objective only produces an in
    - focus fire (F6): a lone defender holding a corridor;
    - retreat economics (Review Addendum 2): an escape that has to break contact, with pursuers able to reach the route;
    - stamina banking: a hold scored only at the deadline (`score = "final"`).
-2. **Use the current rules.** Name the baseline, `ruleset = "v0.12.0"` (or leave the ruleset out). The `v0.9` preset predates packet 0.9.1, and `v0.10.1` predates unified escalation, dashes and holds. Movement decides most objective fights, so this matters more here than anywhere else.
+2. **Use the current rules.** Name the baseline, `ruleset = "v0.12.1"` (or leave the ruleset out). The `v0.9` preset predates packet 0.9.1, and `v0.10.1` predates unified escalation, dashes and holds. Movement decides most objective fights, so this matters more here than anywhere else.
 3. **Do the movement arithmetic.** Under current rules a creature covers its free Movement (5, +1 per odd Agility) plus 1 square per stamina it spends, all on its own turn. It can also move off-turn, at escalating prices. With `se map show <map>`, measure each pursuer's distance to the goal and each denier's distance to the intercept squares.
    - If a pursuer can reach the goal on its first turn before any denier can engage it, the fight is a race decided by initiative.
    - That is a fine thing to measure on purpose, but not by accident.
@@ -277,7 +278,7 @@ print("\n".join(summarize(run_scenario(s, trials=500).fights).lines()))
 The core pieces for single exchanges:
 
 ```python
-from stamina_engine.rules.ruleset import preset, load_ruleset   # presets: "v0.9" ... "v0.12.0", the v0.10.0-* packages, "review-candidate", "review-sim"
+from stamina_engine.rules.ruleset import preset, load_ruleset   # presets: "v0.9" ... "v0.12.1", the v0.10.0-* packages, "review-candidate", "review-sim"
 from stamina_engine.model.build import load_build        # library builds in src/stamina_engine/data/builds
 from stamina_engine.model.derive import derive           # Build x RuleSet -> CombatProfile
 from stamina_engine.rules.pricing import Pricing, Trackers
@@ -285,13 +286,13 @@ from stamina_engine.rules.block_solver import best_block, cheapest_zero_injury
 from stamina_engine.analysis import dist                 # exact (total, crit dice) distributions
 from stamina_engine.provenance import collect            # the stamp to quote with results
 
-rules = preset("v0.12.0")                               # the baseline
+rules = preset("v0.12.1")                               # the baseline
 fighter = derive(load_build("l1_sample"), rules)
 Pricing(rules).melee_attack(base=2, steps=3).total      # 9
 print(collect(rules).text())
 ```
 
-`review-sim` reproduces the review's simulator, quirks included; use `v0.12.0`, the current packet (or your variant on it), for design questions. `uv run pytest` takes under a minute; `uv run pytest -m slow` adds the full-count oracle parity runs.
+`review-sim` reproduces the review's simulator, quirks included; use `v0.12.1`, the current packet (or your variant on it), for design questions. `uv run pytest` takes under a minute; `uv run pytest -m slow` adds the full-count oracle parity runs.
 
 ## Trying a rule change
 

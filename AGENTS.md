@@ -45,7 +45,7 @@ Paths that start with `claude/` (`claude/Hold_Rule_Study_2026-11-17.md`), cited 
 - `mypy --strict` clean, `ruff` clean, `pytest` green before any milestone is called done.
 - Integer arithmetic for all game math. The packet's "round" means round half up.
 - Engine code imports only the standard library (pyarrow only inside `--out`), so chats that can't reach PyPI run it with `PYTHONPATH=src python3 -m stamina_engine`. Tests that need an optional package skip without it.
-- The baseline preset is `BASELINE` in `rules/ruleset.py` (`v0.12.0`, packet 0.12.0, ruled 2026-11-24). Its equipment is the `v0_12` table (0.10.0's bows and shield, plus 0.11.1's two-handed spear reach): a scenario or table that names no equipment gets its RuleSet's own (`model.derive.equipment_for`). Scenarios, suites and defaults use it; tests that reproduce the review name `v0.9`, and the parity suite uses `review-sim`.
+- The baseline preset is `BASELINE` in `rules/ruleset.py` (`v0.12.1`, packet 0.12.1, ruled 2026-11-26). Its equipment is the `v0_12_1` table (`v0_12` plus shield Strength 2 requirement): a scenario or table that names no equipment gets its RuleSet's own (`model.derive.equipment_for`). Scenarios, suites and defaults use it; tests that reproduce the review name `v0.9`, and the parity suite uses `review-sim`.
 - A released component default never changes: the RuleSet digest leaves defaults out, so changing one would change rules under an unchanged digest. Set a new value in the preset instead; `tests/golden/component_defaults.json` pins them.
 
 ## Commands

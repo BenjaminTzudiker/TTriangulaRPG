@@ -17,6 +17,7 @@ from stamina_engine.agents.decisions import (
     BlocksRequest,
     Commitment,
     DiveRequest,
+    Draw,
     EndTurn,
     HoldRequest,
     Holds,
@@ -24,6 +25,7 @@ from stamina_engine.agents.decisions import (
     OATake,
     OffTurnMove,
     Pass,
+    ReactDrawRequest,
     TakeOA,
     TurnAnswer,
     TurnCommand,
@@ -44,6 +46,7 @@ class Listed:
     oas: list[OATake] = field(default_factory=list)
     aims: list[int] = field(default_factory=list)
     dives: list[MoveAnswer] = field(default_factory=list)
+    react_draws: list[Draw | Pass] = field(default_factory=list)
     uses: list[UseAbility | Pass] = field(default_factory=list)  # ability windows
     hold_answers: list[Holds] = field(default_factory=list)
     seen: list[str] = field(default_factory=list)  # each request's context, for tests
@@ -85,6 +88,11 @@ class Listed:
         self.requests.append(request)
         self.seen.append(" > ".join(request.context))
         return self.dives.pop(0) if self.dives else Pass()
+
+    def react_draw(self, request: ReactDrawRequest) -> Draw | Pass:
+        self.requests.append(request)
+        self.seen.append(" > ".join(request.context))
+        return self.react_draws.pop(0) if self.react_draws else Pass()
 
     def ability(self, request: AbilityRequest) -> UseAbility | Pass:
         self.requests.append(request)

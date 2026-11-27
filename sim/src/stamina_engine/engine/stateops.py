@@ -190,6 +190,7 @@ class StateOps:
         c.banked = 0
         c.used_weapon = False
         c.bow_hands = False
+        c.used_hands = (None, None)
         c.step_costs = []
         c.press_wound_used = False
         self.state.turn_of = c.id
@@ -260,12 +261,34 @@ class StateOps:
 
     # --- weapons -------------------------------------------------------------------
 
-    def use_weapon(self, c: CombatantState, bow: bool = False) -> None:
-        """An attack or shot uses a weapon: drawing on your turn stops being free, and a bow
-        shot ties up its hands until the start of your next turn (Packet: Drawing Weapons)."""
+    def use_weapon(
+        self,
+        c: CombatantState,
+        bow: bool = False,
+        weapon: str | None = None,
+        two_handed: bool = False,
+    ) -> None:
+        """An attack or shot uses a weapon: drawing on your turn stops being free, and its
+        hand(s) are used until the start of your next turn (Packet: Drawing Weapons)."""
         c.used_weapon = True
         if bow:
             c.bow_hands = True
+        if weapon is not None:
+            tag = f"weapon:{weapon}"
+            main, off = c.used_hands
+            c.used_hands = (tag, tag) if (two_handed or bow) else (tag, off)
+        self._bump()
+
+    def use_hands(
+        self, c: CombatantState, main: str | None = None, off: str | None = None
+    ) -> None:
+        """Commit one or both hands until the start of your next turn (Packet: Drawing Weapons,
+        0.12.1). Non-None arguments overwrite their slot."""
+        cur_main, cur_off = c.used_hands
+        c.used_hands = (
+            main if main is not None else cur_main,
+            off if off is not None else cur_off,
+        )
         self._bump()
 
     def draw(self, c: CombatantState, loadout: str, cost: int) -> None:

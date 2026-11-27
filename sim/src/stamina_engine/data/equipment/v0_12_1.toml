@@ -1,0 +1,9 @@
+# Packet 0.12.1: Shields require Strength 2 (-1 AGI and -1 FIN per point below 2,
+# applied separately from armor's requirement). Extends v0_12.
+[table]
+weapons = "v0_12"
+
+[shields.shield]
+melee = 1
+ranged = 1
+strength_requirement = 2

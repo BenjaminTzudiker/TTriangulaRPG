@@ -39,6 +39,7 @@ PRESET_DIGESTS = {
     "v0.11.5": "33253258d2da",  # 0.11.5 exploratory candidates deferred
     "v0.11.6": "33253258d2da",  # 0.11.6 forced movement / 0-hold ending / candidates deferred
     "v0.12.0": "4d5aa8ebda7a",  # 0.12.0 shelves strain, new in-fight martial cores
+    "v0.12.1": "79f6cff486ff",  # 0.12.1 proficiencies/dual-wield shelved, shields, drawing
     "review-candidate": "d99bdcba96f4",
     "review-sim": "4179c8ac37bc",
 }

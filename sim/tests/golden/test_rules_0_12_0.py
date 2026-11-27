@@ -77,7 +77,7 @@ def profile(build: str | Build, rules: RuleSet = RULES) -> CombatProfile:
 
 def test_sample_character_v0_12_0() -> None:
     """Matches Packet 0.12.0: Sample Character."""
-    assert BASELINE == "v0.12.0"
+    assert BASELINE == "v0.12.1"
     p = profile("l1_sample")
     lo = p.main
     assert (p.hp_max, p.stamina_max, p.recovery, p.strain_max) == (10, 16, 4, 0)

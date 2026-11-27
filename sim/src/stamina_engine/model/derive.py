@@ -10,6 +10,7 @@ from stamina_engine.rules.ruleset import RuleSet
 
 cites = (
     "Packet: Armor",
+    "Packet: Shields",
     "Packet: Defenses",
     "Packet: Stamina",
     "Packet: Weapon Table",
@@ -17,7 +18,10 @@ cites = (
     "Packet: Range Bands",
     "Ledger EQ-1",
     "Ledger EQ-2",
+    "Ledger EQ-5",
     "Ledger DF-1",
+    "Ledger H-11",
+    "Ledger H-12",
 )
 
 
@@ -209,8 +213,9 @@ def _loadout_profile(
         if lo.off_hand is not None and shield is None
         else None
     )
-    proficient_melee = main is not None and main.proficient and not main.ranged
-    second = off is not None and off.proficient and not off.ranged
+    req_prof = rules.defenses.requires_proficiency()
+    proficient_melee = main is not None and (not req_prof or main.proficient) and not main.ranged
+    second = off is not None and (not req_prof or off.proficient) and not off.ranged
     shield_md = shield.melee if shield else 0
     shield_rd = shield.ranged if shield else 0
     d, mv = rules.defenses, rules.movement
@@ -244,12 +249,18 @@ def _loadout_profile(
 def equipment_for(rules: RuleSet) -> str:
     """The packet's equipment table for a RuleSet:
     - v0_9 whenever v0.9's three-range bows are used (v0.9–v0.9.3, minus_d6 variants);
-    - v0_12 from packet 0.11.1 on (0.10.0's bows and shield, plus spear reach only in two hands);
+    - v0_12_1 from packet 0.12.1 on (v0_12 plus shield Strength 2 requirement);
+    - v0_12 from packet 0.11.1 through 0.12.0 (0.10.0's bows and shield, plus spear reach
+      only in two hands);
     - v0_10 under linear range bands through 0.10.1 (and exp-0.11.*).
     What a scenario or table uses when it names none."""
     if not rules.ranged.uses_band_width():
         return "v0_9"
-    return "v0_12" if rules.opportunity.skips_unable_avoid() else "v0_10"
+    if not rules.opportunity.skips_unable_avoid():
+        return "v0_10"
+    if rules.ranged.draw_rules_mode() == "v0_12_1":
+        return "v0_12_1"
+    return "v0_12"
 
 
 def derive(build: Build, rules: RuleSet, table: EquipmentTable | None = None) -> CombatProfile:

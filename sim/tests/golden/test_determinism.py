@@ -78,36 +78,36 @@ def test_pinned_log_hashes(
 
 
 GRID_PINNED = [
-    ("archer_wall.toml", 2, "2d28d2f43ed73678980c72a60c3dfb777ae4717935e3bf1db13f35135f043588"),
+    ("archer_wall.toml", 2, "79bb52612bc1290d77b71e4d48be5a6675837e22668f098429c843b201e117f0"),
     (
         "one_v_three_corridor.toml",
         0,
-        "cc63f31fbaca6935bcf0fff17cd489aed2f3e5e0b66c037fbe1fb92c7356391d",
+        "6310efb4051966a99933fcd9afb3fff415a017d3a650471a03124550e23eb011",
     ),
     (
         "reach_chokepoint.toml",
         3,
-        "7645928eb84a2779845001cb6a702a59acec11203c1923d912984ead6a9b4d0c",
+        "e6faf775f473b89513c8f0b12d512405f90466e20157410767c22f781e8e4800",
     ),
     (
         "extraction_3v3.toml",  # objectives (O1)
         0,
-        "cb657eed5197dfd7bb177a58226e51c5d1b9e360e3a851c023c99061f3a805b9",
+        "dd27d17bc023727913ea70710bd6bdb50b7860df11abcfe2abcc8a5673ff5146",
     ),
     (
         "breakthrough_3v3.toml",  # objectives (O1)
         0,
-        "2326ac1978974cae314cd27fc7697392acac1d407286fb36ba9f73889ef19864",
+        "7969f8725f63660b897e350c82c13d3e7f05486c5736fad6d94b28c1101dbd68",
     ),
     (
         "hold_hill_3v3.toml",  # objectives (O1)
         0,
-        "4a96c482bb3adff25994c2a3905e4d36b450ac18b534b2922d41a5b21aea2ff5",
+        "48c44a2886a74ed14af017b696e8b803a0e41f43136e844da35874c15ab3f197",
     ),
     (
         "hold_the_door_1v3.toml",  # objectives (O1)
         0,
-        "b2e485fb2869415d0ca4b9a028a0e691cacf456e77495db79808a2ab24f36ea3",
+        "0d48f8e254069d65cf9482228275bde0a02b3ac635524b798fbae5ff17d55b1d",
     ),
 ]
 
@@ -115,9 +115,9 @@ GRID_PINNED = [
 @pytest.mark.parametrize(("scenario", "trial", "expected"), GRID_PINNED)
 def test_pinned_grid_log_hashes(scenario: str, trial: int, expected: str) -> None:
     """Grid battles (tactical and scripted agents, OAs, holds and dash phases), under each
-    scenario's own ruleset: the baseline (now v0.12.0). The hashes moved with the baseline
-    from v0.10.1 to v0.12.0 (unified escalation, dashes, holds, corners, two-handed spear,
-    point-blank OAs at declaration, and 0.12.0 cores)."""
+    scenario's own ruleset: the baseline (now v0.12.1). The hashes moved with the baseline
+    from v0.12.0 to v0.12.1 (BattleStarted ruleset digest on melee-only scenarios; 0.12.1
+    quick-draw costs and step-4 reaction draws on archer scenarios)."""
     from pathlib import Path
 
     from stamina_engine.experiments.runner import run_trial

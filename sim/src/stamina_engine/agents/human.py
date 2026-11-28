@@ -16,6 +16,7 @@ Answers (? at any prompt prints this):
 - holds: ID:N ... (or ID N), or none / p;
 - avoiding OAs: ids to pay off, all, or none;
 - taking an OA: a number of steps (0 declines), optionally after the weapon (off_hand 1);
+- reaction draw: d NAME draw, or p to pass;
 - an ability window: u NAME, or p.
 """
 
@@ -50,6 +51,7 @@ from stamina_engine.agents.decisions import (
     Observation,
     OffTurnMove,
     Pass,
+    ReactDrawRequest,
     Shoot,
     Surrender,
     TakeOA,
@@ -242,7 +244,12 @@ class HumanAgent:
 
     @staticmethod
     def _draws_lines(draws: tuple[DrawOption, ...]) -> list[str]:
-        return [f"  d {d.loadout:<9} draw ({d.quote.total} stamina)" for d in draws]
+        return [
+            f"  d {d.loadout:<9} draw ({d.quote.total} stamina"
+            + (", action" if d.quote.advances else "")
+            + ")"
+            for d in draws
+        ]
 
     def _ability_lines(self, options: tuple[AbilityOption, ...]) -> list[str]:
         if self.rules.resources.uses_strain():
@@ -604,6 +611,30 @@ class HumanAgent:
             raise _Invalid
 
         return self._read("\n".join(lines), "move> ", parse)
+
+    def react_draw(self, request: ReactDrawRequest) -> Draw | Pass:
+        obs = request.observation
+        kind = "shot" if request.ranged else "attack"
+        lines = [
+            self._status(obs),
+            f"{request.attacker}'s {kind} {self._context(request.context)}: {request.damage} "
+            f"damage, {request.crit_dice} critical dice. Draw a weapon before blocking, or p "
+            "to pass:",
+        ]
+        lines += self._draws_lines(request.draws)
+        lines.append("  p          pass")
+
+        def parse(line: str) -> Draw | Pass:
+            words = line.split() or ["p"]
+            cmd = words[0]
+            arg = words[1] if len(words) > 1 else None
+            if cmd == "d":
+                return Draw(_pick(arg, [d.loadout for d in request.draws]))
+            if cmd in ("p", "pass"):
+                return Pass()
+            raise _Invalid
+
+        return self._read("\n".join(lines), "draw> ", parse)
 
     def ability(self, request: AbilityRequest) -> UseAbility | Pass:
         facts = ", ".join(f"{k} {v}" for k, v in request.facts.items())

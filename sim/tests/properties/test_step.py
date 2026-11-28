@@ -29,6 +29,7 @@ def first_answer(report: dict[str, Any]) -> str:
         "blocks": "1",
         "off_turn": "p",
         "react": "p",
+        "react_draw": "p",
         "avoid": "none",
         "take_oa": "0",
         "ability": "p",

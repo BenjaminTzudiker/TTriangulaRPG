@@ -55,6 +55,7 @@ from stamina_engine.agents.decisions import (
     Observation,
     OffTurnMove,
     Pass,
+    ReactDrawRequest,
     Shoot,
     Surrender,
     TakeOA,
@@ -326,8 +327,13 @@ class TacticalAgent:
             return EndTurn()
         if not holding_bow:
             free_bow = [d for d in request.draws if d.loadout == bow and d.quote.total == 0]
-            bow_weapon = me.profile.loadout(bow).weapon if bow is not None else None
-            shot_base = bow_weapon.base if bow_weapon is not None else 0
+            bow_lo = me.profile.loadout(bow) if bow is not None else None
+            bow_weapon = bow_lo.weapon if bow_lo is not None else None
+            shot_base = (
+                bow_weapon.base + bow_lo.armor_action_extra
+                if bow_weapon is not None and bow_lo is not None
+                else 0
+            )
             if free_bow and me.stamina >= shot_base:
                 return Draw(free_bow[0].loadout)
             if request.targets and self._acted_round != obs.round:
@@ -729,7 +735,10 @@ class TacticalAgent:
                 k = min(
                     2,
                     Pricing(self.rules).max_steps(
-                        weapon.base, max(0, e.stamina), light=weapon.light
+                        weapon.base,
+                        max(0, e.stamina),
+                        light=weapon.light,
+                        extra=e.gear.armor_action_extra,
                     ),
                 )
                 if k == 0:
@@ -810,3 +819,74 @@ class TacticalAgent:
             if gain > 0 and (best is None or gain > best[0]):
                 best = (gain, route.path)
         return Move(best[1]) if best is not None else Pass()
+
+    def react_draw(self, request: ReactDrawRequest) -> Draw | Pass:
+        """Step 4 (Reactions) off-turn draw (packet 0.12.1): draw a weapon if the higher
+        defense saves more on this attack's blocks than the draw's stamina and escalation."""
+        obs = request.observation
+        me = obs.me
+        attacker = obs.view(request.attacker)
+        atk_weapon = attacker.gear.weapon
+        pierce = atk_weapon.piercing if atk_weapon is not None else 0
+        armor = max(0, me.gear.armor - pierce)
+        cover_bonus = 0
+        in_melee_fn: Callable[[object], bool] | None = None
+        if request.ranged:
+            if obs.field is None or me.pos is None or attacker.pos is None:
+                return Pass()
+            from stamina_engine.grid.threat import body, threatened_by
+
+            board = Board(obs, self.rules)
+            cover_bonus = self.rules.ranged.cover_bonus(
+                int(board.cover_at(attacker.pos, me.pos, (attacker.id, me.id)))
+            )
+            field, grid, pos, atk_pos = obs.field, self.rules.grid, me.pos, attacker.pos
+
+            def _reaches(lo: object) -> bool:
+                from stamina_engine.model.derive import LoadoutProfile
+
+                assert isinstance(lo, LoadoutProfile)
+                return atk_pos in threatened_by(field, grid, body(me.id, me.team, pos, lo, True))
+
+            in_melee_fn = _reaches
+            cur_def = (
+                me.gear.melee_defense if _reaches(me.gear) else me.gear.ranged_defense
+            ) + cover_bonus
+        else:
+            cur_def = me.gear.melee_defense
+        stay = block_score(
+            request.damage,
+            request.crit_dice,
+            cur_def,
+            armor,
+            me.stamina,
+            me.hp,
+            self.rules,
+            self.w,
+        )
+        best: tuple[Fraction, str] | None = None
+        for d in request.draws:
+            lo = me.profile.loadout(d.loadout)
+            if request.ranged:
+                assert in_melee_fn is not None
+                new_def = (
+                    lo.melee_defense if in_melee_fn(lo) else lo.ranged_defense
+                ) + cover_bonus
+            else:
+                new_def = lo.melee_defense
+            if new_def <= cur_def:
+                continue
+            after = block_score(
+                request.damage,
+                request.crit_dice,
+                new_def,
+                armor,
+                me.stamina - d.quote.total,
+                me.hp,
+                self.rules,
+                self.w,
+            )
+            gain = stay - after - Fraction(d.quote.total + d.quote.advances)
+            if gain > 0 and (best is None or gain > best[0]):
+                best = (gain, d.loadout)
+        return Draw(best[1]) if best is not None else Pass()

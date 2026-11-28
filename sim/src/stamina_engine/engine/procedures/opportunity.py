@@ -182,7 +182,7 @@ def opportunity_attack(
             b.ops.spend(attacker, quote, "opportunity")
         oa.spend(attacker.id, quote.total - used)
         attack = roll(b, attacker, weapon, answer.steps)
-        reactions(b, attacker, target)
+        reactions(b, attacker, target, attack, weapon, allow_withdrawal=False)
         blocks = declare_blocks(b, attacker, target, attack, armor=faced_armor(target, weapon))
         outcome = armor_and_crits(b, attacker, target, attack, blocks, pierce=weapon.piercing)
         lose_hp(b, target, outcome)

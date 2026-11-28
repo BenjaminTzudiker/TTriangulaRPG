@@ -10,7 +10,7 @@ next: "[[Magic]]"
 Each class is a tree of purchasable features.
 
 **Core ability.** You open a tree by buying its core ability.
-- It grants the tree's signature ability, and may grant proficiencies.
+- It grants the tree's signature ability.
 - It's the prerequisite for the tree's Tier 1 features.
 - Each core ability you already own makes other core abilities cost 1 AP more. Opening a new tree is worth more than going deeper in one, so it costs more. Odd Intelligence values reduce this (see [[Intelligence]]).
 
@@ -22,7 +22,7 @@ Each class is a tree of purchasable features.
 There are no separately unlocked tiers, and tiers don't come from levelling. The tier abilities *are* the unlocks.
 
 **Other rules:**
-- Some features belong to no tree, such as languages and weapon proficiencies. It's possible to own no tree at all.
+- Some features belong to no tree, such as languages. It's possible to own no tree at all.
 - If a later feature grants something you already bought, the earlier purchase is refunded.
 - **Martial trees** have one defining core ability that stays roughly the same (sometimes upgraded by later features), plus mostly passives and active abilities whose costs are paid inside the fight: ready stamina, held stamina, escalation, or what you can do this turn.
 - **Caster trees** put many Ability Points into spell ranks.

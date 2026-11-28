@@ -312,6 +312,25 @@ class DiveRequest:
 
 
 @dataclass(frozen=True)
+class ReactDrawRequest:
+    """Step 4 (Reactions) of an attack against you (packet 0.12.1): draw a weapon after
+    seeing the roll and before blocking, or pass."""
+
+    who: str
+    observation: Observation
+    context: tuple[str, ...]
+    attacker: str
+    damage: int
+    crit_dice: int
+    ranged: bool
+    draws: tuple[DrawOption, ...]
+
+    @property
+    def option_count(self) -> int:
+        return len(self.draws) + 1
+
+
+@dataclass(frozen=True)
 class AvoidOA:
     """Leaving a threatened square: which threatening enemies to pay off for this square.
     The mover decides before any of them says whether it would attack."""
@@ -471,7 +490,8 @@ class DecisionRecord:
 
     round: int
     who: str
-    kind: str  # turn_command, commitment, blocks, off_turn_move, avoid, take_oa, aim, dive, ability
+    # turn_command, commitment, blocks, off_turn_move, avoid, take_oa, aim, dive, react_draw, ...
+    kind: str
     option_count: int
     nondominated: int | None
     answer: str

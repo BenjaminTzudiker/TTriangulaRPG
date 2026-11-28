@@ -62,7 +62,9 @@ def full_strike(
     k = (
         steps
         if steps is not None
-        else pricing.max_steps(weapon.base, attacker_stamina, light=weapon.light)
+        else pricing.max_steps(
+            weapon.base, attacker_stamina, light=weapon.light, extra=attacker.armor_action_extra
+        )
     )
     injury: defaultdict[int, Fraction] = defaultdict(Fraction)
     spend: defaultdict[int, Fraction] = defaultdict(Fraction)
@@ -72,7 +74,9 @@ def full_strike(
         spend[bb.cost] += p
     return Strike(
         k,
-        pricing.melee_attack(weapon.base, k, light=weapon.light).total,
+        pricing.melee_attack(
+            weapon.base, k, light=weapon.light, extra=attacker.armor_action_extra
+        ).total,
         dict(injury),
         dict(spend),
         defender_hp,
@@ -108,7 +112,9 @@ def opening_split(
     threshold) for the full strike's roll."""
     weapon = gear.weapon
     assert weapon is not None
-    k = Pricing(rules).max_steps(weapon.base, stamina, light=weapon.light)
+    k = Pricing(rules).max_steps(
+        weapon.base, stamina, light=weapon.light, extra=gear.armor_action_extra
+    )
     hot = cold = Fraction(0)
     for (total, crits), p in dist.attack(weapon, k, rules.crit).items():
         if crits > 0 and total >= threshold:

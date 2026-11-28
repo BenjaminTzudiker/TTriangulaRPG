@@ -23,6 +23,7 @@ KINDS = (
     "take_oa",
     "aim",
     "dive",
+    "react_draw",
     "ability",
 )
 

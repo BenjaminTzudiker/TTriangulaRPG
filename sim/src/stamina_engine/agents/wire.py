@@ -28,6 +28,7 @@ KINDS = {
     "TakeOA": "take_oa",
     "AimRequest": "aim",
     "DiveRequest": "react",
+    "ReactDrawRequest": "react_draw",
     "AbilityRequest": "ability",
     "HoldRequest": "holds",
 }

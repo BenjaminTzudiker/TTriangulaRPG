@@ -118,6 +118,8 @@ class Shield:
     ranged: int
     strength_requirement: int = 0  # Review F4 option 1's variant; -1 AGI and FIN per point below
     penalty_per_point: int = 1
+    melee_strength: int = 0  # Packet 0.12.1: minimum STR for +melee defense (no attr penalty)
+    ranged_strength: int = 0  # Packet 0.12.1: minimum STR for +ranged defense (no attr penalty)
 
 
 @dataclass(frozen=True)

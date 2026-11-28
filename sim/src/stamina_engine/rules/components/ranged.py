@@ -53,6 +53,7 @@ class RangedRule(Component):
         "Packet: Range Bands",
         "Packet: Cover",
         "Packet: Drawing Weapons",
+        "Packet: Shields",
         "Ledger RG-1",
         "Ledger RG-2",
         "Ledger RG-3",
@@ -72,6 +73,7 @@ class RangedRule(Component):
         "aim_limit": frozenset({"none", "damage_roll"}),
         "range_measured": frozenset({"declaration", "after_reaction"}),
         "defense_timing": frozenset({"declaration", "after_reaction"}),
+        "draw_mode": frozenset({"v0_9", "v0_12_1"}),
     }
 
     def aim_base(self) -> int:
@@ -79,6 +81,18 @@ class RangedRule(Component):
 
     def draw_cost(self, quick_draw: bool) -> int:
         raise NotImplementedError
+
+    def draw_rules_mode(self) -> str:
+        return "v0_9"
+
+    def shield_equip_cost(self) -> int:
+        return 5
+
+    def shield_remove_cost(self) -> int:
+        return 1
+
+    def allows_reaction_draw(self) -> bool:
+        return False
 
     def band(self, distance: int, ranges: tuple[int, ...], band_width: int = 0) -> str:
         """short, medium, long or beyond, from the weapon's three ranges. With linear bands,
@@ -196,6 +210,12 @@ class V09Ranged(RangedRule):
     reaction_purchases: int = 0
     swap_single_purchase: bool = False
     crit_in_limit: bool = False
+    # Packet 0.12.1: shield equip/remove actions (removal frees the hand immediately) and
+    # simplified paid off-turn / post-action drawing rules (defaults preserve v0.9–v0.12.0).
+    draw_mode: str = "v0_9"
+    shield_equip_base: int = 5
+    shield_remove_base: int = 1
+    draw_in_reactions: bool = False
 
     def __post_init__(self) -> None:
         super().__post_init__()
@@ -203,6 +223,20 @@ class V09Ranged(RangedRule):
             raise ConfigError("ranged: free_aim_dice, band_penalty and reaction_bonus are >= 0")
         if self.reaction_purchases < 0:
             raise ConfigError("ranged: reaction_purchases is >= 0 (0: no cap)")
+        if self.shield_equip_base < 0 or self.shield_remove_base < 0:
+            raise ConfigError("ranged: shield_equip_base and shield_remove_base are >= 0")
+
+    def draw_rules_mode(self) -> str:
+        return self.draw_mode
+
+    def shield_equip_cost(self) -> int:
+        return self.shield_equip_base
+
+    def shield_remove_cost(self) -> int:
+        return self.shield_remove_base
+
+    def allows_reaction_draw(self) -> bool:
+        return self.draw_in_reactions
 
     def aim_base(self) -> int:
         return self.aim_cost_base

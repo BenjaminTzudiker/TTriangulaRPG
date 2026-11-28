@@ -511,7 +511,36 @@ def v0_12_0() -> RuleSet:
     )
 
 
-BASELINE = "v0.12.0"
+def v0_12_1() -> RuleSet:
+    """Packet 0.12.1: 0.12.0 with weapon proficiencies shelved (Ledger H-11), dual wielding
+    shelved (Ledger H-12, no second-weapon +1 Melee Defense), shields with tiered Strength
+    requirements (+1 Ranged Defense at STR 1, +1 Melee Defense at STR 2, no attribute
+    penalties; equipment table v0_12_1) and base-5 equip / base-1 remove actions on your turn
+    (removing frees the hand immediately), armor with Strength-gated even-Agility defense
+    (medium <= even STR, heavy <= max(0, even STR - 1)), +1 stamina per action per Strength
+    short (no attribute penalties) and +1 stamina per dash in heavy armor, and simplified
+    drawing rules (free before attacking, shooting, or casting; after that or outside your
+    turn in dash phases / step 4 Reactions, every paid draw is an action costing weapon base
+    + escalation, with normal weapons requiring not having attacked/shot/cast since turn
+    start and Quick-draw weapons allowed either way)."""
+    base = v0_12_0()
+    assert isinstance(base.defenses, V09Defenses)
+    assert isinstance(base.ranged, V09Ranged)
+    return base.with_(
+        name="v0.12.1",
+        defenses=dataclasses.replace(
+            base.defenses,
+            require_proficiency=False,
+            second_weapon_bonus=0,
+            armor_agility_mode="str_gate",
+            armor_penalty_mode="action_tax",
+            heavy_dash_extra=1,
+        ),
+        ranged=dataclasses.replace(base.ranged, draw_mode="v0_12_1", draw_in_reactions=True),
+    )
+
+
+BASELINE = "v0.12.1"
 """The preset the engine's scenarios, suites and defaults use: the current packet. Moving the
 baseline to a new packet version is this one line (and the pinned hashes it moves)."""
 
@@ -533,6 +562,7 @@ PRESETS: dict[str, Callable[[], RuleSet]] = {
     "v0.11.5": v0_11_5,
     "v0.11.6": v0_11_6,
     "v0.12.0": v0_12_0,
+    "v0.12.1": v0_12_1,
     "review-candidate": review_candidate,
     "review-sim": review_sim,
     "exp-0.11.0": exp_0_11_0,

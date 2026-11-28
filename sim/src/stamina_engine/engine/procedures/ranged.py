@@ -24,15 +24,23 @@ A shot, following the packet's steps (readings in the Assumptions register):
 From packet 0.11.4 (opportunity.point_blank_eligible = "at_declaration") step 7 moves to
 step 1: the enemies threatening the shooter when it declares the target make their
 opportunity attacks at once, before it pays anything, and the shooter may then cancel.
-Engine conventions: the shooter blocks with what it holds (it never draws a weapon to block,
-which would give up the shot), and it cancels only when it can no longer afford the shot or
-is incapacitated; agents never cancel by choice.
+From packet 0.12.1 (ranged.draw_in_reactions = true), the shooter may draw a weapon in
+step 4 of those opportunity attacks, which cancels the shot ("drew a weapon"); otherwise it
+cancels only when it can no longer afford the shot or is incapacitated (agents never cancel
+by choice).
 """
 
 from collections.abc import Callable
 from dataclasses import replace
 
-from stamina_engine.agents.decisions import AimRequest, DiveRequest, DrawOption, Move
+from stamina_engine.agents.decisions import (
+    AimRequest,
+    DiveRequest,
+    Draw,
+    DrawOption,
+    Move,
+    ReactDrawRequest,
+)
 from stamina_engine.engine.battle import Battle
 from stamina_engine.engine.events import (
     AttackRolled,
@@ -99,7 +107,12 @@ def shot_targets(
     if b.field is None or c.pos is None or weapon is None or not weapon.ranged:
         return ()
     limit = c.stamina if max_spend is None else min(c.stamina, max_spend)
-    if b.pricing.ranged_attack(weapon.base, 0, c.trackers).total > limit:
+    if (
+        b.pricing.ranged_attack(
+            weapon.base, 0, c.trackers, extra=c.gear.armor_action_extra
+        ).total
+        > limit
+    ):
         return ()
     out = []
     for o in b.state.enemies_of(c):
@@ -195,21 +208,36 @@ def shoot(
         if b.rules.opportunity.point_blank_needs_declared():
             declared = b.arena.threatening(b.state, shooter, shooter.pos)
         melee_at_declaration = point_blank(b, target, shooter)
+        start_loadout = shooter.loadout
         if b.rules.opportunity.point_blank_first():
             point_blank_oas(b, shooter)
             if b.outcome is not None or not shooter.active:
                 b.ops.emit(ShotCancelled(shooter.id, target.id, "incapacitated"))
                 return False
+            if (
+                shooter.loadout != start_loadout
+                or shooter.gear.weapon is None
+                or not shooter.gear.weapon.ranged
+            ):
+                b.ops.emit(ShotCancelled(shooter.id, target.id, "drew a weapon"))
+                return False
             limit_now = (
                 shooter.stamina if max_spend is None else min(shooter.stamina, max_spend)
             )
-            if b.pricing.ranged_attack(weapon.base, 0, shooter.trackers).total > limit_now:
+            if (
+                b.pricing.ranged_attack(
+                    weapon.base, 0, shooter.trackers, extra=shooter.gear.armor_action_extra
+                ).total
+                > limit_now
+            ):
                 b.ops.emit(ShotCancelled(shooter.id, target.id, "can't afford the shot"))
                 return False
         limit = shooter.stamina if max_spend is None else min(shooter.stamina, max_spend)
         quotes: list[Quote] = []
         while True:
-            q = b.pricing.ranged_attack(weapon.base, len(quotes), shooter.trackers)
+            q = b.pricing.ranged_attack(
+                weapon.base, len(quotes), shooter.trackers, extra=shooter.gear.armor_action_extra
+            )
             if q.total > limit:
                 break
             quotes.append(q)
@@ -229,7 +257,7 @@ def shoot(
             on_commit()
         b.ops.emit(ShotDeclared(shooter.id, target.id, aims, band, int(level)))
         b.ops.spend(shooter, quotes[aims], "shot")
-        if b.state.turn_of == shooter.id:
+        if b.state.turn_of == shooter.id or b.rules.ranged.draw_rules_mode() == "v0_12_1":
             b.ops.use_weapon(shooter, bow=True)
         if aims < required:
             b.ops.emit(ShotMissed(shooter.id, target.id, f"{band} range needs {required} aims"))
@@ -257,6 +285,7 @@ def shoot(
             moved = squares > 0
             if b.outcome is None:
                 attack = at(None)
+                react_draw(b, shooter, target, attack, ranged=True)
                 if r.uses_band_width():
                     assert target.pos is not None
                     d = distance(origin, target.pos, grid)
@@ -401,7 +430,12 @@ def draw_options(b: Battle, c: CombatantState, on_turn: bool) -> tuple[DrawOptio
     current = c.gear
     for lo in c.profile.loadouts:
         q = b.pricing.draw(
-            current, lo, on_turn=on_turn, used_weapon=c.used_weapon, bow_hands=c.bow_hands
+            current,
+            lo,
+            on_turn=on_turn,
+            used_weapon=c.used_weapon,
+            bow_hands=c.bow_hands,
+            trackers=c.trackers,
         )
         if q is not None and q.total <= c.stamina:
             out.append(DrawOption(lo.name, q))
@@ -409,14 +443,47 @@ def draw_options(b: Battle, c: CombatantState, on_turn: bool) -> tuple[DrawOptio
 
 
 def draw(b: Battle, c: CombatantState, loadout: str, on_turn: bool) -> None:
+    cur = c.gear
+    new = c.profile.loadout(loadout)
     q = b.pricing.draw(
-        c.gear,
-        c.profile.loadout(loadout),
+        cur,
+        new,
         on_turn=on_turn,
         used_weapon=c.used_weapon,
         bow_hands=c.bow_hands,
+        trackers=c.trackers,
     )
     assert q is not None
-    if q.total:
+    if q.total or q.advances:
         b.ops.spend(c, q, "draw")
     b.ops.draw(c, loadout, q.total)
+
+
+def react_draw(
+    b: Battle,
+    attacker: CombatantState,
+    target: CombatantState,
+    attack: AttackRoll,
+    ranged: bool,
+) -> bool:
+    """Step 4 (Reactions): draw a weapon after seeing the roll, before blocking (0.12.1)."""
+    if not b.rules.ranged.allows_reaction_draw() or not target.active:
+        return False
+    draws = draw_options(b, target, on_turn=False)
+    if not draws:
+        return False
+    req = ReactDrawRequest(
+        target.id,
+        b.observe(target.id),
+        b.context.path(),
+        attacker.id,
+        attack.total,
+        attack.crit_dice,
+        ranged,
+        draws,
+    )
+    answer = b.broker.react_draw(req)
+    if isinstance(answer, Draw):
+        draw(b, target, answer.loadout, on_turn=False)
+        return True
+    return False

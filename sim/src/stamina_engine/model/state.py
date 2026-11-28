@@ -42,7 +42,9 @@ class CombatantState:
     out: str | None = None  # "fled" or "surrendered": out of the fight without going down
     step_costs: list[int] = field(default_factory=list)  # attack steps paid this turn, unrefunded
     control: dict[str, int] = field(default_factory=dict)  # control effects' progress (stub)
-    used_weapon: bool = False  # used a weapon this turn: drawing on your turn now costs
+    used_weapon: bool = (
+        False  # attacked or shot since turn started (0.12.1 includes dash phases)
+    )
     bow_hands: bool = (
         False  # shot a bow this turn: no normal weapon into those hands until your next turn
     )

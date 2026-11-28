@@ -3,10 +3,10 @@
 ```toml
 [scenario]
 name = "l1-duel"
-ruleset = { base = "v0.12.0" }        # or "v0.12.0", or { file = "mine.toml" }, plus overrides;
-                                    # without a ruleset, the baseline (v0.12.0)
-equipment = "v0_10"                  # or a variant table in data/equipment; without it, the
-                                    # RuleSet's own (v0_10 for 0.10.0's bands, else v0_9)
+ruleset = { base = "v0.12.1" }        # or "v0.12.1", or { file = "mine.toml" }, plus overrides;
+                                    # without a ruleset, the baseline (v0.12.1)
+equipment = "v0_12_1"                # or a variant table in data/equipment; without it, the
+                                    # RuleSet's own (v0_12_1 from 0.12.1, v0_12 from 0.11.1, ...)
 round_cap = 30
 trials = 2000
 seed = 1

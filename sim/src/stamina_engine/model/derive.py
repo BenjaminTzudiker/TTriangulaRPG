@@ -10,6 +10,7 @@ from stamina_engine.rules.ruleset import RuleSet
 
 cites = (
     "Packet: Armor",
+    "Packet: Shields",
     "Packet: Defenses",
     "Packet: Stamina",
     "Packet: Weapon Table",
@@ -17,7 +18,10 @@ cites = (
     "Packet: Range Bands",
     "Ledger EQ-1",
     "Ledger EQ-2",
+    "Ledger EQ-5",
     "Ledger DF-1",
+    "Ledger H-11",
+    "Ledger H-12",
 )
 
 
@@ -79,6 +83,8 @@ class LoadoutProfile:
     initiative_bonus: int
     oa_cap: int | None  # with the main weapon (F9 option 1 ties it to the weapon); None: no cap
     extra_squares_per_purchase: int = 0  # extra on-turn movement
+    armor_action_extra: int = 0  # +1 stamina per action per STR below armor req (Packet 0.12.1)
+    armor_dash_extra: int = 0  # +1 stamina per dash in heavy armor (Packet 0.12.1)
 
 
 @dataclass(frozen=True)
@@ -193,7 +199,13 @@ def _loadout_profile(
     table: EquipmentTable,
 ) -> LoadoutProfile:
     armor = table.armor_named(lo.armor)
-    attrs = penalized(build.attributes, armor.strength_requirement, armor.penalty_per_point)
+    if rules.defenses.uses_armor_action_tax():
+        attrs = build.attributes
+        armor_action_extra = max(0, armor.strength_requirement - build.attributes.STR)
+    else:
+        attrs = penalized(build.attributes, armor.strength_requirement, armor.penalty_per_point)
+        armor_action_extra = 0
+    armor_dash_extra = rules.defenses.dash_cost_extra(armor.name)
     held = table.shield(lo.off_hand) if lo.off_hand and table.is_shield(lo.off_hand) else None
     if held is not None and held.strength_requirement:
         # A heavy shield's Strength requirement penalizes separately from armor's.
@@ -209,10 +221,11 @@ def _loadout_profile(
         if lo.off_hand is not None and shield is None
         else None
     )
-    proficient_melee = main is not None and main.proficient and not main.ranged
-    second = off is not None and off.proficient and not off.ranged
-    shield_md = shield.melee if shield else 0
-    shield_rd = shield.ranged if shield else 0
+    req_prof = rules.defenses.requires_proficiency()
+    proficient_melee = main is not None and (not req_prof or main.proficient) and not main.ranged
+    second = off is not None and (not req_prof or off.proficient) and not off.ranged
+    shield_md = shield.melee if (shield and shield.melee_strength <= attrs.STR) else 0
+    shield_rd = shield.ranged if (shield and shield.ranged_strength <= attrs.STR) else 0
     d, mv = rules.defenses, rules.movement
     return LoadoutProfile(
         name=name,
@@ -230,26 +243,40 @@ def _loadout_profile(
             second,
             shield_md,
             proficient_melee and main is not None and main.grip == "two",
+            armor_name=armor.name,
+            strength=attrs.STR,
         ),
-        ranged_defense=d.ranged(attrs.AGI, shield_rd, armor.agility_step),
-        dodge_defense=d.dodge(attrs.AGI, armor.agility_step),
+        ranged_defense=d.ranged(
+            attrs.AGI, shield_rd, armor.agility_step, armor_name=armor.name, strength=attrs.STR
+        ),
+        dodge_defense=d.dodge(
+            attrs.AGI, armor.agility_step, armor_name=armor.name, strength=attrs.STR
+        ),
         movement=mv.free_movement(attrs.AGI),
         squares_per_purchase=mv.squares_per_purchase(attrs.AGI),
         initiative_bonus=rules.turn_order.initiative_bonus(attrs.AGI, attrs.CUN),
         oa_cap=rules.opportunity.cap(attrs.FIN, main.base if main is not None else 0),
         extra_squares_per_purchase=mv.extra_squares_per_purchase(attrs.AGI),
+        armor_action_extra=armor_action_extra,
+        armor_dash_extra=armor_dash_extra,
     )
 
 
 def equipment_for(rules: RuleSet) -> str:
     """The packet's equipment table for a RuleSet:
     - v0_9 whenever v0.9's three-range bows are used (v0.9–v0.9.3, minus_d6 variants);
-    - v0_12 from packet 0.11.1 on (0.10.0's bows and shield, plus spear reach only in two hands);
+    - v0_12_1 from packet 0.12.1 on (v0_12 plus tiered shield Strength requirements);
+    - v0_12 from packet 0.11.1 through 0.12.0 (0.10.0's bows and shield, plus spear reach
+      only in two hands);
     - v0_10 under linear range bands through 0.10.1 (and exp-0.11.*).
     What a scenario or table uses when it names none."""
     if not rules.ranged.uses_band_width():
         return "v0_9"
-    return "v0_12" if rules.opportunity.skips_unable_avoid() else "v0_10"
+    if not rules.opportunity.skips_unable_avoid():
+        return "v0_10"
+    if rules.ranged.draw_rules_mode() == "v0_12_1":
+        return "v0_12_1"
+    return "v0_12"
 
 
 def derive(build: Build, rules: RuleSet, table: EquipmentTable | None = None) -> CombatProfile:

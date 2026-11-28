@@ -261,8 +261,8 @@ class StateOps:
     # --- weapons -------------------------------------------------------------------
 
     def use_weapon(self, c: CombatantState, bow: bool = False) -> None:
-        """An attack or shot uses a weapon: drawing on your turn stops being free, and a bow
-        shot ties up its hands until the start of your next turn (Packet: Drawing Weapons)."""
+        """An attack or shot uses a weapon: drawing on your turn stops being free, and no
+        normal weapon can be drawn until the start of your next turn (Packet: Drawing Weapons)."""
         c.used_weapon = True
         if bow:
             c.bow_hands = True

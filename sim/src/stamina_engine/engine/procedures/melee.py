@@ -51,9 +51,15 @@ def melee_attack(
     assert weapon is not None
     with b.context.frame(f"attack {attacker.id}->{target.id}"):
         heavy = abilities.window(b, attacker, "declare_attack", {"target": target.id})
-        extra = 1 if heavy == "heavy_swing" else 0
+        heavy_extra = 1 if heavy == "heavy_swing" else 0
         steps = declare_steps(
-            b, attacker, target, weapon, extra, max_spend=max_spend, on_commit=on_commit
+            b,
+            attacker,
+            target,
+            weapon,
+            heavy_extra + attacker.gear.armor_action_extra,
+            max_spend=max_spend,
+            on_commit=on_commit,
         )
         if steps is None:
             return False
@@ -62,7 +68,7 @@ def melee_attack(
             return True  # the target got out of reach
         blocks = declare_blocks(b, attacker, target, attack, armor=faced_armor(target, weapon))
         outcome = armor_and_crits(
-            b, attacker, target, attack, blocks, pierce=2 * extra + weapon.piercing
+            b, attacker, target, attack, blocks, pierce=2 * heavy_extra + weapon.piercing
         )
         lose_hp(b, target, outcome)
         if (
@@ -119,6 +125,8 @@ def declare_steps(
     if b.state.turn_of == attacker.id:
         b.ops.use_weapon(attacker)
         b.ops.record_steps(attacker, quotes[steps - 1].parts)
+    elif b.rules.ranged.draw_rules_mode() == "v0_12_1":
+        b.ops.use_weapon(attacker)
     return steps
 
 
@@ -136,41 +144,47 @@ def reactions(
     target: CombatantState,
     attack: AttackRoll | None = None,
     weapon: WeaponProfile | None = None,
+    *,
+    allow_withdrawal: bool = True,
 ) -> bool:
     """Step 4: reactions. Against a melee attack: Tactical Withdrawal, if the target has it
-    (pay 2, move up to one off-turn purchase's squares; out of reach, the attack is avoided).
-    Returns True if the attack is avoided."""
+    (pay 2, move up to one off-turn purchase's squares; out of reach, the attack is avoided),
+    and (from 0.12.1) drawing a weapon before blocking. Returns True if the attack is avoided."""
     if attack is None or weapon is None or not target.active:
         return False
-    facts: dict[str, int | str] = {
-        "attacker": attacker.id,
-        "damage": attack.total,
-        "crit_dice": attack.crit_dice,
-    }
-    if abilities.window(b, target, "reactions", facts) != "tactical_withdrawal":
-        return False
-    from stamina_engine.agents.decisions import DiveRequest, Move
-    from stamina_engine.engine.procedures.movement import free_move_options, move
+    if allow_withdrawal:
+        facts: dict[str, int | str] = {
+            "attacker": attacker.id,
+            "damage": attack.total,
+            "crit_dice": attack.crit_dice,
+        }
+        if abilities.window(b, target, "reactions", facts) == "tactical_withdrawal":
+            from stamina_engine.agents.decisions import DiveRequest, Move
+            from stamina_engine.engine.procedures.movement import free_move_options, move
 
-    moves = free_move_options(b, target, target.gear.squares_per_purchase)
-    if moves is not None:
-        request = DiveRequest(
-            target.id,
-            b.observe(target.id),
-            b.context.path(),
-            attacker.id,
-            attack.total,
-            attack.crit_dice,
-            0,
-            moves,
-            {},
-        )
-        answer = b.broker.dive(request)
-        if isinstance(answer, Move):
-            move(b, target, answer.path, on_turn=False, prepaid=True)
-    if target.active and not b.arena.in_reach(b.state, attacker, target, weapon):
-        b.ops.emit(AttackAvoided(attacker.id, target.id))
-        return True
+            moves = free_move_options(b, target, target.gear.squares_per_purchase)
+            if moves is not None:
+                request = DiveRequest(
+                    target.id,
+                    b.observe(target.id),
+                    b.context.path(),
+                    attacker.id,
+                    attack.total,
+                    attack.crit_dice,
+                    0,
+                    moves,
+                    {},
+                )
+                answer = b.broker.dive(request)
+                if isinstance(answer, Move):
+                    move(b, target, answer.path, on_turn=False, prepaid=True)
+            if target.active and not b.arena.in_reach(b.state, attacker, target, weapon):
+                b.ops.emit(AttackAvoided(attacker.id, target.id))
+                return True
+    if target.active and b.rules.ranged.allows_reaction_draw():
+        from stamina_engine.engine.procedures.ranged import react_draw
+
+        react_draw(b, attacker, target, attack, ranged=False)
     return False
 
 

@@ -21,9 +21,7 @@ Abilities being tried out before they're settled. Where each one sits is part of
 | [[#Unshaken]] | Tier 3 | | | |
 | [[#Riposte]] | | Tier 1 | | Tier 2 |
 | [[#Tumble]] | | Tier 1 | | Tier 1 |
-| [[#Dual Wielding]] | | Tier 1 | | |
 | [[#Patient Opportunist]] | | Tier 2 | | |
-| [[#Paired Blades]] | | Tier 3 | | |
 | [[#Many Hands]] | | | | Tier 1 |
 | [[#Long Stride]] | | | Tier 2 | Tier 1 |
 | [[#Shove]] | | | Tier 1 | Tier 2 |
@@ -137,36 +135,12 @@ When you move, you pay each enemy at most once to avoid its opportunity attacks,
 - The first time you pay an enemy during a move covers every later square of that move. Until you pay, it can make an opportunity attack for each square as usual.
 - Against [[#Hard to Shake]], you still pay that enemy only once per move.
 
-## Dual Wielding
-
-**Where:** Rogue Tier 1.
-
-While you wield a light melee weapon (base cost 1) you're proficient with in each hand, you keep a separate escalation counter for each hand (both reset when your turn ends).
-- **Melee steps:** a melee attack step uses and raises **that hand's** escalation counter.
-- **Other actions:** any other action (such as a dash or helping the dying) uses the **higher** of the two counters and raises **both** counters by 1.
-- **Separate attacks:** each melee attack uses one hand (you can't combine steps from both hands into a single attack, so attacking with the other hand starts a new attack and resets the defender's block count).
-- **Defense trade-off:** if you make melee attacks with **both** hands between the end of your last turn and the end of this one (or since the fight began, on your first turn—the same window your escalation counters track), you lose the +1 Melee Defense from carrying a second weapon (see [[Defenses]]) until the start of your next turn.
-
-> [!example] Example: Dual Wielding
-> You hold a shortsword and a dagger (both base 1), starting at escalation (0, 0).
-> 1. You dash once: uses the higher (0) for **1** stamina; counters become (1, 1).
-> 2. You make a 2-step shortsword attack: uses the sword's counter (1, then 2) for **2 + 3** stamina; counters become (3, 1).
-> 3. You make a 1-step dagger attack (a separate attack): uses the dagger's counter (1) for **2** stamina; counters become (3, 2). Having attacked with both hands, you lose the second weapon's +1 Melee Defense until your next turn starts.
-> 4. You make a 1-step shortsword attack: uses the sword's counter (3) for **4** stamina; counters become (4, 2).
-> 5. You dash again: uses the higher (4) for **5** stamina; counters become (5, 3).
-
 ## Patient Opportunist
 
 **Where:** Rogue Tier 2.
 
 You may split your Rogue core ability (**Opportunist**; see [[Core Abilities]]) across any number of dash phases between each of your turns, as long as your total stamina spent and held through Opportunist stays within **1 + your Cunning**.
 - You may also use that same limit to **hold** ready stamina on enemies during a dash phase (each point of stamina held counts as 1 toward the limit, isn't an action, and stays held until it returns at the end of your next turn; see [[Holds]]).
-
-## Paired Blades
-
-**Where:** Rogue Tier 3. **Prerequisite:** [[#Dual Wielding]].
-
-Attacking with both hands no longer costs you the +1 Melee Defense from carrying a second weapon.
 
 ## Many Hands
 

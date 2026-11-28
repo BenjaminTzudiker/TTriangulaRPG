@@ -25,3 +25,9 @@ Candidates from the November 2026 ability rounds that were tried or considered a
 - **Hamstring:** a light melee weapon's wound cuts the target's Movement by 2 until the end of its next turn.
 - **Second Beat:** reuse an opening turn-order jump on later rounds.
 - **Unplaced round notes:** Ward, Counter, Bulwark, Slip Past, Overreach, Blood Up, Blood in the Water, Call the Play, Poker Face, Thousand Hands, Charge (pursuit), Blade and Bow, Poised.
+
+## Shelved 0.12.1 Candidates
+
+Shelved alongside the second melee weapon's +1 Melee Defense (see [[Not in This Version]]):
+- **Dual Wielding** (was Rogue Tier 1): while wielding a light melee weapon (base cost 1) in each hand, keep a separate escalation counter for each hand (melee steps use and raise that hand's counter; other actions use the higher counter and raise both; each attack uses one hand); attacking with both hands between the end of your last turn and the end of this one forfeits the second weapon's +1 Melee Defense until the start of your next turn.
+- **Paired Blades** (was Rogue Tier 3, prereq Dual Wielding): attacking with both hands no longer forfeits the second weapon's +1 Melee Defense.

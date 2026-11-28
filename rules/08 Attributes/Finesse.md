@@ -15,6 +15,4 @@ Finesse is fine motor control: precision, timing, coordination and weapon contro
 - +1 to your opportunity attack cap (see [[Opportunity Attacks#Making Opportunity Attacks|Making Opportunity Attacks]]).
 
 **Even values (2, 4, 6):**
-- +1 Melee Defense while wielding a melee weapon you're proficient with.
-
-**Below 0** (for example, from armor penalties): you lose the +1 Melee Defense for wielding a proficient weapon.
+- +1 Melee Defense while wielding a melee weapon.

@@ -40,13 +40,9 @@ A weapon card lists its category, base stamina cost (a shot cost, for ranged wea
 
 **Reach:** the grid uses 5 ft squares. Most small and medium weapons reach 1 square: the 8 squares around you, since a diagonal counts as 1 square.
 
-**Proficiency** (*Exploratory*):
-- **Sources:** your class core abilities, or Expertise spent on weapons outside your class.
-- The proficiency list is **TODO**.
-
 ## Weapon Properties
 
-- **Quick-draw** (daggers, shortswords): free to draw between turns, even into a hand you used this turn (see [[Drawing Weapons]]).
+- **Quick-draw** (daggers, shortswords): can still be drawn as an action (1 + escalation) after attacking, shooting or casting on your turn, or outside your turn, even if you've already attacked, shot or cast since your last turn started (see [[Drawing Weapons]]).
 - **Piercing N:** the weapon ignores N armor. Critical dice ignore armor on top of this, but armor can't go below 0.
 - **Hammer** (hammer-type weapons): Piercing 1. **TODO:** hammer stats.
 - **Reach:** extends how far the weapon threatens.

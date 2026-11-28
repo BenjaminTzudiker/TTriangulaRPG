@@ -13,7 +13,7 @@ from math import sqrt
 
 from stamina_engine.analysis.dist import POINT, Joint, convolve, die
 from stamina_engine.model.build import Loadout, load_build
-from stamina_engine.model.derive import WeaponProfile, derive
+from stamina_engine.model.derive import LoadoutProfile, WeaponProfile, derive
 from stamina_engine.rules.block_solver import DEFAULT_W, best_block
 from stamina_engine.rules.exchange import shot_limit
 from stamina_engine.rules.pricing import Pricing
@@ -180,18 +180,24 @@ def table5_defenders(rules: RuleSet) -> tuple[Defender, ...]:
     )
 
 
-def bows(rules: RuleSet) -> tuple[tuple[str, WeaponProfile, int], ...]:
-    """The review's archer (STR 1, AGI 1, FIN 2): its longbow, and the same archer with a
-    shortbow. Returns (name, weapon, finesse)."""
+def _bow_loadouts(rules: RuleSet) -> tuple[tuple[str, LoadoutProfile], ...]:
     archer = load_build("l1_archer")
     short = replace(
         archer,
         name="l1_archer_shortbow",
         loadouts=(("bow", Loadout(armor="light", weapon="shortbow", grip="two")),),
     )
+    return tuple(
+        (name, derive(build, rules).loadout("bow"))
+        for name, build in (("Shortbow", short), ("Longbow", archer))
+    )
+
+
+def bows(rules: RuleSet) -> tuple[tuple[str, WeaponProfile, int], ...]:
+    """The review's archer (STR 1, AGI 1, FIN 2): its longbow, and the same archer with a
+    shortbow. Returns (name, weapon, finesse)."""
     out = []
-    for name, build in (("Shortbow", short), ("Longbow", archer)):
-        gear = derive(build, rules).loadout("bow")
+    for name, gear in _bow_loadouts(rules):
         assert gear.weapon is not None
         out.append((name, gear.weapon, gear.attributes.FIN))
     return tuple(out)
@@ -209,10 +215,14 @@ class Cell5:
 def table5(rules: RuleSet, max_aims: int = 3) -> list[Cell5]:
     pricing = Pricing(rules)
     out = []
-    for name, weapon, finesse in bows(rules):
+    for name, gear in _bow_loadouts(rules):
+        weapon = gear.weapon
+        assert weapon is not None
         for aims in range(max_aims + 1):
-            joint = shot(weapon, aims, finesse, "short", rules)
-            cost = pricing.ranged_attack(weapon.base, aims).total
+            joint = shot(weapon, aims, gear.attributes.FIN, "short", rules)
+            cost = pricing.ranged_attack(
+                weapon.base, aims, extra=gear.armor_action_extra
+            ).total
             for d in table5_defenders(rules):
                 r = respond(joint, d.defense, d.armor, d.stamina, d.hp, rules)
                 out.append(Cell5(name, aims, cost, d.label, r))

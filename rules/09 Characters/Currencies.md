@@ -12,5 +12,5 @@ Combat power and out-of-combat flavor are bought with separate currencies. That 
 | Currency | Buys |
 |---|---|
 | **Ability Points (AP)** | Most class tree features. |
-| **Expertise** | Attributes; weapon proficiencies outside your class. |
+| **Expertise** | Attributes. |
 | **Skill Points (SP)** | Skill-check attribute bonuses; skills; languages; ribbon abilities; extra choices under an ability you already own (for example, more maneuvers). |

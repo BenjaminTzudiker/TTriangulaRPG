@@ -9,9 +9,9 @@ next: "[[Defined Terms]]"
 
 *Restates [[Attack Procedure]], [[Ranged Attacks]], [[Aim]], [[Range Bands]], [[Cover]], [[Blocking]], [[Armor]], [[Critical Hits]] and [[Opportunity Attacks]].*
 
-**Melee:** Declare target → declare steps and pay → roll → blocks → armor (less Piercing and critical dice) → +1 per critical die if any damage is left → lose HP
+**Melee:** Declare target → declare steps and pay → roll → target reacts (draw a weapon) → blocks → armor (less Piercing and critical dice) → +1 per critical die if any damage is left → lose HP
 
-**Ranged:** Declare target (if you're in an enemy's reach, its opportunity attacks come now, before you pay) → pay for the shot or cancel it → buy aim → roll → target reacts (dive, close in, back away) → range penalty → blocks → armor (less Piercing and critical dice) → aim limit → +1 per critical die if any damage is left → lose HP
+**Ranged:** Declare target (if you're in an enemy's reach, its opportunity attacks come now, before you pay) → pay for the shot or cancel it → buy aim → roll → target reacts (dive, close in, back away, draw a weapon) → range penalty → blocks → armor (less Piercing and critical dice) → aim limit → +1 per critical die if any damage is left → lose HP
 
 ## Stamina Costs
 

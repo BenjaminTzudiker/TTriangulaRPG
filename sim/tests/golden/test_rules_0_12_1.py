@@ -680,3 +680,33 @@ def test_armor_shortfall_and_heavy_dash_in_battle() -> None:
     assert by_cat["opportunity"].parts == (2,)  # weapon base 2, unaffected by STR shortfall
     b_inj = [e for e in res.log if isinstance(e, Injured) and e.who == "B"]
     assert b_inj[0].damage == 6  # 8 raw - 2 armor = 6 (armor_action_extra adds 0 piercing)
+
+
+def test_armor_shortfall_in_static_strike_and_second_wind_stays_free() -> None:
+    """Static strike analysis accounts for armor_action_extra (l1_heavy at STR 2 pays +1/step),
+    while 0-stamina Second Wind stays 0 stamina even when short on armor Strength."""
+    from stamina_engine.abilities.framework import options as ability_options
+    from stamina_engine.analysis.strike import full_strike
+
+    heavy = profile("l1_heavy", RULES)
+    assert heavy.main.armor_action_extra == 1  # STR 2 in Heavy (req 3)
+    # 16 stamina with longsword base 2 + 1 shortfall = steps 3, 4, 5 -> 3 steps (12 st), not 4 (18).
+    st = full_strike(heavy.main, heavy.stamina_max, 3, 2, 16, 10, RULES)
+    assert (st.steps, st.cost) == (3, 12)
+    # Under v0.12.0 (attribute penalty, no action tax), l1_heavy affords 4 steps (2+3+4+5 = 14 st).
+    heavy_120 = profile("l1_heavy", RULES_12_0)
+    st_120 = full_strike(heavy_120.main, heavy_120.stamina_max, 3, 2, 16, 10, RULES_12_0)
+    assert (st_120.steps, st_120.cost) == (4, 14)
+
+    # Second Wind stays 0 stamina (Track.ON_TURN) even when wearing heavy armor below STR 3.
+    entrants = [
+        Entrant("A", "red", heavy, Listed(), "main", (2, 2)),
+        Entrant("B", "blue", profile("l1_sample", RULES), Listed(), "", (3, 2)),
+    ]
+    b = Battle(RULES, entrants, Dice({}), seed=0, round_cap=1, check=True, field=OPEN)
+    a = b.state.get("A")
+    b.ops.spend(a, Quote((4,), Track.ON_TURN), "attack")  # below max stamina so Second Wind is open
+    b.state.turn_of = "B"
+    opts = ability_options(b, a, "off_turn")
+    sw = [o for o in opts if o.name == "second_wind"]
+    assert len(sw) == 1 and sw[0].quote == Quote((0,), Track.ON_TURN)

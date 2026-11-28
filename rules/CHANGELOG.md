@@ -44,6 +44,10 @@ Weapon proficiencies (Ledger H-11) and dual wielding (Ledger H-12) are removed a
 - [[Armor]]: Numbers placeholder (Agility steps); Exploratory (Strength requirements) → Exploratory (Agility defense gate, Strength requirements, heavy dash cost). Why: the new Strength-gated Agility rule, action-tax shortfall and heavy dash cost are untested in live play. Source: design chat, 2026-11-27.
 - [[Shields]]: Locked → Locked (bonuses, one shield); Exploratory (Strength requirement, equipping and removing, casting). Why: the new shield requirements, action costs and casting allowance are untested. Source: design chat, 2026-11-26.
 
+### Clarified
+
+- [[Shields]], [[Drawing Weapons]], [[Core Abilities]], [[Armor]], [[Quick Reference]], [[Actions and Escalation]]: clarified that switching to a two-handed grip after removing a shield applies before attacking, shooting or casting (matching the universal grip-change window), that 0-stamina action abilities such as Second Wind stay 0 stamina under escalation and armor Strength shortfall, added reaction weapon drawing to [[Quick Reference]]'s melee and ranged attack sequences, and smoothed the heavy-dash base wording in [[Actions and Escalation]]. Why: keeps cross-note restatements unambiguous and aligned with the engine (C1). Source: design review, 2026-11-27.
+
 ### Editorial
 
 - [[Playtest Packet]]: version line 0.12.0 → 0.12.1. Why: cutting 0.12.1. Source: designer's request, 2026-11-25.

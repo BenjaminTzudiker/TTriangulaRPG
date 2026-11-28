@@ -9,9 +9,9 @@ Avoiding or disrupting missiles before they strike. You can't plausibly parry an
 
 | Source | Bonus |
 |---|---|
-| Base (lost if Agility is below 0) | 1 |
+| Base | 1 |
 | Moved in reaction to this shot (see [[Cover]]) | +1 |
-| Each even Agility value (fewer in medium or heavy armor; see [[Armor]]) | +1 each |
+| Each even Agility value (Strength-gated in medium or heavy armor; see [[Armor]]) | +1 each |
 | Shield (requires Strength 1; see [[Shields]]) | +1 |
 | Abilities | as stated |
 

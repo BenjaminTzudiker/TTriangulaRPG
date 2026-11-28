@@ -49,6 +49,7 @@ def _price_args(c: CombatantState, on_turn: bool) -> dict[str, int]:
         "movement": gear.movement,
         "extra_squares": gear.extra_squares_per_purchase,
         "off_turn_squares": gear.squares_per_purchase,
+        "dash_extra": gear.armor_action_extra + gear.armor_dash_extra,
     }
 
 

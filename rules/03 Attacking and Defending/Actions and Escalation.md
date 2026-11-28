@@ -23,7 +23,7 @@ Each action costs its base **+1 stamina for every action you've taken since your
 - **Reset:** it goes back to 0 when your turn ends, as you recover stamina and before the next dash phase. Nothing else resets it.
 - Before your first turn of a fight, it counts every action you've taken since the fight began.
 
-**Bases:** a melee attack step costs the weapon's base cost; a shot costs its shot cost; an aim step, a dash, and removing a shield cost 1; drawing a weapon costs its base cost (1 for quick-draw weapons); helping the dying and equipping a shield cost 5.
+**Bases:** a melee attack step costs the weapon's base cost; a shot costs its shot cost; an aim step, a dash (2 in heavy armor), and removing a shield cost 1; drawing a weapon costs its base cost (1 for quick-draw weapons); helping the dying and equipping a shield cost 5. Wearing armor below its Strength requirement adds +1 stamina to every action per point of Strength short (see [[Armor]]).
 
 These aren't actions. They don't add to your escalation, and your escalation doesn't add to their cost:
 - your **free movement** (see [[Free Movement]]);

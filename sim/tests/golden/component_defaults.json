@@ -41,7 +41,10 @@
   },
   "defenses/v0_9": {
     "agility_split": false,
+    "armor_agility_mode": "step",
+    "armor_penalty_mode": "attribute",
     "base": 1,
+    "heavy_dash_extra": 0,
     "proficient_weapon": 1,
     "ranged_mode": "v0_9",
     "require_proficiency": true,

@@ -16,5 +16,3 @@ Finesse is fine motor control: precision, timing, coordination and weapon contro
 
 **Even values (2, 4, 6):**
 - +1 Melee Defense while wielding a melee weapon.
-
-**Below 0** (for example, from armor penalties): you lose the +1 Melee Defense for wielding a melee weapon.

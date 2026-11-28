@@ -516,18 +516,25 @@ def v0_12_1() -> RuleSet:
     shelved (Ledger H-12, no second-weapon +1 Melee Defense), shields with tiered Strength
     requirements (+1 Ranged Defense at STR 1, +1 Melee Defense at STR 2, no attribute
     penalties; equipment table v0_12_1) and base-5 equip / base-1 remove actions on your turn
-    (removing frees the hand immediately), and simplified drawing rules (free before attacking,
-    shooting, or casting; after that or outside your turn in dash phases / step 4 Reactions,
-    every paid draw is an action costing weapon base + escalation, with normal weapons
-    requiring not having attacked/shot/cast since turn start and Quick-draw weapons allowed
-    either way)."""
+    (removing frees the hand immediately), armor with Strength-gated even-Agility defense
+    (medium <= even STR, heavy <= max(0, even STR - 1)), +1 stamina per action per Strength
+    short (no attribute penalties) and +1 stamina per dash in heavy armor, and simplified
+    drawing rules (free before attacking, shooting, or casting; after that or outside your
+    turn in dash phases / step 4 Reactions, every paid draw is an action costing weapon base
+    + escalation, with normal weapons requiring not having attacked/shot/cast since turn
+    start and Quick-draw weapons allowed either way)."""
     base = v0_12_0()
     assert isinstance(base.defenses, V09Defenses)
     assert isinstance(base.ranged, V09Ranged)
     return base.with_(
         name="v0.12.1",
         defenses=dataclasses.replace(
-            base.defenses, require_proficiency=False, second_weapon_bonus=0
+            base.defenses,
+            require_proficiency=False,
+            second_weapon_bonus=0,
+            armor_agility_mode="str_gate",
+            armor_penalty_mode="action_tax",
+            heavy_dash_extra=1,
         ),
         ranged=dataclasses.replace(base.ranged, draw_mode="v0_12_1", draw_in_reactions=True),
     )

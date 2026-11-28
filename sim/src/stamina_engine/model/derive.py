@@ -83,6 +83,8 @@ class LoadoutProfile:
     initiative_bonus: int
     oa_cap: int | None  # with the main weapon (F9 option 1 ties it to the weapon); None: no cap
     extra_squares_per_purchase: int = 0  # extra on-turn movement
+    armor_action_extra: int = 0  # +1 stamina per action per STR below armor req (Packet 0.12.1)
+    armor_dash_extra: int = 0  # +1 stamina per dash in heavy armor (Packet 0.12.1)
 
 
 @dataclass(frozen=True)
@@ -197,7 +199,13 @@ def _loadout_profile(
     table: EquipmentTable,
 ) -> LoadoutProfile:
     armor = table.armor_named(lo.armor)
-    attrs = penalized(build.attributes, armor.strength_requirement, armor.penalty_per_point)
+    if rules.defenses.uses_armor_action_tax():
+        attrs = build.attributes
+        armor_action_extra = max(0, armor.strength_requirement - build.attributes.STR)
+    else:
+        attrs = penalized(build.attributes, armor.strength_requirement, armor.penalty_per_point)
+        armor_action_extra = 0
+    armor_dash_extra = rules.defenses.dash_cost_extra(armor.name)
     held = table.shield(lo.off_hand) if lo.off_hand and table.is_shield(lo.off_hand) else None
     if held is not None and held.strength_requirement:
         # A heavy shield's Strength requirement penalizes separately from armor's.
@@ -235,14 +243,22 @@ def _loadout_profile(
             second,
             shield_md,
             proficient_melee and main is not None and main.grip == "two",
+            armor_name=armor.name,
+            strength=attrs.STR,
         ),
-        ranged_defense=d.ranged(attrs.AGI, shield_rd, armor.agility_step),
-        dodge_defense=d.dodge(attrs.AGI, armor.agility_step),
+        ranged_defense=d.ranged(
+            attrs.AGI, shield_rd, armor.agility_step, armor_name=armor.name, strength=attrs.STR
+        ),
+        dodge_defense=d.dodge(
+            attrs.AGI, armor.agility_step, armor_name=armor.name, strength=attrs.STR
+        ),
         movement=mv.free_movement(attrs.AGI),
         squares_per_purchase=mv.squares_per_purchase(attrs.AGI),
         initiative_bonus=rules.turn_order.initiative_bonus(attrs.AGI, attrs.CUN),
         oa_cap=rules.opportunity.cap(attrs.FIN, main.base if main is not None else 0),
         extra_squares_per_purchase=mv.extra_squares_per_purchase(attrs.AGI),
+        armor_action_extra=armor_action_extra,
+        armor_dash_extra=armor_dash_extra,
     )
 
 

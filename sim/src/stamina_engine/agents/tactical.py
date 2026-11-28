@@ -327,8 +327,13 @@ class TacticalAgent:
             return EndTurn()
         if not holding_bow:
             free_bow = [d for d in request.draws if d.loadout == bow and d.quote.total == 0]
-            bow_weapon = me.profile.loadout(bow).weapon if bow is not None else None
-            shot_base = bow_weapon.base if bow_weapon is not None else 0
+            bow_lo = me.profile.loadout(bow) if bow is not None else None
+            bow_weapon = bow_lo.weapon if bow_lo is not None else None
+            shot_base = (
+                bow_weapon.base + bow_lo.armor_action_extra
+                if bow_weapon is not None and bow_lo is not None
+                else 0
+            )
             if free_bow and me.stamina >= shot_base:
                 return Draw(free_bow[0].loadout)
             if request.targets and self._acted_round != obs.round:
@@ -730,7 +735,10 @@ class TacticalAgent:
                 k = min(
                     2,
                     Pricing(self.rules).max_steps(
-                        weapon.base, max(0, e.stamina), light=weapon.light
+                        weapon.base,
+                        max(0, e.stamina),
+                        light=weapon.light,
+                        extra=e.gear.armor_action_extra,
                     ),
                 )
                 if k == 0:

@@ -831,6 +831,9 @@
   - Flat −1 AGI / −1 FIN / −1 CUN proposed [p.1638]; ABANDONED.
   - STR thresholds added (your ruling, 2026-11-01).
 - **Evidence:** Rulings A15, B8, clarification 5 (your ruling, 2026-11-01).
+- **Later changes:**
+  - *Packet 0.12.1 (design chats 2026-11-26 to 2026-11-27):* replaced the every-3rd/4th Agility steps with **Strength-gated even Agility** (light: full even Agility; medium: even Agility capped at even Strength; heavy: even Agility capped at even Strength − 1, min 0), replaced the `−1` Agility / `−1` Finesse Strength-shortfall penalties with **`+1` stamina on every action per point of Strength below the requirement** (medium STR 1, heavy STR 3; removing negative attributes from the packet), and gave heavy armor **`+1` stamina per dash** (base 2 instead of 1).
+    - *Now in:* the rules notes Armor, Defenses, Ranged Defense, Agility, Finesse, Strength, Dash, Actions and Escalation, and Quick Reference.
 
 ### EQ-2 Weapons
 - **Firmness:** Intent locked, numbers placeholder. The list is **partially incomplete**.

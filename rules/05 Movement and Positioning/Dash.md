@@ -20,7 +20,7 @@ A **dash** is movement you pay for. It's an **action** (see [[Actions and Escala
 
 **Distance:** each dash moves you up to 1 square, +1 per odd Agility value (up to 4).
 
-**Cost:** 1 + your escalation, like any action.
+**Cost:** 1 + your escalation (2 + your escalation in heavy armor; see [[Armor]]), like any action.
 - Your escalation resets when your turn ends. So nothing you did on your turn makes a dash after it pricier.
 - Every dash makes what you do before your next turn ends pricier, that turn's attacks included.
 - Leaving a threatened square can still provoke opportunity attacks.

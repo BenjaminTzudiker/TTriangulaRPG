@@ -25,6 +25,7 @@ cites = (
     "Packet: Avoiding Opportunity Attacks",
     "Packet: Making Opportunity Attacks",
     "Packet: Blocking",
+    "Packet: Armor",
     "Packet: Drawing Weapons",
     "Packet: Not in This Version",
     "Packet: Stamina Costs",
@@ -37,6 +38,7 @@ cites = (
     "Ledger MV-3",
     "Ledger MV-4",
     "Ledger MV-5",
+    "Ledger EQ-1",
     "Ledger EQ-3",
     "Ledger CR-5",
     "Review F9",
@@ -154,25 +156,39 @@ class Pricing:
         return _ensure(Quote(parts, Track.ON_TURN), stamina)
 
     def max_steps(
-        self, base: int, stamina: int, trackers: Trackers = FRESH, light: bool = False
+        self,
+        base: int,
+        stamina: int,
+        trackers: Trackers = FRESH,
+        light: bool = False,
+        extra: int = 0,
     ) -> int:
         k = 0
-        while self.melee_attack(base, k + 1, trackers, light=light).total <= stamina:
+        while self.melee_attack(base, k + 1, trackers, light=light, extra=extra).total <= stamina:
             k += 1
         return k
 
-    def help_dying(self, trackers: Trackers = FRESH, stamina: int | None = None) -> Quote:
+    def help_dying(
+        self, trackers: Trackers = FRESH, stamina: int | None = None, extra: int = 0
+    ) -> Quote:
         """Helping the Dying (packet 0.11.2): an action with base cost 5 + escalation."""
-        cost = self.rules.dying.help_cost_base() + self.rules.surcharge.surcharge(
-            trackers.actions_this_turn
+        cost = (
+            self.rules.dying.help_cost_base()
+            + extra
+            + self.rules.surcharge.surcharge(trackers.actions_this_turn)
         )
         return _ensure(Quote((cost,), Track.ON_TURN), stamina)
 
-    def aim_step(self, prior_actions: int) -> int:
-        return self.rules.ranged.aim_base() + self.rules.surcharge.surcharge(prior_actions)
+    def aim_step(self, prior_actions: int, extra: int = 0) -> int:
+        return self.rules.ranged.aim_base() + extra + self.rules.surcharge.surcharge(prior_actions)
 
     def ranged_attack(
-        self, shot_base: int, aims: int, trackers: Trackers = FRESH, stamina: int | None = None
+        self,
+        shot_base: int,
+        aims: int,
+        trackers: Trackers = FRESH,
+        stamina: int | None = None,
+        extra: int = 0,
     ) -> Quote:
         """The shot, then each aim step as an action. Under v0.9 the shot cost is flat and
         isn't an action, so only the aim steps advance the surcharge; from 0.10.0
@@ -180,20 +196,22 @@ class Pricing:
         dice cost nothing and aren't priced here."""
         prior = trackers.actions_this_turn
         if self.rules.ranged.shot_is_action():
-            shot = shot_base + self.rules.surcharge.surcharge(prior)
-            aim_parts = tuple(self.aim_step(prior + 1 + i) for i in range(aims))
+            shot = shot_base + extra + self.rules.surcharge.surcharge(prior)
+            aim_parts = tuple(self.aim_step(prior + 1 + i, extra) for i in range(aims))
             return _ensure(Quote((shot, *aim_parts), Track.ON_TURN), stamina)
-        aim_parts = tuple(self.aim_step(prior + i) for i in range(aims))
+        aim_parts = tuple(self.aim_step(prior + i, extra) for i in range(aims))
         return _ensure(Quote((shot_base, *aim_parts), Track.ON_TURN, free_parts=1), stamina)
 
     # --- movement --------------------------------------------------------------------
 
-    def extra_movement(self, trackers: Trackers = FRESH) -> Quote:
+    def extra_movement(self, trackers: Trackers = FRESH, extra: int = 0) -> Quote:
         """Always flat; not an action and not an off-turn cost. Its track only counts
         purchases, for the variant that caps purchased movement."""
         if self.rules.movement.extra_is_action():  # 0.11.0: a dash on your turn
-            cost = self.rules.movement.extra_movement_cost() + self.rules.surcharge.surcharge(
-                trackers.actions_this_turn
+            cost = (
+                self.rules.movement.extra_movement_cost()
+                + extra
+                + self.rules.surcharge.surcharge(trackers.actions_this_turn)
             )
             return Quote((cost,), Track.ON_TURN)
         return Quote((self.rules.movement.extra_movement_cost(),), Track.EXTRA_MOVE)
@@ -205,10 +223,16 @@ class Pricing:
             return per_purchase
         return max(0, min(per_purchase, cap - trackers.extra_purchases * per_purchase))
 
-    def off_turn_purchase(self, trackers: Trackers, stamina: int | None = None) -> Quote:
+    def off_turn_purchase(
+        self, trackers: Trackers, stamina: int | None = None, extra: int = 0
+    ) -> Quote:
         ot = self.rules.off_turn
         if ot.unified():  # 0.11.0: a dash is an action on the one escalation
-            cost = ot.purchase_base() + self.rules.surcharge.surcharge(trackers.actions_this_turn)
+            cost = (
+                ot.purchase_base()
+                + extra
+                + self.rules.surcharge.surcharge(trackers.actions_this_turn)
+            )
             return _ensure(Quote((cost,), Track.ON_TURN), stamina)
         return _ensure(
             Quote((ot.cost(ot.purchase_base(), trackers.off_turn_costs),), Track.OFF_TURN),
@@ -227,6 +251,7 @@ class Pricing:
         extra_squares: int = 1,
         off_turn_squares: int = 1,
         stamina: int | None = None,
+        dash_extra: int = 0,
     ) -> MoveQuote:
         """The price of moving `squares` squares now. On your turn: free movement, then
         squares already bought, then extra purchases (flat). Off your turn: off-turn
@@ -245,12 +270,12 @@ class Pricing:
                 give = self.extra_purchase_squares(t, movement, extra_squares)
                 if give <= 0:
                     raise Unaffordable(f"purchased movement is capped at {movement} squares")
-                q = self.extra_movement(t)
+                q = self.extra_movement(t, extra=dash_extra)
             else:
                 if cap and len(purchases) >= cap:
                     raise Unaffordable(f"at most {cap} off-turn purchases in one move")
                 give = off_turn_squares
-                q = self.off_turn_purchase(t)
+                q = self.off_turn_purchase(t, extra=dash_extra)
             purchases.append(q)
             bought.append(give)
             t = q.after(t)
@@ -268,6 +293,7 @@ class Pricing:
         movement: int,
         extra_squares: int,
         off_turn_squares: int,
+        dash_extra: int = 0,
     ) -> Iterator[tuple[Quote, int]]:
         """The purchases a move would make, in order: (quote, squares it gives), until a cap
         stops them."""
@@ -279,12 +305,12 @@ class Pricing:
                 give = self.extra_purchase_squares(t, movement, extra_squares)
                 if give <= 0:
                     return
-                q = self.extra_movement(t)
+                q = self.extra_movement(t, extra=dash_extra)
             else:
                 if cap and made >= cap:
                     return
                 give = off_turn_squares
-                q = self.off_turn_purchase(t)
+                q = self.off_turn_purchase(t, extra=dash_extra)
             yield q, give
             made += 1
             t = q.after(t)
@@ -301,6 +327,7 @@ class Pricing:
         extra_squares: int = 1,
         off_turn_squares: int = 1,
         limit: int = 200,
+        dash_extra: int = 0,
     ) -> int:
         """The most squares affordable now (stopping at limit)."""
         return (
@@ -315,6 +342,7 @@ class Pricing:
                     extra_squares=extra_squares,
                     off_turn_squares=off_turn_squares,
                     limit=limit,
+                    dash_extra=dash_extra,
                 )
             )
             - 1
@@ -332,6 +360,7 @@ class Pricing:
         extra_squares: int = 1,
         off_turn_squares: int = 1,
         limit: int = 200,
+        dash_extra: int = 0,
     ) -> tuple[int, ...]:
         """[n] = the stamina for moving n squares now, for every affordable n up to limit
         (the same totals as move(n).total, computed in one pass)."""
@@ -343,6 +372,7 @@ class Pricing:
             movement=movement,
             extra_squares=extra_squares,
             off_turn_squares=off_turn_squares,
+            dash_extra=dash_extra,
         ):
             if len(prices) > limit or paid + q.total > stamina:
                 break
@@ -560,8 +590,9 @@ class Pricing:
                     return None
 
         prior = trackers.actions_this_turn
+        extra = current.armor_action_extra
         action_parts = tuple(
-            base + self.rules.surcharge.surcharge(prior + i)
+            base + extra + self.rules.surcharge.surcharge(prior + i)
             for i, base in enumerate(action_bases)
         )
         if action_parts:

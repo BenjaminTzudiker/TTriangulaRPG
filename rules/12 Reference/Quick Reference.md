@@ -15,16 +15,16 @@ next: "[[Defined Terms]]"
 
 ## Stamina Costs
 
-*Restates [[Melee Attacks]], [[Actions and Escalation]], [[Ranged Attacks]], [[Aim]], [[Dash]], [[Opportunity Attacks]], [[Holds]], [[Dying and Death]], [[Blocking]], [[Drawing Weapons]] and [[Shields]].*
+*Restates [[Melee Attacks]], [[Actions and Escalation]], [[Ranged Attacks]], [[Aim]], [[Dash]], [[Opportunity Attacks]], [[Holds]], [[Dying and Death]], [[Blocking]], [[Drawing Weapons]], [[Shields]] and [[Armor]].*
 
-**Escalation:** +1 per action you've taken since your last turn ended. It resets when your turn ends.
+**Escalation:** +1 per action you've taken since your last turn ended. It resets when your turn ends. Wearing armor below its Strength requirement adds +1 stamina to every action per point of Strength short (see [[Armor]]).
 
 | What | Cost | An action? |
 |---|---|---|
 | Melee attack step | Weapon base + escalation | Yes |
 | Ranged shot | Shot cost + escalation (includes one free aim die) | Yes |
 | Aim step | 1 + escalation | Yes |
-| Dash | 1 + escalation | Yes |
+| Dash | 1 + escalation (2 + escalation in heavy armor) | Yes |
 | Help the dying | 5 + escalation | Yes |
 | Draw a normal weapon (outside your turn) | Weapon base + escalation (only if you haven't attacked, shot or cast since turn start) | Yes |
 | Draw a quick-draw weapon (after acting or off-turn) | 1 + escalation | Yes |
@@ -49,15 +49,15 @@ The running totals for perfect blocks, attribute costs and skill ranks.
 
 *Restates [[Odd and Even Values]], [[Strength]], [[Agility]], [[Finesse]], [[Intelligence]], [[Cunning]], [[Will]], [[Armor]] and [[Starting Combat and Turn Structure]].*
 
-| Value | Odd-value bonuses | Even-value bonuses (normal / medium armor / heavy armor) |
-|---:|---:|---|
-| 0 | 0 | 0 / 0 / 0 |
-| 1 | 1 | 0 / 0 / 0 |
-| 2 | 1 | 1 / 0 / 0 |
-| 3 | 2 | 1 / 1 / 0 |
-| 4 | 2 | 2 / 1 / 1 |
-| 5 | 3 | 2 / 1 / 1 |
-| 6 | 3 | 3 / 2 / 1 |
+| Value | Odd-value bonuses | Even-value bonuses |
+|---:|---:|---:|
+| 0 | 0 | 0 |
+| 1 | 1 | 0 |
+| 2 | 1 | 1 |
+| 3 | 2 | 1 |
+| 4 | 2 | 2 |
+| 5 | 3 | 2 |
+| 6 | 3 | 3 |
 
 **What each column means:**
 - **Odd-value bonuses:**
@@ -66,8 +66,8 @@ The running totals for perfect blocks, attribute costs and skill ranks.
   - Finesse: critical range, squares of band width on ranged weapons, opportunity attack cap.
   - Intelligence: core abilities not counted toward the next core's cost.
 - **Even-value bonuses:**
-  - Strength: +2 maximum HP each.
-  - Agility: Melee and Ranged Defense. The medium and heavy armor columns apply here.
+  - Strength: +2 maximum HP each (and unlocks Agility's defense bonus in medium and heavy armor; see [[Armor]]).
+  - Agility: Melee and Ranged Defense. In medium armor, capped at your even Strength bonuses; in heavy armor, capped at one less than your even Strength bonuses (minimum 0; see [[Armor]]).
   - Finesse: Melee Defense while wielding a melee weapon. Armor doesn't change this.
   - Intelligence: extra Ability Points on a level schedule (see [[Intelligence]]).
 - **Every point:** Cunning adds 1 to initiative; Will adds 1 to the dying roll; Intelligence adds 1 to the roll to help the dying.

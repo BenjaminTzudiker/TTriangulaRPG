@@ -19,9 +19,9 @@ Keeping an opponent's weapon off you with footwork, weapon control, shields and 
 
 | Source | Bonus |
 |---|---|
-| Base (lost if Agility is below 0) | 1 |
-| Wielding a melee weapon (lost if Finesse is below 0) | +1 |
+| Base | 1 |
+| Wielding a melee weapon | +1 |
 | Shield (requires Strength 2; see [[Shields]]) | +1 |
-| Each even Agility value (fewer in medium or heavy armor; see [[Armor]]) | +1 each |
+| Each even Agility value (Strength-gated in medium or heavy armor; see [[Armor]]) | +1 each |
 | Each even Finesse value, while wielding a melee weapon | +1 each |
 | Abilities and equipment | as stated |

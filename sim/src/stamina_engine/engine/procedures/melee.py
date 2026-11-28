@@ -51,9 +51,15 @@ def melee_attack(
     assert weapon is not None
     with b.context.frame(f"attack {attacker.id}->{target.id}"):
         heavy = abilities.window(b, attacker, "declare_attack", {"target": target.id})
-        extra = 1 if heavy == "heavy_swing" else 0
+        heavy_extra = 1 if heavy == "heavy_swing" else 0
         steps = declare_steps(
-            b, attacker, target, weapon, extra, max_spend=max_spend, on_commit=on_commit
+            b,
+            attacker,
+            target,
+            weapon,
+            heavy_extra + attacker.gear.armor_action_extra,
+            max_spend=max_spend,
+            on_commit=on_commit,
         )
         if steps is None:
             return False
@@ -62,7 +68,7 @@ def melee_attack(
             return True  # the target got out of reach
         blocks = declare_blocks(b, attacker, target, attack, armor=faced_armor(target, weapon))
         outcome = armor_and_crits(
-            b, attacker, target, attack, blocks, pierce=2 * extra + weapon.piercing
+            b, attacker, target, attack, blocks, pierce=2 * heavy_extra + weapon.piercing
         )
         lose_hp(b, target, outcome)
         if (

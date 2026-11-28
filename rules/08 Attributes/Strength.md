@@ -17,4 +17,4 @@ Strength is physical power.
 
 **Every point:**
 - Adds to damage on weapons that use it.
-- Reduces armor penalties (see [[Armor]]) and meets shield and bow Strength requirements (see [[Shields]] and [[Weapons]]).
+- Meets armor, shield and bow Strength requirements (see [[Armor]], [[Shields]] and [[Weapons]]), and even values unlock Agility's defense bonus in medium and heavy armor.

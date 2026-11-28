@@ -182,7 +182,9 @@ class AbilityPolicy:
             if weapon is None or weapon.ranged or me.trackers is None:
                 return None
             cap = min(me.stamina, budget)
-            steps = self.pricing.max_steps(weapon.base, cap, me.trackers, light=weapon.light)
+            steps = self.pricing.max_steps(
+                weapon.base, cap, me.trackers, light=weapon.light, extra=me.gear.armor_action_extra
+            )
             if steps <= 0:
                 return None
             tid = min(request.targets, key=lambda t: (obs.view(t).stamina, obs.view(t).hp))
@@ -250,7 +252,7 @@ class AbilityPolicy:
                 obs.me.trackers,
                 obs.me.stamina - option.quote.total,
                 light=weapon.light,
-                extra=1,
+                extra=1 + obs.me.gear.armor_action_extra,
             )
         except Unaffordable:
             return False
@@ -311,7 +313,13 @@ class AbilityPolicy:
                 and not weapon.ranged
                 and me.trackers is not None
             ):
-                two = self.pricing.max_steps(weapon.base, me.stamina, me.trackers, weapon.light)
+                two = self.pricing.max_steps(
+                    weapon.base,
+                    me.stamina,
+                    me.trackers,
+                    weapon.light,
+                    extra=me.gear.armor_action_extra,
+                )
                 if two < 2:
                     return UseAbility(option.name)
         return None

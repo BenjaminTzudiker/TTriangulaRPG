@@ -107,7 +107,12 @@ def shot_targets(
     if b.field is None or c.pos is None or weapon is None or not weapon.ranged:
         return ()
     limit = c.stamina if max_spend is None else min(c.stamina, max_spend)
-    if b.pricing.ranged_attack(weapon.base, 0, c.trackers).total > limit:
+    if (
+        b.pricing.ranged_attack(
+            weapon.base, 0, c.trackers, extra=c.gear.armor_action_extra
+        ).total
+        > limit
+    ):
         return ()
     out = []
     for o in b.state.enemies_of(c):
@@ -219,13 +224,20 @@ def shoot(
             limit_now = (
                 shooter.stamina if max_spend is None else min(shooter.stamina, max_spend)
             )
-            if b.pricing.ranged_attack(weapon.base, 0, shooter.trackers).total > limit_now:
+            if (
+                b.pricing.ranged_attack(
+                    weapon.base, 0, shooter.trackers, extra=shooter.gear.armor_action_extra
+                ).total
+                > limit_now
+            ):
                 b.ops.emit(ShotCancelled(shooter.id, target.id, "can't afford the shot"))
                 return False
         limit = shooter.stamina if max_spend is None else min(shooter.stamina, max_spend)
         quotes: list[Quote] = []
         while True:
-            q = b.pricing.ranged_attack(weapon.base, len(quotes), shooter.trackers)
+            q = b.pricing.ranged_attack(
+                weapon.base, len(quotes), shooter.trackers, extra=shooter.gear.armor_action_extra
+            )
             if q.total > limit:
                 break
             quotes.append(q)

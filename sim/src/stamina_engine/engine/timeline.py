@@ -195,7 +195,7 @@ def help_dying_targets(b: Battle, c: CombatantState) -> tuple[str, ...]:
     """Creatures in System Shock within 1 square that c can afford to tend (packet 0.11.2)."""
     if not b.rules.dying.helps_dying() or not c.active:
         return ()
-    if b.pricing.help_dying(c.trackers).total > c.stamina:
+    if b.pricing.help_dying(c.trackers, extra=c.gear.armor_action_extra).total > c.stamina:
         return ()
     out = []
     for o in b.state.combatants:
@@ -242,7 +242,7 @@ def command_loop(b: Battle, c: CombatantState) -> None:
         elif isinstance(answer, UseAbility):
             abilities.use(b, c, answer.name, "turn")
         elif isinstance(answer, HelpDying):
-            quote = b.pricing.help_dying(c.trackers)
+            quote = b.pricing.help_dying(c.trackers, extra=c.gear.armor_action_extra)
             b.ops.spend(c, quote, "help_dying")
             total = sum(roll(b.rules.dying.help_dice(), b.dice.dice("dying"))) + (
                 c.gear.attributes.INT
@@ -266,7 +266,16 @@ def targets(b: Battle, c: CombatantState, max_spend: int | None = None) -> tuple
     if weapon is None or weapon.ranged:
         return ()
     limit = c.stamina if max_spend is None else min(c.stamina, max_spend)
-    if b.pricing.melee_attack(weapon.base, 1, c.trackers, light=weapon.light).total > limit:
+    if (
+        b.pricing.melee_attack(
+            weapon.base,
+            1,
+            c.trackers,
+            light=weapon.light,
+            extra=c.gear.armor_action_extra,
+        ).total
+        > limit
+    ):
         return ()
     return tuple(
         o.id for o in b.state.enemies_of(c) if o.active and b.arena.in_reach(b.state, c, o, weapon)

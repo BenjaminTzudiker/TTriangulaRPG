@@ -6,6 +6,10 @@
 - Shields: tiered Strength requirements (+1 RD at STR 1, +1 MD at STR 2, no attribute
   penalties), base-5 equip action and base-1 remove action on your turn only (removing a
   shield frees that hand immediately)
+- Armor: Strength-gated even-Agility defense (light: full; medium: capped at even STR;
+  heavy: capped at even STR - 1, min 0), action-tax Strength shortfall (+1 stamina on every
+  action per point of STR short, zero negative attributes), and heavy-armor dash cost +1
+  (base 2)
 - Simplified Drawing Weapons: free before attacking/shooting on your turn; post-action and
   off-turn weapon draws are always actions (normal weapons: base + escalation only if you
   haven't attacked/shot since turn start; Quick-draw: 1 + escalation either way)
@@ -19,6 +23,7 @@ from stamina_engine.agents.decisions import (
     Draw,
     DrawOption,
     EndTurn,
+    Move,
     OATake,
     Pass,
     ReactDrawRequest,
@@ -30,7 +35,7 @@ from stamina_engine.agents.scripted import make_agent
 from stamina_engine.agents.wire import request as wire_request
 from stamina_engine.core.dice import ScriptedDice
 from stamina_engine.engine.battle import Battle, Entrant
-from stamina_engine.engine.events import Drew, ShotCancelled, Spent
+from stamina_engine.engine.events import Drew, Injured, ShotCancelled, Spent
 from stamina_engine.grid.battlefield import parse_map
 from stamina_engine.model.build import Attributes, Build, Loadout, load_build
 from stamina_engine.model.derive import CombatProfile, derive, equipment_for
@@ -90,18 +95,23 @@ def test_weapon_proficiencies_shelved() -> None:
     assert p121.main.melee_defense == 3  # 1 base + 1 weapon + 1 even FIN
     assert p120.main.melee_defense == 1  # v0.12.0 requires proficiency
 
-    # Negative FIN still loses the +1 melee weapon bonus (Packet: Defenses).
-    neg_fin = Build(
-        "neg_fin",
+    # Under v0.12.1 armor never pushes attributes negative (shortfall is +1 stamina/action),
+    # so FIN stays 0 and keeps the +1 melee weapon bonus; v0.12.0 still drops FIN to -1.
+    short_med = Build(
+        "short_med",
         1,
         Attributes(STR=0, AGI=1, FIN=0),
         (("main", Loadout(weapon="longsword", grip="one", armor="medium")),),
         (),
-        frozenset(),
+        frozenset({"longsword"}),
     )
-    p_neg = profile(neg_fin, RULES)
-    assert (p_neg.main.attributes.AGI, p_neg.main.attributes.FIN) == (0, -1)
-    assert p_neg.main.melee_defense == 1  # base 1 kept (AGI 0), +1 weapon lost (FIN -1)
+    p121_short = profile(short_med, RULES)
+    assert (p121_short.main.attributes.AGI, p121_short.main.attributes.FIN) == (1, 0)
+    assert p121_short.main.armor_action_extra == 1
+    assert p121_short.main.melee_defense == 2  # 1 base + 1 weapon (FIN stays 0)
+    p120_short = profile(short_med, RULES_12_0)
+    assert (p120_short.main.attributes.AGI, p120_short.main.attributes.FIN) == (0, -1)
+    assert p120_short.main.melee_defense == 1  # base 1 kept (AGI 0), +1 weapon lost (FIN -1)
 
 
 # --- Dual Wielding Shelved (Ledger H-12) ---------------------------------------------
@@ -166,8 +176,8 @@ def test_shield_tiered_strength_requirements() -> None:
     p0_120 = profile(str0, RULES_12_0)
     assert (p0_120.main.melee_defense, p0_120.main.ranged_defense) == (5, 3)
 
-    # Armor Strength penalties still apply separately (medium armor req STR 1 -> -1 AGI, -1 FIN),
-    # while the shield adds no attribute penalty and gives +0/+0 at STR 0.
+    # Armor Strength shortfall adds +1 stamina/action (no negative attribute penalties),
+    # medium armor caps even-AGI defense at even STR (0 at STR 0), and shield gives +0/+0 at STR 0.
     str0_med = Build(
         "str0_med",
         10,
@@ -176,8 +186,9 @@ def test_shield_tiered_strength_requirements() -> None:
         ("fighter",),
     )
     pm = profile(str0_med, RULES)
-    assert (pm.main.attributes.AGI, pm.main.attributes.FIN) == (1, 1)
-    assert (pm.main.melee_defense, pm.main.ranged_defense) == (2, 1)  # base + weapon only
+    assert (pm.main.attributes.AGI, pm.main.attributes.FIN) == (2, 2)
+    assert pm.main.armor_action_extra == 1
+    assert (pm.main.melee_defense, pm.main.ranged_defense) == (3, 1)  # 1 + weapon + even FIN; 1 RD
 
     # Unarmed STR 1 caster holding a shield gets +0 MD and +1 RD (not a free weapon MD bonus).
     caster_sh = Build(
@@ -482,3 +493,190 @@ def test_tactical_human_and_wire_react_draw() -> None:
     w = wire_request(heavy_req)
     assert w["kind"] == "react_draw" and w["who"] == "A"
     assert w["fields"]["draws"][0]["loadout"] == "blade"
+
+
+# --- Armor: Strength-Gated Agility, Action-Tax Shortfall & Heavy Dash Cost -----------
+
+
+def test_armor_strength_gated_even_agility() -> None:
+    """Light/unarmored grants full even Agility; medium caps even Agility at even Strength;
+    heavy caps even Agility at max(0, even Strength - 1), for both MD and RD. v0.12.0 keeps
+    legacy every-3rd / every-4th Agility steps."""
+
+    def defs(armor: str, str_: int, agi: int, rules: RuleSet = RULES) -> tuple[int, int]:
+        b = Build(
+            "t",
+            99,
+            Attributes(STR=str_, AGI=agi, FIN=0),
+            (("main", Loadout(weapon="longsword", grip="one", armor=armor)),),
+            (),
+            frozenset({"longsword"}),
+        )
+        lo = profile(b, rules).main
+        return lo.melee_defense, lo.ranged_defense
+
+    # Unarmored / Light: full even Agility regardless of Strength (base MD 2, RD 1).
+    for armor in ("none", "light"):
+        assert defs(armor, 0, 0) == (2, 1)
+        assert defs(armor, 0, 2) == (3, 2)
+        assert defs(armor, 0, 4) == (4, 3)
+        assert defs(armor, 0, 6) == (5, 4)
+
+    # Medium (Armor 2): even Agility capped at even Strength.
+    assert defs("medium", 0, 4) == (2, 1)  # even STR 0 -> +0
+    assert defs("medium", 1, 2) == (2, 1)  # even STR 0 -> +0
+    assert defs("medium", 2, 2) == (3, 2)  # min(1, 1) -> +1
+    assert defs("medium", 2, 4) == (3, 2)  # min(2, 1) -> +1
+    assert defs("medium", 4, 2) == (3, 2)  # min(1, 2) -> +1
+    assert defs("medium", 4, 4) == (4, 3)  # min(2, 2) -> +2
+    assert defs("medium", 6, 6) == (5, 4)  # min(3, 3) -> +3
+
+    # Heavy (Armor 3): even Agility capped at max(0, even Strength - 1).
+    assert defs("heavy", 2, 4) == (2, 1)  # even STR 1 - 1 = 0 -> +0
+    assert defs("heavy", 3, 4) == (2, 1)  # even STR 1 - 1 = 0 -> +0
+    assert defs("heavy", 4, 2) == (3, 2)  # min(1, 1) -> +1
+    assert defs("heavy", 4, 4) == (3, 2)  # min(2, 1) -> +1
+    assert defs("heavy", 6, 4) == (4, 3)  # min(2, 2) -> +2
+    assert defs("heavy", 6, 6) == (4, 3)  # min(3, 2) -> +2
+
+    # Earlier preset (v0.12.0) keeps legacy every-3rd (medium) and every-4th (heavy) steps.
+    assert defs("medium", 1, 3, RULES_12_0) == (3, 2)
+    assert defs("medium", 1, 3, RULES) == (2, 1)
+    assert defs("heavy", 3, 4, RULES_12_0) == (3, 2)
+    assert defs("heavy", 3, 4, RULES) == (2, 1)
+
+
+def test_armor_shortfall_action_tax_and_heavy_dash_pricing() -> None:
+    """Being below armor's Strength requirement adds +1 stamina to every action per point short
+    (no attribute penalties), and heavy armor adds +1 to dash base cost (base 2); blocks, OAs
+    and free pre-action weapon draws are unaffected."""
+    b = Build(
+        "str2_heavy",
+        12,
+        Attributes(STR=2, AGI=2, FIN=2),
+        (
+            ("sword", Loadout(weapon="longsword", grip="one", armor="heavy")),
+            ("sword_sh", Loadout(weapon="longsword", grip="one", off_hand="shield", armor="heavy")),
+            ("dagger", Loadout(weapon="dagger", grip="one", armor="heavy")),
+        ),
+        ("fighter",),
+    )
+    p = profile(b, RULES)
+    sword, sword_sh, dagger = p.loadout("sword"), p.loadout("sword_sh"), p.loadout("dagger")
+    pricing = Pricing(RULES)
+
+    # No attribute mutation; 1 short of heavy STR 3 -> +1 action tax, +1 heavy dash cost.
+    assert sword.attributes == Attributes(STR=2, AGI=2, FIN=2)
+    assert (sword.armor, sword.armor_action_extra, sword.armor_dash_extra) == (3, 1, 1)
+    assert (p.hp_max, p.stamina_max) == (10, 18)  # L12: 6 + 10 HP + 2 level stamina
+
+    # Melee attack & max_steps include armor_action_extra.
+    assert pricing.melee_attack(2, 2, extra=sword.armor_action_extra) == Quote(
+        (3, 4), Track.ON_TURN
+    )
+    assert pricing.max_steps(2, 7, extra=sword.armor_action_extra) == 2
+    assert pricing.max_steps(2, 6, extra=sword.armor_action_extra) == 1
+
+    # Dashes: heavy (+1) + 1 STR short (+1) -> base 3 on 1st dash; STR 3 heavy -> base 2.
+    q_short_dash = pricing.move(
+        3,
+        on_turn=True,
+        trackers=Trackers(),
+        free_left=2,
+        movement=2,
+        extra_squares=2,
+        dash_extra=sword.armor_action_extra + sword.armor_dash_extra,
+    )
+    assert q_short_dash.total == 3
+    str3_heavy = Build(
+        "str3_heavy",
+        10,
+        Attributes(STR=3, AGI=0, FIN=1),
+        (("main", Loadout(weapon="longsword", grip="one", armor="heavy")),),
+        ("fighter",),
+    )
+    h3 = profile(str3_heavy, RULES).main
+    assert (h3.armor_action_extra, h3.armor_dash_extra) == (0, 1)
+    assert (
+        pricing.move(
+            3,
+            on_turn=True,
+            trackers=Trackers(),
+            free_left=2,
+            movement=2,
+            extra_squares=2,
+            dash_extra=h3.armor_action_extra + h3.armor_dash_extra,
+        ).total
+        == 2
+    )
+    assert pricing.off_turn_purchase(Trackers(), extra=1) == Quote((2,), Track.ON_TURN)
+
+    # Paid draws and shield equip/remove include armor_action_extra; free pre-action draw does not.
+    assert pricing.draw(sword, dagger, on_turn=True, used_weapon=False, bow_hands=False) == Quote(
+        ()
+    )
+    assert pricing.draw(
+        sword_sh, sword, on_turn=True, used_weapon=False, bow_hands=False
+    ) == Quote((2,), Track.ON_TURN)
+    assert pricing.draw(
+        sword, sword_sh, on_turn=True, used_weapon=False, bow_hands=False
+    ) == Quote((6,), Track.ON_TURN)
+    assert pricing.draw(
+        sword, dagger, on_turn=False, used_weapon=True, bow_hands=False
+    ) == Quote((2,), Track.ON_TURN)
+    assert pricing.draw(
+        dagger, sword, on_turn=False, used_weapon=False, bow_hands=False
+    ) == Quote((3,), Track.ON_TURN)
+
+    # Ranged shots, aim steps, and Helping the Dying include armor_action_extra (STR 0 heavy = +3).
+    assert pricing.ranged_attack(3, 1, extra=3) == Quote((6, 5), Track.ON_TURN)
+    assert pricing.help_dying(extra=3) == Quote((8,), Track.ON_TURN)
+
+    # Blocks and opportunity attacks are never taxed by armor shortfall.
+    assert pricing.blocks(2, 0) == Quote((1, 2))
+    assert pricing.opportunity_attack(2, 1, Trackers(), cap=2) == Quote((2,))
+
+
+def test_armor_shortfall_and_heavy_dash_in_battle() -> None:
+    """End-to-end battle check: a STR 2 fighter in heavy armor (1 short) pays 3 stamina for its
+    first dash (1 base + 1 heavy + 1 shortfall) and 4 for a following 1-step longsword attack
+    (2 base + 1 shortfall + 1 escalation) with zero phantom Heavy Swing piercing, while its
+    block (1) and opportunity attack (2) remain unaffected."""
+    short_heavy = Build(
+        "str2_heavy",
+        1,
+        Attributes(STR=2, AGI=0, FIN=1),
+        (("main", Loadout(weapon="longsword", grip="one", armor="heavy")),),
+        ("fighter",),
+    )
+    a_prof = profile(short_heavy, RULES)
+    assert a_prof.main.movement == 5  # AGI 0 -> 5 free squares; 6th square triggers 1st dash
+    a_agent = Listed(
+        turns=[Move(((2, 2), (3, 2), (4, 2), (5, 2), (6, 2), (7, 2))), Attack("B"), EndTurn()],
+        commit=[1],
+        block_answers=[Blocks(1, 0)],
+        oas=[OATake("main", 1)],
+    )
+    b_agent = Listed(
+        turns=[Attack("A"), Move(((9, 2),)), EndTurn()],
+        commit=[1],
+        block_answers=[Blocks(0, 0), Blocks(0, 0)],
+    )
+    entrants = [
+        Entrant("A", "red", a_prof, a_agent, "main", (1, 2)),
+        Entrant("B", "blue", profile("l1_sample", RULES), b_agent, "", (8, 2)),
+    ]
+    faces = {
+        "initiative": [12, 12, 1, 1],
+        "attack:A": [5, 5],  # 5 + 2 (longsword) + 1 (odd STR) = 8 raw; vs B's Armor 2 -> 6 HP
+        "attack:B": [5],
+    }
+    res = Battle(RULES, entrants, Dice(faces), seed=0, round_cap=1, check=True, field=OPEN).run()
+    a_spent = [e for e in res.log if isinstance(e, Spent) and e.who == "A"]
+    by_cat = {e.category: e for e in a_spent}
+    assert by_cat["extra_move"].parts == (3,)  # 1 base + 1 heavy + 1 STR shortfall
+    assert by_cat["attack"].parts == (4,)  # 2 base + 1 STR shortfall + 1 escalation from dash
+    assert by_cat["block"].parts == (1,)  # unaffected by STR shortfall
+    assert by_cat["opportunity"].parts == (2,)  # weapon base 2, unaffected by STR shortfall
+    b_inj = [e for e in res.log if isinstance(e, Injured) and e.who == "B"]
+    assert b_inj[0].damage == 6  # 8 raw - 2 armor = 6 (armor_action_extra adds 0 piercing)

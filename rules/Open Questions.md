@@ -23,7 +23,7 @@ next: "[[Not in This Version]]"
 - Surprise: what a creature that hasn't noticed its attacker can do, in a game where acting first is worth this much.
 - What being incapacitated still allows, such as speaking, crawling, or being carried or dragged by an ally.
 - Shooting into a melee: whether a shot at an enemy fighting your ally risks hitting the ally. Today the only cost is the cover the ally gives.
-- Drawing Weapons' gaps: what each creature has in hand when a fight starts; whether off-turn drawing should move earlier (for example, to when targeted rather than after seeing the roll); and whether quick-draw into a used hand should still apply to somatic casting once two-handed spells exist.
+- Drawing Weapons' gaps: what each creature has in hand when a fight starts; whether off-turn drawing should move earlier (for example, to when targeted rather than after seeing the roll); and whether per-hand tracking is needed once one-handed vs. two-handed spells exist.
 - What a round is, and when a fight starts. The packet uses "round" without defining it and doesn't say when initiative is rolled. The designer's answers in the 2026-11-20 initiative chat (as the chat's notes record them, `claude/Initiative_Part1_2026-11-20.md`): a round is one pass through the initiative order, and a fight starts when the GM declares it, ideally only when something needs resolving in order. Not in the rules text yet.
 - The TODO details marked through this packet.
 

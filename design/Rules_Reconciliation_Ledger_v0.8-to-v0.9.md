@@ -873,7 +873,7 @@
 - **Packet:** **Contradicts:** the packet has a global "hands occupied" rule and lacks the dagger/shortsword exception.
 - **Evidence:** [p.1480], [p.1484]. Ruling B7 and your weapon ruling (your ruling, 2026-11-01).
 - **Later changes:**
-  - *Packet 0.12.1 (your call, 2026-11-26):* unified **used hands** (attacking, shooting, casting, equipping/removing a shield or interacting with an object commits that hand to that thing until the start of your next turn; blocking doesn't); post-action drawing on your turn follows the same rules as off-turn drawing (in a dash phase or in step 4, Reactions, of an attack); normal off-turn/post-action drawing is an action costing weapon base + escalation (requiring unused drawing hand(s)); Quick-draw costs a flat 1 stamina (not an action) in an unused hand, or 1 + escalation (an action) in a used hand.
+  - *Packet 0.12.1 (your call, 2026-11-26 to 2026-11-27):* simplified around whether you have attacked, shot or cast since your last turn started (blocking and opportunity attacks don't count); before acting on your turn, drawing, sheathing and grip changes are free; post-action drawing on your turn and off-turn drawing (in a dash phase or in step 4, Reactions, of an attack) are always **actions** costing weapon base + escalation (normal weapons require not having attacked, shot or cast since turn start; Quick-draw daggers and shortswords cost 1 + escalation even after acting). Removing a shield frees that hand immediately; equipping a shield is disallowed after attacking, shooting or casting on your turn.
 
 ### EQ-4 Dagger/shortsword quick-draw → merged into EQ-3
 - **Status:** Superseded. The earlier rule (draw when attacked for 1 stamina [p.1480]) is replaced by EQ-3's "free to draw between turns".
@@ -887,7 +887,7 @@
 - **History:** Main-hand shield rule scrapped [p.1481].
 - **Later changes:**
   - *Packet 0.10.0 (your ruling, 2026-11-11):* lowered from +2/+2 to +1 Melee Defense and +1 Ranged Defense.
-  - *Packet 0.12.1 (your call, 2026-11-26):* added a Strength 2 requirement (−1 AGI and −1 FIN per STR short, applied separately from armor's), made equipping a shield a base-5 action and removing one a base-1 action (both on your turn only; can't be dropped freely), and removed the blanket ban on casting spells while using a shield.
+  - *Packet 0.12.1 (your call, 2026-11-26 to 2026-11-27):* added tiered Strength requirements (+1 Ranged Defense requires Strength 1; +1 Melee Defense requires Strength 2; no attribute penalties), made equipping a shield a base-5 action and removing one a base-1 action (both on your turn only; can't be dropped freely; removing frees the hand immediately), and removed the blanket ban on casting spells while using a shield.
 
 ---
 
@@ -912,7 +912,7 @@
 - **Evidence:** [p.1472–1473] and your spellcasting ruling (your ruling, 2026-11-01).
 - **Later changes:**
   - *Packet 0.12.0:* spells no longer list a strain cost or strain overage (strain shelved as **H-10**); limits across fights or outside combat are **TODO**.
-  - *Packet 0.12.1 (your call, 2026-11-26):* removed the blanket ban on casting spells while using a shield (shields now require Strength 2 and occupy one hand). Added exploratory directions for 1H vs. 2H spells, multi-action spellcasting, and exploring an armor-casting stamina surcharge.
+  - *Packet 0.12.1 (your call, 2026-11-26 to 2026-11-27):* removed the blanket ban on casting spells while using a shield (shields occupy one hand and require STR 1 for +1 RD, STR 2 for +1 MD). Added exploratory directions for 1H vs. 2H spells, multi-action spellcasting, and exploring an armor-casting stamina surcharge.
 
 ---
 

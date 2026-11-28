@@ -216,8 +216,8 @@ def _loadout_profile(
     req_prof = rules.defenses.requires_proficiency()
     proficient_melee = main is not None and (not req_prof or main.proficient) and not main.ranged
     second = off is not None and (not req_prof or off.proficient) and not off.ranged
-    shield_md = shield.melee if shield else 0
-    shield_rd = shield.ranged if shield else 0
+    shield_md = shield.melee if (shield and shield.melee_strength <= attrs.STR) else 0
+    shield_rd = shield.ranged if (shield and shield.ranged_strength <= attrs.STR) else 0
     d, mv = rules.defenses, rules.movement
     return LoadoutProfile(
         name=name,
@@ -249,7 +249,7 @@ def _loadout_profile(
 def equipment_for(rules: RuleSet) -> str:
     """The packet's equipment table for a RuleSet:
     - v0_9 whenever v0.9's three-range bows are used (v0.9–v0.9.3, minus_d6 variants);
-    - v0_12_1 from packet 0.12.1 on (v0_12 plus shield Strength 2 requirement);
+    - v0_12_1 from packet 0.12.1 on (v0_12 plus tiered shield Strength requirements);
     - v0_12 from packet 0.11.1 through 0.12.0 (0.10.0's bows and shield, plus spear reach
       only in two hands);
     - v0_10 under linear range bands through 0.10.1 (and exp-0.11.*).

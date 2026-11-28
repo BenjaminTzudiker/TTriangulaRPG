@@ -25,7 +25,7 @@ Ranged combat follows the same structure as melee wherever it can.
    - the target loses that much HP.
 
 > [!example] Example: Shooting in Melee
-> An archer with a longbow stands next to an orc and declares a shot at a goblin 6 squares away. The orc makes its opportunity attack first, and the archer blocks it with the bow still in hand. Hurt, the archer cancels: it pays nothing, and it can still draw its dagger, since no hand was used for a shot. Had it drawn the dagger to block, it would have given up the shot anyway.
+> An archer with a longbow stands next to an orc and declares a shot at a goblin 6 squares away. The orc makes its opportunity attack first, and the archer blocks it with the bow still in hand. Hurt, the archer cancels: it pays nothing, and it can still draw its dagger for free, since it hasn't shot yet. Had it drawn the dagger to block, it would have given up the shot anyway.
 
 ![[Aim]]
 

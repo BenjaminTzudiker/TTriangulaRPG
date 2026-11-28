@@ -158,7 +158,6 @@ STATE_FIELDS = {
     "delayed",
     "control",
     "bow_hands",
-    "used_hands",
 }
 ALLOWED = {"engine/stateops.py", "model/state.py"}
 

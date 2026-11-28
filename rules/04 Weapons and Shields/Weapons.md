@@ -42,7 +42,7 @@ A weapon card lists its category, base stamina cost (a shot cost, for ranged wea
 
 ## Weapon Properties
 
-- **Quick-draw** (daggers, shortswords): when drawing after acting on your turn or outside your turn, costs its base cost (1 stamina) without being an action in an unused hand, and can still be drawn into a used hand as an action (1 + escalation; see [[Drawing Weapons]]).
+- **Quick-draw** (daggers, shortswords): can still be drawn as an action (1 + escalation) after attacking, shooting or casting on your turn, or outside your turn, even if you've already attacked, shot or cast since your last turn started (see [[Drawing Weapons]]).
 - **Piercing N:** the weapon ignores N armor. Critical dice ignore armor on top of this, but armor can't go below 0.
 - **Hammer** (hammer-type weapons): Piercing 1. **TODO:** hammer stats.
 - **Reach:** extends how far the weapon threatens.

@@ -210,8 +210,8 @@ class V09Ranged(RangedRule):
     reaction_purchases: int = 0
     swap_single_purchase: bool = False
     crit_in_limit: bool = False
-    # Packet 0.12.1: unified used hands, shield equip/remove actions, and off-turn /
-    # post-action drawing rules (defaults preserve v0.9–v0.12.0 digests).
+    # Packet 0.12.1: shield equip/remove actions (removal frees the hand immediately) and
+    # simplified paid off-turn / post-action drawing rules (defaults preserve v0.9–v0.12.0).
     draw_mode: str = "v0_9"
     shield_equip_base: int = 5
     shield_remove_base: int = 1

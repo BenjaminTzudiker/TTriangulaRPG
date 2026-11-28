@@ -3,11 +3,12 @@
 - Weapon proficiencies shelved (Ledger H-11): any melee weapon grants +1 MD (unless FIN < 0)
   and +1 per even FIN
 - Dual wielding shelved (Ledger H-12): second melee weapon grants +0 MD
-- Shields: Strength 2 requirement (-1 AGI / -1 FIN per STR short, separate from armor),
-  base-5 equip action and base-1 remove action on your turn only, off-hand commitment
-- Unified used hands and Drawing Weapons: free before acting on your turn; post-action /
-  off-turn normal draw (action, base + escalation, unused hands required) and Quick-draw
-  (flat 1 stamina in unused hand; 1 + escalation action in used hand)
+- Shields: tiered Strength requirements (+1 RD at STR 1, +1 MD at STR 2, no attribute
+  penalties), base-5 equip action and base-1 remove action on your turn only (removing a
+  shield frees that hand immediately)
+- Simplified Drawing Weapons: free before attacking/shooting on your turn; post-action and
+  off-turn weapon draws are always actions (normal weapons: base + escalation only if you
+  haven't attacked/shot since turn start; Quick-draw: 1 + escalation either way)
 - Step 4 (Reactions) off-turn drawing (`ReactDrawRequest`), including point-blank OA shot
   cancellation ("drew a weapon"), TacticalAgent, HumanAgent, and wire serialization
 """
@@ -125,41 +126,74 @@ def test_dual_wielding_shelved() -> None:
     assert profile(dual, RULES_12_0).main.melee_defense == 4  # +1 for second weapon
 
 
-# --- Shields: Strength 2 Requirement & Equip / Remove Actions ------------------------
+# --- Shields: Tiered Strength Requirements & Equip / Remove Actions ------------------
 
 
-def test_shield_strength_requirement_2() -> None:
-    """Shield requires STR 2 (-1 AGI, -1 FIN per STR short, separate from armor) in v0.12.1."""
+def test_shield_tiered_strength_requirements() -> None:
+    """Shield gives +1 RD (requires STR 1) and +1 MD (requires STR 2) with no attribute
+    penalties under v0.12.1."""
+    str2 = Build(
+        "str2",
+        12,
+        Attributes(STR=2, AGI=2, FIN=2),
+        (("main", Loadout(weapon="longsword", grip="one", off_hand="shield", armor="none")),),
+        ("fighter",),
+    )
     str1 = Build(
         "str1",
-        10,
+        12,
         Attributes(STR=1, AGI=2, FIN=2),
         (("main", Loadout(weapon="longsword", grip="one", off_hand="shield", armor="none")),),
         ("fighter",),
     )
-    p121 = profile(str1, RULES)
-    p120 = profile(str1, RULES_12_0)
-    assert (p121.main.attributes.AGI, p121.main.attributes.FIN) == (1, 1)
-    assert (p121.main.melee_defense, p121.main.ranged_defense) == (3, 2)
-    assert (p120.main.attributes.AGI, p120.main.attributes.FIN) == (2, 2)
-    assert (p120.main.melee_defense, p120.main.ranged_defense) == (5, 3)  # +1 even AGI, +1 even FIN
-
-    # Separate from armor: STR 0 with medium armor (STR 1 -> -1) and shield (STR 2 -> -2) = -3.
     str0 = Build(
         "str0",
+        12,
+        Attributes(STR=0, AGI=2, FIN=2),
+        (("main", Loadout(weapon="longsword", grip="one", off_hand="shield", armor="none")),),
+        ("fighter",),
+    )
+    p2, p1, p0 = profile(str2, RULES), profile(str1, RULES), profile(str0, RULES)
+    # Attributes are never penalized by a shield.
+    assert (p2.main.attributes.AGI, p2.main.attributes.FIN) == (2, 2)
+    assert (p1.main.attributes.AGI, p1.main.attributes.FIN) == (2, 2)
+    assert (p0.main.attributes.AGI, p0.main.attributes.FIN) == (2, 2)
+    # Base 1 + weapon 1 + even AGI 1 + even FIN 1 = 4 MD; base 1 + even AGI 1 = 2 RD.
+    assert (p2.main.melee_defense, p2.main.ranged_defense) == (5, 3)  # +1 MD, +1 RD
+    assert (p1.main.melee_defense, p1.main.ranged_defense) == (4, 3)  # +0 MD, +1 RD
+    assert (p0.main.melee_defense, p0.main.ranged_defense) == (4, 2)  # +0 MD, +0 RD
+    # Under v0.12.0, shields had no Strength requirement (+1/+1 even at STR 0).
+    p0_120 = profile(str0, RULES_12_0)
+    assert (p0_120.main.melee_defense, p0_120.main.ranged_defense) == (5, 3)
+
+    # Armor Strength penalties still apply separately (medium armor req STR 1 -> -1 AGI, -1 FIN),
+    # while the shield adds no attribute penalty and gives +0/+0 at STR 0.
+    str0_med = Build(
+        "str0_med",
         10,
         Attributes(STR=0, AGI=2, FIN=2),
         (("main", Loadout(weapon="longsword", grip="one", off_hand="shield", armor="medium")),),
         ("fighter",),
     )
-    p0 = profile(str0, RULES)
-    assert (p0.main.attributes.AGI, p0.main.attributes.FIN) == (-1, -1)
-    assert p0.main.melee_defense == 1  # base 0 (AGI < 0) + weapon 0 (FIN < 0) + 1 shield
+    pm = profile(str0_med, RULES)
+    assert (pm.main.attributes.AGI, pm.main.attributes.FIN) == (1, 1)
+    assert (pm.main.melee_defense, pm.main.ranged_defense) == (2, 1)  # base + weapon only
+
+    # Unarmed STR 1 caster holding a shield gets +0 MD and +1 RD (not a free weapon MD bonus).
+    caster_sh = Build(
+        "caster_sh",
+        1,
+        Attributes(STR=1, AGI=0, FIN=0),
+        (("main", Loadout(weapon=None, off_hand="shield", armor="none")),),
+        (),
+    )
+    pc = profile(caster_sh, RULES)
+    assert (pc.main.melee_defense, pc.main.ranged_defense) == (1, 2)
 
 
-def test_shield_equip_and_remove_actions_and_hand_commitment() -> None:
+def test_shield_equip_and_remove_actions_free_hand_immediately() -> None:
     """Equipping a shield is a base-5 action, removing is a base-1 action, on your turn only;
-    removing a shield uses the off hand so you can't switch a spear to 2H on the same turn."""
+    removing a shield frees that hand immediately so a Fighter can switch to a 2H grip."""
     b = Build(
         "shield_sw",
         1,
@@ -193,64 +227,67 @@ def test_shield_equip_and_remove_actions_and_hand_commitment() -> None:
     # Off turn: neither equip nor remove is allowed.
     assert pricing.draw(sp_sh, sp_1h, on_turn=False, used_weapon=False, bow_hands=False) is None
     assert pricing.draw(sp_1h, sp_sh, on_turn=False, used_weapon=False, bow_hands=False) is None
-    # Removing shield and switching spear to 2H in one step (or after removing) is disallowed.
-    assert pricing.draw(sp_sh, sp_2h, on_turn=True, used_weapon=False, bow_hands=False) is None
+    # Removing a shield and switching a spear to 2H grip (in one step or two) is allowed before
+    # attacking/shooting/casting on your turn, costing base 1 + escalation for the removal.
+    assert pricing.draw(sp_sh, sp_2h, on_turn=True, used_weapon=False, bow_hands=False) == Quote(
+        (1,), Track.ON_TURN
+    )
+    assert pricing.draw(
+        sp_1h, sp_2h, on_turn=True, used_weapon=False, bow_hands=False, trackers=Trackers(1)
+    ) == Quote(())
+    # After attacking/shooting on your turn: equipping a shield and changing grip are disallowed.
     assert (
         pricing.draw(
-            sp_1h,
-            sp_2h,
-            on_turn=True,
-            used_weapon=False,
-            bow_hands=False,
-            used_hands=(None, "shield:shield"),
+            bow, sp_sh, on_turn=True, used_weapon=True, bow_hands=True, trackers=Trackers(1)
         )
         is None
     )
-    # After shooting a 2H bow, equipping a shield is disallowed (off hand used by bow).
     assert (
         pricing.draw(
-            bow,
-            sp_sh,
-            on_turn=True,
-            used_weapon=True,
-            bow_hands=True,
-            used_hands=("weapon:shortbow", "weapon:shortbow"),
+            sp_1h, sp_2h, on_turn=True, used_weapon=True, bow_hands=False, trackers=Trackers(1)
         )
         is None
     )
 
-    # In a battle: removing a shield on turn 1 uses the off hand and spends 1 (escalation -> 1),
-    # blocking sp_2h on turn 1, then allowing free sp_2h on turn 2.
-    mover = Listed(turns=[Draw("sp_1h"), EndTurn(), Draw("sp_2h"), EndTurn()])
+    # In a battle: removing a shield on turn 1 frees the hand immediately (sp_2h is offered for
+    # 0 stamina right away), and escalation (+1) carries into the 2H spear attack on the same turn.
+    mover = Listed(
+        turns=[Draw("sp_1h"), Draw("sp_2h"), Attack("B"), EndTurn()],
+        commit=[1],
+    )
     entrants = [
         Entrant("A", "red", p, mover, "sp_sh", (2, 2)),
-        Entrant("B", "blue", profile("l1_sample"), Listed(), "", (8, 2)),
+        Entrant("B", "blue", profile("l1_sample"), Listed(), "", (4, 2)),  # distance 2 (reach 2!)
     ]
     res = Battle(
         RULES,
         entrants,
-        Dice({"initiative": [12, 12, 1, 1]}),
+        Dice({"initiative": [12, 12, 1, 1], "attack:A": [5]}),
         seed=0,
-        round_cap=2,
+        round_cap=1,
         check=True,
         field=OPEN,
     ).run()
     turn_cmds = [r for r in mover.requests if type(r).__name__ == "TurnCommand"]
-    # Second TurnCommand of round 1 (right after removing shield): sp_2h is NOT offered.
-    assert "sp_2h" not in {d.loadout for d in turn_cmds[1].draws}
-    # First TurnCommand of round 2 (hands reset): sp_2h IS offered for 0 stamina.
-    r2_draws = {d.loadout: d.quote for d in turn_cmds[2].draws}
-    assert r2_draws["sp_2h"] == Quote(())
+    # Second TurnCommand of round 1 (right after removing shield): sp_2h IS offered for 0 stamina.
+    r1_after_remove = {d.loadout: d.quote for d in turn_cmds[1].draws}
+    assert r1_after_remove["sp_2h"] == Quote(())
     drew = [e for e in res.log if isinstance(e, Drew) and e.who == "A"]
     assert [(d.loadout, d.cost) for d in drew] == [("sp_1h", 1), ("sp_2h", 0)]
+    # 2H spear attack pays base 2 + 1 escalation carried from removing the shield = 3 stamina!
+    atk_spent = [
+        e for e in res.log if isinstance(e, Spent) and e.who == "A" and e.category == "attack"
+    ]
+    assert len(atk_spent) == 1 and atk_spent[0].parts == (3,)
 
 
-# --- Unified Used Hands & Drawing Weapons --------------------------------------------
+# --- Simplified Drawing Weapons ------------------------------------------------------
 
 
 def test_drawing_weapons_pricing_matrix() -> None:
-    """Verify every drawing case under v0.12.1: free before acting, normal action in unused
-    hand(s), Quick-draw flat 1 in unused hand, Quick-draw action 1 + escalation in used hand."""
+    """Verify every drawing case under v0.12.1: free before acting on your turn; after acting
+    or off-turn, every weapon draw is an action (normal requires not having attacked/shot since
+    turn start; Quick-draw is 1 + escalation either way)."""
     b = Build(
         "arsenal",
         1,
@@ -258,9 +295,7 @@ def test_drawing_weapons_pricing_matrix() -> None:
         (
             ("bow", Loadout(weapon="shortbow", grip="two", armor="none")),
             ("sword", Loadout(weapon="longsword", grip="one", armor="none")),
-            ("sword_sh", Loadout(weapon="longsword", grip="one", off_hand="shield", armor="none")),
             ("dagger", Loadout(weapon="dagger", grip="one", armor="none")),
-            ("dagger_sh", Loadout(weapon="dagger", grip="one", off_hand="shield", armor="none")),
             ("shortsword", Loadout(weapon="shortsword", grip="one", armor="none")),
             ("greatsword", Loadout(weapon="greatsword", grip="two", armor="none")),
             ("spear", Loadout(weapon="spear", grip="one", armor="none")),
@@ -269,133 +304,59 @@ def test_drawing_weapons_pricing_matrix() -> None:
     )
     p = profile(b, RULES)
     pricing = Pricing(RULES)
-    bow, sword, sword_sh, dagger, dagger_sh, ss, gs, spear = (
-        p.loadout(n)
-        for n in (
-            "bow",
-            "sword",
-            "sword_sh",
-            "dagger",
-            "dagger_sh",
-            "shortsword",
-            "greatsword",
-            "spear",
-        )
+    bow, sword, dagger, ss, gs, spear = (
+        p.loadout(n) for n in ("bow", "sword", "dagger", "shortsword", "greatsword", "spear")
     )
-    # 1. On turn, before acting: free in unused hands.
+    # 1. On turn, before attacking/shooting: free.
     assert pricing.draw(bow, gs, on_turn=True, used_weapon=False, bow_hands=False) == Quote(())
     assert pricing.draw(bow, dagger, on_turn=True, used_weapon=False, bow_hands=False) == Quote(())
 
-    # 2. On turn, after shooting bow (both hands used, escalation 1):
-    bow_used = ("weapon:shortbow", "weapon:shortbow")
-    assert (
-        pricing.draw(
-            bow,
-            sword,
-            on_turn=True,
-            used_weapon=True,
-            bow_hands=True,
-            trackers=Trackers(1),
-            used_hands=bow_used,
+    # 2. On turn, after shooting bow or attacking with a 1H sword (escalation 1):
+    #    no normal weapons; Quick-draw is always an action (1 + escalation = 2).
+    for cur, bow_flag in ((bow, True), (sword, False)):
+        assert (
+            pricing.draw(
+                cur, spear, on_turn=True, used_weapon=True, bow_hands=bow_flag, trackers=Trackers(1)
+            )
+            is None
         )
-        is None
-    )
-    assert (
-        pricing.draw(
-            bow,
-            gs,
-            on_turn=True,
-            used_weapon=True,
-            bow_hands=True,
-            trackers=Trackers(1),
-            used_hands=bow_used,
+        assert (
+            pricing.draw(
+                cur, gs, on_turn=True, used_weapon=True, bow_hands=bow_flag, trackers=Trackers(1)
+            )
+            is None
         )
-        is None
-    )
-    # Quick-draw (dagger & shortsword) in used hand: action costing 1 + escalation (1 + 1 = 2).
-    assert pricing.draw(
-        bow,
-        dagger,
-        on_turn=True,
-        used_weapon=True,
-        bow_hands=True,
-        trackers=Trackers(1),
-        used_hands=bow_used,
-    ) == Quote((2,), Track.ON_TURN)
-    assert pricing.draw(
-        bow,
-        ss,
-        on_turn=True,
-        used_weapon=True,
-        bow_hands=True,
-        trackers=Trackers(1),
-        used_hands=bow_used,
-    ) == Quote((2,), Track.ON_TURN)
+        assert pricing.draw(
+            cur, dagger, on_turn=True, used_weapon=True, bow_hands=bow_flag, trackers=Trackers(1)
+        ) == Quote((2,), Track.ON_TURN)
+        assert pricing.draw(
+            cur, ss, on_turn=True, used_weapon=True, bow_hands=bow_flag, trackers=Trackers(1)
+        ) == Quote((2,), Track.ON_TURN)
 
-    # 3. On turn, after 1H sword attack (main hand used, off hand unused, escalation 1):
-    one_used = ("weapon:longsword", None)
-    assert (
-        pricing.draw(
-            sword,
-            gs,
-            on_turn=True,
-            used_weapon=True,
-            bow_hands=False,
-            trackers=Trackers(1),
-            used_hands=one_used,
-        )
-        is None
-    )
-    assert pricing.draw(
-        sword,
-        spear,
-        on_turn=True,
-        used_weapon=True,
-        bow_hands=False,
-        trackers=Trackers(1),
-        used_hands=one_used,
-    ) == Quote((3,), Track.ON_TURN)  # base 2 + escalation 1 in unused off hand
-    assert pricing.draw(
-        sword,
-        dagger,
-        on_turn=True,
-        used_weapon=True,
-        bow_hands=False,
-        trackers=Trackers(1),
-        used_hands=one_used,
-    ) == Quote((1,), Track.NONE)  # Quick-draw in unused off hand: flat 1, not an action
-    # Holding a shield occupies the off hand, so swapping sword->dagger uses the used main hand!
-    assert pricing.draw(
-        sword_sh,
-        dagger_sh,
-        on_turn=True,
-        used_weapon=True,
-        bow_hands=False,
-        trackers=Trackers(1),
-        used_hands=one_used,
-    ) == Quote((2,), Track.ON_TURN)
-
-    # 4. Off turn (escalation 0), unused hands:
+    # 3. Off turn (escalation 0), before attacking/shooting since turn start:
+    #    every weapon draw (including Quick-draw) is an action costing base + escalation!
     assert pricing.draw(
         bow, dagger, on_turn=False, used_weapon=False, bow_hands=False
-    ) == Quote((1,), Track.NONE)  # Quick-draw in unused hand: flat 1, not an action
+    ) == Quote((1,), Track.ON_TURN)
     assert pricing.draw(
         bow, sword, on_turn=False, used_weapon=False, bow_hands=False
-    ) == Quote((2,), Track.ON_TURN)  # Normal 1H: base 2 + 0, action
+    ) == Quote((2,), Track.ON_TURN)
     assert pricing.draw(
         bow, gs, on_turn=False, used_weapon=False, bow_hands=False
-    ) == Quote((3,), Track.ON_TURN)  # Normal 2H: base 3 + 0, action
+    ) == Quote((3,), Track.ON_TURN)
+    # With prior off-turn dash (escalation 1): Quick-draw pays 1 + 1 = 2!
+    assert pricing.draw(
+        bow, dagger, on_turn=False, used_weapon=False, bow_hands=False, trackers=Trackers(1)
+    ) == Quote((2,), Track.ON_TURN)
 
-    # 5. Off turn (escalation 0), after bow shot (both hands used):
+    # 4. Off turn (escalation 0), after attacking/shooting since turn start:
+    #    normal weapons disallowed; Quick-draw is 1 + escalation (action).
     assert (
-        pricing.draw(
-            bow, sword, on_turn=False, used_weapon=True, bow_hands=True, used_hands=bow_used
-        )
-        is None
+        pricing.draw(bow, sword, on_turn=False, used_weapon=True, bow_hands=True) is None
     )
     assert pricing.draw(
-        bow, dagger, on_turn=False, used_weapon=True, bow_hands=True, used_hands=bow_used
-    ) == Quote((1,), Track.ON_TURN)  # Quick-draw in used hand: action (taxes next turn!)
+        bow, dagger, on_turn=False, used_weapon=True, bow_hands=True
+    ) == Quote((1,), Track.ON_TURN)
 
 
 # --- Step 4 Reactions Drawing, Escalation Carryover & Point-Blank OA -----------------
@@ -456,7 +417,7 @@ def test_reaction_draw_on_melee_attack_raises_md_and_taxes_next_turn() -> None:
 
 def test_point_blank_oa_reaction_draw_cancels_shot() -> None:
     """Shooting in melee: drawing a blade in step 4 of the point-blank OA blocks with the
-    blade's MD (flat 1 stamina because hands are unused) and cancels the shot."""
+    blade's MD (1 + escalation action) and cancels the shot."""
     archer = Listed(
         turns=[Shoot("F"), EndTurn()],
         aims=[0],
@@ -473,12 +434,12 @@ def test_point_blank_oa_reaction_draw_cancels_shot() -> None:
     cancelled = [e for e in res.log if isinstance(e, ShotCancelled)]
     assert len(cancelled) == 1
     assert (cancelled[0].shooter, cancelled[0].reason) == ("A", "drew a weapon")
-    # Hands were unused before paying for the shot, so Quick-draw blade was flat 1, not an action.
+    # Every reaction draw (including Quick-draw) is an action (1 + escalation).
     draw_spent = [
         e for e in res.log if isinstance(e, Spent) and e.who == "A" and e.category == "draw"
     ]
     assert len(draw_spent) == 1
-    assert draw_spent[0].amount == 1 and draw_spent[0].track == "none"
+    assert draw_spent[0].amount == 1 and draw_spent[0].track == "on_turn"
     blk_reqs = [r for r in archer.requests if isinstance(r, BlocksRequest)]
     assert blk_reqs[0].defense == 3
 

@@ -1,9 +1,10 @@
-# Packet 0.12.1: Shields require Strength 2 (-1 AGI and -1 FIN per point below 2,
-# applied separately from armor's requirement). Extends v0_12.
+# Packet 0.12.1: Shields give +1 Ranged Defense (requires Strength 1) and +1 Melee Defense
+# (requires Strength 2), with no attribute penalties. Extends v0_12.
 [table]
 weapons = "v0_12"
 
 [shields.shield]
 melee = 1
 ranged = 1
-strength_requirement = 2
+ranged_strength = 1
+melee_strength = 2

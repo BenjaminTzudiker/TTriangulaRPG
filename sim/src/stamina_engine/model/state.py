@@ -42,13 +42,12 @@ class CombatantState:
     out: str | None = None  # "fled" or "surrendered": out of the fight without going down
     step_costs: list[int] = field(default_factory=list)  # attack steps paid this turn, unrefunded
     control: dict[str, int] = field(default_factory=dict)  # control effects' progress (stub)
-    used_weapon: bool = False  # used a weapon this turn: drawing on your turn now costs
+    used_weapon: bool = (
+        False  # attacked or shot since turn started (0.12.1 includes dash phases)
+    )
     bow_hands: bool = (
         False  # shot a bow this turn: no normal weapon into those hands until your next turn
     )
-    # Packet 0.12.1: per-hand commitment ("weapon:<name>", "shield:<name>", or None) until the
-    # start of your next turn: (main_hand, off_hand).
-    used_hands: tuple[str | None, str | None] = (None, None)
     # Packet 0.12.0 martial class core trackers:
     skip_next_recovery: bool = False  # Fighter (Second Wind): skip next end-of-turn recovery
     opportunist_used: bool = False  # Rogue (Opportunist): used since last turn ended

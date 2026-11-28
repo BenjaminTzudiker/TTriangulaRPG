@@ -26,8 +26,8 @@ next: "[[Defined Terms]]"
 | Aim step | 1 + escalation | Yes |
 | Dash | 1 + escalation | Yes |
 | Help the dying | 5 + escalation | Yes |
-| Draw a normal weapon (after acting or off-turn) | Weapon base + escalation (unused hand(s)) | Yes |
-| Draw a quick-draw weapon (after acting or off-turn) | 1 (unused hand); 1 + escalation (used hand) | Used hand only |
+| Draw a normal weapon (outside your turn) | Weapon base + escalation (only if you haven't attacked, shot or cast since turn start) | Yes |
+| Draw a quick-draw weapon (after acting or off-turn) | 1 + escalation | Yes |
 | Equip / remove a shield (on your turn) | 5 + escalation / 1 + escalation | Yes |
 | Opportunity attack | Weapon base, +1 per earlier step of that attack. At most 1 + 1 per odd Finesse, plus any stamina you hold on the target | No |
 | Avoid an opportunity attack | 1 per enemy, per square; 1 + the stamina it holds on you for the first square, if it holds you | No |

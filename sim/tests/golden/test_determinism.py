@@ -92,7 +92,7 @@ GRID_PINNED = [
     (
         "extraction_3v3.toml",  # objectives (O1)
         0,
-        "dd27d17bc023727913ea70710bd6bdb50b7860df11abcfe2abcc8a5673ff5146",
+        "cf0692a9adcb4ab09f0dfaf4cee09fcdbd8eed7faee39ae2b52ed69d76dd92ea",
     ),
     (
         "breakthrough_3v3.toml",  # objectives (O1)

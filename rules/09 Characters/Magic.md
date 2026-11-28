@@ -11,7 +11,7 @@ Magic should be optional for anyone and never required.
 
 **Casting Requirements** (*Numbers placeholder*):
 - A free hand.
-- No armor (light, medium or heavy), unless an ability says otherwise. (Shields are allowed, subject to having a free hand and meeting the shield's Strength requirement; see [[Shields]].)
+- No armor (light, medium or heavy), unless an ability says otherwise. (Shields are allowed, subject to having a free hand; see [[Shields]] for Strength requirements.)
 - Each spell states its stamina cost and how it works.
 
 **Spells run on the same stamina economy as everything else.** Costs vary from spell to spell. **TODO:** how magic is limited across fights or outside combat now that strain is shelved (see [[Not in This Version]]).

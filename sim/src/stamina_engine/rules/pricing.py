@@ -468,7 +468,6 @@ class Pricing:
         used_weapon: bool,
         bow_hands: bool,
         trackers: Trackers = FRESH,
-        used_hands: tuple[str | None, str | None] = (None, None),
     ) -> Quote | None:
         """Switching loadouts (Packet: Drawing Weapons, Shields), or None if not allowed now.
 
@@ -477,21 +476,21 @@ class Pricing:
         a quick-draw weapon. After a bow shot, no normal item can be drawn until your next turn.
 
         Under v0_12_1:
-        - Equipping a shield is an action (base 5) and removing one is an action (base 1), both
-          on your turn only, and commits the off hand to the shield until your next turn.
-        - Before acting on your turn, drawing/sheathing weapons or changing grip in unused hands
-          is free.
-        - After acting on your turn or outside your turn, drawing a normal weapon is an action
-          costing weapon base + escalation (requiring unused hand(s)); Quick-draw costs a flat
-          1 stamina (not an action) in an unused hand, or 1 + escalation (an action) in a used
-          hand.
+        - Equipping a shield is an action (base 5, disallowed after attacking/shooting on your
+          turn) and removing one is an action (base 1, freeing the hand immediately), both on
+          your turn only.
+        - Before attacking, shooting or casting on your turn, drawing/sheathing weapons and
+          changing grips are free.
+        - After attacking/shooting/casting on your turn, or outside your turn, every weapon draw
+          is an action costing weapon base + escalation: normal weapons are allowed only if you
+          haven't attacked/shot/cast since your last turn started; Quick-draw weapons (base 1)
+          are allowed either way.
         Armor can't change mid-fight, so loadouts with other armor aren't offered."""
         if new.name == current.name or new.armor_name != current.armor_name:
             return None
         if self.rules.ranged.draw_rules_mode() == "v0_12_1":
             return self._draw_v0_12_1(
-                current, new, on_turn=on_turn, used_weapon=used_weapon,
-                trackers=trackers, used_hands=used_hands,
+                current, new, on_turn=on_turn, used_weapon=used_weapon, trackers=trackers
             )
         held = {current.weapon.name if current.weapon else None, current.shield}
         if current.off_hand_weapon is not None:
@@ -516,37 +515,31 @@ class Pricing:
         on_turn: bool,
         used_weapon: bool,
         trackers: Trackers,
-        used_hands: tuple[str | None, str | None],
     ) -> Quote | None:
         r = self.rules.ranged
-        uh_main, uh_off = used_hands
-        non_action_parts: list[int] = []
         action_bases: list[int] = []
 
-        # 1. Shield equip / remove (on your turn only; commits the off hand).
+        # 1. Shield equip / remove (on your turn only; removing frees the hand immediately).
         removing_shield = current.shield is not None and new.shield != current.shield
         equipping_shield = new.shield is not None and new.shield != current.shield
         if removing_shield or equipping_shield:
             if not on_turn:
                 return None
+            if equipping_shield and used_weapon:
+                return None
             if removing_shield:
-                if uh_off is not None and uh_off != f"shield:{current.shield}":
-                    return None
                 action_bases.append(r.shield_remove_cost())
-                uh_off = f"shield:{current.shield}"
             if equipping_shield:
-                if uh_off is not None and uh_off != f"shield:{new.shield}":
-                    return None
                 action_bases.append(r.shield_equip_cost())
-                uh_off = f"shield:{new.shield}"
 
-        # 2. Grip change on a retained weapon requires unused hands.
+        # 2. Grip change on a retained weapon is allowed only on your turn before acting.
+        free_window = on_turn and not used_weapon
         if (
             current.weapon is not None
             and new.weapon is not None
             and current.weapon.name == new.weapon.name
             and current.weapon.grip != new.weapon.grip
-            and (uh_main is not None or uh_off is not None)
+            and not free_window
         ):
             return None
 
@@ -559,53 +552,21 @@ class Pricing:
             for w in (new.weapon, new.off_hand_weapon)
             if w is not None and w.name not in cur_weapons
         ]
-
-        # Which hand slots remain free AND unused after placing retained items in `new`?
-        slot_unused = [uh_main is None, uh_off is None]
-        if new.shield is not None:
-            slot_unused[1] = False
-        if new.weapon is not None and new.weapon.name in cur_weapons:
-            slot_unused[0] = False
-            if new.weapon.grip == "two":
-                slot_unused[1] = False
-        if new.off_hand_weapon is not None and new.off_hand_weapon.name in cur_weapons:
-            slot_unused[1] = False
-
-        free_window = on_turn and not used_weapon
-        for w in new_weapons:
-            if w.grip == "two":
-                if not (slot_unused[0] and slot_unused[1]):
-                    return None
-                slot_unused[0] = False
-                slot_unused[1] = False
-                if not free_window:
+        if not free_window:
+            for w in new_weapons:
+                if w.quick_draw or not used_weapon:
                     action_bases.append(w.base)
-            else:
-                unused_idx = (
-                    0 if slot_unused[0] else (1 if slot_unused[1] else None)
-                )
-                if unused_idx is not None:
-                    slot_unused[unused_idx] = False
-                    if not free_window:
-                        if w.quick_draw:
-                            non_action_parts.append(w.base)
-                        else:
-                            action_bases.append(w.base)
                 else:
-                    if w.quick_draw:
-                        action_bases.append(w.base)
-                    else:
-                        return None
+                    return None
 
         prior = trackers.actions_this_turn
         action_parts = tuple(
             base + self.rules.surcharge.surcharge(prior + i)
             for i, base in enumerate(action_bases)
         )
-        parts = tuple(non_action_parts) + action_parts
         if action_parts:
-            return Quote(parts, Track.ON_TURN, free_parts=len(non_action_parts))
-        return Quote(parts)
+            return Quote(action_parts, Track.ON_TURN)
+        return Quote(())
 
     def strain_ability(
         self, stamina_cost: int, strain_cost: int, trackers: Trackers, strain_max: int

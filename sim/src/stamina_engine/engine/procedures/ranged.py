@@ -245,15 +245,8 @@ def shoot(
             on_commit()
         b.ops.emit(ShotDeclared(shooter.id, target.id, aims, band, int(level)))
         b.ops.spend(shooter, quotes[aims], "shot")
-        if b.state.turn_of == shooter.id:
-            b.ops.use_weapon(
-                shooter, bow=True, weapon=weapon.name, two_handed=weapon.grip == "two"
-            )
-        else:
-            tag = f"weapon:{weapon.name}"
-            b.ops.use_hands(
-                shooter, main=tag, off=tag if weapon.grip == "two" else None
-            )
+        if b.state.turn_of == shooter.id or b.rules.ranged.draw_rules_mode() == "v0_12_1":
+            b.ops.use_weapon(shooter, bow=True)
         if aims < required:
             b.ops.emit(ShotMissed(shooter.id, target.id, f"{band} range needs {required} aims"))
         else:
@@ -431,7 +424,6 @@ def draw_options(b: Battle, c: CombatantState, on_turn: bool) -> tuple[DrawOptio
             used_weapon=c.used_weapon,
             bow_hands=c.bow_hands,
             trackers=c.trackers,
-            used_hands=c.used_hands,
         )
         if q is not None and q.total <= c.stamina:
             out.append(DrawOption(lo.name, q))
@@ -448,17 +440,11 @@ def draw(b: Battle, c: CombatantState, loadout: str, on_turn: bool) -> None:
         used_weapon=c.used_weapon,
         bow_hands=c.bow_hands,
         trackers=c.trackers,
-        used_hands=c.used_hands,
     )
     assert q is not None
     if q.total or q.advances:
         b.ops.spend(c, q, "draw")
     b.ops.draw(c, loadout, q.total)
-    if b.rules.ranged.draw_rules_mode() == "v0_12_1":
-        if cur.shield is not None and new.shield != cur.shield:
-            b.ops.use_hands(c, off=f"shield:{cur.shield}")
-        elif new.shield is not None and new.shield != cur.shield:
-            b.ops.use_hands(c, off=f"shield:{new.shield}")
 
 
 def react_draw(

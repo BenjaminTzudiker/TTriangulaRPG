@@ -117,11 +117,10 @@ def declare_steps(
     b.ops.emit(AttackDeclared(attacker.id, target.id, steps))
     b.ops.spend(attacker, quotes[steps - 1], "attack")
     if b.state.turn_of == attacker.id:
-        b.ops.use_weapon(attacker, weapon=weapon.name, two_handed=weapon.grip == "two")
+        b.ops.use_weapon(attacker)
         b.ops.record_steps(attacker, quotes[steps - 1].parts)
-    else:
-        tag = f"weapon:{weapon.name}"
-        b.ops.use_hands(attacker, main=tag, off=tag if weapon.grip == "two" else None)
+    elif b.rules.ranged.draw_rules_mode() == "v0_12_1":
+        b.ops.use_weapon(attacker)
     return steps
 
 

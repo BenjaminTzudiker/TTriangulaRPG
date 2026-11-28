@@ -513,12 +513,14 @@ def v0_12_0() -> RuleSet:
 
 def v0_12_1() -> RuleSet:
     """Packet 0.12.1: 0.12.0 with weapon proficiencies shelved (Ledger H-11), dual wielding
-    shelved (Ledger H-12, no second-weapon +1 Melee Defense), shields requiring Strength 2
-    (equipment table v0_12_1) with base-5 equip and base-1 remove actions on your turn, and
-    unified used-hand drawing rules (off-turn / post-action normal draws as actions costing
-    weapon base + escalation into unused hands; Quick-draw flat 1 stamina in unused hands or
-    1 + escalation as an action in used hands; off-turn drawing in dash phases and step 4
-    Reactions)."""
+    shelved (Ledger H-12, no second-weapon +1 Melee Defense), shields with tiered Strength
+    requirements (+1 Ranged Defense at STR 1, +1 Melee Defense at STR 2, no attribute
+    penalties; equipment table v0_12_1) and base-5 equip / base-1 remove actions on your turn
+    (removing frees the hand immediately), and simplified drawing rules (free before attacking,
+    shooting, or casting; after that or outside your turn in dash phases / step 4 Reactions,
+    every paid draw is an action costing weapon base + escalation, with normal weapons
+    requiring not having attacked/shot/cast since turn start and Quick-draw weapons allowed
+    either way)."""
     base = v0_12_0()
     assert isinstance(base.defenses, V09Defenses)
     assert isinstance(base.ranged, V09Ranged)
